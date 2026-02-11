@@ -18,7 +18,10 @@
 5. Git reset
     - `git reset <file>` remove staged files from staging area.
     - `git reset <hash_commit>` moves current branch pointer to specified 
-        commit may affect Index and Working Directory depending on mode (use local only!!).
+        commit may affect Index and Working Directory depending on mode (use local only!!)
+        - --soft  (move branch only)
+        - --mixed (move branch + reset Index) [default]
+        - --hard  (move branch + reset Index + reset Working Directory)
 6. Git revert
     - `git revert <hash_commit>` to create a new commit that cancels the 
         specified one.
