@@ -1,3 +1,4 @@
+# What is GIt
 1. Primative version control 
     - Manual copy --> inefficient and error-prone.
     - chaos from manual backups(have many backups).
@@ -6,15 +7,17 @@
     - Maintains a history of who, what, when.
     - every commit is content-addressed (hash).
     - Enables easy roolback to stable version.
+# Git Setup    
 3. Set up User
     - `git config --global user.name "Name" ` 
     - `git config --global user.email "example@email.com"`
     - These two command use to set up user to identify who is commit and who is author.
 4. Three git areas
-    - 1. Working Tree (Working Directory) real file on disk that editable.
-    - 2. Stageing Area (Index) prepares snapshot to be commited. 
-    - 3. Git Directory (Repository, Local Repo) stored in .git that contain snapshot with unique hash
+    -  Working Tree (Working Directory) real file on disk that editable.
+    -  Stageing Area (Index) prepares snapshot to be commited. 
+    -  Git Directory (Repository, Local Repo) stored in .git that contain snapshot with unique hash
         Commit does NOT read from Working Directory. It reads only from Index.
+# Basic Git command
 5. Checking progress
     - `git status` --> show file states (modified, staged)
     - Recommended use before commit.
