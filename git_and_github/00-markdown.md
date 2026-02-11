@@ -32,3 +32,6 @@
 |---------|----------|
 | git add | stage file |
 | git commit | create snapshot |
+
+# PIC
+    ![Name_of_pic](path_of_pic)
