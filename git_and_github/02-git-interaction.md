@@ -4,7 +4,7 @@
     - It won't worked for new file (untracked) must add them first.
     - `git commit --amend` this will overwrite the most recent commit.
         Use when add missing file or update commit message
-        can use with `git add` first  
+        can use with `git add` first (only local!!).
 2. Delete and Rename
     - `git rm <file>` removes from repo. 
     - `git mv old new` renames or moves files within repo.
@@ -22,3 +22,5 @@
     - `git revert <hash_commit>` to create a new commit that cancels the 
         specified one.
     - This can keep consistent without deleting commits.
+# Diagram
+![Git Areas](Git-diagram.png)
