@@ -17,7 +17,7 @@
     -  Stageing Area (Index) prepares snapshot to be commited. 
     -  Git Directory (Repository, Local Repo) stored in .git that contain snapshot with unique hash
         Commit does NOT read from Working Directory. It reads only from Index.
-     ![Git Areas](GIt-diagram.png)
+     ![Git Areas](Git-diagram.png)
 # Basic Git command
 5. Checking progress
     - `git status` --> show file states (modified, staged)
