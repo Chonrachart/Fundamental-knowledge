@@ -1,3 +1,4 @@
+# More Git interaction
 1. Advance commit
     - `git commit -am "commit message"` stages and commits all modified tracked files (does NOT include untracked files).
     - It won't worked for new file (untracked) must add them first.
