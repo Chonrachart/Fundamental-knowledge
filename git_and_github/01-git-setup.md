@@ -26,6 +26,7 @@
 7. Git log
     - `git log` --> show commits with author, date, and commit message.
     - `git log --oneline` --> show only hash of each commit and commit message.
+    - `git log -p` --> show the patch (diff) for each commit.
 8. Pointer in git log
     - [Branch_name] = pointer to the latest commit in that branch.
     - HEAD = pointer to the currently checked-out branch(in use).
