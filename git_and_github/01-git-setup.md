@@ -1,4 +1,4 @@
-# What is GIt
+# What is GIT
 1. Primative version control 
     - Manual copy --> inefficient and error-prone.
     - chaos from manual backups(have many backups).
