@@ -78,6 +78,17 @@ Merge Result
 
 ![three-way-merge_result](./pic/git-merge-three-way.png)
 
+### Merge conflict
+
+- Happens when both branch edited the same part of a file.
+  Git can't auto merge.
+- Needed to reslove before actualy merge.
+
+#### Merge conflict rersolve
+
+- Edit conflicting file(s) keep the correct version(s) then remove 
+  remove conflict markers.
+- After edited `git add <file>` then `git commit`.
 
 
   
