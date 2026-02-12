@@ -46,6 +46,28 @@ git merge <name>
 
 - Combines another branch into the current one.
 
+#### Merge Type
+
+- **Fast-Forward merge** happen when destination branch don't have new commit after 
+    seperate branch
+
+Situation
+
+![fast-forward-situation](./pic/git-before-branch-ff.png)
+
+Merge Result
+
+![fast-forward-result](./pic/git-merge-ff.png)
+
+- **Three way merge** happen when each branch have own new commit.
+  
+Situation
+
+![three-way-merge-situation](./pic/git-before-branch_three-way.png)
+
+Merge Result
+
+![three-way-merge_result](./pic/git-merge-three-way.png)
 
 
 
