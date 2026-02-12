@@ -7,6 +7,9 @@
 - Maintains a history of who, what, when.
 - every commit is content-addressed (hash).
 - Enables easy roolback to stable version.
+
+---
+
 # Git Setup    
 ### Set up User
 ```sh
@@ -21,6 +24,8 @@ git config --global user.email "example@email.com"
   Commit does NOT read from Working Directory. It **reads only from Index**.
 
      ![Git Areas](./pic/Git-diagram.png)
+
+---
 
 # Basic Git command
 

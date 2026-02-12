@@ -16,6 +16,9 @@ git commit --amend
 - rewrites the most recent commit (creates a new
     commit with a new hash). Use when add missing file or update commit message
     can use with `git add` first (only local!!).
+
+---
+
 ### Delete and Rename
 
 ```bash
@@ -29,6 +32,9 @@ git mv old new
 ```
 
 -  renames or moves files within repo.
+
+---
+
 
 ### DIFF
 
@@ -44,6 +50,9 @@ git diff --staged
 
 - show different staging area vs last commit "what to be commit".
 
+---
+
+
 ### Discard unstaged change
 
 ```bash
@@ -57,6 +66,8 @@ git restore --sourec=HEAD <file>
 ```
 
 -  restores file in Working Directory from HEAD commit.
+
+---
 
 ### Git reset
 
@@ -76,6 +87,8 @@ git reset <hash_commit>
      - --mixed (move branch + reset Index) [default]
      - --hard  (move branch + reset Index + reset Working Directory)
 
+---
+
 ### Git revert
 
 ```bash
@@ -84,6 +97,8 @@ git revert <hash_commit>
 
 -  to create a new commit that cancels the specified one.
 - This can keep consistent without deleting commits.
+
+---
 
 # Diagram
 
