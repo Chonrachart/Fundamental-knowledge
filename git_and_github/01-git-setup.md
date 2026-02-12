@@ -49,18 +49,18 @@ git status
 ```bash
 git log 
 ```
-show commits with author, date, and commit message.
+- show commits with author, date, and commit message.
 
 ```bash
 git log --oneline
 ``` 
 
-show only hash of each commit and commit message.
+- show only hash of each commit and commit message.
 
 ```bash
 git log -p
 ```
-show the patch (diff) for each commit.
+- show the patch (diff) for each commit.
 
 ### Pointer in git log
     
