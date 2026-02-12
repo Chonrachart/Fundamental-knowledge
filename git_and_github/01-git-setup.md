@@ -26,7 +26,7 @@ git config --global user.email "example@email.com"
 
 ### Checking progress
 
-```bash
+```sh
 git status
 ```
 
@@ -49,7 +49,7 @@ git commit -m "commit message"
 for quick commits.
 ### Git log
 
-```bash
+```sh
 git log 
 ```
 - show commits with author, date, and commit message.
