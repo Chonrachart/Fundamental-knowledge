@@ -25,4 +25,28 @@ git branch <name>
 ```
 
 - This command use for create new branch.
+
+```bash
+git branch -d <name>
+```
+
+- safely removes merged branches and `-D` forces delete.
+  
+```bash
+git switch <name>
+```
+
+- This command will change working directory to that branch's snapshot.
+
+### Merge
+
+```bash
+git merge <name>
+```
+
+- Combines another branch into the current one.
+
+
+
+
   
