@@ -70,7 +70,3 @@ git log -p
 - [Branch_name] = pointer to the latest commit in that branch.
 - HEAD = pointer to the currently checked-out branch(in use).
 - pointer flow {HEAD → branch → commit}
-
-```python
-print("hello")
-```
