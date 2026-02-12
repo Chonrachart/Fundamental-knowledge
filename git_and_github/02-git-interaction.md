@@ -87,4 +87,4 @@ git revert <hash_commit>
 
 # Diagram
 
-![Git Areas](Git-diagram.png)
+![Git Areas](./pic/Git-diagram.png)

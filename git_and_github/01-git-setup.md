@@ -20,7 +20,7 @@ git config --global user.email "example@email.com"
 -  **Git Directory** (Repository, Local Repo) stored in .git that contain snapshot with unique hash
   Commit does NOT read from Working Directory. It **reads only from Index**.
 
-     ![Git Areas](Git-diagram.png)
+     ![Git Areas](./pic/Git-diagram.png)
 
 # Basic Git command
 
