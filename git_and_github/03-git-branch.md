@@ -1,14 +1,14 @@
 # GIT Branch
 
-### What are GIT branches
+### What are Git branches
 
-- A movable to a commit that represents an independent line of
+- A movable pointer to a commit that represents an independent line of
   development
 
 ### Why to use branches
 
-- To **isolate** work without breakeng the main project.
-- Allow experimentation can merge when stable or discard easily.
+- To **isolate** work without breaking the main project.
+- Allows experimentation that can be merged when stable or discard easily.
 
 ![Git-Branches](./pic/git-branches.png)
 
@@ -30,7 +30,7 @@ git branch <name>
 git branch -d <name>
 ```
 
-- safely removes merged branches and `-D` forces delete.
+- safely removes merged branches. `-D` forces delete.
   
 ```bash
 git switch <name>
@@ -48,10 +48,11 @@ git merge <name>
 
 #### Merge Type
 
-- **Fast-Forward merge** happen when the target branch has **No** new commits on
-   target branch.
+- **Fast-forward merge** happen when the target branch has no new commits since 
+    the feature branch was created.
 
-    - This only move pointer to last
+    - This only moves the branch pointer to the latest commit of the merged branch.
+    - **No merge commit is created**.
 
 Situation
 
@@ -63,7 +64,11 @@ Merge Result
 
 - **Three way merge** happens when both branches have new commits after diverging.
     
-    - This create new commit with 2 ancestor in example from E and G
+    - **Creates a new merge commit** with two parents in 
+      example from E and G
+    - Git compares three commits: the common ancestor, the HEAD of the 
+      target branch, and the HEAD of the merging branch.
+    - May result in a **merge conflict**.
   
 Situation
 
