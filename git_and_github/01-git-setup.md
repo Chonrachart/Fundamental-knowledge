@@ -9,7 +9,7 @@
 - Enables easy roolback to stable version.
 # Git Setup    
 ### Set up User
-```
+```bash
 git config --global user.name "Name"  
 git config --global user.email "example@email.com"
 ```
@@ -19,16 +19,20 @@ git config --global user.email "example@email.com"
 -  **Stageing Area** (Index) prepares snapshot **to be commited**. 
 -  **Git Directory** (Repository, Local Repo) stored in .git that contain snapshot with unique hash
   Commit does NOT read from Working Directory. It **reads only from Index**.
+
      ![Git Areas](Git-diagram.png)
+
 # Basic Git command
+
 ### Checking progress
-    ```
-    git status
-    ``` 
-    -  show file states (modified, staged)
-    - Recommended use before commit.
+
+```bash
+git status
+``` 
+- show file states (modified, staged)
+- Recommended use before commit.
 ### Making commit
-- Each commit points to its parent commit, forming a linked history chain.V
+- Each commit points to its parent commit, forming a linked history chain.
     ```
     git commit
     ```
@@ -41,15 +45,19 @@ git config --global user.email "example@email.com"
     ``` 
     for quick commits.
 ### Git log
-```
+
+```bash
 git log 
 ```
 show commits with author, date, and commit message.
-```
+
+```bash
 git log --oneline
 ``` 
+
 show only hash of each commit and commit message.
-```
+
+```bash
 git log -p
 ```
 show the patch (diff) for each commit.
