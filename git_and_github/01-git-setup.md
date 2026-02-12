@@ -27,23 +27,26 @@ git config --global user.email "example@email.com"
 ### Checking progress
 
 ```bash
-git statusdd
+git status
 ```
 
 - show file states (modified, staged)
 - Recommended use before commit.
 ### Making commit
 - Each commit points to its parent commit, forming a linked history chain.
-    ```
-    git commit
-    ```
-    -  Creates a new commit from the staging area and moves the current branch pointer.
+  
+```bash
+git commit
+```
+
+-  Creates a new commit from the staging area and moves the current branch pointer.
     
-    use 
-    ```
-    git commit -m "commit message"
-    ``` 
-    for quick commits.
+use 
+
+```bash
+git commit -m "commit message"
+``` 
+for quick commits.
 ### Git log
 
 ```bash
