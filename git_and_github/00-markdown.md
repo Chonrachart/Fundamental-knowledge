@@ -22,16 +22,16 @@
 [Name_to_show](https://git-scm.com/docs)
 
 # Table
-### | Command | Purpose |
-### |---------|----------|
-### | git add | stage file |
-### | git commit | create snapshot |
+### | Command    |         Purpose | aaaaa  |
+### | :--------- | --------------: | :----: |
+### | git add    |      stage file |   b    |
+### | git commit | create snapshot | fsdfsd |
 
 
-| Command | Purpose |
-|---------|----------|
-| git add | stage file |
-| git commit | create snapshot |
+| Command    |         Purpose | aaaaa  |
+| :--------- | --------------: | :----: |
+| git add    |      stage file |   b    |
+| git commit | create snapshot | fsdfsd |
 
 # PIC
     ![Name_of_pic](path_of_pic)
