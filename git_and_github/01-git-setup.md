@@ -9,7 +9,7 @@
 - Enables easy roolback to stable version.
 # Git Setup    
 ### Set up User
-```bash
+```sh
 git config --global user.name "Name"  
 git config --global user.email "example@email.com"
 ```
@@ -26,7 +26,7 @@ git config --global user.email "example@email.com"
 
 ### Checking progress
 
-```bash
+```sh
 git status
 ``` 
 - show file states (modified, staged)
@@ -36,8 +36,7 @@ git status
     ```
     git commit
     ```
-    -  saves current snapshot that in staged area this will open nano editor to
-        assign commit message save it will creates a new commit object and moves the current branch pointer.
+    -  Creates a new commit from the staging area and moves the current branch pointer.
     
     use 
     ```
@@ -46,18 +45,18 @@ git status
     for quick commits.
 ### Git log
 
-```bash
+```sh
 git log 
 ```
 - show commits with author, date, and commit message.
 
-```bash
+```sh
 git log --oneline
 ``` 
 
 - show only hash of each commit and commit message.
 
-```bash
+```sh
 git log -p
 ```
 - show the patch (diff) for each commit.
