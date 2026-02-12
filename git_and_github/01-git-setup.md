@@ -26,9 +26,10 @@ git config --global user.email "example@email.com"
 
 ### Checking progress
 
-```sh
+```bash
 git status
-``` 
+```
+
 - show file states (modified, staged)
 - Recommended use before commit.
 ### Making commit
@@ -45,7 +46,7 @@ git status
     for quick commits.
 ### Git log
 
-```sh
+```bash
 git log 
 ```
 - show commits with author, date, and commit message.
