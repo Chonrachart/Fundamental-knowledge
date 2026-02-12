@@ -27,7 +27,7 @@ git config --global user.email "example@email.com"
 ### Checking progress
 
 ```bash
-git status
+git statusdd
 ```
 
 - show file states (modified, staged)
