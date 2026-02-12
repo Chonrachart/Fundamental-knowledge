@@ -12,6 +12,8 @@
 
 ![Git-Branches](./pic/git-branches.png)
 
+---
+
 ### Command
 
 ```bash
@@ -37,6 +39,8 @@ git switch <name>
 ```
 
 - Switches to the specified branch and updates the working directory.
+
+---
 
 ### Merge
 
@@ -80,15 +84,28 @@ Merge Result
 
 ### Merge conflict
 
-- Happens when both branch edited the same part of a file.
-  Git can't auto merge.
-- Needed to reslove before actualy merge.
+- Happens when both branches edit the same part of a file and Git cannot
+  automatically merge the changes.
+- Must be resolved before the merge can be completed.
 
 #### Merge conflict rersolve
 
-- Edit conflicting file(s) keep the correct version(s) then remove 
-  remove conflict markers.
-- After edited `git add <file>` then `git commit`.
+- Open the conflicting file(s).
+- Edit and keep the correct changes.
+- Remove the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
+- After editing, run:
 
+```bash
+git add <file>
+git commit
+```
+  
+#### Cancle merge
 
+```bash
+git merge --abort
+```
+
+- Aborts the merge process and restores the repository to the state before the 
+  merge started.
   
