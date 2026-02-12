@@ -55,7 +55,7 @@ git log
 - show commits with author, date, and commit message.
 
 ```sh
-git log --oneline
+git log --oneline --graph
 ``` 
 
 - show only hash of each commit and commit message.
