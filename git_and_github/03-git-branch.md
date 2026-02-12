@@ -2,7 +2,7 @@
 
 ### What are GIT branches
 
-- A pointer to a commit that represents an independent line of
+- A movable to a commit that represents an independent line of
   development
 
 ### Why to use branches
@@ -18,13 +18,13 @@
 git branch
 ```
 
-- This command use for list all branch in Repository.
+- Lists all branches in the repository.
 
 ```bash
 git branch <name>
 ```
 
-- This command use for create new branch.
+- Creates a new branch at the current commit.
 
 ```bash
 git branch -d <name>
@@ -36,7 +36,7 @@ git branch -d <name>
 git switch <name>
 ```
 
-- This command will change working directory to that branch's snapshot.
+- Switches to the specified branch and updates the working directory.
 
 ### Merge
 
@@ -48,8 +48,10 @@ git merge <name>
 
 #### Merge Type
 
-- **Fast-Forward merge** happen when destination branch don't have new commit after 
-    seperate branch
+- **Fast-Forward merge** happen when the target branch has **No** new commits on
+   target branch.
+
+    - This only move pointer to last
 
 Situation
 
@@ -59,7 +61,9 @@ Merge Result
 
 ![fast-forward-result](./pic/git-merge-ff.png)
 
-- **Three way merge** happen when each branch have own new commit.
+- **Three way merge** happens when both branches have new commits after diverging.
+    
+    - This create new commit with 2 ancestor in example from E and G
   
 Situation
 
