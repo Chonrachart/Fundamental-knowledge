@@ -69,6 +69,37 @@ git merge <upstream-branch>
 - It pull from the configured upstream branch.
 
 
+# Git Rebase
 
+- change the **base commit** of a branch.
+- Avoids creating merge commits by rewriting history into a linear sequence.
+- **!!! Do NOT rebase public/shared branches that have already been pushed.**.
+  
+## Step to Rebase (use local before push)
+
+1. git switch <main_branch>
+2. git pull
+3. git switch <feature_branch>
+4. git rebase <main_branch>
+5. git push
+
+Senario 
+
+![git-before-rebase](./pic/git-before-rebase.png)
+
+result
+
+![git-after-rebase](./pic/git-after-rebase.png)
+
+### Rebase conflict handling
+
+- Happens when both branch edit the same part of a file.
+    - open file --> remove conflict marker --> keep correct logic
+    - After fixing use `git add <file(s)>` --> `git rebase --continue`
+  
+### Cleaning **After merge**
+
+- Delete remote branch `git push --delete <remote_repository> <branch_name>`
+- Delete local branch `git branch -d <branch_name>`
 
 
