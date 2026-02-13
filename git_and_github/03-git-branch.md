@@ -21,18 +21,9 @@ git branch
 ```
 
 - Lists all branches in the repository.
-
-```bash
-git branch <name>
-```
-
-- Creates a new branch at the current commit.
-
-```bash
-git branch -d <name>
-```
-
-- safely removes merged branches. `-D` forces delete.
+- Use `git branch <name>` to Creates a new branch at the current commit.
+- Use `git branch -d <name>` safely removes merged branches. `-D` forces delete.
+- Use `git branch -vv` to show all branch and tracking branch.
   
 ```bash
 git switch <name>
