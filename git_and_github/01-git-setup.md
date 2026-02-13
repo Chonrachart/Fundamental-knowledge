@@ -44,31 +44,19 @@ git status
 git commit
 ```
 
--  Creates a new commit from the staging area and moves the current branch pointer.
-    
-use 
+- Creates a new commit from the staging area and moves the current branch pointer.
+- Use `git commit -m "commit message"` for quick commits.
 
-```bash
-git commit -m "commit message"
-``` 
-for quick commits.
 ### Git log
 
 ```sh
 git log 
 ```
 - show commits with author, date, and commit message.
+- Use `git log --oneline --graph` show only hash of each commit and commit message.
+- Use `git log -p` show the patch (diff) for each commit.
 
-```sh
-git log --oneline --graph
-``` 
-
-- show only hash of each commit and commit message.
-
-```sh
-git log -p
-```
-- show the patch (diff) for each commit.
+---
 
 ### Pointer in git log
     

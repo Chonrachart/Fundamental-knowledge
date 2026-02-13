@@ -35,7 +35,6 @@ git mv old new
 
 ---
 
-
 ### DIFF
 
 ```bash
@@ -43,15 +42,10 @@ git diff
 ``` 
 
 - show different working directory vs staging area "what changed but not staged".
-
-```bash
-git diff --staged
-``` 
-
-- show different staging area vs last commit "what to be commit".
+- Use `git diff --staged` show different staging area vs last commit "what to be 
+  commit".
 
 ---
-
 
 ### Discard unstaged change
 
@@ -60,12 +54,8 @@ git restore <file>
 ```
 
 - restores file in Working Directory from Index.
-
-```bash
-git restore --sourec=HEAD <file>
-```
-
--  restores file in Working Directory from HEAD commit.
+- Use `git restore --sourec=HEAD <file>` restores file in Working Directory from 
+  HEAD commit.
 
 ---
 
