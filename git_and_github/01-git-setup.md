@@ -63,3 +63,21 @@ git log
 - [Branch_name] = pointer to the latest commit in that branch.
 - HEAD = pointer to the currently checked-out branch(in use).
 - pointer flow {HEAD → branch → commit}
+
+### .gitignore
+
+- A file that tells Git which files or directories should NOT be tracked.
+- .gitignore does NOT remove files from your system, it only prevents Git 
+  from tracking them.
+- Affects only untrack files.
+- If already commit use `git rm --cached file_want_to_ignore` then commit the change.
+
+#### Basic syntax
+
+ | Pattern           | Meaning                              |
+ | :---------------- | :----------------------------------- |
+ | file.txt          | ignore file.txt                      |
+ | *.log             | ignore all .log file                 |
+ | folder/           | ignore entire folder/                |
+ | !important.txt    | do not ignore this file              |
+ | *.log + !keep.log | ignore all .log file except keep.log |
