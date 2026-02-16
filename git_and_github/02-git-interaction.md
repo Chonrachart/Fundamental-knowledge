@@ -54,7 +54,7 @@ git restore <file>
 ```
 
 - restores file in Working Directory from Index.
-- Use `git restore --sourec=HEAD <file>` restores file in Working Directory from 
+- Use `git restore --source=HEAD <file>` restores file in Working Directory from 
   HEAD commit.
 
 ---
