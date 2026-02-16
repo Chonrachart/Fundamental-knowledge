@@ -15,6 +15,8 @@
 # Inline Code
     use `code`
 
+# Bold
+  press ctrl+b  or ** two**
 # List
     - use <-> to create bullet point
 # Links
@@ -26,6 +28,7 @@
 ### | :--------- | --------------: | :----: |
 ### | git add    |      stage file |   b    |
 ### | git commit | create snapshot | fsdfsd |
+press alt+shift+f to auto adjust
 
 
 | Command    |         Purpose | aaaaa  |
