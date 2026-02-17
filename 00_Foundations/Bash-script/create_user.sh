@@ -35,5 +35,8 @@ chown "$user":"$user" /home/"$user"/.ssh/authorized_keys
 passwd -l "$user"
 if [ "$role" = "sudo" ]; then
     usermod -aG sudo "$user"
+    echo "$user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/"$user" 
+    chmod 440 /etc/sudoers.d/"$user"
+    visudo -cf /etc/sudoers.d/"$user" #-c check -f file
 fi
 echo "User $user created successfully."
