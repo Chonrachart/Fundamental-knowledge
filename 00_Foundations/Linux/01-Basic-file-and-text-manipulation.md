@@ -161,6 +161,8 @@ EOF
 - Everything between `<< EOF` and the ending `EOF` is sent to the command as 
   standard input.
 
+---
+
 ### Cut
 
 ```bash
@@ -176,6 +178,7 @@ cat file.txt | cut -d ',' -f2
   fields to extract.
 - `cut -c1-5 <file>` extarct specific character position.
 
+---
 
 ### sort
 
@@ -194,6 +197,8 @@ Common Options
 - `-u` unique (remove duplicates)
 - `-k<column_num>` specify which column to sort by.
 - `-t'[delimeter]` specify which field delimiter (when sorting by columns).
+
+---
 
 ### zcat
 
