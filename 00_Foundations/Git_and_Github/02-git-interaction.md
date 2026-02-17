@@ -88,8 +88,6 @@ git revert <hash_commit>
 -  to create a new commit that cancels the specified one.
 - This can keep consistent without deleting commits.
 
----
-
 # Diagram
 
 ![Git Areas](./pic/Git-diagram.png)
