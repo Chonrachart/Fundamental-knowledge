@@ -11,7 +11,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 # 2 argument or 3 argument only $# numbered argument passed
 if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
-    echo "Usage: sudo ./create_user.sh <username> \"<public_key>\" [sudo]"
+    echo "ERROR Usage: sudo ./create_user.sh <username> \"<public_key>\" [sudo]"
     exit 1
 fi
 # || return right value if left false  -z mean string lenght zero return true
@@ -35,8 +35,9 @@ chown "$user":"$user" /home/"$user"/.ssh/authorized_keys
 passwd -l "$user"
 if [ "$role" = "sudo" ]; then
     usermod -aG sudo "$user"
-    echo "$user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/"$user" 
-    chmod 440 /etc/sudoers.d/"$user"
-    visudo -cf /etc/sudoers.d/"$user" #-c check -f file
+    sudo_file="/etc/sudoers.d/${user//[^a-zA-Z0-9_-]/_}"
+    echo "$user ALL=(ALL) NOPASSWD:ALL" > "$sudo_file" 
+    chmod 440 "$sudo_file"
+    visudo -cf "$sudo_file" #-c check -f file
 fi
 echo "User $user created successfully."
