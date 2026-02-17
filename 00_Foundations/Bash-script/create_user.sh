@@ -26,5 +26,5 @@ chown "$user":"$user" /home/"$user"/.ssh
 echo "$pub_key" > /home/"$user"/.ssh/authorized_keys
 chmod 600 /home/"$user"/.ssh/authorized_keys
 chown "$user":"$user" /home/"$user"/.ssh/authorized_keys
-passwd -L "$user"
+passwd -l "$user"
 echo "User $user created successfully."
