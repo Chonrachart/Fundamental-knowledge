@@ -137,6 +137,7 @@ cmd > /dev/null
 - `>` redirects stdout, overwrites file.
 - `>>` redirects stdout, append file.
 - `<` redirects stdin from file.
+- `<<` redirects stdin from script.
 - `2>` redirects stderr.
 - `/dev/null` is a special device that discards data.
 - Linux processes communicate via file descriptors:
@@ -146,6 +147,51 @@ cmd > /dev/null
 
 # Other useful command
 
+### EOF
+
 ```bash
-cat <path> << EOFgit dgdgdfsdfssfsd
+cat <path> << EOF 
+line1
+line2
+EOF
 ```
+
+- `<< EOF` starts a here-document.
+- `EOF` is a delimiter (marker) that tells the shell where the input ends.
+- Everything between `<< EOF` and the ending `EOF` is sent to the command as 
+  standard input.
+
+### Cut
+
+```bash
+cut [option] <file>
+cat file.txt | cut -d ',' -f2
+```
+
+- Use to extract (cut out) specific parts of each line from a file or standrd
+  input.
+- `cut -d'[delimiter]' <file>` Specifies the delimiter (character separating fields).
+  Default delimiter is TAB.
+- `cut -d'[delimeter]'-f<field_number> <file>` specify the delimiter and which 
+  fields to extract.
+- `cut -c1-5 <file>` extarct specific character position.
+
+
+### sort
+
+```bash
+sort [option] <file>
+sort -n numbers.txt
+sort -u name.txt
+sort -t',' -k2 data.csv
+```
+- Sorts lines of text from a file or standard input.
+- By default, sorts in ascending order (dictionary).
+
+Common Options
+- `-r` Reverse the result (descending order).
+- `-n` Sort numerically instead of alphabetically.
+- `-u` unique (remove duplicates)
+- `-k<column_num>` specify which column to sort by.
+- `-t'[delimeter]` specify which field delimiter (when sorting by columns).
+
