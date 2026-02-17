@@ -8,8 +8,6 @@
 - every commit is content-addressed (hash).
 - Enables easy roolback to stable version.
 
----
-
 # Git Setup    
 ### Set up User
 ```sh
@@ -24,8 +22,6 @@ git config --global user.email "example@email.com"
   Commit does NOT read from Working Directory. It **reads only from Index**.
 
      ![Git Areas](./pic/Git-diagram.png)
-
----
 
 # Basic Git command
 
@@ -64,6 +60,8 @@ git log
 - HEAD = pointer to the currently checked-out branch(in use).
 - pointer flow {HEAD → branch → commit}
 
+---
+
 ### .gitignore
 
 - A file that tells Git which files or directories should NOT be tracked.
@@ -71,6 +69,8 @@ git log
   from tracking them.
 - Affects only untrack files.
 - If already commit use `git rm --cached file_want_to_ignore` then commit the change.
+
+---
 
 #### Basic syntax
 
