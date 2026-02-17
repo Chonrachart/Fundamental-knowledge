@@ -195,3 +195,12 @@ Common Options
 - `-k<column_num>` specify which column to sort by.
 - `-t'[delimeter]` specify which field delimiter (when sorting by columns).
 
+### zcat
+
+```bash
+zcat syslog.gz
+zcat access.log.gz | grep "ERROR"
+```
+
+- Print the content of a compressed `.gz` file to stdout without extracting it.
+
