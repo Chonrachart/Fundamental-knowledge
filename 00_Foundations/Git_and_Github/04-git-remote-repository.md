@@ -3,15 +3,11 @@
 - Each developer has a full copy of the repository locally.
 - Sync work between local & remote repository through a Git server.
 
----
-
 # Remote Branches
 
 - Remote branches(e.g., origin/main, origin/featureA) represent the state of branches
   on the remote server.
 - they are read only in local. you can't direct commit directly to them.
-
----
 
 # Command
 
