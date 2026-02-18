@@ -2,8 +2,17 @@
 
 set -e
 
+Serverip=$1
+Hostname=$2
+
 if [ "$EUID" -ne 0 ]; then
     echo "No root privilege"
+    exit 1
+fi
+
+# 2 argument only $# numbered argument passed
+if [ "$#" -nq 2 ]; then
+    echo "ERROR Usage: sudo ./install-zabbix-agent2.sh \"serverip\" \"hotsname\""
     exit 1
 fi
 
@@ -26,6 +35,6 @@ conf=/etc/zabbix/zabbix_agent2.conf
 
 [ -f "$conf.bkp" ] || cp "$conf" "$conf.bkp" 
 
-sed -i 's/^[[:space:]]*Server=.*/Server=10.100.75.45/' "$conf"
-sed -i 's/^[[:space:]]*ServerActive=.*/ServerActive=10.100.75.45:10051/' "$conf"
-sed -i 's/^[[:space:]]*Hostname=.*/Hostname=mostestmonitor/' "$conf"
+sed -i "s/^[[:space:]]*Server=.*/Server=${Serverip}/" "$conf"
+sed -i "s/^[[:space:]]*ServerActive=.*/ServerActive=${Serverip}:10051/" "$conf"
+sed -i "s/^[[:space:]]*Hostname=.*/Hostname=${Hostname}/" "$conf"
