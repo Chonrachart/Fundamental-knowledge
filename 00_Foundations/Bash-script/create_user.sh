@@ -1,8 +1,6 @@
 #!/bin/bash
 
-user=$1
-pub_key=$2
-role=${3:-} # if not use it empty stirng
+
 
 # $EUID 0 = root
 if [ "$EUID" -ne 0 ]; then
@@ -14,6 +12,11 @@ if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
     echo "ERROR Usage: sudo ./create_user.sh <username> \"<public_key>\" [sudo]"
     exit 1
 fi
+
+user=$1
+pub_key=$2
+role=${3:-} # if not use it empty stirng
+
 # || return right value if left false  -z mean string lenght zero return true
 if [ -z "$user" ] || [ -z "$pub_key" ] ; then 
     echo "Incorrect argument Usage: sudo ./create_user.sh <username> \"<public_key>\""

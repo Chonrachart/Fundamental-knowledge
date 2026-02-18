@@ -2,8 +2,7 @@
 
 set -e
 
-Serverip=$1
-Hostname=$2
+
 
 if [ "$EUID" -ne 0 ]; then
     echo "No root privilege"
@@ -15,6 +14,9 @@ if [ "$#" -ne 2 ]; then
     echo "ERROR Usage: sudo ./install-zabbix-agent2.sh \"serverip\" \"hotsname\""
     exit 1
 fi
+
+Serverip=$1
+Hostname=$2
 
 if ! dpkg -s zabbix-release >/dev/null 2>&1; then
     wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu24.04_all.deb
