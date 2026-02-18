@@ -209,3 +209,32 @@ zcat access.log.gz | grep "ERROR"
 
 - Print the content of a compressed `.gz` file to stdout without extracting it.
 
+# sed
+
+```bash
+sed [option] 'command' <file>
+sed 's/old/new/' file.txt
+sed -n '1,5p' file.txt
+```
+
+- sed (Stream Editor) is used to search, replace, delete, or modify 
+  text in a stream (file or standard input).
+- It processes input line by line. It does not load entire file into 
+  memory (stream processing).
+
+### Common option
+
+- `-n` Suppress automatic printing (only print what you explicitly 
+  tell it).
+- `-i` Edit file in place (modify original file).
+- `-i.bkp` Edit file in place and create .bkp file.
+### Common Commands
+
+- `'s/old/new/'` Substitute (replace) first occurrence 
+  of "old" with "new" in each line.
+- `'s/old/new/g'` Replace all occurrences in each line.
+- `'1,5p'` Print lines 1 to 5 (usually used with `-n`).
+- `'3d'` Delete line 3. `'2,4d'` delete line 2-4.
+- `s/\<cat\>/replace` Match whole word cat (will not match catalog).
+- `'/pattern/ s/old/new/' file.txt` `/pattern/` → is an address
+  It decides which lines the command applies to.
