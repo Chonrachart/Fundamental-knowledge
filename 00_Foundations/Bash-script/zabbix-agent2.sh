@@ -11,7 +11,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # 2 argument only $# numbered argument passed
-if [ "$#" -nq 2 ]; then
+if [ "$#" -ne 2 ]; then
     echo "ERROR Usage: sudo ./install-zabbix-agent2.sh \"serverip\" \"hotsname\""
     exit 1
 fi
