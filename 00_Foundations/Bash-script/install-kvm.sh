@@ -7,7 +7,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-if [ egrep -c '(vmx|svm)' /proc/cpuinfo -gt 0 ]; then
+if [ "$(egrep -c '(vmx|svm)' /proc/cpuinfo)" -eq 0 ]; then
     echo "Virtualization not supported(or disabled in BIOS)"
     exit 1 
 fi
@@ -26,5 +26,5 @@ usermod -aG kvm $SUDO_USER
 systemctl enable libvirtd
 systemctl restart libvirtd
 
-
-
+#verify
+kvm-ok
