@@ -140,6 +140,7 @@ cmd > /dev/null
 - `<<` redirects stdin from script.
 - `2>` redirects stderr.
 - `/dev/null` is a special device that discards data.
+- `>/dev/null 2>&1` the &1 mean where first file goes.
 - Linux processes communicate via file descriptors:
   - 0 → stdin
   - 1 → stdout
