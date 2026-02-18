@@ -238,3 +238,5 @@ sed -n '1,5p' file.txt
 - `s/\<cat\>/replace` Match whole word cat (will not match catalog).
 - `'/pattern/ s/old/new/' file.txt` `/pattern/` → is an address
   It decides which lines the command applies to.
+- `s/want to comment/#&` this & mean entire matched text
+  result will #want to comment.
