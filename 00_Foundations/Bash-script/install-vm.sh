@@ -4,24 +4,12 @@ set -e
 
 
 ##### GUIDE you need to wget image you want first
-##### SET NIC if not
+##### you need to set bridge first
 ##### SET VM manually
 
 if [ "$EUID" -ne 0 ]; then
     echo "No root privilege"
     exit 1
-fi
-
-NIC=${1:-}
-
-if ! ovs-vsctl br-exists br-vm; then
-    ovs-vsctl add-br br-vm
-    echo "create br-vm"
-fi
-
-if [ -n "$NIC" ] && ! ovs-vsctl list-ports br-vm | grep -qw "$NIC"; then
-    ovs-vsctl add-port br-vm "$NIC"
-    echo "create port ${NIC}"
 fi
 
 if ! [ -d /opt/libvirt/images ]; then
