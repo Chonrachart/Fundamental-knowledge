@@ -129,6 +129,9 @@ cmd > /dev/null
 ```
 
 - `grep <pattern> <file>` searches text.
+  - `-i` case-insensitive
+  - `-q` quite mode
+  - `-w` whole match
   - `.` acts as wild card that matches any single character
   - `^` an anchor character that matches the beginning of line.
   - `$` an anchor that matches the end of a line.
