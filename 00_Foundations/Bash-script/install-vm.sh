@@ -26,7 +26,7 @@ virt-install \
 --cpu host \
 --disk path=/opt/libvirt/images/ubuntu-desktop.qcow2,size=40,format=qcow2 \
 --os-variant ubuntu24.04 \
---network bridge=br-vm,model=virtio,virtualport_type=openvswitch \
+--network bridge=ovs-br-trust,model=virtio,virtualport_type=openvswitch \
 --graphics vnc \
 --cdrom /var/lib/libvirt/images/ubuntu-24.04.4-desktop-amd64.iso \
 --noautoconsole
