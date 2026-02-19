@@ -13,6 +13,7 @@
 /usr/bin/ovs-vsctl set port [bridge_name] tag=[xx]
 
 # bond_mode 1. active-backup 2. balance 3. lacp
+# -- set Interface vnet-trust99 type=internal this tell linux it vNIC that can see by linux
 
 /sbin/ip addr add [ip/CIDR] dev [port_namevnet]
 /sbin/ip link set [NIC1] [NIC2] up
