@@ -31,6 +31,7 @@ virt-install \
 --cdrom /var/lib/libvirt/images/ubuntu-24.04.4-desktop-amd64.iso \
 --noautoconsole
 
+# must change cdrom, disk path, name
 # --cpu host vm can see real host cpu
 # oso-variant tell libvirt which os to install to use correct driver
 # graphics vnc enable GUI via vnc
