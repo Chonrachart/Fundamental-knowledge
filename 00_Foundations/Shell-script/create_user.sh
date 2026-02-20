@@ -67,6 +67,7 @@ main() {
     fi
 
     echo "User $user created successfully."
+    echo "Don't forget to harden ssh if needed."
 }
 
 main "$@"

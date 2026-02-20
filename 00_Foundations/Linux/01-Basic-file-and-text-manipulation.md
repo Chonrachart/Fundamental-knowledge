@@ -55,6 +55,7 @@ touch <file_name>
 ```
 
 - `mkdir` creates a new directory entry.
+- `mkdir -p` creates parent directory if not have.
 - `touch` creates a new empty file if it does not exist.
 - `mkdir` creates a new inode and updates parent directory 
   mapping.
