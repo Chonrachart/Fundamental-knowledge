@@ -70,3 +70,19 @@ groupmod [option] <group_name>
 
 [change-username.sh](../Shell-script/change-username.sh)
 
+
+# Permission
+
+```bash
+chmod <mode> <file>
+chown <new_own>:<new_own> <file>
+```
+
+- see permissoin use `ls -l`
+- basic permission
+  - Read (4)
+  - Write (2)
+  - Execute (1)
+  - No permission (0)
+- 
+
