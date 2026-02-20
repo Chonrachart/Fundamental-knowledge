@@ -1,5 +1,37 @@
 #!/bin/bash
 
+check_root() {
+    if [ "$EUID" -ne 0 ]; then
+        echo "No root privilege"
+        exit 1
+    fi
+}
+
+parse_arguments() {
+    if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+        echo "ERROR Usage: sudo ./create_user.sh <username> \"<public_key>\" [sudo]"
+        exit 1
+    fi
+
+    user=$1
+    pub_key=$2
+    role=${3:-}
+}
+
+validate_arguments() {
+    if [ -z "$user" ] || [ -z "$pub_key" ]; then 
+        echo "Incorrect argument Usage: sudo ./create_user.sh <username> \"<public_key>\""
+        exit 1
+    fi
+}
+
+check_user_exists() {
+    if id "$user" &>/dev/null; then 
+        echo "Incorrect User already exist"
+        exit 1 
+    fi
+}
+
 create_user() {
     useradd -m -s /bin/bash "$user"
     passwd -l "$user"
@@ -23,33 +55,10 @@ grant_sudo() {
 }
 
 main() {
-
-    # root check
-    if [ "$EUID" -ne 0 ]; then
-        echo "No root privilege"
-        exit 1
-    fi
-
-    # argument check
-    if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
-        echo "ERROR Usage: sudo ./create_user.sh <username> \"<public_key>\" [sudo]"
-        exit 1
-    fi
-
-    user=$1
-    pub_key=$2
-    role=${3:-}
-
-    if [ -z "$user" ] || [ -z "$pub_key" ]; then 
-        echo "Incorrect argument Usage: sudo ./create_user.sh <username> \"<public_key>\""
-        exit 1
-    fi
-
-    if id "$user" &>/dev/null; then 
-        echo "Incorrect User already exist"
-        exit 1 
-    fi
-
+    check_root
+    parse_arguments "$@"
+    validate_arguments
+    check_user_exists
     create_user
     add_pubkey
 
