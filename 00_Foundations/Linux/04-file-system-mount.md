@@ -118,6 +118,25 @@ UUID=abcd-1234   /data   ext4   defaults   0   2
   - 0 → no check (temporary mount)
   - 1 → root partition
   - 2 → other partitions
+
+- Common Mount Options
+  - defaults → rw, suid, dev, exec, auto, nouser, async
+  - ro → read-only
+  - rw → read-write
+  - noexec → prevent execution
+
+### Test fstab (Important)
+- After editing:
+```bash
+mount -a
+```
+- If no error → configuration is correct.
+- If error → fix before reboot.
+
+# NOTE
+
+- Boot step for more information
+
 ```
 Boot step
 1️⃣ Power On
@@ -145,16 +164,3 @@ Boot step
 → Launch networking, SSH, logging, cron, etc.
 1️⃣3️⃣ Login prompt appears
 ```
-- Common Mount Options
-  - defaults → rw, suid, dev, exec, auto, nouser, async
-  - ro → read-only
-  - rw → read-write
-  - noexec → prevent execution
-
-### Test fstab (Important)
-- After editing:
-```bash
-mount -a
-```
-- If no error → configuration is correct.
-- If error → fix before reboot.
