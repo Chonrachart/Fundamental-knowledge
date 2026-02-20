@@ -75,14 +75,29 @@ groupmod [option] <group_name>
 
 ```bash
 chmod <mode> <file>
-chown <new_own>:<new_own> <file>
+chown <new_own>:<new_group> <file>
+chmod u+x file
+chmod g-w file
+chmod o+r file
 ```
 
-- see permissoin use `ls -l`
-- basic permission
+- See permission use `ls -l`
+- Mode in permission
   - Read (4)
   - Write (2)
   - Execute (1)
   - No permission (0)
-- 
+  - Example: 755 → rwx r-x r-x
 
+![permission](./pic/permission.png)
+
+- See more file type in [01-basic-file-and-text-manipulation.md](01-Basic-file-and-text-manipulation.md)
+  
+- `chmod -R <mode> <dir>` apply to directory and all contents.
+- `chown` change file owner and/or group.
+- `chown -R` apply recursively.
+- Only root can change file owner.
+
+### Note
+
+- Without x on directory, you cannot cd into it.
