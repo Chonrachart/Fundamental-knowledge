@@ -111,10 +111,11 @@ wc <file>
 ```
 
 - Reads file content and sends to standard output.
-  - `cat` viwe entire file 
-  - `less` viwe file page by page
-  - `head` viwe start file 10 lines by default
-  - `tail` viwe end of file 10 lines by default  
+  - `cat` view entire file 
+  - `less` view file page by page
+  - `head` view start file 10 lines by default
+  - `tail` view end of file 10 lines by default
+  - `tail -f` view real time.   
   - `echo` display text or print text 
   - `wc <file>` show line word character of file
 
