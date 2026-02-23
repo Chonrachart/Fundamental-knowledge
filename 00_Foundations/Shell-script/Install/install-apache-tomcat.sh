@@ -3,8 +3,8 @@
 set -e
 
 INSTALL_DIR="/opt/tomcat"
-INSTALL_TARGET="$INSTALL_DIR/jdk-"
-TAR_FILE="$INSTALL_DIR/jdk-21_linux-x64_bin.tar.gz"
+INSTALL_TARGET="$INSTALL_DIR/apache-tomcat-11.0.18"
+TAR_FILE="$INSTALL_DIR/apache-tomcat-11.0.18.tar.gz"
 URL="https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.tar.gz"
 
 check_root() {
@@ -26,13 +26,31 @@ make_dir() {
     mkdir -p "$INSTALL_DIR"
 }
 
-extract_java() {
+extract_tomcat() {
     if [ ! -d "$INSTALL_TARGET" ]; then
-        echo "Extracting Java..."
+        echo "Extracting Tomcat..."
         tar -xzf "$TAR_FILE" -C "$INSTALL_DIR"
-        mv "$INSTALL_DIR"/jdk-21.* "$INSTALL_TARGET"
     else
-        echo "Java already installed."
+        echo "Tomcat already installed."
     fi
 }
 
+verify_tomcat() {
+    if [ -f "$INSTALL_TARGET/bin/startup.sh" ]; then
+        echo "Tomcat installation verified."
+    else
+        echo "Tomcat installation failed!"
+        exit 1
+    fi
+}
+
+main() {
+    check_root
+    download_gz
+    make_dir
+    extract_tomcat
+    verify_tomcat
+    echo "This is hardcode to tomcat version 11.0.18 !!!!"
+}
+
+main "$@"
