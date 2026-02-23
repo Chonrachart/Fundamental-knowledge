@@ -76,6 +76,24 @@ EOF
     fi
 }
 
+configure_tomcat_user() {
+    TOMCAT_USERS_FILE="$INSTALL_TARGET/conf/tomcat-users.xml"
+    [ -f "$TOMCAT_USERS_FILE.bkp" ] || cp "$TOMCAT_USERS_FILE" "$TOMCAT_USERS_FILE.bkp" 
+
+    if ! grep -q 'username="tomcat" password="tomcat" ' "$TOMCAT_USERS_FILE"; then
+        sed -i '/<\/tomcat-users>/ i\
+  <role rolename="manager-gui"/>\
+  <role rolename="admin-gui"/>\
+  <user username="tomcat" password="tomcat" roles="manager-gui,manager-status,admin-gui"/>' "$TOMCAT_USERS_FILE"
+
+        echo "Tomcat manager user added."
+    else
+        echo "Tomcat manager user already exists."
+    fi
+}
+
+
+
 
 main() {
     check_root
@@ -84,6 +102,7 @@ main() {
     extract_tomcat
     verify_tomcat
     create_service
+    configure_tomcat_user
     echo "This is hardcode to tomcat version 11.0.18 !!!!"
 }
 
