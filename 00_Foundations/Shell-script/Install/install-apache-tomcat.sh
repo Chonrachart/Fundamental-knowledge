@@ -44,12 +44,45 @@ verify_tomcat() {
     fi
 }
 
+
+create_service() {
+    SERVICE_FILE="/etc/systemd/system/tomcat.service"
+    if [ ! -f "$SERVICE_FILE" ]; then
+        cat > "$SERVICE_FILE" <<EOF
+[Unit]
+Description=Apache Tomcat
+After=network.target
+
+[Service]
+Type=forking
+
+Environment=JAVA_HOME=/opt/java/jdk-21.0.10
+Environment=CATALINA_HOME=/opt/tomcat/apache-tomcat-11.0.18
+
+ExecStart=/opt/tomcat/apache-tomcat-11.0.18/bin/startup.sh
+ExecStop=/opt/tomcat/apache-tomcat-11.0.18/bin/shutdown.sh
+
+User=root
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+        systemctl daemon-reload
+        echo "Tomcat systemd service created."
+    else
+        echo "Tomcat systemd service already exist."
+    fi
+}
+
+
 main() {
     check_root
-    download_gz
     make_dir
+    download_gz
     extract_tomcat
     verify_tomcat
+    create_service
     echo "This is hardcode to tomcat version 11.0.18 !!!!"
 }
 
