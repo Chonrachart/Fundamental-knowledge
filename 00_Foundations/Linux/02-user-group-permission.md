@@ -22,7 +22,7 @@ su <user_name>
 - `su <user_name>` change to specific user.
   
 ### See create-user.sh to see more flow 
-[create-user.sh](../Shell-script/create_user.sh)
+[create-user.sh](../Shell-script/User/create_user.sh)
 
 
 # Group
@@ -68,7 +68,7 @@ groupmod [option] <group_name>
 
 ### See change-username.sh to see more flow 
 
-[change-username.sh](../Shell-script/change-username.sh)
+[change-username.sh](../Shell-script/User/change-username.sh)
 
 
 # Permission
