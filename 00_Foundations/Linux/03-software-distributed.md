@@ -74,6 +74,7 @@ wget <url>
 - wget download files from the internet.
 - Works with HTTP, HTTPS, and FTP.
 - Saves file to current directory by default.
+- `wget -P <down-load-to> <URL>` to specific path to down load.
 
 ### Common Commands
 
