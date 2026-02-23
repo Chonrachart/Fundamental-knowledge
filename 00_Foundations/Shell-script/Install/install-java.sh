@@ -42,8 +42,8 @@ verify_java() {
 
 main() {
     check_root
-    download_gz
     make_dir
+    download_gz
     extract_java
     verify_java
     echo " This fix name version to 21.0.10 even it not check first!!!!"
