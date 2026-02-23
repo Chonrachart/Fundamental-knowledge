@@ -2,10 +2,10 @@
 
 set -e
 
-INSTALL_DIR="/opt/java"
-INSTALL_TARGET="$INSTALL_DIR/jdk-21"
+INSTALL_DIR="/opt/tomcat"
+INSTALL_TARGET="$INSTALL_DIR/jdk-"
 TAR_FILE="$INSTALL_DIR/jdk-21_linux-x64_bin.tar.gz"
-URL="https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz"
+URL="https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.tar.gz"
 
 check_root() {
     if [ "$EUID" -ne 0 ]; then
@@ -36,17 +36,3 @@ extract_java() {
     fi
 }
 
-verify_java() {
-    "$INSTALL_TARGET/bin/java" -version
-}
-
-main() {
-    check_root
-    download_gz
-    make_dir
-    extract_java
-    verify_java
-    echo "Please see the exactly java version manualy"
-}
-
-main "$@"
