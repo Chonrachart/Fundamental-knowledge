@@ -114,7 +114,90 @@ lvcreate -L 5G -n [lv_name] [vg_name]
 
 ### To resize the existing LVM disk
 
-- see the following [resize-existing] 
+- see the following [resize-existing](../Shell-script/Disk/resize-existing-lvm.sh)
 
 # Raid
+- Redandant Array of Independent Disks (RAID) way to combine multiple physical disk to get more perfomance or more high aviability
+
+### RAID 0
+
+- Combine Disk A and Disk B `Disk A | Disk B`write data in 2 disk independently to get more speed.
+- Data is striped across disks (split into blocks and written in parallel).
+- Tolerate 0 disk fail.
+- 100% of total disk space.
+- Performance: Very high read/write performance.
+- No redundancy.
+
+### RAID 1
+
+- Mirror Disk A and Disk B `Disk A = Disk B` write same data on 2 disk to get more high aviability.
+- Tolerate 1 disk fail.
+- 50% usable of total disk space.
+- Write performance: Similar to single disk.
+- High availability, simple design.
+
+### RAID 5
+
+- Single parity block (3 disk minumum)
+- Tolerate 1 disk fail
+- Uses block-level striping with distributed parity
+- (N − 1) usable of total disk space 
+
+| Disk 1 | Disk 2 | Disk 3 | Data write |
+| :----: | :----: | :----: | :--------: |
+|   A    |   B    |   P    |  1 write   |
+|   C    |   P    |   D    |  2 write   |
+|   P    |   E    |   F    |  3 write   |
+
+- A, B, C, D, E, F Are real data block
+- P is parity block
+- `P = A xor B` if A missing can get back from `A = P xor B`
+- Write performance is slower than RAID 0/1 (parity calculation required).
+- Rebuild time can be long on large disks.
+
+### RAID 6
+
+- Two independent parity block (4 disk minimum).
+- Tolerate 2 disk fail.
+- (N − 2) usable of total disk space.
+
+| Disk 1 | Disk 2 | Disk 3 | Disk 4 | Data write |
+| :----: | :----: | :----: | :----: | :--------: |
+|   A    |   B    |   P    |   Q    |  1 write   |
+|   C    |   P    |   Q    |   D    |  2 write   |
+|   P    |   Q    |   E    |   F    |  3 write   |
+
+- P, Q are two independent parity block
+- Use more advance math
+- Slower writes than RAID 5.
+- Better protection for large disk arrays.
+
+### RAID 10
+
+- Combine and mirror `(Disk A = Disk B) | (Disk C = Disk D)` to get more high aviability and more speed(4 disk minumum).
+- each pair can fail 1 disk.
+- 50% usable of total disk space.
+
+### Summary Table
+
+| RAID  | Min Disks | Fault Tolerance | Usable Capacity | Performance |
+| :---: | :-------: | :-------------: | :-------------: | :---------: |
+|   0   |     2     |        0        |      100%       |  Very High  |
+|   1   |     2     |  1 per mirror   |       50%       |  High Read  |
+|   5   |     3     |        1        |       N-1       |  Good Read  |
+|   6   |     4     |        2        |       N-2       |  Good Read  |
+|  10   |     4     |  1 per mirror   |       50%       |  Very High  |
+
+# How to software RAID in linux
+
+[Software-RAID-linux](../Shell-script/Disk/software-raid.sh)
+
 # Ceph
+
+- Software define storage platform that providers block, object, File storage from cluster of server into one logical storage system.
+- Core Concept
+  - Ceph turns many physical servers into one combine distributed storage system
+  - Data is distributed
+  - Data is replicated
+  - No single point of failure
+  - Scales horizontally (just add more nodes)
