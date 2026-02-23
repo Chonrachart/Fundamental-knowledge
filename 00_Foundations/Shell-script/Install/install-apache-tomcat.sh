@@ -69,6 +69,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
         systemctl daemon-reload
+        systemctl start tomcat
         echo "Tomcat systemd service created."
     else
         echo "Tomcat systemd service already exist."
