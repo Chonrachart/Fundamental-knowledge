@@ -84,6 +84,7 @@ configure_tomcat_user() {
         sed -i '/<\/tomcat-users>/ i\
   <role rolename="manager-gui"/>\
   <role rolename="admin-gui"/>\
+  <role rolename="manager-status"/>
   <user username="tomcat" password="tomcat" roles="manager-gui,manager-status,admin-gui"/>' "$TOMCAT_USERS_FILE"
 
         echo "Tomcat manager user added."
