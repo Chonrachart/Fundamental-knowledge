@@ -2,8 +2,9 @@
 
 set -e
 
+JAVA_VERSION="21.0.10"
 INSTALL_DIR="/opt/java"
-INSTALL_TARGET="$INSTALL_DIR/jdk-21"
+INSTALL_TARGET="$INSTALL_DIR/jdk-$JAVA_VERSION"
 TAR_FILE="$INSTALL_DIR/jdk-21_linux-x64_bin.tar.gz"
 URL="https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz"
 
@@ -30,7 +31,6 @@ extract_java() {
     if [ ! -d "$INSTALL_TARGET" ]; then
         echo "Extracting Java..."
         tar -xzf "$TAR_FILE" -C "$INSTALL_DIR"
-        mv "$INSTALL_DIR"/jdk-21.* "$INSTALL_TARGET"
     else
         echo "Java already installed."
     fi
@@ -46,7 +46,7 @@ main() {
     make_dir
     extract_java
     verify_java
-    echo "Please see the exactly java version manualy"
+    echo " This fix name version to 21.0.10 even it not check first!!!!"
 }
 
 main "$@"
