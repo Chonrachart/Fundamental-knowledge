@@ -11,6 +11,7 @@ ls
   size, timestamp).
 - `ls -a` show all hiddenfile (files starting with .).
 - `ls -la` combines -l and -a.
+- `ls -d` show directory it self(not content in it).
 
 ### Important Detail
 
