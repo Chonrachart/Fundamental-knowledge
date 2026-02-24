@@ -84,7 +84,7 @@ configure_tomcat_user() {
         sed -i '/<\/tomcat-users>/ i\
   <role rolename="manager-gui"/>\
   <role rolename="admin-gui"/>\
-  <role rolename="manager-status"/>
+  <role rolename="manager-status"/>\
   <user username="tomcat" password="tomcat" roles="manager-gui,manager-status,admin-gui"/>' "$TOMCAT_USERS_FILE"
 
         echo "Tomcat manager user added."
@@ -93,8 +93,27 @@ configure_tomcat_user() {
     fi
 }
 
+configure_manager_context() {
+    CONTEXT_FILE="$INSTALL_TARGET/webapps/manager/META-INF/context.xml"
 
+    if grep -q '10.0.0.0/8' "$CONTEXT_FILE"; then
+        echo "10.0.0.0/8 already allowed for manager_context.xml."
+    else
+        sed -i 's|allow="127.0.0.0/8,::1/128"|allow="10.0.0.0/8,127.0.0.0/8,::1/128"|' "$CONTEXT_FILE"
+        echo "Added 10.0.0.0/8 to manager allow rule."
+    fi
+}
 
+configure_host_manager_context() {
+    CONTEXT_FILE="$INSTALL_TARGET/webapps/host-manager/META-INF/context.xml"
+
+    if grep -q '10.0.0.0/8' "$CONTEXT_FILE"; then
+        echo "10.0.0.0/8 already allowedfor host_manager_context.xml."
+    else
+        sed -i 's|allow="127.0.0.0/8,::1/128"|allow="10.0.0.0/8,127.0.0.0/8,::1/128"|' "$CONTEXT_FILE"
+        echo "Added 10.0.0.0/8 to host_manager allow rule."
+    fi
+}
 
 main() {
     check_root
@@ -104,6 +123,9 @@ main() {
     verify_tomcat
     create_service
     configure_tomcat_user
+    configure_manager_context
+    configure_host_manager_context
+    systemctl restart tomcat
     echo "This is hardcode to tomcat version 11.0.18 !!!!"
 }
 
