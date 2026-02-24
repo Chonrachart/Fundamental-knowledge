@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 check_root() {
     if [ "$EUID" -ne 0 ]; then
         echo "No root privilege"
