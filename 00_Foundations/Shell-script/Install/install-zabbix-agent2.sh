@@ -11,7 +11,7 @@ check_root() {
 
 check_argument() {
     if [ "$#" -ne 2 ]; then
-        echo "ERROR Usage: sudo ./install-zabbix-agent2.sh \"serverip\" \"hostname\""
+        echo "ERROR Usage: sudo ./install-zabbix-agent2.sh \"host_zabbix_serverip\" \"hostname\""
         exit 1
     fi
 }
