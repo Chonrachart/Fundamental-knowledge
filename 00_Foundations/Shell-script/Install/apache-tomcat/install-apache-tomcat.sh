@@ -171,3 +171,6 @@ main() {
 }
 
 main "$@"
+
+### in old system it may be not create service it use /etc/init.d/tomcat
+### in this script it set in setenv.sh
