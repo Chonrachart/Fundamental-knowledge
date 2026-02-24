@@ -11,6 +11,10 @@ su <user_name>
 - `whoami` show current user.
 - `useradd -m <user_name>` create user and home directory.
 - `useradd -s /bin/bash <user_name>` create user and set login shell.
+  - `-s /bin/false` Disable Login
+- `useradd -r <user_name>` create user for system account NO human login.
+- `useradd -U <user_name>` create Group With Same Name.
+- `useradd -d <directory> <user_name>` Sets home directory location..
 - `userdel -r <user_name>` remove user and home directory.
 - `passwd` change password.
 - `passwd -e <user_name>` password expire force a user to change their 
