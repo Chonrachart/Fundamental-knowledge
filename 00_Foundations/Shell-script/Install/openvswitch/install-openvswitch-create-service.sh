@@ -1,5 +1,4 @@
-
-
+# In /etc/systemd/system/
 
 [Unit]
 Description=OpenVSwitch [service-name] Service
