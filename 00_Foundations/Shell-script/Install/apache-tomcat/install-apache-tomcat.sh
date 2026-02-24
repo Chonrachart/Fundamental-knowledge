@@ -96,7 +96,7 @@ configure_tomcat_user() {
 
     [ -f "$TOMCAT_USERS_FILE.bkp" ] || cp "$TOMCAT_USERS_FILE" "$TOMCAT_USERS_FILE.bkp"
 
-    if ! grep -q 'username="tomcat"' "$TOMCAT_USERS_FILE"; then
+    if ! grep -q 'username="tomcat" password="tomcat"' "$TOMCAT_USERS_FILE"; then
         sed -i '/<\/tomcat-users>/ i\
   <role rolename="manager-gui"/>\
   <role rolename="admin-gui"/>\
@@ -107,6 +107,26 @@ configure_tomcat_user() {
     else
         echo "[INFO] Manager user already exists."
     fi
+}
+
+configure_manager_context() { 
+    CONTEXT_FILE="$INSTALL_TARGET/webapps/manager/META-INF/context.xml" 
+    if grep -q '10.0.0.0/8' "$CONTEXT_FILE"; then 
+        echo "[INFO] 10.0.0.0/8 already allowed for manager_context.xml." 
+    else 
+        sed -i 's|allow="127.0.0.0/8,::1/128"|allow="10.0.0.0/8,127.0.0.0/8,::1/128"|' "$CONTEXT_FILE" 
+        echo "[SUCCESS] Added 10.0.0.0/8 to manager allow rule." 
+    fi
+} 
+
+configure_host_manager_context() { 
+    CONTEXT_FILE="$INSTALL_TARGET/webapps/host-manager/META-INF/context.xml" 
+    if grep -q '10.0.0.0/8' "$CONTEXT_FILE"; then 
+        echo "[INFO] 10.0.0.0/8 already allowed for host_manager_context.xml." 
+    else 
+        sed -i 's|allow="127.0.0.0/8,::1/128"|allow="10.0.0.0/8,127.0.0.0/8,::1/128"|' "$CONTEXT_FILE" 
+        echo "[SUCCESS] Added 10.0.0.0/8 to host_manager allow rule." 
+    fi 
 }
 
 enable_jmx() {
@@ -138,6 +158,8 @@ main() {
     verify_tomcat
     create_service
     configure_tomcat_user
+    configure_manager_context
+    configure_host_manager_context
     enable_jmx
 
     systemctl enable tomcat
@@ -145,6 +167,7 @@ main() {
 
     echo "[SUCCESS] Tomcat $VERSION deployed successfully."
     echo "[INFO] Symlink points to: $INSTALL_TARGET"
+    echo "[WARNING] This is hardcode to tomcat version 11.0.18 !!!!"
 }
 
 main "$@"

@@ -12,8 +12,8 @@ check_root() {
 install_zabbix_gateway() {
 
     echo "Installing Zabbix Java Gateway..."
-    apt update -yqq > /dev/null
-    apt install -qy zabbix-java-gateway > /dev/null || {
+    apt update -y > /dev/null
+    apt install -y zabbix-java-gateway > /dev/null || {
         echo "[FAIL]Install failed"
         return 1
     }
