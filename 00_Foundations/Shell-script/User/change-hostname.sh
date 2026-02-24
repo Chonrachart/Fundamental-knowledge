@@ -2,22 +2,44 @@
 
 set -e
 
-if [ "$EUID" -ne 0 ]; then
-    echo "No root privilege"
-    exit 1
-fi
+check_root() {
+    if [ "$EUID" -ne 0 ]; then
+        echo "No root privilege"
+        exit 1
+    fi
+}
 
-# 1 argument only $# numbered argument passed
-if [ "$#" -ne 1 ]; then
-    echo "ERROR Usage: sudo ./change-hostname.sh \"hostname\""
-    exit 1
-fi
+check_argument() {
+    if [ "$#" -ne 1 ]; then
+        echo "ERROR Usage: sudo ./change-hostname.sh \"hostname\""
+        exit 1
+    fi
+}
 
-Hostname=$1
+change_hostname() {
+    local Hostname="$1"
 
-echo "Changing hostname to ${Hostname}"
-hostnamectl set-hostname "$Hostname"
+    echo "Changing hostname to ${Hostname}"
+    hostnamectl set-hostname "$Hostname"
+}
 
-[ -f /etc/hosts.bkp ] || cp /etc/hosts /etc/hosts.bkp
+update_hosts_file() {
+    local Hostname="$1"
+    local hosts_file="/etc/hosts"
 
-sed -i "s/127.0.1.1[[:space:]].*/127.0.1.1 ${Hostname}/" /etc/hosts
+    [ -f /etc/hosts.bkp ] || cp "$hosts_file" /etc/hosts.bkp
+
+    sed -i "s/127.0.1.1[[:space:]].*/127.0.1.1 ${Hostname}/" "$hosts_file"
+}
+
+main() {
+    check_root
+    check_argument "$@"
+
+    local Hostname="$1"
+
+    change_hostname "$Hostname"
+    update_hosts_file "$Hostname"
+}
+
+main "$@"
