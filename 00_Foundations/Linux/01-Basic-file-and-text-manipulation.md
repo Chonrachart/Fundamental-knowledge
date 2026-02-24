@@ -238,7 +238,7 @@ sed -n '1,5p' file.txt
 ### Common Commands
 
 - `'s/old/new/'` Substitute (replace) first occurrence 
-  of "old" with "new" in each line.
+  of "old" with "new" in each line. can use `|` instead `/`
 - `'s/old/new/g'` Replace all occurrences in each line.
 - `'1,5p'` Print lines 1 to 5 (usually used with `-n`).
 - `'3d'` Delete line 3. `'2,4d'` delete line 2-4.
