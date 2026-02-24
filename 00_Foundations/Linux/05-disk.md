@@ -52,7 +52,8 @@ ln -s <source_file> <hard_link_name>
 - Has different inode.
 - Points to file path, not inode.
 - If original file is deleted, link becomes broken.
-
+- `-f` → force
+- `-n` it treats the symlink itself as a normal file and replaces it. With not it may try to modify what it point to.
 
 # Disk Usage
 
