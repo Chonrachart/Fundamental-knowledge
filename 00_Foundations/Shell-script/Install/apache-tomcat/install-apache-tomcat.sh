@@ -2,23 +2,17 @@
 
 set -e
 
+VERSION="11.0.18"
 INSTALL_DIR="/opt/tomcat"
-INSTALL_TARGET="$INSTALL_DIR/apache-tomcat-11.0.18"
-TAR_FILE="$INSTALL_DIR/apache-tomcat-11.0.18.tar.gz"
-URL="https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.tar.gz"
+INSTALL_TARGET="$INSTALL_DIR/apache-tomcat-$VERSION"
+SYMLINK="$INSTALL_DIR/apache-tomcat"
+TAR_FILE="$INSTALL_DIR/apache-tomcat-$VERSION.tar.gz"
+URL="https://dlcdn.apache.org/tomcat/tomcat-11/v$VERSION/bin/apache-tomcat-$VERSION.tar.gz"
 
 check_root() {
     if [ "$EUID" -ne 0 ]; then
-        echo "[FAIL] No root privilege"
+        echo "[FAIL] Run as root"
         exit 1
-    fi
-}
-
-download_gz() {
-    if [ ! -f "$TAR_FILE" ]; then
-        wget -P "$INSTALL_DIR" "$URL"
-    else
-        echo "[INFO] $TAR_FILE already exists"
     fi
 }
 
@@ -26,44 +20,52 @@ make_dir() {
     mkdir -p "$INSTALL_DIR"
 }
 
-extract_tomcat() {
-    if [ ! -d "$INSTALL_TARGET" ]; then
-        echo "Extracting Tomcat..."
-        tar -xzf "$TAR_FILE" -C "$INSTALL_DIR"
+download_gz() {
+    if [ ! -f "$TAR_FILE" ]; then
+        echo "[INFO] Downloading Tomcat $VERSION..."
+        wget -P "$INSTALL_DIR" "$URL"
     else
-        echo "[INFO] Tomcat already installed."
+        echo "[INFO] $TAR_FILE already exists"
     fi
 }
 
-create_tomcat_user() {
+extract_tomcat() {
+    if [ ! -d "$INSTALL_TARGET" ]; then
+        echo "[INFO] Extracting Tomcat..."
+        tar -xzf "$TAR_FILE" -C "$INSTALL_DIR"
+    else
+        echo "[INFO] Tomcat version already extracted."
+    fi
 
+    echo "[INFO] Updating symlink..."
+    ln -sfn "$INSTALL_TARGET" "$SYMLINK"
+}
+
+create_tomcat_user() {
     if id "tomcat" &>/dev/null; then
         echo "[INFO] User 'tomcat' already exists."
     else
         echo "[INFO] Creating system user 'tomcat'..."
-        useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat
-        echo "[SUCCESS] User 'tomcat' created."
+        useradd -r -m -U -d "$INSTALL_DIR" -s /bin/false tomcat
+        echo "[SUCCESS] User created."
     fi
 
-    echo "[INFO] Setting ownership on $INSTALL_TARGET ..."
     chown -R tomcat:tomcat "$INSTALL_TARGET"
-
 }
 
 verify_tomcat() {
-    if [ -f "$INSTALL_TARGET/bin/startup.sh" ]; then
+    if [ -f "$SYMLINK/bin/startup.sh" ]; then
         echo "[SUCCESS] Tomcat installation verified."
     else
-        echo "[FAIL] Tomcat installation failed!"
+        echo "[FAIL] Tomcat installation failed."
         exit 1
     fi
 }
 
-
 create_service() {
     SERVICE_FILE="/etc/systemd/system/tomcat.service"
-    if [ ! -f "$SERVICE_FILE" ]; then
-        cat > "$SERVICE_FILE" <<EOF
+
+    cat > "$SERVICE_FILE" <<EOF
 [Unit]
 Description=Apache Tomcat
 After=network.target
@@ -72,10 +74,10 @@ After=network.target
 Type=forking
 
 Environment=JAVA_HOME=/opt/java/jdk-21.0.10
-Environment=CATALINA_HOME=/opt/tomcat/apache-tomcat-11.0.18
+Environment=CATALINA_HOME=$SYMLINK
 
-ExecStart=/opt/tomcat/apache-tomcat-11.0.18/bin/startup.sh
-ExecStop=/opt/tomcat/apache-tomcat-11.0.18/bin/shutdown.sh
+ExecStart=$SYMLINK/bin/startup.sh
+ExecStop=$SYMLINK/bin/shutdown.sh
 
 User=tomcat
 Group=tomcat
@@ -84,54 +86,32 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-        systemctl daemon-reload
-        echo "[SUCCESS] Tomcat systemd service created."
-    else
-        echo "[INFO] Tomcat systemd service already exist."
-    fi
+
+    systemctl daemon-reload
+    echo "[SUCCESS] Systemd service created/updated."
 }
 
 configure_tomcat_user() {
-    TOMCAT_USERS_FILE="$INSTALL_TARGET/conf/tomcat-users.xml"
-    [ -f "$TOMCAT_USERS_FILE.bkp" ] || cp "$TOMCAT_USERS_FILE" "$TOMCAT_USERS_FILE.bkp" 
+    TOMCAT_USERS_FILE="$SYMLINK/conf/tomcat-users.xml"
 
-    if ! grep -q 'username="tomcat" password="tomcat" ' "$TOMCAT_USERS_FILE"; then
+    [ -f "$TOMCAT_USERS_FILE.bkp" ] || cp "$TOMCAT_USERS_FILE" "$TOMCAT_USERS_FILE.bkp"
+
+    if ! grep -q 'username="tomcat"' "$TOMCAT_USERS_FILE"; then
         sed -i '/<\/tomcat-users>/ i\
   <role rolename="manager-gui"/>\
   <role rolename="admin-gui"/>\
   <role rolename="manager-status"/>\
   <user username="tomcat" password="tomcat" roles="manager-gui,manager-status,admin-gui"/>' "$TOMCAT_USERS_FILE"
 
-        echo "[SUCCESS] Tomcat manager user added."
+        echo "[SUCCESS] Manager user added."
     else
-        echo "[INFO] Tomcat manager user already exists."
+        echo "[INFO] Manager user already exists."
     fi
 }
 
-configure_manager_context() {
-    CONTEXT_FILE="$INSTALL_TARGET/webapps/manager/META-INF/context.xml"
+enable_jmx() {
+    SETENV_FILE="$SYMLINK/bin/setenv.sh"
 
-    if grep -q '10.0.0.0/8' "$CONTEXT_FILE"; then
-        echo "[INFO] 10.0.0.0/8 already allowed for manager_context.xml."
-    else
-        sed -i 's|allow="127.0.0.0/8,::1/128"|allow="10.0.0.0/8,127.0.0.0/8,::1/128"|' "$CONTEXT_FILE"
-        echo "[SUCCESS] Added 10.0.0.0/8 to manager allow rule."
-    fi
-}
-
-configure_host_manager_context() {
-    CONTEXT_FILE="$INSTALL_TARGET/webapps/host-manager/META-INF/context.xml"
-
-    if grep -q '10.0.0.0/8' "$CONTEXT_FILE"; then
-        echo "[INFO] 10.0.0.0/8 already allowed for host_manager_context.xml."
-    else
-        sed -i 's|allow="127.0.0.0/8,::1/128"|allow="10.0.0.0/8,127.0.0.0/8,::1/128"|' "$CONTEXT_FILE"
-        echo "[SUCCESS] Added 10.0.0.0/8 to host_manager allow rule."
-    fi
-}
-
-Enable_JMX() {
-    SETENV_FILE="$INSTALL_TARGET/bin/setenv.sh"
     if [ ! -f "$SETENV_FILE" ]; then
         cat > "$SETENV_FILE" <<EOF
 CATALINA_OPTS="\$CATALINA_OPTS \
@@ -141,12 +121,12 @@ CATALINA_OPTS="\$CATALINA_OPTS \
 -Dcom.sun.management.jmxremote.local.only=false \
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dcom.sun.management.jmxremote.ssl=false \
--Djava.rmi.server.hostname=10.100.70.45"
+-Djava.rmi.server.hostname=$(hostname -I | awk '{print $1}')"
 EOF
+        echo "[SUCCESS] JMX enabled."
     else
-        echo "[INFO] Already have setenv.sh"
+        echo "[INFO] JMX already configured."
     fi
-
 }
 
 main() {
@@ -158,14 +138,13 @@ main() {
     verify_tomcat
     create_service
     configure_tomcat_user
-    configure_manager_context
-    configure_host_manager_context
-    Enable_JMX
+    enable_jmx
+
     systemctl enable tomcat
     systemctl restart tomcat
-    echo "[WARNING] You need to config zabbix server if needed"
-    echo "[WARNING] This is hardcode to tomcat version 11.0.18 !!!!"
-    echo "[WARNING] This is hardcode to tomcat server 10.100.70.45 !!!!"
+
+    echo "[SUCCESS] Tomcat $VERSION deployed successfully."
+    echo "[INFO] Symlink points to: $INSTALL_TARGET"
 }
 
 main "$@"
