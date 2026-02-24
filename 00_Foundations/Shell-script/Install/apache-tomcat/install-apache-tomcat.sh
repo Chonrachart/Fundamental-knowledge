@@ -35,6 +35,21 @@ extract_tomcat() {
     fi
 }
 
+create_tomcat_user() {
+
+    if id "tomcat" &>/dev/null; then
+        echo "[INFO] User 'tomcat' already exists."
+    else
+        echo "[INFO] Creating system user 'tomcat'..."
+        useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat
+        echo "[SUCCESS] User 'tomcat' created."
+    fi
+
+    echo "[INFO] Setting ownership on $INSTALL_TARGET ..."
+    chown -R tomcat:tomcat "$INSTALL_TARGET"
+
+}
+
 verify_tomcat() {
     if [ -f "$INSTALL_TARGET/bin/startup.sh" ]; then
         echo "[SUCCESS] Tomcat installation verified."
@@ -62,14 +77,14 @@ Environment=CATALINA_HOME=/opt/tomcat/apache-tomcat-11.0.18
 ExecStart=/opt/tomcat/apache-tomcat-11.0.18/bin/startup.sh
 ExecStop=/opt/tomcat/apache-tomcat-11.0.18/bin/shutdown.sh
 
-User=root
+User=tomcat
+Group=tomcat
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 EOF
         systemctl daemon-reload
-        systemctl start tomcat
         echo "[SUCCESS] Tomcat systemd service created."
     else
         echo "[INFO] Tomcat systemd service already exist."
@@ -134,69 +149,23 @@ EOF
 
 }
 
-install_zabbix_gateway() {
-
-    echo "Installing Zabbix Java Gateway..."
-    apt update -yqq > /dev/null
-    apt install -qy zabbix-java-gateway > /dev/null || {
-        echo "[FAIL]Install failed"
-        return 1
-    }
-}
-
-configure_java_gateway() {
-    JAVA_GATEWAY_CONF="/etc/zabbix/zabbix_java_gateway.conf"
-
-    [ -f "$JAVA_GATEWAY_CONF.bkp" ] || cp "$JAVA_GATEWAY_CONF" "$JAVA_GATEWAY_CONF.bkp"
-
-    sed -i 's|^[#[:space:]]*LISTEN_IP=.*|LISTEN_IP="0.0.0.0"|' "$JAVA_GATEWAY_CONF"
-    sed -i 's|^[#[:space:]]*LISTEN_PORT=.*|LISTEN_PORT=10052|' "$JAVA_GATEWAY_CONF"
-    sed -i 's|^[#[:space:]]*START_POLLERS=.*|START_POLLERS=5|' "$JAVA_GATEWAY_CONF"
-
-    echo "[SUCCESS] Java Gateway configured."
-}
-
-restart_zabbix() {
-    systemctl enable zabbix-java-gateway > /dev/null
-    systemctl restart zabbix-java-gateway > /dev/null
-}
-
-check_zabbix() {
-    if ss -tulpn | grep -q ":10052" ;then
-        echo "[SUCCESS] install JMX success"
-    else
-        echo "[FAIL] install JMX failed"
-        return 1
-    fi
-}
-
-
-
 main() {
     check_root
     make_dir
     download_gz
     extract_tomcat
+    create_tomcat_user
     verify_tomcat
     create_service
     configure_tomcat_user
     configure_manager_context
     configure_host_manager_context
     Enable_JMX
-    install_zabbix_gateway
-    configure_java_gateway
-    restart_zabbix
-    check_zabbix
+    systemctl enable tomcat
     systemctl restart tomcat
     echo "[WARNING] You need to config zabbix server if needed"
     echo "[WARNING] This is hardcode to tomcat version 11.0.18 !!!!"
     echo "[WARNING] This is hardcode to tomcat server 10.100.70.45 !!!!"
 }
-
-# ADD this in server_zabbix in /etc/zabbix/zabbix_server.d/*.conf
-# JavaGateway=10.100.70.45
-# JavaGatewayPort=10052
-# StartJavaPollers=5
-
 
 main "$@"
