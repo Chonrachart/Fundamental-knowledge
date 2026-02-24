@@ -2,29 +2,58 @@
 
 set -e
 
-if [ "$EUID" -ne 0 ]; then
-    echo "No root privilege"
-    exit 1
-fi
-
-conf=/etc/chrony/chrony.conf
-
-apt update
-apt install -y chrony 
-sed -i.bkp '/^[[:space:]]*pool/ s/^/#/' "$conf"
-grep -q "^[[:space:]]*server 192.168.10.254 iburst" "$conf" || echo "server 192.168.10.254 iburst" >> "$conf"
-
-systemctl enable chrony
-systemctl restart chrony
-chronyc makestep
-
-for i in {1..10}; do
-    if chronyc sources | grep -q "^\^\*"; then 
-        echo "Chrony synchronized"
-        break
+check_root() {
+    if [ "$EUID" -ne 0 ]; then
+        echo "No root privilege"
+        exit 1
     fi
-    sleep 1
-done
+}
 
-#verify 
-chronyc tracking
+install_chrony() {
+    apt update
+    apt install -y chrony
+}
+
+configure_chrony() {
+    local conf="/etc/chrony/chrony.conf"
+
+    sed -i.bkp '/^[[:space:]]*pool/ s/^/#/' "$conf"
+
+    grep -q "^[[:space:]]*server 192.168.10.254 iburst" "$conf" \
+        || echo "server 192.168.10.254 iburst" >> "$conf"
+}
+
+enable_service() {
+    systemctl enable chrony
+    systemctl restart chrony
+}
+
+force_sync() {
+    chronyc makestep
+}
+
+wait_for_sync() {
+    for i in {1..10}; do
+        if chronyc sources | grep -q "^\^\*"; then
+            echo "Chrony synchronized"
+            break
+        fi
+        sleep 1
+    done
+}
+
+verify_sync() {
+    chronyc tracking
+}
+
+main() {
+    check_root
+    install_chrony
+    configure_chrony
+    enable_service
+    force_sync
+    wait_for_sync
+    verify_sync
+}
+
+main "$@"
