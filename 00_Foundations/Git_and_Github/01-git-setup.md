@@ -1,12 +1,24 @@
 # What is GIT
-### Primative version control 
+### Primitive version control 
 - Manual copy --> inefficient and error-prone.
 - chaos from manual backups(have many backups).
 ### Why Git is needed 
-- Trcked changes in files and data that is immutable.
+- Tracks changes in files and data that is immutable.
 - Maintains a history of who, what, when.
 - every commit is content-addressed (hash).
-- Enables easy roolback to stable version.
+- Enables easy rollback to stable version.
+
+# Initialize a Repository
+```bash
+git init
+```
+
+- Creates a new Git repository.
+- Generates a hidden .git/ directory.
+- .git/ stores all metadata and commit history.
+- Note:
+  - If you clone a repository (including inside WSL),
+  - you do not need to run git init because the repo is already initialized.
 
 # Git Setup    
 ### Set up User
@@ -14,7 +26,10 @@
 git config --global user.name "Name"  
 git config --global user.email "example@email.com"
 ```
-- These two command use to set up user to identify who is commit and who is author.
+- These two commands use to set up user to identify who made the commit and who is author.
+- `git config --global --list` to check global config
+- `git config --local --list` to check local config
+
 ### Three GIT Areas
 -  **Working Tree** (Working Directory) real file on disk that **editable**.
 -  **Stageing Area** (Index) prepares snapshot **to be commited**. 
