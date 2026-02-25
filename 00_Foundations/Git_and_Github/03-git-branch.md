@@ -30,6 +30,7 @@ git switch <name>
 ```
 
 - Switches to the specified branch and updates the working directory.
+- `git switch -c <new_name>` to create new branch and switch to it.
 
 ---
 
