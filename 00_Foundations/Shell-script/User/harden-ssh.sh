@@ -2,6 +2,8 @@
 
 set -e
 
+CONFIG_FILE="/etc/ssh/sshd_config"
+
 check_root() {
     if [ "$EUID" -ne 0 ]; then
         echo "No root privilege"
@@ -40,7 +42,6 @@ validate_config_file() {
 
 main() {
     check_root
-    CONFIG_FILE="/etc/ssh/sshd_config"
     harden_ssh
     validate_config_file
 }
