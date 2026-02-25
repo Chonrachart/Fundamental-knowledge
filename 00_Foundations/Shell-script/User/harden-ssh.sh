@@ -34,7 +34,7 @@ validate_config_file() {
 
     if sshd -t; then
         systemctl reload sshd 2>/dev/null || systemctl reload ssh
-        echo "[SUCCESS] SSH hardened and reloaded"
+        echo "[SUCCESS] SSH reloaded"
     else
         echo "[ERROR] Invalid sshd_config. Restoring backup..."
         cp "$CONFIG_FILE.bkp" "$CONFIG_FILE"
@@ -42,10 +42,42 @@ validate_config_file() {
     fi
 }
 
+check_ssh() {
+    
+    CONFIG="/etc/ssh/sshd_config"
+
+    if [ ! -f "$CONFIG" ]; then
+        echo "[FAIL] sshd_config not found"
+        echo ""
+        return
+    fi
+
+    if sshd -T 2>/dev/null | grep -q "^permitrootlogin no$"; then
+        echo "[SUCCESS] PermitRootLogin disabled"
+    else
+        echo "[FAIL] PermitRootLogin not disabled"
+    fi
+
+    if sshd -T 2>/dev/null | grep -q "^passwordauthentication no$"; then
+        echo "[SUCCESS] PasswordAuthentication disabled"
+    else
+        echo "[FAIL] PasswordAuthentication not disabled"
+    fi
+
+    if sshd -T 2>/dev/null | grep -q "^pubkeyauthentication yes$"; then
+        echo "[SUCCESS] PubkeyAuthentication enabled"
+    else
+        echo "[FAIL] PubkeyAuthentication disabled"
+    fi
+    
+    echo ""
+}
+
 main() {
     check_root
     harden_ssh
     validate_config_file
+    check_ssh
 }
 
 main "$@"
