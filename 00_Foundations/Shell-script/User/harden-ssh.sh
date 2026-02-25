@@ -81,3 +81,6 @@ main() {
 }
 
 main "$@"
+
+# To manual check use this command 
+# sudo sshd -T | grep -E "permitrootlogin|passwordauthentication|pubkeyauthentication"
