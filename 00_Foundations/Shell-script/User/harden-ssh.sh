@@ -15,15 +15,17 @@ harden_ssh() {
 
     [ -f "$CONFIG_FILE.bkp" ] || cp "$CONFIG_FILE" "$CONFIG_FILE.bkp"
 
-    # Replace or uncomment existing lines
-    sed -i 's|^[#[:space:]]*PasswordAuthentication[[:space:]].*|PasswordAuthentication no|' "$CONFIG_FILE"
-    sed -i 's|^[#[:space:]]*PubkeyAuthentication[[:space:]].*|PubkeyAuthentication yes|' "$CONFIG_FILE"
-    sed -i 's|^[#[:space:]]*PermitRootLogin[[:space:]].*|PermitRootLogin no|' "$CONFIG_FILE"
+    # Remove existing directives completely
+    sed -i '/^[#[:space:]]*PasswordAuthentication/d' "$CONFIG_FILE"
+    sed -i '/^[#[:space:]]*PubkeyAuthentication/d' "$CONFIG_FILE"
+    sed -i '/^[#[:space:]]*PermitRootLogin/d' "$CONFIG_FILE"
 
-    # Append if missing
-    grep -q "^PasswordAuthentication" "$CONFIG_FILE" || echo "PasswordAuthentication no" >> "$CONFIG_FILE"
-    grep -q "^PubkeyAuthentication" "$CONFIG_FILE" || echo "PubkeyAuthentication yes" >> "$CONFIG_FILE"
-    grep -q "^PermitRootLogin" "$CONFIG_FILE" || echo "PermitRootLogin no" >> "$CONFIG_FILE"
+    # Add hardened settings once
+    {
+        echo "PasswordAuthentication no"
+        echo "PubkeyAuthentication yes"
+        echo "PermitRootLogin no"
+    } >> "$CONFIG_FILE"
 
     echo "[SUCCESS] Harden SSH configuration"
 }
