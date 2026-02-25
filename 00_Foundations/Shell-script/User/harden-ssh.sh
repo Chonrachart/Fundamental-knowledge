@@ -73,9 +73,24 @@ check_ssh() {
     echo ""
 }
 
+comment_cloud_init() {
+
+    CONFIG_CLOUD="/etc/ssh/sshd_config.d/50-cloud-init.conf"
+    BACKUP_FILE="${CONFIG_CLOUD}.bkp"
+
+    [ ! -f "$CONFIG_CLOUD" ] && return 0
+
+    [ -f "$BACKUP_FILE" ] || cp "$CONFIG_CLOUD" "$BACKUP_FILE"
+
+    sed -i 's|^[[:space:]]*PasswordAuthentication|#PasswordAuthentication|' "$CONFIG_CLOUD"
+
+    echo "[SUCCESS] cloud-init PasswordAuthentication commented"
+}
+
 main() {
     check_root
     harden_ssh
+    comment_cloud_init
     validate_config_file
     check_ssh
 }
