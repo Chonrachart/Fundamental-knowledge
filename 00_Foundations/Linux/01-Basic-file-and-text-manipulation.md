@@ -242,6 +242,7 @@ sed -n '1,5p' file.txt
 - `'s/old/new/g'` Replace all occurrences in each line.
 - `'1,5p'` Print lines 1 to 5 (usually used with `-n`).
 - `'3d'` Delete line 3. `'2,4d'` delete line 2-4.
+- `'/pattern/d'` delete line that match pattern.
 - `s/\<cat\>/replace` Match whole word cat (will not match catalog).
 - `'/pattern/ s/old/new/' file.txt` `/pattern/` → is an address
   It decides which lines the command applies to.
