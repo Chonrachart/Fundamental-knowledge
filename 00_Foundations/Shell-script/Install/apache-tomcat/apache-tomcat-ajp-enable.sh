@@ -30,6 +30,8 @@ backup_config() {
     chmod 640 "$TOMCAT_CONFIG"
     chown tomcat:tomcat "$BACKUP_FILE"
     chmod 640 "$BACKUP_FILE"
+    # This fix ownership cause when cp it do with root 
+    # if want to use bkp file it will permission denine
 }
 
 add_ajp_connector() {
