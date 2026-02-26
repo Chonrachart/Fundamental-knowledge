@@ -282,11 +282,26 @@ awk -F: '{print $1}' /etc/passwd
   - `'NR==1'` First line only
   - `'NR>1`' Skip header
   - `'NF==0'` Empty line
-  - `'BEGIN { ... }'` Run before reading input
-  - `'END { ... }'` Run after finishing input
+  - `'BEGIN { ... }'` Run once before reading input
+  - `'END { ... }'` Run once after finishing input
 
 - Common Actions
   - `{print}` Print entire line
   - `{print $1}` Print column 1
   - `{print $1, $3}` Print multiple columns
   - `{sum+=$1}` Add column 1 to variable
+
+Example
+```bash
+awk ' 
+    /<!--/ {comment=1} 
+    /-->/ {comment=0; next} 
+    !comment && /<Connector/ && /protocol="AJP\/1\.3"/ {found=1} 
+    END {exit !found}' "$TOMCAT_CONFIG"
+```
+- this awk have 4 pair pattern action.
+- if in <!-- comment=1
+- if out --> comment=0
+- if out comment and have `<Connector` and have `protocol="AJP/1.3"`
+  then found=1
+- if finish process run once `exit !found` like exit code 0 or 1
