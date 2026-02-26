@@ -13,7 +13,7 @@ BRIDGE="ovs-br-trust"
 
 check_root() {
     if [ "$EUID" -ne 0 ]; then
-        echo "Run as root"
+        echo "No root privilege"
         exit 1
     fi
 }
@@ -26,15 +26,19 @@ prepare_storage() {
 
 create_vm() {
     virt-install \
-    --name $VM_NAME \
+    --name "$VM_NAME" \
     --memory 4096 \
     --vcpus 2 \
     --cpu host \
-    --disk path=$DISK_PATH,size=40,format=qcow2,bus=virtio \
+    --machine q35 \
+    --video virtio \
+    --boot uefi \
+    --disk path="$DISK_PATH",size=40,format=qcow2,bus=virtio \
     --os-variant ubuntu22.04 \
-    --network bridge=$BRIDGE,model=virtio, virtualport_type=openvswitch\
-    --graphics vnc \
-    --cdrom $ISO_PATH
+    --network bridge="$BRIDGE",model=virtio,virtualport_type=openvswitch\
+    --graphics vnc,listen=0.0.0.0 \
+    --cdrom "$ISO_PATH" \
+    --noautoconsole
 }
 
 main() {
