@@ -269,3 +269,43 @@ sed -n '1,5p' file.txt
   NEW2
   line3
   ```
+
+# awk
+```bash
+awk [option] 'pattern { action }' <file>
+awk '{print $1}' file.txt
+awk -F: '{print $1}' /etc/passwd
+```
+
+- Two parts:
+  - pattern → when to run (default run every line)
+  - action → what to do (default {print})
+- awk is a text processing tool used to filter, extract, calculate, and format data.
+- It processes input line by line.
+- It automatically splits each line into fields (columns).
+- Default field separator = whitespace.
+
+- Common Options
+  - `-F:` Set field separator (e.g. -F: for /etc/passwd)
+  - `-v` var=value Define variable before execution
+  
+- example
+  ```
+  awk -F: -v min_uid=1000 '$3 >= min_uid {print $1}' /etc/passwd
+  ```
+
+- Common Patterns
+  - `$1 == "root"'` Match column 1 equals "root"
+  - `'$3 > 1000'` Numeric comparison
+  - `'/pattern/'` Match line containing pattern
+  - `'NR==1'` First line only
+  - `'NR>1`' Skip header
+  - `'NF==0'` Empty line
+  - `'BEGIN { ... }'` Run before reading input
+  - `'END { ... }'` Run after finishing input
+
+- Common Actions
+  - `{print}` Print entire line
+  - `{print $1}` Print column 1
+  - `{print $1, $3}` Print multiple columns
+  - `{sum+=$1}` Add column 1 to variable
