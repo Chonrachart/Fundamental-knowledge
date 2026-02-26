@@ -21,7 +21,7 @@ check_root() {
 }
 
 check_ssh() {
-    echo "[1] SSH Hardening"
+    echo "[5] SSH Hardening"
     CONFIG="/etc/ssh/sshd_config"
 
     if [ ! -f "$CONFIG" ]; then
@@ -96,7 +96,7 @@ check_tools() {
 }
 
 check_users() {
-    echo "[5] User Account Audit"
+    echo "[1] User Account Audit"
 
     CONSOLE_LOGIN_USERS=()
 
@@ -167,11 +167,11 @@ Print_summary() {
 
 main() {
     check_root
-    check_ssh
+    check_users
     check_ntp
     check_zabbix
     check_tools
-    check_users
+    check_ssh
     Print_summary
 }
 
