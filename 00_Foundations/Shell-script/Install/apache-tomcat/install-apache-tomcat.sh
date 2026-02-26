@@ -73,7 +73,7 @@ After=network.target
 [Service]
 Type=forking
 
-Environment=JAVA_HOME=/opt/java/jdk-21.0.10
+Environment=JAVA_HOME=/opt/java/java
 Environment=CATALINA_HOME=$SYMLINK
 
 ExecStart=$SYMLINK/bin/startup.sh
