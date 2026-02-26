@@ -4,9 +4,9 @@ PASS_COUNT=0
 FAIL_COUNT=0
 WARN_COUNT=0
 
-log_success() { echo "[SUCCESS] $1"; ((PASS_COUNT++)); }
-log_fail()    { echo "[FAIL]    $1"; ((FAIL_COUNT++)); }
-log_warn()    { echo "[WARNING]    $1"; ((WARN_COUNT++)); }
+log_success() { echo "  [SUCCESS] $1"; ((PASS_COUNT++)); }
+log_fail()    { echo "  [FAIL] $1"; ((FAIL_COUNT++)); }
+log_warn()    { echo "  [WARNING] $1"; ((WARN_COUNT++)); }
 
 echo "=================================="
 echo "        SYSTEM AUDIT CHECK        "
@@ -95,20 +95,86 @@ check_tools() {
     echo ""
 }
 
+check_users() {
+    echo "[5] User Account Audit"
+
+    CONSOLE_LOGIN_USERS=()
+
+    while IFS=: read -r username _ uid _ _ home shell; do
+
+        # Skip system accounts
+        if [ "$uid" -lt 1000 ]; then
+            continue
+        fi
+
+        # Skip users without valid login shell
+        # /etc/shells show shell that system allow to login
+        if ! grep -qx "$shell" /etc/shells; then
+            continue
+        fi
+
+        echo "  User: $username"
+
+        status=$(passwd -S "$username" 2>/dev/null | awk '{print $2}')
+
+        case "$status" in
+            L)
+                log_success "account locked"
+                ;;
+            P)
+                log_warn "console login possible (password set)"
+                CONSOLE_LOGIN_USERS+=("$username")
+                ;;
+            NP)
+                log_fail "no password set"
+                ;;
+            *)
+                log_warn "unknown password state"
+                ;;
+        esac
+
+        if id -nG "$username" | grep -qw sudo ; then
+            log_warn "has sudo privilege"
+        else
+            log_success "no sudo privilege"
+        fi
+
+        echo ""
+
+    done < <(getent passwd)
+}
+
+Print_summary() {
+    echo "=================================="
+    echo "SUMMARY"
+    echo "----------------------------------"
+    echo "PASS  : $PASS_COUNT"
+    echo "FAIL  : $FAIL_COUNT"
+    echo "WARN  : $WARN_COUNT"
+    echo "=================================="
+    echo "Console Login Enabled Accounts:"
+    echo "----------------------------------"
+    if [ "${#CONSOLE_LOGIN_USERS[@]}" -eq 0 ]; then
+        log_success "No user can login via console"
+    else
+        for u in "${CONSOLE_LOGIN_USERS[@]}"; do
+            echo "[WARN] $u"
+        done
+    fi
+
+    echo "=================================="
+}
+
 main() {
     check_root
     check_ssh
     check_ntp
     check_zabbix
     check_tools
+    check_users
+    Print_summary
 }
 
 main "$@"
 
-echo "=================================="
-echo "SUMMARY"
-echo "----------------------------------"
-echo "PASS  : $PASS_COUNT"
-echo "FAIL  : $FAIL_COUNT"
-echo "WARN  : $WARN_COUNT"
-echo "=================================="
+
