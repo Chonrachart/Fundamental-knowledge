@@ -158,7 +158,7 @@ Print_summary() {
         log_success "No user can login via console"
     else
         for u in "${CONSOLE_LOGIN_USERS[@]}"; do
-            echo "[WARN] $u"
+            echo "[WARNING] $u"
         done
     fi
 
