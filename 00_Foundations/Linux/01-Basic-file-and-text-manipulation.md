@@ -249,26 +249,7 @@ sed -n '1,5p' file.txt
 - `s/want to comment/#&` this & mean entire matched text
   result will #want to comment.
 - `i\` Insert text BEFORE the matched line
-
-  ```
-  if have file that contain
-  line1
-  line2
-  line3
-
-  use this sed command
-
-  sed '/line3/ i\
-  NEW1\
-  NEW2'
-
-  result will be 
-  line1
-  line2
-  NEW1
-  NEW2
-  line3
-  ```
+- `a\` append text after the matched line.
 
 # awk
 ```bash
