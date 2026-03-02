@@ -38,8 +38,12 @@ git switch <name>
 
 ```bash
 git merge <name>
+git merge --no-ff
 ```
-
+- `git merge --no-ff` this is save way to keep history as branch 
+  - Always create merge commit
+  - Unchange commit hashes (rebase change hash commit)
+  - Safe for shared branch
 - Combines another branch into the current one.
 
 #### Merge Type
