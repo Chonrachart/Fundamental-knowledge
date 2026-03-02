@@ -2,9 +2,30 @@
 
 set -e
 
+######### This section need to change to install another version ############
+################### Can't use with install sameversion ######################
+TOMCAT1_NAME="tomcat1"
+TOMCAT1_HOST="10.100.70.45"
+TOMCAT1_PORT="8009"
+TOMCAT1_SECRET="ssw0rdP@"
+TOMCAT1_SERVER_NAME="chonrachart1.somapait.com"
+
+TOMCAT2_NAME="tomcat2"
+TOMCAT2_HOST="10.100.70.45"
+TOMCAT2_PORT="8010"
+TOMCAT2_SECRET="P@ssw0rd"
+TOMCAT2_SERVER_NAME="chonrachart2.somapait.com"
+##################################SET PARAMETER###############################
+WORKER_NAME="$TOMCAT1_NAME"                ## can switch to like $TOMCAT2_NAME
+WORKER_HOST="$TOMCAT1_HOST"
+WORKER_PORT="$TOMCAT1_PORT"
+WORKER_SECRET="$TOMCAT1_SECRET"
+WORKER_SERVER_NAME="$TOMCAT1_SERVER_NAME"
+##############################################################################
+
 PROPERTIES_FILE=/etc/apache2/workers.properties
 JK_CONF="/etc/apache2/mods-available/jk.conf"
-VHOST_FILE="/etc/apache2/sites-enabled/000-default.conf"
+VHOST_FILE="/etc/apache2/sites-available/${WORKER_SERVER_NAME}.conf"
 
 log()        { echo "[INFO] $1"; }
 log_success(){ echo "[SUCCESS] $1"; }
@@ -30,38 +51,56 @@ install_mod_jk() {
     fi
 }
 
+enable_mod_jk() {
+
+    if ! apache2ctl -M | grep -q jk_module; then
+        echo "[INFO] Enabling mod_jk..."
+        a2enmod jk
+        log_success "mod_jk enabled"
+    else
+        echo "[INFO] mod_jk already enabled"
+    fi
+}
+
 create_properties_file() {
 
     [ -f "$PROPERTIES_FILE" ] || touch "$PROPERTIES_FILE"
 
-    if grep -q "^worker.tomcat1.host=" "$PROPERTIES_FILE"; then
-        log "Updating existing tomcat worker configuration"
+    if grep -q "^worker.list=" "$PROPERTIES_FILE"; then
+        if ! grep -q "^worker.list=.*${WORKER_NAME}" "$PROPERTIES_FILE"; then
+            sed -i "s/^worker.list=.*/&,$WORKER_NAME/" "$PROPERTIES_FILE"
+        fi
+    else
+        echo "worker.list=$WORKER_NAME" >> "$PROPERTIES_FILE"
+    fi
+
+    if grep -q "^worker.${WORKER_NAME}.host=" "$PROPERTIES_FILE"; then
+        log "Updating existing ${WORKER_NAME} worker configuration"
 
         if [ -s "$PROPERTIES_FILE" ]; then
             log "Creating backup of workers.properties"
             cp "$PROPERTIES_FILE" "${PROPERTIES_FILE}.bkp.$(date +%F-%H%M%S)"
         fi
 
-        sed -i 's|^worker.tomcat1.host=.*|worker.tomcat1.host=10.100.70.45|' "$PROPERTIES_FILE"
-        sed -i 's|^worker.tomcat1.port=.*|worker.tomcat1.port=8009|' "$PROPERTIES_FILE"
-        sed -i 's|^worker.tomcat1.secret=.*|worker.tomcat1.secret=P@ssw0rd|' "$PROPERTIES_FILE"
+        sed -i "s|^worker.${WORKER_NAME}.host=.*|worker.${WORKER_NAME}.host=${WORKER_HOST}|" "$PROPERTIES_FILE"
+        sed -i "s|^worker.${WORKER_NAME}.port=.*|worker.${WORKER_NAME}.port=${WORKER_PORT}|" "$PROPERTIES_FILE"
+        sed -i "s|^worker.${WORKER_NAME}.secret=.*|worker.${WORKER_NAME}.secret=${WORKER_SECRET}|" "$PROPERTIES_FILE"
 
-        log_success "workers.properties updated"
+        log_success "${WORKER_NAME} updated"
 
     else
-        log "Adding tomcat worker configuration"
+        log "Adding ${WORKER_NAME} worker configuration"
 
-        cat <<EOF >> "$PROPERTIES_FILE"
+        cat >> "$PROPERTIES_FILE" <<EOF
 
-worker.list=tomcat1
-worker.tomcat1.type=ajp13
-worker.tomcat1.host=10.100.70.45
-worker.tomcat1.port=8009
-worker.tomcat1.secret=P@ssw0rd
-worker.tomcat1.lbfactor=1
+worker.${WORKER_NAME}.type=ajp13
+worker.${WORKER_NAME}.host=${WORKER_HOST}
+worker.${WORKER_NAME}.port=${WORKER_PORT}
+worker.${WORKER_NAME}.secret=${WORKER_SECRET}
+worker.${WORKER_NAME}.lbfactor=1
 EOF
 
-        log_success "workers.properties added"
+        log_success "${WORKER_NAME} added"
     fi
 }
 
@@ -83,18 +122,23 @@ configure_mod_jk () {
 
 add_jkmount_to_vhost() {
 
-    if ! grep -q "JkMount /\* tomcat1" "$VHOST_FILE"; then
-        echo "[INFO] Adding JkMount to VirtualHost..."
+    if [ ! -f "$VHOST_FILE" ]; then
+        echo "[INFO] Creating VirtualHost for ${WORKER_SERVER_NAME}..."
 
-        cp "$VHOST_FILE" "${VHOST_FILE}.bkp.$(date +%F-%H%M%S)"
+        cat > "$VHOST_FILE" <<EOF 
+<VirtualHost *:80>
+    ServerName ${WORKER_SERVER_NAME}
 
-        sed -i '/<VirtualHost \*:80>/a\
-    JkMount /* tomcat1' "$VHOST_FILE"
+    JkMount /* ${WORKER_NAME}
+</VirtualHost>
+EOF
 
-        echo "[SUCCESS] JkMount added to VirtualHost"
+        a2ensite "${WORKER_SERVER_NAME}.conf" # This will tell apache to use this conf file
+
+        echo "[SUCCESS] VirtualHost created for ${WORKER_SERVER_NAME}"
 
     else
-        echo "[INFO] JkMount already exists in VirtualHost"
+        echo "[INFO] VirtualHost already exists for ${WORKER_SERVER_NAME}"
     fi
 }
 
@@ -107,6 +151,7 @@ main() {
     check_root
     install_apache
     install_mod_jk
+    enable_mod_jk
     create_properties_file
     configure_mod_jk
     add_jkmount_to_vhost
