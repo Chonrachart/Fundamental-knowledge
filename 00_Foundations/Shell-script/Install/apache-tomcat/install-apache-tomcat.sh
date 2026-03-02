@@ -5,9 +5,21 @@ set -e
 VERSION="11.0.18"
 INSTALL_DIR="/opt/tomcat"
 INSTALL_TARGET="$INSTALL_DIR/apache-tomcat-$VERSION"
-SYMLINK="$INSTALL_DIR/apache-tomcat"
+TOMCAT_CONFIG="$INSTALL_TARGET/conf/server.xml"
 TAR_FILE="$INSTALL_DIR/apache-tomcat-$VERSION.tar.gz"
 URL="https://dlcdn.apache.org/tomcat/tomcat-11/v$VERSION/bin/apache-tomcat-$VERSION.tar.gz"
+
+######### This section need to change to install another version ############
+################### Can't use with install sameversion ######################
+SERVICE_NAME="tomcat"
+SYMLINK_NAME="apache-tomcat"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"  ## change unique service name
+SYMLINK="$INSTALL_DIR/$SYMLINK_NAME"               ## change to unique symlink name
+JMX_PORT="9010"
+SHUTDOWN_PORT="8005"
+HTTP_PORT="8080"
+##############################################################################
+
 
 check_root() {
     if [ "$EUID" -ne 0 ]; then
@@ -63,7 +75,6 @@ verify_tomcat() {
 }
 
 create_service() {
-    SERVICE_FILE="/etc/systemd/system/tomcat.service"
 
     cat > "$SERVICE_FILE" <<EOF
 [Unit]
@@ -136,8 +147,8 @@ enable_jmx() {
         cat > "$SETENV_FILE" <<EOF
 CATALINA_OPTS="\$CATALINA_OPTS \
 -Dcom.sun.management.jmxremote \
--Dcom.sun.management.jmxremote.port=9010 \
--Dcom.sun.management.jmxremote.rmi.port=9010 \
+-Dcom.sun.management.jmxremote.port=$JMX_PORT \
+-Dcom.sun.management.jmxremote.rmi.port=$JMX_PORT \
 -Dcom.sun.management.jmxremote.local.only=false \
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dcom.sun.management.jmxremote.ssl=false \
@@ -146,6 +157,36 @@ EOF
         echo "[SUCCESS] JMX enabled."
     else
         echo "[INFO] JMX already configured."
+    fi
+}
+
+config_http_port() {
+
+    if grep -q '<Connector port="8080"' "$TOMCAT_CONFIG"; then
+        echo "[INFO] Changing HTTP port..."
+
+        cp "$TOMCAT_CONFIG" "${TOMCAT_CONFIG}.bkp.$(date +%F-%H%M%S)"
+
+        sed -i "s/port=\"8080\"/port=\"${HTTP_PORT}\"/" "$TOMCAT_CONFIG"
+
+        echo "[SUCCESS] HTTP Port changed"
+    else
+        echo "[INFO] HTTP Port already customized"
+    fi
+}
+
+config_shutdown_port() {
+
+    if grep -q '<Server port="8005"' "$TOMCAT_CONFIG"; then
+        echo "[INFO] Changing shutdown port..."
+
+        cp "$TOMCAT_CONFIG" "${TOMCAT_CONFIG}.bkp.$(date +%F-%H%M%S)"
+
+        sed -i "s/<Server port=\"8005\"/<Server port=\"${SHUTDOWN_PORT}\"/" "$TOMCAT_CONFIG"
+
+        echo "[SUCCESS] Shutdown port changed"
+    else
+        echo "[INFO] Shutdown port already customized"
     fi
 }
 
@@ -161,9 +202,11 @@ main() {
     configure_manager_context
     configure_host_manager_context
     enable_jmx
+    config_http_port
+    config_shutdown_port
 
-    systemctl enable tomcat
-    systemctl restart tomcat
+    systemctl enable "$SERVICE_NAME"
+    systemctl restart "$SERVICE_NAME"
 
     echo "[SUCCESS] Tomcat $VERSION deployed successfully."
     echo "[INFO] Symlink points to: $INSTALL_TARGET"
