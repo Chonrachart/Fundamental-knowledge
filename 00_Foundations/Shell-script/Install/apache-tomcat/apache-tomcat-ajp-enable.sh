@@ -7,7 +7,7 @@ set -e
 SYMLINK_NAME="apache-tomcat"           ## this must match tomcat that want to enable ajp
 SERVICE_NAME="tomcat"                  ## this must unique Service tomcat name
 AJP_PORT="8009"                        ## this must unique port
-AJP_SECRET="MyStrongSecret123"
+AJP_SECRET="P@ssw0rd"
 AJP_ADDRESS="10.100.70.45"             # IP of tomcat host
 ##############################################################################
 
