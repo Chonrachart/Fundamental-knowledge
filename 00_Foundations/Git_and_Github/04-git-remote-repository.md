@@ -93,6 +93,12 @@ git merge <upstream-branch>
 
 # Git Rebase
 
+```bash
+git rebase <branch>
+git rebase # this rebase onto tracking branch
+```
+
+- Take my `current branch` commits and replay them on top of `branch`
 - change the **base commit** of a branch.
 - Avoids creating merge commits by rewriting history into a linear sequence.
 - **!!! Do NOT rebase public/shared branches that have already been pushed.**.
