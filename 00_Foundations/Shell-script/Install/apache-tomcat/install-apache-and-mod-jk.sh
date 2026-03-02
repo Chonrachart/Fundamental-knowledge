@@ -89,8 +89,7 @@ add_jkmount_to_vhost() {
         cp "$VHOST_FILE" "${VHOST_FILE}.bkp.$(date +%F-%H%M%S)"
 
         sed -i '/<VirtualHost \*:80>/a\
-    JkMount /* tomcat1
-' "$VHOST_FILE"
+    JkMount /* tomcat1' "$VHOST_FILE"
 
         echo "[SUCCESS] JkMount added to VirtualHost"
 
