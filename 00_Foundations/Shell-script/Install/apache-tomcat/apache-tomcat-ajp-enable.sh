@@ -3,7 +3,7 @@
 set -e
 
 
-TOMCAT_CONFIG="/opt/tomcat//apache-tomcat/conf/server.xml"
+TOMCAT_CONFIG="/opt/tomcat/apache-tomcat/conf/server.xml"
 BACKUP_FILE="$TOMCAT_CONFIG.bkp"
 AJP_PORT="8009"
 AJP_SECRET="MyStrongSecret123"

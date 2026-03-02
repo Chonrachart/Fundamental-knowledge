@@ -68,27 +68,36 @@ configure_mod_jk () {
 
     [ -f "$JK_CONF" ] || touch "$JK_CONF"
 
-    if grep -q "JkWorkersFile" "$JK_CONF"; then
-        log "mod_jk already configured"
+    if grep -q "JkWorkersFile /etc/apache2/workers.properties" "$JK_CONF"; then
+        log "mod_jk already correctly configured"
         return
     fi
 
-    if [ -s "$JK_CONF" ]; then
-        log "Creating backup of jk.conf"
-        cp "$JK_CONF" "${JK_CONF}.bkp.$(date +%F-%H%M%S)"
+    log "Updating mod_jk configuration"
+
+    sed -i 's|JkWorkersFile .*|JkWorkersFile /etc/apache2/workers.properties|' "$JK_CONF"
+
+    log_success "mod_jk config updated"
+}
+
+add_jkmount_to_vhost() {
+
+    VHOST_FILE="/etc/apache2/sites-enabled/000-default.conf"
+
+    if ! grep -q "JkMount /\* tomcat1" "$VHOST_FILE"; then
+        echo "[INFO] Adding JkMount to VirtualHost..."
+
+        cp "$VHOST_FILE" "${VHOST_FILE}.bkp.$(date +%F-%H%M%S)"
+
+        sed -i '/<VirtualHost \*:80>/a\
+    JkMount /* tomcat1
+' "$VHOST_FILE"
+
+        echo "[SUCCESS] JkMount added to VirtualHost"
+
+    else
+        echo "[INFO] JkMount already exists in VirtualHost"
     fi
-
-    log "Adding mod_jk config"
-
-    cat <<EOF >> "$JK_CONF"
-
-JkWorkersFile /etc/apache2/workers.properties
-JkLogFile     /var/log/apache2/mod_jk.log
-JkLogLevel    info
-JkMount  /*  tomcat1
-EOF
-    log_success "mod_jk config added"
-
 }
 
 enable_module() {
@@ -102,6 +111,7 @@ main() {
     install_mod_jk
     create_properties_file
     configure_mod_jk
+    add_jkmount_to_vhost
     enable_module
 }
 
