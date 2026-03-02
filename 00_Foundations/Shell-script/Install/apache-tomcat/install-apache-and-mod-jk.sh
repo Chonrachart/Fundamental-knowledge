@@ -4,6 +4,7 @@ set -e
 
 PROPERTIES_FILE=/etc/apache2/workers.properties
 JK_CONF="/etc/apache2/mods-available/jk.conf"
+VHOST_FILE="/etc/apache2/sites-enabled/000-default.conf"
 
 log()        { echo "[INFO] $1"; }
 log_success(){ echo "[SUCCESS] $1"; }
@@ -81,8 +82,6 @@ configure_mod_jk () {
 }
 
 add_jkmount_to_vhost() {
-
-    VHOST_FILE="/etc/apache2/sites-enabled/000-default.conf"
 
     if ! grep -q "JkMount /\* tomcat1" "$VHOST_FILE"; then
         echo "[INFO] Adding JkMount to VirtualHost..."
