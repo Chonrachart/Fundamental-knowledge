@@ -81,6 +81,7 @@ main() {
     add_ajp_connector
     restart_tomcat
     verify_port
+    echo "Manual Disable port 8080 if Needed"
 }
 
 main "$@"
