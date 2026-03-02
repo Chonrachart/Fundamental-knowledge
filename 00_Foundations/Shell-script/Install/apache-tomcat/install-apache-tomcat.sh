@@ -2,24 +2,23 @@
 
 set -e
 
+######### This section need to change to install another version ############
+################### Can't use with install sameversion ######################
+SERVICE_NAME="tomcat"                           ## change unique service name
+SYMLINK_NAME="apache-tomcat"                    ## change to unique symlink name           
+JMX_PORT="9010"
+SHUTDOWN_PORT="8005"
+HTTP_PORT="8080"
+##############################################################################
+
 VERSION="11.0.18"
 INSTALL_DIR="/opt/tomcat"
 INSTALL_TARGET="$INSTALL_DIR/apache-tomcat-$VERSION"
 TOMCAT_CONFIG="$INSTALL_TARGET/conf/server.xml"
 TAR_FILE="$INSTALL_DIR/apache-tomcat-$VERSION.tar.gz"
 URL="https://dlcdn.apache.org/tomcat/tomcat-11/v$VERSION/bin/apache-tomcat-$VERSION.tar.gz"
-
-######### This section need to change to install another version ############
-################### Can't use with install sameversion ######################
-SERVICE_NAME="tomcat"
-SYMLINK_NAME="apache-tomcat"
-SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"  ## change unique service name
-SYMLINK="$INSTALL_DIR/$SYMLINK_NAME"               ## change to unique symlink name
-JMX_PORT="9010"
-SHUTDOWN_PORT="8005"
-HTTP_PORT="8080"
-##############################################################################
-
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"  
+SYMLINK="$INSTALL_DIR/$SYMLINK_NAME" 
 
 check_root() {
     if [ "$EUID" -ne 0 ]; then
