@@ -2,12 +2,18 @@
 
 set -e
 
-
-TOMCAT_CONFIG="/opt/tomcat/apache-tomcat/conf/server.xml"
-BACKUP_FILE="$TOMCAT_CONFIG.bkp"
-AJP_PORT="8009"
+######### This section need to change to install another version ############
+################### Can't use with install sameversion ######################
+SYMLINK_NAME="apache-tomcat"           ## this must match tomcat that want to enable ajp
+SERVICE_NAME="tomcat"                  ## this must unique Service tomcat name
+AJP_PORT="8009"                        ## this must unique port
 AJP_SECRET="MyStrongSecret123"
-AJP_ADDRESS="10.100.70.45"
+AJP_ADDRESS="10.100.70.45"             # IP of tomcat host
+##############################################################################
+
+TOMCAT_CONFIG="/opt/tomcat/$SYMLINK_NAME/conf/server.xml"
+BACKUP_FILE="$TOMCAT_CONFIG.bkp"
+
 
 log()        { echo "[INFO] $1"; }
 log_success(){ echo "[SUCCESS] $1"; }
@@ -47,19 +53,19 @@ add_ajp_connector() {
 
     log "Adding AJP connector..."
 
-    sed -i '/<Service name="Catalina">/ a\
-    <Connector protocol="AJP/1.3" \
-            address="10.100.70.45" \
-            port="8009" \
-            secretRequired="true" \
-            secret="P@ssw0rd" \
-            redirectPort="8443" />' "$TOMCAT_CONFIG"
+    sed -i "/<Service name=\"Catalina\">/ a\\
+    <Connector protocol=\"AJP/1.3\" \\
+            address=\"${AJP_ADDRESS}\" \\
+            port=\"${AJP_PORT}\" \\
+            secretRequired=\"true\" \\
+            secret=\"${AJP_SECRET}\" \\
+            redirectPort=\"8443\" />" "$TOMCAT_CONFIG"
 
     log_success "AJP connector added"
 }
 
 restart_tomcat() {
-    systemctl restart tomcat
+    systemctl restart $SERVICE_NAME
     log_success "Tomcat restarted"
 }
 
