@@ -27,6 +27,7 @@ systemctl restart <service>
 systemctl reload <service>
 systemctl enable <service>
 systemctl disable <service>
+systemctl daemon-reload
 systemctl list-unit --type=service
 systemctl --failed
 systemcl reboot
@@ -36,6 +37,9 @@ systemctl suspend
 
 - `enable` run this service on boot.
 - `systemctl --failed` this check only failed service
+- `systemctl daemon-reload` systemd reads unit files and keep them cached in memory use this command to reload cached
+  - use when edit a service file
+  - create new service file
 - `systemctl list-unit --type=service` this list all service
 
 ### Common locations
