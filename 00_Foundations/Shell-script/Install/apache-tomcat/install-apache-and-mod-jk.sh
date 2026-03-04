@@ -128,12 +128,15 @@ add_jkmount_to_vhost() {
         cat > "$VHOST_FILE" <<EOF 
 <VirtualHost *:80>
     ServerName ${WORKER_SERVER_NAME}
-
-    JkMount /* ${WORKER_NAME}
+    Redirect / https://${WORKER_SERVER_NAME}/
 </VirtualHost>
 EOF
+## Move JKMount out from port 80 if use port 443
+## JkMount /* ${WORKER_NAME}
 
-        a2ensite "${WORKER_SERVER_NAME}.conf" # This will tell apache to use this conf file
+## This will tell apache to use this conf file
+
+        a2ensite "${WORKER_SERVER_NAME}.conf" 
 
         echo "[SUCCESS] VirtualHost created for ${WORKER_SERVER_NAME}"
 
