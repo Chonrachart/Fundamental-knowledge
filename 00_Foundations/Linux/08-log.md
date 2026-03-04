@@ -33,18 +33,32 @@ sudo tail -F /var/log/auth.log
 - On systemd system, many logs go to binary journal instead of only file.
 - journalctl is main tool to read this.
 ```bash
-sudo journalctlsudo journalctl -b
+sudo journalctl
+sudo journalctl -b
+sudo journalctl -p err
 sudo journalctl -f
+sudo journalctl -n <number>
 sudo journalctl -u ssh
 sudo journalctl -u nginx
+sudo journalctl -k
 sudo journalctl --since "10 minutes ago"
 sudo journalctl --since "2025-02-28 10:00" --until "2025-02-28 12:00"
 ```
 - journalctl show all journal.
 - `-b` only current boot.
+  - `-b -1` previous boot
+- `-p eer` show only error
 - `-f` follow new entries (like tail -f).
-- `-u` <service> filter by systemd unit (service).
+- `-u <service>` filter by systemd unit (service).
+- `-k` for kernal log
 - `--since`, `--until` filter by time.
+### Can conbine like 
+```
+journalctl -u <service> -f
+journalctl -u <service> -n -50
+journalctl -kf
+journalctl -u <service> -p err
+```
 
 # Log rotation (logrotate)
 - Log file will grow forever if not rotated.
