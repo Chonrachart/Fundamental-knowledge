@@ -7,7 +7,7 @@ set -e
 TOMCAT1_NAME="tomcat1"
 TOMCAT1_HOST="10.100.70.45"
 TOMCAT1_PORT="8009"
-TOMCAT1_SECRET="ssw0rdP@"
+TOMCAT1_SECRET="P@ssw0rd"
 TOMCAT1_SERVER_NAME="chonrachart1.somapait.com"
 
 TOMCAT2_NAME="tomcat2"
@@ -129,6 +129,16 @@ add_jkmount_to_vhost() {
 <VirtualHost *:80>
     ServerName ${WORKER_SERVER_NAME}
     Redirect / https://${WORKER_SERVER_NAME}/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName ${WORKER_SERVER_NAME}
+
+    SSLEngine on
+    SSLCertificateFile /path/to/cert.pem
+    SSLCertificateKeyFile /path/to/key.pem
+
+    JkMount /* ${WORKER_NAME}
 </VirtualHost>
 EOF
 ## Move JKMount out from port 80 if use port 443
