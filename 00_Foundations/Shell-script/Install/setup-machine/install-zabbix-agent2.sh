@@ -61,3 +61,30 @@ main() {
 }
 
 main "$@"
+
+### to Redirect zabbix to use only ip not use context/zabbix ###
+### edit in /etc/apache2/sites-enabled/000-default.conf
+### ---------------default----------------
+### DocumentRoot /var/www/html
+### --------------fix to-----------------
+### DocumentRoot /usr/share/zabbix
+
+
+
+### --------------- OR ----------------------
+### edit /etc/apache2/conf-enabled/zabbix.conf
+### ---------------default----------------
+### Alias /zabbix /usr/share/zabbix
+### <Directory "/usr/share/zabbix">
+###     Options FollowSymLinks
+###     AllowOverride None
+###     Require all granted
+### </Directory>
+### --------------fix to-----------------
+### DocumentRoot /usr/share/zabbix
+### 
+### <Directory "/usr/share/zabbix">
+###     Options FollowSymLinks
+###     AllowOverride None
+###     Require all granted
+### </Directory>
