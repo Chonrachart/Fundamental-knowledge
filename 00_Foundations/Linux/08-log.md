@@ -53,7 +53,7 @@ sudo journalctl --since "2025-02-28 10:00" --until "2025-02-28 12:00"
 - `-k` for kernal log
 - `--since`, `--until` filter by time.
 ### Can conbine like 
-```
+```bash
 journalctl -u <service> -f
 journalctl -u <service> -n -50
 journalctl -kf
