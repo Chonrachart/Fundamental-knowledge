@@ -27,7 +27,7 @@ key_gen() {
     if [ -s "$KEY_FILE" ]; then
         log "Key already exists"
     else
-        openssl genkey -algorithm ED25519 -out "$KEY_FILE" 
+        openssl genpkey -algorithm ED25519 -out "$KEY_FILE" 
         log_success "Generate key ED25519"
     fi
 }
