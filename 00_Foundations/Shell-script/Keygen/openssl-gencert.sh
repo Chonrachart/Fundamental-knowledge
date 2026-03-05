@@ -4,8 +4,8 @@
 
 set -e
 
-KEY_FILE="/etc/ssl/private/apache-ed25519.key"
-CERT_FILE="/etc/ssl/certs/apache-ed25519.crt"
+KEY_FILE="/etc/ssl/private/apache-rsa2048.key"
+CERT_FILE="/etc/ssl/certs/apache-rsa2048.crt"
 
 log()        { echo "[INFO] $1"; }
 log_success(){ echo "[SUCCESS] $1"; }
@@ -27,9 +27,15 @@ key_gen() {
     if [ -s "$KEY_FILE" ]; then
         log "Key already exists"
     else
-        openssl genpkey -algorithm ED25519 -out "$KEY_FILE" 
-        log_success "Generate key ED25519"
+        openssl genpkey \
+        -algorithm RSA \
+        -pkeyopt rsa_keygen_bits:2048 \
+        -out "$KEY_FILE"
+
+        log_success "Generated RSA 2048 key"
     fi
+
+    chmod 600 "$KEY_FILE"
 }
 
 cert_gen() {
@@ -49,6 +55,7 @@ main() {
     makedir
     key_gen
     cert_gen
+    a2enmod ssl
 }
 
 main "$@"
