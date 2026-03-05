@@ -1,4 +1,4 @@
-This repository contain shell-script of Chonrachart.s
+This repository contains shell scripts by Chonrachart.s.
 
 Author : Chonrachart.s 
 
