@@ -26,8 +26,8 @@ WORKER_SERVER_NAME="$TOMCAT1_SERVER_NAME"
 PROPERTIES_FILE=/etc/apache2/workers.properties
 JK_CONF="/etc/apache2/mods-available/jk.conf"
 VHOST_FILE="/etc/apache2/sites-available/${WORKER_SERVER_NAME}.conf"
-KEY_FILE="/etc/ssl/private/apache-ed25519.key"
-CERT_FILE="/etc/ssl/certs/apache-ed25519.crt"
+KEY_FILE="/etc/ssl/private/apache-rsa2048.key"
+CERT_FILE="/etc/ssl/certs/apache-rsa2048.crt"
 
 log()        { echo "[INFO] $1"; }
 log_success(){ echo "[SUCCESS] $1"; }
