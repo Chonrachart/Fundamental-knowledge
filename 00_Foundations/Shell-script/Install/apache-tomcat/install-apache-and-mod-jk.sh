@@ -26,6 +26,8 @@ WORKER_SERVER_NAME="$TOMCAT1_SERVER_NAME"
 PROPERTIES_FILE=/etc/apache2/workers.properties
 JK_CONF="/etc/apache2/mods-available/jk.conf"
 VHOST_FILE="/etc/apache2/sites-available/${WORKER_SERVER_NAME}.conf"
+KEY_FILE="/etc/ssl/private/apache-ed25519.key"
+CERT_FILE="/etc/ssl/certs/apache-ed25519.crt"
 
 log()        { echo "[INFO] $1"; }
 log_success(){ echo "[SUCCESS] $1"; }
@@ -135,8 +137,8 @@ add_jkmount_to_vhost() {
     ServerName ${WORKER_SERVER_NAME}
 
     SSLEngine on
-    SSLCertificateFile /path/to/cert.pem
-    SSLCertificateKeyFile /path/to/key.pem
+    SSLCertificateFile "$CERT_FILE"
+    SSLCertificateKeyFile "$KEY_FILE"
 
     JkMount /* ${WORKER_NAME}
 </VirtualHost>
