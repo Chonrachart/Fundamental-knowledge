@@ -1,0 +1,5 @@
+plaintext
+ciphertext
+encryption
+decryption
+key

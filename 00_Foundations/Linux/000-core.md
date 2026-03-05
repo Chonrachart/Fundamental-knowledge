@@ -58,7 +58,6 @@ Software management
 Observability
  → logs
 
-
 5. . Linux mental model
    User runs command
       ↓
