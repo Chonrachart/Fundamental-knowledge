@@ -21,6 +21,9 @@ configure_chrony() {
 
     grep -q "^[[:space:]]*server 192.168.10.254 iburst" "$conf" \
         || echo "server 192.168.10.254 iburst" >> "$conf"
+
+    grep -q "^[[:space:]]*allow 10.100.0.0/16" "$conf" \
+        || echo "allow 10.100.0.0/16" >> "$conf"
 }
 
 enable_service() {
