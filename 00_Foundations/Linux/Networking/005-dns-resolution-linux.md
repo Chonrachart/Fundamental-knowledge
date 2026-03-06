@@ -98,3 +98,4 @@ nsswitch: hosts: files dns
    → Send query to nameserver
    → Return result (possibly cached)
 ```
+[04-DNS.md](../../Networking/04-DNS.md)
