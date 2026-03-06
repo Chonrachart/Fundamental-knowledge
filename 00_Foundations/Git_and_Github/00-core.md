@@ -24,7 +24,7 @@ edit → git add → git commit → git push
 
 # Topic Map
 
-- [00-markdown](./00-markdown.md) — Markdown syntax for README, issues, PR
+- [markdown](./markdown.md) — Markdown syntax for README, issues, PR
 - [01-git-setup](./01-git-setup.md) — init, config, three areas, .gitignore
 - [02-git-interaction](./02-git-interaction.md) — amend, diff, reset, revert
 - [03-git-branch](./03-git-branch.md) — branches, merge, merge conflict
