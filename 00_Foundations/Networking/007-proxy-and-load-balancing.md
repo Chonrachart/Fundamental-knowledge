@@ -54,8 +54,8 @@ Client → Reverse Proxy → Backend Server(s)
 
 ```
 Client → Load Balancer → Backend 1
-                      → Backend 2
-                      → Backend 3
+                       → Backend 2
+                       → Backend 3
 ```
 
 - Client sends request to load balancer.
