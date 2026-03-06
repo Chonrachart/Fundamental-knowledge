@@ -41,13 +41,14 @@ sudo journalctl -n <number>
 sudo journalctl -u ssh
 sudo journalctl -u nginx
 sudo journalctl -k
+sudo journalctl -b -1
 sudo journalctl --since "10 minutes ago"
 sudo journalctl --since "2025-02-28 10:00" --until "2025-02-28 12:00"
 ```
 - journalctl show all journal.
 - `-b` only current boot.
   - `-b -1` previous boot
-- `-p eer` show only error
+- `-p err` show only error
 - `-f` follow new entries (like tail -f).
 - `-u <service>` filter by systemd unit (service).
 - `-k` for kernal log
@@ -59,6 +60,18 @@ journalctl -u <service> -n -50
 journalctl -kf
 journalctl -u <service> -p err
 ```
+
+# Time and Timezone (important for logs)
+
+```bash
+timedatectl
+timedatectl set-timezone Asia/Bangkok
+timedatectl set-ntp true
+```
+
+- Wrong time makes logs hard to correlate and can break auth/TLS.
+- Keep NTP sync enabled for reliable timestamps.
+- Or use [install-ntp.sh](../Shell-script/Install/setup-machine/install-ntp.sh)
 
 # Log rotation (logrotate)
 - Log file will grow forever if not rotated.
