@@ -1,7 +1,3 @@
-osi tcp/ip encapsulate packet-vs-frame
-
----
-
 # OSI Model (7 Layers)
 
 - Open Systems Interconnection model; describes how data flows through a network.
