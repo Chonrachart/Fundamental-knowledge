@@ -84,7 +84,7 @@ Merge Result
   automatically merge the changes.
 - Must be resolved before the merge can be completed.
 
-#### Merge conflict rersolve
+#### Merge conflict resolve
 
 - Open the conflicting file(s).
 - Edit and keep the correct changes.
@@ -96,7 +96,7 @@ git add <file>
 git commit
 ```
   
-#### Cancle merge
+#### Cancel merge
 
 ```bash
 git merge --abort
@@ -105,4 +105,3 @@ git merge --abort
 - Aborts the merge process and restores the repository to the state before the 
   merge started.
   
-  test

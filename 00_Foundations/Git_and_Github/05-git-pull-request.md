@@ -9,7 +9,7 @@
 - A request asking repository owenr to merge your commits into their repository.
 - Commonly used when you don't have write permission.
 - Also used in team workflows for code review and collaboration.
-- Repository owner can desided to merge into repository or discarded. 
+- Repository owner can decided to merge into repository or discarded. 
 
 ## Pull Request Workflow
 

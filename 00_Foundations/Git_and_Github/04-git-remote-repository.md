@@ -111,7 +111,7 @@ git rebase # this rebase onto tracking branch
 4. git rebase <main_branch>
 5. git push
 
-Senario 
+Scenario 
 
 ![git-before-rebase](./pic/git-before-rebase.png)
 

@@ -1,6 +1,6 @@
 # Heading1
 ## Heading2
-### Headding3
+### Heading3
 - use # ## ### to create heading
 
 # Code Block
