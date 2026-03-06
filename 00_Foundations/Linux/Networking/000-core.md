@@ -45,7 +45,7 @@ network stacks on the same system
 
 ---
 
-# Linux Networking Overview (Detailed)
+# Linux Networking Overview 
 
 - Linux networking is implemented in the kernel.
 - Applications use the **socket API** to create endpoints for communication.
@@ -57,12 +57,12 @@ network stacks on the same system
 | Component        | Role                                              |
 | :--------------- | :------------------------------------------------ |
 | Socket API       | Interface between application and kernel          |
-| TCP/UDP          | Transport layer (ports, connections)             |
-| IP layer         | Addressing, fragmentation, routing decisions    |
-| Netfilter        | Packet filtering, NAT (iptables/nftables)        |
+| TCP/UDP          | Transport layer (ports, connections)              |
+| IP layer         | Addressing, fragmentation, routing decisions      |
+| Netfilter        | Packet filtering, NAT (iptables/nftables)         |
 | Network interface| Physical (NIC) or virtual (lo, bridge, veth)      |
 
-# Linux Networking Architecture (Detailed)
+# Linux Networking Architecture 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -99,7 +99,7 @@ network stacks on the same system
 └─────────────────────────────────────────────────────────┘
 ```
 
-# Packet Flow Overview (Detailed)
+# Packet Flow Overview 
 
 ### Outgoing (Application → Wire)
 
@@ -119,7 +119,7 @@ network stacks on the same system
 4. **Transport**: TCP/UDP demultiplexes by port to socket.
 5. **Application** receives via `recv()`.
 
-# Network Isolation Concept (Detailed)
+# Network Isolation Concept 
 
 - **Network namespaces** provide isolated network stacks on one host.
 - Each namespace has its own interfaces, routing tables, and firewall rules.
