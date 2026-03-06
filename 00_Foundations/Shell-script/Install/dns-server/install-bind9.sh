@@ -4,6 +4,7 @@ set -e
 
 ZONE_CONF="/etc/bind/named.conf.local"
 ZONE_DB="/etc/bind/db.somapait"
+OPTIONS_CONF="/etc/bind/named.conf.options"
 
 log()        { echo "[INFO] $1"; }
 log_success(){ echo "[SUCCESS] $1"; }
@@ -76,11 +77,40 @@ EOF
     fi
 }
 
+configure_forwarders() {
+    if grep -q '8.8.8.8;' "$OPTIONS_CONF" && grep -q '1.1.1.1;' "$OPTIONS_CONF"; then
+        log "Forwarders already configured"
+        return
+    fi
+
+    cat > "$OPTIONS_CONF" << 'EOF'
+options {
+        directory "/var/cache/bind";
+
+        recursion yes;
+        allow-query {127.0.0.1; 10.100.0.0/16; };
+        forwarders {
+                192.168.10.254;
+        };
+
+        dnssec-validation auto;
+        listen-on-v6 { none; };
+};
+EOF
+
+    if named-checkconf; then
+        log_success "Configured internet domain forwarding"
+    else
+        log_fail "Forwarders configuration incorrect"
+    fi
+}
+
 main() {
     check_root
     install_bind9
     define_zone
     create_zone_db
+    configure_forwarders
     systemctl restart bind9
 }
 
