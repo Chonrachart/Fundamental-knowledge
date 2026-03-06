@@ -33,6 +33,9 @@ systemctl --failed
 systemcl reboot
 systemctl poweroff
 systemctl suspend
+systemctl cat <service>
+systemctl show <service> -p After -p Requires -p Wants
+systemctl edit <service>
 ```
 
 - `enable` run this service on boot.
@@ -41,6 +44,9 @@ systemctl suspend
   - use when edit a service file
   - create new service file
 - `systemctl list-unit --type=service` this list all service
+- `systemctl cat <service>` show full effective unit file.
+- `systemctl show ... -p After -p Requires -p Wants` inspect dependency ordering.
+- `systemctl edit <service>` create override file in `/etc/systemd/system/...d/override.conf`.
 
 ### Common locations
 ```bash
@@ -55,6 +61,17 @@ systemctl suspend
   - restart policies.
   - example to create service
     - [install-openvswitch-create-service.sh](../Shell-script/Install/openvswitch/install-openvswitch-create-service.sh)
+
+### Unit dependency basics
+
+- `After=` start ordering only.
+- `Requires=` strong dependency (if required unit fails, this unit fails).
+- `Wants=` weak dependency (best effort).
+
+Example idea:
+- Service that needs network usually has:
+  - `After=network-online.target`
+  - `Wants=network-online.target`
 
 # App Armor
 
