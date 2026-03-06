@@ -78,7 +78,7 @@ EOF
 }
 
 configure_forwarders() {
-    if grep -q '8.8.8.8;' "$OPTIONS_CONF" && grep -q '1.1.1.1;' "$OPTIONS_CONF"; then
+    if grep -q '192.168.10.254;' "$OPTIONS_CONF"; then
         log "Forwarders already configured"
         return
     fi
