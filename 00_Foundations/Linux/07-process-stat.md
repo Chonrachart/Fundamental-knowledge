@@ -87,6 +87,48 @@ Ctrl + C
 
 - Send SIGINT(interrupt) to foreground process, which typically terminates it.
 
+# Signal Quick Map
+
+- Signals are async notifications sent to a process.
+
+```bash
+kill -l
+pkill <name>
+killall <name>
+```
+
+- Common signals
+  - `SIGTERM (15)` default for `kill` graceful stop.
+  - `SIGKILL (9)` force stop, cannot be caught.
+  - `SIGINT (2)` Ctrl + C from terminal.
+  - `SIGTSTP (20)` Ctrl + Z stop/suspend.
+  - `SIGHUP (1)` terminal closed / reload pattern for some daemons.
+
+- Prefer `SIGTERM` first, use `SIGKILL` only if process does not exit.
+
+# Exit Code and Shell Logic
+
+```bash
+echo $?
+command1 && command2
+command1 || command2
+```
+
+- Exit code `0` = success.
+- Non-zero = error/failure.
+- `&&` run next only if previous success.
+- `||` run next only if previous failed.
+
+### Script safety (important)
+
+```bash
+set -euo pipefail
+```
+
+- `-e` exit on error.
+- `-u` fail on unset variable.
+- `-o pipefail` pipeline fails if any command fails.
+
 
 # Resource Usage
 
@@ -176,3 +218,25 @@ lscpu
   - Thread(s) per core
 - You can calculate:
   - `Logical CPUs = sockets × cores per socket × threads per core`
+
+# Resource Limits and OOM
+
+```bash
+ulimit -a
+cat /proc/<PID>/limits
+dmesg | grep -i oom
+```
+
+- `ulimit` controls per-shell/per-process limits (open files, process count, etc.).
+- OOM killer may terminate processes when memory is exhausted.
+- OOM events are visible in kernel logs (`dmesg` / `journalctl -k`).
+
+### cgroups (basic)
+
+- cgroups limit and account resources for groups of processes.
+- Common in containers and modern service management.
+- Quick check:
+
+```bash
+cat /proc/self/cgroup
+```
