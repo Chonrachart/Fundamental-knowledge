@@ -36,8 +36,8 @@ Physical     →  Cables, signals
 
 # Packet Flow Overview
 
-- Outgoing: Application → Socket → Transport → IP → Link → Physical → Wire
-- Incoming: Wire → Physical → Link → IP → Transport → Socket → Application
+- Outgoing: `Application → Socket → Transport → IP → Link → Physical → Wire`
+- Incoming: `Wire → Physical → Link → IP → Transport → Socket → Application`
 - Each layer adds (outgoing) or removes (incoming) its header.
 
 # Topic Map
