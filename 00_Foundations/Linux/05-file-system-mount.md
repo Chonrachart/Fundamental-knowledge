@@ -115,9 +115,9 @@ UUID=abcd-1234   /data   ext4   defaults   0   2
 
 - `<dump>` → Backup flag (usually 0)
 - `<pass>` → This controls filesystem check order at boot using fsck.
-  - 0 → no check (temporary mount)
-  - 1 → root partition
-  - 2 → other partitions
+  - `pass=1` usually root filesystem.
+  - `pass=2` other local filesystems.
+  - `pass=0` skip fsck check on boot.
 
 - Common Mount Options
   - defaults → rw, suid, dev, exec, auto, nouser, async
@@ -125,42 +125,46 @@ UUID=abcd-1234   /data   ext4   defaults   0   2
   - rw → read-write
   - noexec → prevent execution
 
-### Test fstab (Important)
-- After editing:
+### If fstab is wrong **(Important)**
+
+- System may drop into emergency mode during boot.
+- Best practice after editing fstab:
+  
 ```bash
 mount -a
 ```
 - If no error → configuration is correct.
 - If error → fix before reboot.
 
-# NOTE
+# Boot Flow and Filesystem Mount
 
-- Boot step for more information
+- Boot and mount are tightly related because Linux cannot continue without mounting root filesystem.
 
+```text
+1) Power on
+2) BIOS/UEFI initializes hardware
+3) Bootloader (GRUB) loads kernel + initramfs
+4) Kernel starts, loads essential drivers
+5) initramfs finds real root filesystem
+6) Root (/) mounts read-only first
+7) fsck may run (fstab pass)
+8) Root remounts read-write
+9) Other filesystems mount from /etc/fstab
+10) systemd (PID 1) starts targets and services
+11) Login prompt / multi-user system ready
 ```
-Boot step
-1️⃣ Power On
-2️⃣ BIOS / UEFI initializes hardware 
-→ Initializes CPU, RAM, storage, selects boot device
-3️⃣ Bootloader loads (GRUB) 
-→ Loads Linux kernel and passes boot parameters
-4️⃣ Kernel loads into memory
-→ Kernel initializes core system functions and drivers
-5️⃣ initramfs loads
-→ Temporary minimal filesystem prepares real root filesystem
-6️⃣ Root filesystem mounted as read-only (ro)
-→ Root mounted safely to prevent corruption before check
-7️⃣ fsck runs (based on fstab pass value)
-→ Check root filesystem integrity
-8️⃣ If root OK → remount root as read-write (rw)
-→ Switch root to writable mode after successful check
-9️⃣ Other filesystems (pass=2) checked
-→ Check other filesystems listed in fstab
-🔟 Other filesystems mounted
-→ Attach /home, /data, etc. to directory tree
-1️⃣1️⃣ Start init system (systemd)
-→ System manager takes control of startup process
-1️⃣2️⃣ systemd starts services
-→ Launch networking, SSH, logging, cron, etc.
-1️⃣3️⃣ Login prompt appears
+
+### Why root mounts read-only first
+
+- To reduce corruption risk before filesystem check and recovery.
+- After checks pass, system remounts root as read-write.
+
+### Boot / mount debug commands
+
+```bash
+findmnt
+findmnt -no SOURCE,TARGET,FSTYPE,OPTIONS /
+cat /proc/cmdline
+journalctl -b -p err
+systemd-analyze critical-chain
 ```
