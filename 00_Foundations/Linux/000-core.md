@@ -25,6 +25,13 @@ Hardware (CPU, RAM, Disk, NIC)
 - User space cannot directly touch hardware; it requests the kernel to do it.
 - This separation provides stability, isolation, and security.
 
+# User Space vs Kernel Space
+
+- **User space**: where normal applications run with limited privileges.
+- **Kernel space**: where kernel code runs with full hardware/system access.
+- Applications switch to kernel space via system calls (`open`, `read`, `write`, `fork`, `execve`).
+- This isolation prevents one app from directly corrupting the whole system.
+
 # Kernel Responsibilities
 
 - Process scheduling (which process runs, and when).
@@ -58,6 +65,18 @@ cat /etc/hostname
 - `cat` calls `open()` + `read()`.
 - Kernel reads bytes from filesystem cache/disk.
 - `cat` writes output to stdout.
+
+# Process States (Quick)
+
+```bash
+ps -eo pid,ppid,stat,comm | head
+```
+
+- Common `STAT` values:
+  - `R` Running or runnable
+  - `S` Interruptible sleep (waiting)
+  - `D` Uninterruptible sleep (usually disk I/O wait)
+  - `Z` Zombie (finished, waiting parent to reap)
 
 # Core Building Blocks
 
@@ -169,6 +188,13 @@ Check network/listening ports (ip, ss, route, dns)
     ↓
 Apply fix and verify
 ```
+
+# Quick Facts (Revision)
+
+- PID 1 is usually `systemd`.
+- Exit code `0` means success; non-zero means failure.
+- Use `SIGTERM` first, `SIGKILL` only when needed.
+- After editing `/etc/fstab`, run `mount -a` before reboot.
 
 # Topic Map
 
