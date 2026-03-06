@@ -105,3 +105,41 @@ chmod o+r file
 ### Note
 
 - Without x on directory, you cannot cd into it.
+
+# umask
+
+```bash
+umask
+umask 022
+umask 027
+```
+
+- `umask` defines default permission mask for new files/directories.
+- Typical defaults:
+  - `022` -> files `644`, directories `755`
+  - `027` -> files `640`, directories `750`
+
+# Special Permissions
+
+```bash
+chmod 4755 <file>   # setuid
+chmod 2755 <dir>    # setgid
+chmod 1777 <dir>    # sticky bit
+```
+
+- `setuid (4)` on executable: run with file owner's UID.
+- `setgid (2)` on directory: new files inherit directory group.
+- `sticky bit (1)` on directory: only owner/root can delete own files.
+  - Example: `/tmp` usually `1777`.
+
+# ACL (Access Control List)
+
+```bash
+getfacl <path>
+setfacl -m u:alice:rwx <path>
+setfacl -m g:dev:r-x <path>
+setfacl -x u:alice <path>
+```
+
+- ACL provides finer permissions beyond owner/group/others.
+- Useful when multiple users need different access on same directory.
