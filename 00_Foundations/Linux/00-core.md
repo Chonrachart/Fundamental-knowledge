@@ -197,4 +197,5 @@ Apply fix and verify
 - [07-process-stat](./07-process-stat.md)
 - [08-log](./08-log.md)
 - [09-service-systemctl-socket](./09-service-systemctl-socket.md)
+- [10-shell-environment-and-path.md](./10-shell-environment-and-path.md)
 - [Networking Core](./Networking/000-core.md)
