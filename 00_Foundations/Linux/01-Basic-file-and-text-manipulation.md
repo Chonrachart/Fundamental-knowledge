@@ -217,22 +217,3 @@ zcat access.log.gz | grep "ERROR"
 - Print the content of a compressed `.gz` file to stdout without extracting it.
 
 
-
-# Shell Environment and PATH
-
-```bash
-echo $PATH
-which ls
-env
-export APP_ENV=dev
-```
-
-- Environment variables are key-value data passed to child processes.
-- `PATH` is search path for commands (`/usr/bin`, `/usr/local/bin`, etc.).
-- If command is "not found", check PATH first.
-
-### Shell startup files (bash)
-
-- `~/.bashrc` for interactive non-login shell.
-- `~/.profile` (or `~/.bash_profile`) for login shell.
-- Common pattern: export variables in `.profile`, aliases/functions in `.bashrc`.
