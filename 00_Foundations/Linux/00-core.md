@@ -4,9 +4,10 @@
 - The kernel is the core layer that controls CPU, memory, devices, filesystem, networking, and process isolation.
 - User space tools (shell, systemd, package managers, utilities) interact with the kernel via system calls.
 
----
 
 # Linux System Architecture
+
+![linux-architecture](./pic/linux_architecture.PNG)
 
 ```text
 User Applications (bash, nginx, python, vim)
@@ -66,17 +67,6 @@ cat /etc/hostname
 - Kernel reads bytes from filesystem cache/disk.
 - `cat` writes output to stdout.
 
-# Process States (Quick)
-
-```bash
-ps -eo pid,ppid,stat,comm | head
-```
-
-- Common `STAT` values:
-  - `R` Running or runnable
-  - `S` Interruptible sleep (waiting)
-  - `D` Uninterruptible sleep (usually disk I/O wait)
-  - `Z` Zombie (finished, waiting parent to reap)
 
 # Core Building Blocks
 
