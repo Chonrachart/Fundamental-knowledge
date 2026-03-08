@@ -19,6 +19,19 @@ ps aux -> BSD style options (no dash)
     - process that start at boot, run in background, not interact with user
       ex. systemd, sshd, cron, nginx
 
+# Process States (Quick)
+
+```bash
+ps -eo pid,ppid,stat,comm | head
+```
+
+- Common `STAT` values:
+  - `R` Running or runnable
+  - `S` Interruptible sleep (waiting)
+  - `D` Uninterruptible sleep (usually disk I/O wait)
+  - `Z` Zombie (finished, waiting parent to reap)
+
+
 # Jobs Control
 
 ```bash
