@@ -2,49 +2,53 @@
 
 set -e
 
-PS1_VALUE='export PS1="\[\e[32m\]\u\[\e[0m\]@\[\e[35m\]\h\[\e[0m\]:\[\e[36m\]\w\[\e[0m\]\$ "'
-TARGET_FILE="/etc/bash.bashrc"
+FILE="$HOME/.bashrc"
+PROMPT='export PS1="\[\e[1;32m\]\u\[\e[0m\]@\[\e[1;35m\]\h\[\e[0m\]:\[\e[1;36m\]\w\[\e[0m\]\$ "'
 
 log() { echo "[INFO] $1"; }
 success() { echo "[SUCCESS] $1"; }
 fail() { echo "[FAIL] $1"; exit 1; }
 
-check_root() {
-    if [ "$(id -u)" -ne 0 ]; then
-        fail "No root privilege"
+check_file() {
+    if [ ! -f "$FILE" ]; then
+        log ".bashrc not found, creating it"
+        touch "$FILE"
     fi
 }
 
-check_bashrc() {
-    if [ ! -f "$TARGET_FILE" ]; then
-        fail "$TARGET_FILE does not exist"
-    fi
+validate_prompt() {
+    bash -n <<< "$PROMPT" || fail "Prompt syntax appears invalid"
 }
 
 check_existing() {
-    if grep -Fq "$PS1_VALUE" "$TARGET_FILE"; then
-        log "PS1 already configured"
+    if grep -Fq "$PROMPT" "$FILE"; then
+        log "Prompt already configured in $FILE"
         exit 0
     fi
 }
 
-validate_ps1() {
-    bash -n <<< "$PS1_VALUE" || fail "PS1 syntax appears invalid"
+backup_file() {
+    cp "$FILE" "$FILE.bak.$(date +%F-%H%M%S)"
+    log "Backup created"
 }
 
-add_ps1() {
-    echo "" >> "$TARGET_FILE"
-    echo "# Custom colored prompt" >> "$TARGET_FILE"
-    echo "$PS1_VALUE" >> "$TARGET_FILE"
+add_prompt() {
+    {
+        echo ""
+        echo "# Custom prompt"
+        echo "$PROMPT"
+    } >> "$FILE"
 }
 
 main() {
-    check_root
-    check_bashrc
+    check_file
+    validate_prompt
     check_existing
-    validate_ps1
-    add_ps1
-    success "PS1 added to $TARGET_FILE"
+    backup_file
+    add_prompt
+    success "Prompt added to $FILE"
+    log "Run: source ~/.bashrc or open a new shell"
+    log "This change in $HOME"
 }
 
 main
