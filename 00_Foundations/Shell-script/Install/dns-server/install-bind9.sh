@@ -133,3 +133,11 @@ main "$@"
 ### app.somapait to 10.100.70.45
 ### zabbix.somapait to 10.100.75.45
 ### server.somapait to 10.100.75.47
+
+
+################################ USE BIND9 CAUSE###########################################
+### Full DNS feature set
+### Industry standrad 
+### Highly configurable
+### Large ecosystem
+#########################################################################################

@@ -60,3 +60,13 @@ main() {
 }
 
 main "$@"
+
+############################# In short ################################
+### Traditional daemon: ntpd
+### Modern alternative: chronyd
+### You use Chrony because it is a modern NTP implementation that:
+###     syncs time faster, especially when the system starts.
+###     handles unstable networks better, ntpd assumes stable connectivity.
+###     works well with VMs
+###     maintains accurate system time
+#######################################################################
