@@ -1,4 +1,6 @@
-Ansible
+ansible
+control node
+managed node
 playbook
 inventory
 module
@@ -8,47 +10,74 @@ idempotent
 
 # Ansible
 
-- Agentless automation; uses SSH (or WinRM) to manage hosts.
-- Config and app deployment; YAML playbooks describe desired state.
+- Agentless automation tool.
+- Control node runs Ansible.
+- Managed nodes are reached via SSH (Linux) or WinRM (Windows).
+- You define desired state; modules try to make it idempotent.
 
-# Playbook
+# Core Concepts
 
-- List of plays; each play has hosts, roles or tasks.
-- Tasks call modules (e.g. `yum`, `copy`, `template`, `service`).
+### Inventory
+
+- Inventory is the list of target hosts and groups.
+- Can be static (INI/YAML) or dynamic (cloud/plugin).
+- `hosts: webservers` means "run against group webservers in inventory".
+
+### Playbook
+
+- Playbook is YAML with one or more plays.
+- A play targets hosts and runs tasks (or roles).
+- A task calls a module.
+
+### Module
+
+- Module is the unit of work (package, file, service, template, user, etc.).
+- Prefer modules over `shell` and `command` because modules are safer and idempotent.
+
+### Idempotent
+
+- Idempotent means running again does not create extra changes.
+- Example: "ensure nginx is installed" can be run many times.
+
+# Basic Example
 
 ```yaml
-- name: Install nginx
+- name: Install and start nginx
   hosts: webservers
+  become: true
   tasks:
-  - name: Install nginx package
-    yum:
+  - name: Install nginx
+    package:
       name: nginx
       state: present
   - name: Start nginx
     service:
       name: nginx
       state: started
+      enabled: true
 ```
 
-# Inventory
+# How Ansible Runs
 
-- Defines hosts and groups; can be static file or dynamic (e.g. from cloud).
-- `hosts: webservers` refers to inventory group.
+- Ansible connects to each host (SSH/WinRM).
+- Copies a small module payload and executes it.
+- Collects output and reports `ok`, `changed`, `failed`, `skipped`.
 
-# Module
-
-- Unit of work (e.g. `copy`, `template`, `lineinfile`, `command`).
-- Most are idempotent: safe to run multiple times.
-
-# Idempotent
-
-- Running the same playbook again produces the same result; no duplicate changes.
-- Ansible modules are designed to be idempotent where possible.
-
-# Key Commands
+# Common Commands
 
 ```bash
-ansible-playbook playbook.yml
-ansible all -m ping
-ansible webservers -a "systemctl status nginx"
+# ad-hoc (one command / one module)
+ansible all -m ping -i inventory/hosts.ini
+
+# run a playbook
+ansible-playbook -i inventory/hosts.ini playbooks/site.yml
+
+# debug selection
+ansible-inventory -i inventory/hosts.ini --graph
 ```
+
+# Things You Should Know Early
+
+- Host patterns: `all`, `web`, `web[0]`, `web:&prod`, `web:!canary`.
+- Variables are everywhere, and precedence matters.
+- Handlers run when notified (restart service only when config changed).
