@@ -9,8 +9,8 @@ connection vars
 
 # Inventory
 
-- Inventory defines hosts and groups.
-- You can keep it simple at first: one `hosts.ini` file.
+- Inventory defines hosts and groups(where should it run).
+
 
 ### Static Inventory (INI)
 
@@ -28,27 +28,37 @@ db
 ```
 
 ### Static Inventory (YAML)
-
 ```yaml
 all:
+  vars: # this set varible in all can be over written by group_var of host_var
+    ansible_user: chonrachart.s
+    ansible_become: true
+
   children:
     web:
       hosts:
-        web1:
-          ansible_host: 192.168.1.10
-    db:
+        web_apache:
+          ansible_host: 10.100.75.49
+
+    test:
       hosts:
-        db1:
-          ansible_host: 192.168.1.20
+        web-apache:
+          ansible_host: 10.100.70.45
+        app-tomcat:
+          ansible_host: 10.100.75.49
 ```
+
 
 # Host Patterns
 
 - `all` everything
-- `web` group
-- `web1` single host
-- `web:&prod` intersection
-- `web:!canary` exclude
+- `children` to define group
+- `web, test` are group name
+- `web-test, app-test, web_apache` single host name
+- `web:&test` intersection (host exist in both `web` and `test`)
+- `test:!web-test` exclude (host in `test` except `web-test`)
+- `test[0]` first host
+- `test[0:1]` slice 
 
 # group_vars and host_vars
 
@@ -94,12 +104,6 @@ pipelining = true
 
 - Note: `host_key_checking = false` is convenient for labs, but not recommended for production.
 
-# Useful Config Commands
-
-```bash
-ansible-config dump --only-changed
-ansible-config view
-```
 
 # Useful Inventory Commands
 
