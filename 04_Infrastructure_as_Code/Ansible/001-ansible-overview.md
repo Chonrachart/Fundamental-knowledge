@@ -56,6 +56,7 @@ idempotent
       state: started
       enabled: true
 ```
+[setup-user.yaml](https://github.com/Chonrachart/Script/blob/main/Ansible/Bootstrap/playbooks/setup-user.yaml)
 
 # How Ansible Runs
 
@@ -67,10 +68,15 @@ idempotent
 
 ```bash
 # ad-hoc (one command / one module)
+# all mean pattern in inventory (all host) can use other name 
+# like web to match just web
 ansible all -m ping -i inventory/hosts.ini
+ansible web -m ping 
 
 # run a playbook
 ansible-playbook -i inventory/hosts.ini playbooks/site.yml
+# if set in config like inventory = ./inventory/inventory.yaml
+ansible-playbook playbooks/site.yaml # can skip -i
 
 # debug selection
 ansible-inventory -i inventory/hosts.ini --graph

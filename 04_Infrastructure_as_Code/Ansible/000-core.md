@@ -21,6 +21,7 @@
 ### How (work units)
 
 - Module = unit of work (package, file, service, template, user, ...).
+  - `ansible-doc -l | grep ansible.builtin` to see module
 - Prefer modules over `shell`/`command` (safer + more idempotent).
 - `become: true` = run tasks with sudo (common for packages/services/files).
 
@@ -55,18 +56,6 @@ listen {{ nginx_port }};
 - Facts: auto-collected data about the host (OS, IPs, etc.).
 - `ok` already correct, `changed` modified, `failed` error, `skipped` not run.
 
-# Learning Path
-
-- [001-ansible-overview.md](001-ansible-overview.md) — concepts, terms, first playbook
-- [002-inventory-and-ansible-cfg.md](002-inventory-and-ansible-cfg.md) — inventory, groups, `ansible.cfg`
-- [003-playbooks-tasks-handlers.md](003-playbooks-tasks-handlers.md) — tasks, handlers, notify/restart
-- [004-variables-facts-templating.md](004-variables-facts-templating.md) — vars, facts, Jinja templates
-- [005-loops-conditions-blocks.md](005-loops-conditions-blocks.md) — loop, when, block/rescue
-- [006-roles-collections-galaxy.md](006-roles-collections-galaxy.md) — roles, structure, reuse
-- [007-tags-strategies-debugging.md](007-tags-strategies-debugging.md) — tags, limit, debug, verbosity
-- [008-vault-secrets.md](008-vault-secrets.md) — secrets, vault encrypt/decrypt
-- [009-dynamic-inventory-and-cloud.md](009-dynamic-inventory-and-cloud.md) — dynamic inventory, plugins
-- [010-best-practices-testing.md](010-best-practices-testing.md) — structure, lint, molecule (idea)
 
 # Recommended Project Layout
 
@@ -74,7 +63,7 @@ listen {{ nginx_port }};
 ansible/
   ansible.cfg
   inventory/
-    hosts.ini
+    inventory.yaml
     group_vars/
     host_vars/
   playbooks/
@@ -104,3 +93,17 @@ ansible-config dump --only-changed
 ansible --version
 ansible localhost -c local -m ping
 ```
+
+# Learning Path
+
+- [001-ansible-overview.md](001-ansible-overview.md) — concepts, terms, first playbook
+- [002-inventory-and-ansible-cfg.md](002-inventory-and-ansible-cfg.md) — inventory, groups, `ansible.cfg`
+- [003-playbooks-tasks-handlers.md](003-playbooks-tasks-handlers.md) — tasks, handlers, notify/restart
+- [004-variables-facts-templating.md](004-variables-facts-templating.md) — vars, facts, Jinja templates
+- [005-loops-conditions-blocks.md](005-loops-conditions-blocks.md) — loop, when, block/rescue
+- [006-roles-collections-galaxy.md](006-roles-collections-galaxy.md) — roles, structure, reuse
+- [007-tags-strategies-debugging.md](007-tags-strategies-debugging.md) — tags, limit, debug, verbosity
+- [008-vault-secrets.md](008-vault-secrets.md) — secrets, vault encrypt/decrypt
+- [009-dynamic-inventory-and-cloud.md](009-dynamic-inventory-and-cloud.md) — dynamic inventory, plugins
+- [010-best-practices-testing.md](010-best-practices-testing.md) — structure, lint, molecule (idea)
+
