@@ -34,13 +34,14 @@ Physical     →  Cables, signals
 
 # Topic Map
 
-- [001-network-models](./001-network-models.md) — OSI, TCP/IP, encapsulation
-- [002-transport-layer](./002-transport-layer.md) — TCP, UDP, ports, sockets
-- [003-addressing-and-routing](./003-addressing-and-routing.md) — IP, subnet, routing, NAT
+- [001-network-models](./01-network-models.md) — OSI, TCP/IP, encapsulation
+- [002-transport-layer](./02-transport-layer.md) — TCP, UDP, ports, sockets
+- [003-addressing-and-routing](./03-addressing-and-routing.md) — IP, subnet, routing, NAT
 - [04-DNS](./04-DNS.md) — DNS resolution
 - [005-http-https](./005-http-https.md) — HTTP, HTTPS
 - [06-TLS-and-SSL-cert-chain](./06-TLS-and-SSL-cert-chain.md) — TLS, certificates
 - [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md) — Proxy, load balancing
+- [08-ipsec-vpn](./008-ipsec-vpn.md)
 
 # Concept Relationships
 
