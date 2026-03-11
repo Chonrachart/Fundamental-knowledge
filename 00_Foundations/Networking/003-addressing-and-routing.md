@@ -1,11 +1,3 @@
-ip  
-subnet
-routing
-gateway 
-nat
-
----
-
 # IP (Internet Protocol)
 
 - IP identifies devices on a network.
@@ -29,6 +21,21 @@ nat
 - Routing is the process of finding a path to the destination network.
 - Routers use routing tables to decide where to forward packets.
 - Default route: used when no specific route matches.
+
+# ICMP
+
+- ICMP (Internet Control Message Protocol) works with IP for error reporting and network diagnostics.
+- It does not carry application data like TCP or UDP.
+- Common uses:
+  - `ping` uses ICMP Echo Request / Echo Reply
+  - `traceroute` often depends on ICMP Time Exceeded messages
+  - destination unreachable tells sender that packet cannot be delivered
+- ICMP is useful for checking reachability and troubleshooting routing problems.
+
+```bash
+ping 8.8.8.8
+traceroute 8.8.8.8
+```
 
 # Gateway
 
