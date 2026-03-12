@@ -1,52 +1,165 @@
-vault
-secrets
-vault id
-encrypt_string
+# Vault and Secrets
+
+- Ansible Vault encrypts files or individual string values so secrets can be safely committed to git.
+- Common pattern: encrypt `group_vars/*/secrets.yml`; leave non-secret vars in plain `vars.yml`.
+- Vault password is required at runtime; supply via prompt, file, or external script.
+
+
+# How Vault Works
+
+```text
+Plaintext secret  →  ansible-vault encrypt  →  AES-256 encrypted file (safe to commit)
+
+At runtime:
+ansible-playbook site.yml --vault-password-file .vault_pass
+        ↓
+Ansible decrypts vault files in memory
+        ↓
+Variables available to tasks/templates as normal
+        ↓
+Never written to disk in plaintext
+```
+
+- Encrypted files look like `$ANSIBLE_VAULT;1.1;AES256\n...` in git — unreadable without the key.
+- `rekey` changes the password without decrypting to disk permanently.
+
+
+# Vault Commands
+
+```bash
+# create a new encrypted file
+ansible-vault create group_vars/prod/secrets.yml
+
+# encrypt an existing file in-place
+ansible-vault encrypt group_vars/prod/secrets.yml
+
+# decrypt a file in-place (use carefully — don't commit plaintext)
+ansible-vault decrypt group_vars/prod/secrets.yml
+
+# view encrypted file content without decrypting to disk
+ansible-vault view group_vars/prod/secrets.yml
+
+# open encrypted file in editor
+ansible-vault edit group_vars/prod/secrets.yml
+
+# change vault password
+ansible-vault rekey group_vars/prod/secrets.yml
+```
+
+
+# Encrypt a Single String (inline secret)
+
+```bash
+ansible-vault encrypt_string 'supersecret123' --name 'db_password'
+```
+
+Output (paste directly into vars file):
+
+```yaml
+db_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  3938386636313963653366...
+```
+
+
+# Running Playbooks with Vault
+
+```bash
+# prompt for password at runtime
+ansible-playbook site.yml --ask-vault-pass
+
+# read password from file (use in CI/CD)
+ansible-playbook site.yml --vault-password-file .vault_pass.txt
+
+# use environment variable (CI/CD pipelines)
+echo "mypassword" > .vault_pass.txt
+export ANSIBLE_VAULT_PASSWORD_FILE=.vault_pass.txt
+ansible-playbook site.yml
+```
+
+Add to `ansible.cfg` to set a default password file:
+
+```ini
+[defaults]
+vault_password_file = .vault_pass.txt   # path relative to ansible.cfg
+```
+
+
+# Vault IDs (Multiple Passwords)
+
+```bash
+# label vaults by environment
+ansible-vault encrypt group_vars/prod/secrets.yml --vault-id prod@prompt
+ansible-vault encrypt group_vars/dev/secrets.yml  --vault-id dev@prompt
+
+# run with multiple vault IDs
+ansible-playbook site.yml --vault-id prod@prompt --vault-id dev@.vault_dev_pass.txt
+```
+
+- Vault IDs allow different passwords per environment (dev/staging/prod) in one run.
+
+
+# Recommended Secrets Layout
+
+```text
+group_vars/
+  prod/
+    vars.yml         ← non-sensitive vars (committed plaintext)
+    secrets.yml      ← vault-encrypted: db_password, api_keys, etc.
+  dev/
+    vars.yml
+    secrets.yml
+```
 
 ---
 
-# Ansible Vault
-
-- Vault encrypts files or variables for secrets.
-- Common use: keep `group_vars/` secrets encrypted in git.
-
-# Common Commands
+# Practical Command Set (Core)
 
 ```bash
-ansible-vault create secret.yml
-ansible-vault edit secret.yml
-ansible-vault encrypt secret.yml
-ansible-vault decrypt secret.yml
-ansible-vault rekey secret.yml
+# check if a file is vault-encrypted
+head -1 group_vars/prod/secrets.yml     # shows $ANSIBLE_VAULT if encrypted
+
+# re-encrypt with new password
+ansible-vault rekey group_vars/prod/secrets.yml --new-vault-password-file new_pass.txt
+
+# encrypt all secrets files at once
+find . -name "secrets.yml" | xargs ansible-vault encrypt
+
+# decrypt to review (never commit after this)
+ansible-vault decrypt group_vars/prod/secrets.yml
+ansible-vault view group_vars/prod/secrets.yml    # safer — view without writing plaintext
 ```
 
-# Use Vault in Playbook
 
-```bash
-ansible-playbook playbooks/site.yml --ask-vault-pass
+# Troubleshooting Flow (Quick)
+
+```text
+"Attempting to decrypt but no vault secrets found"
+        ↓
+Forgot to pass --ask-vault-pass or --vault-password-file
+        ↓
+Check ansible.cfg for vault_password_file setting
+        ↓
+"Decryption failed (wrong password?)"
+        ↓
+Wrong vault password or vault ID mismatch
+        ↓
+Check if multiple vault IDs are in use — pass all required --vault-id flags
+        ↓
+Variable is undefined despite being in secrets.yml
+        ↓
+Verify file was encrypted after last edit (ansible-vault view)
+        ↓
+Check group_vars path matches the host's group
 ```
 
-### Vault Password File
 
-```bash
-ansible-playbook playbooks/site.yml --vault-password-file .vault_pass.txt
-```
+# Quick Facts (Revision)
 
-# Vault IDs (multiple vault passwords)
-
-```bash
-ansible-playbook playbooks/site.yml --vault-id prod@prompt --vault-id dev@prompt
-```
-
-# encrypt_string (secret in file)
-
-```bash
-ansible-vault encrypt_string 'mysecret' --name 'db_password'
-```
-
-# Best Practices
-
-- Do not commit plaintext secrets.
-- Separate secrets file (vaulted) from non-secret vars file.
-- Prefer per-environment vault files (dev/prod).
-- Rotate secrets with `rekey` when needed.
+- Never commit plaintext secrets — always encrypt before `git add`.
+- `ansible-vault view` is safer than `decrypt` — reads without writing plaintext to disk.
+- Separate secrets from non-secrets (`secrets.yml` + `vars.yml`) for readable diffs.
+- Vault IDs allow per-environment passwords — use `prod@prompt`, `dev@file`.
+- Add `.vault_pass.txt` to `.gitignore` — never commit the password file.
+- `rekey` rotates the vault password; run it when a team member leaves.
+- `encrypt_string` is useful for single values; full file encryption is better for many secrets.

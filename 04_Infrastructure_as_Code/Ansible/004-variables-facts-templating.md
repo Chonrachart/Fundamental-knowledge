@@ -1,82 +1,207 @@
-variables
-facts
-register
-jinja2
-group_vars
-host_vars
+# Variables, Facts, and Templating
 
----
+- Variables are key/value data consumed by tasks and templates: `{{ var_name }}`.
+- Facts are variables auto-collected from the managed node at play start (OS, IPs, CPU, etc.).
+- Jinja2 templates combine static config with dynamic variable values.
 
-# Variables
 
-- Variables can be defined in many places.
-- The same var name can be overridden by higher precedence sources.
+# Variable Precedence (low → high)
 
-### Common Variable Sources
+```text
+role defaults          (defaults/main.yml)       ← easiest to override
+    ↓
+inventory group_vars/all
+    ↓
+inventory group_vars/<group>
+    ↓
+inventory host_vars/<host>
+    ↓
+play vars / vars_files
+    ↓
+role vars              (vars/main.yml)
+    ↓
+task vars / set_fact / register
+    ↓
+extra vars  (-e key=value)                       ← always wins
+```
 
-- Inventory: `group_vars/`, `host_vars/`
-- Play vars: `vars:`, `vars_files:`
-- Role vars and defaults
-- Extra vars: `-e key=value` (very high precedence)
+- Rule of thumb: use `defaults/` for role inputs (easy to override), `vars/` for internal role constants.
+- Avoid relying on deep precedence tricks — prefer explicit variable scoping.
 
-### Precedence (rough idea)
 
-- Extra vars are highest.
-- Role defaults are lowest.
-- Many layers exist in between; avoid relying on deep precedence tricks.
+# Variable Sources
+
+### group_vars / host_vars
+
+```yaml
+# group_vars/web.yml  →  applies to all hosts in "web"
+nginx_port: 8080
+app_env: production
+```
+
+```yaml
+# host_vars/web1.yml  →  overrides group for web1 only
+nginx_port: 9090
+```
+
+Related notes:
+- [002-inventory-and-ansible-cfg](./002-inventory-and-ansible-cfg.md)
+
+### Play vars
+
+```yaml
+- name: Deploy app
+  hosts: web
+  vars:
+    app_version: "2.1.0"
+  vars_files:
+    - vars/secrets.yml        # loaded from file (can be vaulted)
+```
+
+### set_fact (runtime)
+
+```yaml
+- name: Compute derived variable
+  ansible.builtin.set_fact:
+    app_url: "http://{{ ansible_host }}:{{ app_port }}"
+```
+
+- `set_fact` sets a variable per-host at runtime; persists for remainder of play.
+- Useful for derived values; avoid overusing as it makes flow harder to follow.
+
+### register (capture task output)
+
+```yaml
+- name: Check nginx version
+  ansible.builtin.command: nginx -v
+  register: nginx_out
+  changed_when: false           # read-only; never counts as changed
+
+- name: Show version
+  ansible.builtin.debug:
+    var: nginx_out.stderr        # nginx -v writes to stderr
+```
+
+Common `register` fields: `.stdout`, `.stderr`, `.rc`, `.changed`, `.stdout_lines`.
+
 
 # Facts
 
-- Facts are information collected from hosts (OS, IP, CPU, etc.).
-- Default behavior: `gather_facts: true` at start of play.
-
-```yaml
-- name: Example
-  hosts: all
-  gather_facts: true
-  tasks:
-  - debug:
-      var: ansible_hostname
+```text
+Play starts
+    ↓
+gather_facts: true  (default)
+    ↓
+Ansible runs setup module on each host
+    ↓
+Facts stored as variables: ansible_*
+    ↓
+Available in all tasks and templates
 ```
 
-# register
-
-- `register` stores the result of a task (stdout, rc, changed, etc.).
-
 ```yaml
-- name: Check nginx
-  command: nginx -v
-  register: nginx_version
-  changed_when: false
-
 - debug:
-    var: nginx_version.stderr
+    var: ansible_hostname        # short hostname
+- debug:
+    var: ansible_default_ipv4.address
+- debug:
+    var: ansible_os_family       # "Debian", "RedHat", etc.
+- debug:
+    var: ansible_distribution    # "Ubuntu", "CentOS", etc.
 ```
 
-# set_fact
+- `gather_facts: false` skips collection (faster runs when facts are unused).
+- `ansible_facts` dict holds all facts; also accessible as top-level `ansible_*` vars.
 
-- `set_fact` sets variables at runtime (per host).
-- Useful but can make playbook harder to reason about if overused.
+Related notes:
+- [005-loops-conditions-blocks](./005-loops-conditions-blocks.md) — using facts in `when:`
 
-```yaml
-- set_fact:
-    app_port: 8080
-```
 
-# Jinja2 and Templating
+# Jinja2 Templating
 
-- Jinja2 expressions use `{{ }}`.
-- Conditionals/loops in templates use `{% %}`.
-- Use `default()` to avoid undefined errors.
+### In task arguments
 
 ```yaml
-- name: Render config
-  template:
+- name: Create app config
+  ansible.builtin.template:
     src: app.conf.j2
     dest: /etc/app/app.conf
+    mode: "0644"
 ```
 
-```text
-# app.conf.j2 (example)
+### In template files (.j2)
+
+```jinja2
+# app.conf.j2
 port={{ app_port | default(8080) }}
+env={{ app_env }}
+host={{ ansible_hostname }}
+
+{% if app_env == "production" %}
+log_level=warn
+{% else %}
+log_level=debug
+{% endif %}
 ```
+
+### Common Jinja2 filters
+
+| Filter | Example | Result |
+|---|---|---|
+| `default` | `{{ port \| default(80) }}` | fallback if undefined |
+| `upper` | `{{ name \| upper }}` | UPPERCASE |
+| `lower` | `{{ name \| lower }}` | lowercase |
+| `int` | `{{ "8080" \| int }}` | cast to integer |
+| `join` | `{{ list \| join(",") }}` | `"a,b,c"` |
+| `length` | `{{ list \| length }}` | count items |
+| `selectattr` | `{{ users \| selectattr("active") }}` | filter list |
+
+---
+
+# Practical Command Set (Core)
+
+```bash
+# print all facts for a host
+ansible web1 -m ansible.builtin.setup
+
+# filter facts
+ansible web1 -m ansible.builtin.setup -a "filter=ansible_default_ipv4"
+
+# debug variable in playbook (add task)
+- ansible.builtin.debug:
+    var: my_variable
+
+# pass extra var at runtime (highest precedence)
+ansible-playbook site.yml -e "app_version=2.1.0"
+ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
+```
+
+
+# Troubleshooting Flow (Quick)
+
+```text
+Variable has wrong value or is undefined
+        ↓
+Add debug task: debug: var=<variable_name>
+        ↓
+Check precedence — is host_vars overriding group_vars?
+        ↓
+Check if -e was passed (always wins)
+        ↓
+Check if set_fact was called earlier in play (runtime override)
+        ↓
+ansible web1 -m setup | grep <fact_name>  (verify fact value)
+        ↓
+Use | default(fallback) in template to handle undefined safely
+```
+
+
+# Quick Facts (Revision)
+
+- `{{ var }}` is substitution; `{% %}` is logic (conditionals/loops) in Jinja2.
+- Always use `| default(value)` in templates for optional variables to avoid undefined errors.
+- `register` output fields: `.stdout`, `.stderr`, `.rc`, `.changed`, `.stdout_lines`.
+- `gather_facts: false` speeds up runs when no `ansible_*` facts are needed.
+- `set_fact` is per-host and persists for the rest of the play only.
+- Extra vars `-e` override everything — useful for CI/CD pipeline overrides.
+- `ansible_os_family` returns `"Debian"` or `"RedHat"` — good for branching config by distro.

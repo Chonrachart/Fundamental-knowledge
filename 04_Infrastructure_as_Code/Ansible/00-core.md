@@ -1,109 +1,207 @@
-# Ansible Core
+# Ansible Core Overview
 
 - Ansible is agentless automation for configuration, deployment, and orchestration.
-- Control node runs Ansible; managed nodes are reached by SSH (Linux) or WinRM (Windows).
-- Playbooks describe desired state; modules try to be idempotent (safe to run repeatedly).
+- A **control node** runs Ansible; **managed nodes** are reached over SSH (Linux) or WinRM (Windows) — no agent installed.
+- Playbooks describe desired state; modules are designed to be idempotent (safe to run repeatedly).
 
-# Core Flow (who → what → how → values → result)
 
-### Who (targets)
-
-- Inventory = list of hosts and groups + connection variables.
-- Group = label in inventory (example: `web`, `db`, `prod`); patterns select targets.
-
-### What (desired state)
-
-- Playbook = YAML file with one or more plays.
-- Play = `hosts` + `vars` + `tasks` (or `roles`).
-- Task = call a module with arguments.
-- Role = reusable set of tasks/vars/templates/files (keeps playbooks small).
-
-### How (work units)
-
-- Module = unit of work (package, file, service, template, user, ...).
-  - `ansible-doc -l | grep ansible.builtin` to see module
-- Prefer modules over `shell`/`command` (safer + more idempotent).
-- `become: true` = run tasks with sudo (common for packages/services/files).
-
-### Values (data, not instructions)
-
-- Variables are key/value data used by tasks/templates: `{{ var_name }}`.
-- `group_vars/<group>.yml` applies to every host in a group.
-- `host_vars/<host>.yml` applies to one host (usually overrides group).
-- Vault encrypts secret variables (still “data”, just protected).
-
-```yaml
-# data: group_vars/web.yml
-nginx_port: 8080
-```
-
-```yaml
-# instruction: task uses the data via template
-- name: Render nginx config
-  template:
-    src: nginx.conf.j2
-    dest: /etc/nginx/nginx.conf
-  notify: restart nginx
-```
+# Ansible Architecture
 
 ```text
-# template: nginx.conf.j2
-listen {{ nginx_port }};
+Control Node
+  ansible.cfg + inventory + playbooks + roles
+                    |
+            SSH / WinRM (no agent)
+                    |
+   ┌────────────────┼────────────────┐
+Managed Node A  Managed Node B  Managed Node C
+ (web-01)        (db-01)         (app-01)
 ```
 
-### Result (what you see)
+- Ansible pushes work from the control node over SSH; nothing runs persistently on managed nodes.
+- Inventory tells Ansible *which* hosts exist; playbooks tell it *what* to do on them.
+- Modules are copied to managed nodes, executed, and then removed automatically.
 
-- Facts: auto-collected data about the host (OS, IPs, etc.).
-- `ok` already correct, `changed` modified, `failed` error, `skipped` not run.
 
-
-# Recommended Project Layout
+# Ansible Mental Model
 
 ```text
-ansible/
-  ansible.cfg
-  inventory/
-    inventory.yaml
-    group_vars/
-    host_vars/
-  playbooks/
-    site.yml
-  roles/
-    nginx/
-      tasks/main.yml
-      handlers/main.yml
-      defaults/main.yml
-      templates/
-      files/
-  collections/
-    requirements.yml
+ansible-playbook site.yml
+         ↓
+Parse inventory → resolve target hosts
+         ↓
+Connect to each host (SSH)
+         ↓
+Gather facts (OS, IPs, packages…) unless gather_facts: false
+         ↓
+Execute tasks top-to-bottom (module calls)
+         ↓
+Notify handlers if task reports changed
+         ↓
+Task result → ok | changed | failed | skipped
 ```
 
-# Some CLI
+Example:
+
+```yaml
+- hosts: web
+  become: true
+  tasks:
+    - name: Install nginx
+      ansible.builtin.package:
+        name: nginx
+        state: present
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+```
+
+- `package` module checks current state; if already installed → `ok` (no change).
+- Handler fires only when at least one task notifying it reported `changed`.
+
+
+# Core Building Blocks
+
+### Inventory (Who)
+
+- Inventory = list of hosts + groups + connection variables.
+- Formats: INI, YAML, or dynamic scripts/plugins.
+- Group variables in `group_vars/<group>.yml`; host overrides in `host_vars/<host>.yml`.
+
+Related notes:
+- [02-inventory-and-ansible-cfg](./02-inventory-and-ansible-cfg.md)
+
+### Playbooks and Tasks (What)
+
+- Playbook = YAML file with one or more **plays**.
+- Play = `hosts` + optional `vars` + `tasks` (or `roles`).
+- Task = call a module with named arguments.
+
+Related notes:
+- [01-ansible-overview](./01-ansible-overview.md)
+- [003-playbooks-tasks-handlers](./003-playbooks-tasks-handlers.md)
+
+### Modules (How)
+
+- Module = unit of work: `package`, `file`, `service`, `template`, `user`, `copy`, `command`…
+- Prefer built-in modules over `shell`/`command` — safer and more idempotent.
+- `become: true` runs with sudo (required for packages, services, system files).
+- `ansible-doc ansible.builtin.<module>` shows usage and examples inline.
+
+Related notes:
+- [003-playbooks-tasks-handlers](./003-playbooks-tasks-handlers.md)
+
+### Variables and Templates (Values)
+
+- Variables are key/value data consumed by tasks and Jinja2 templates: `{{ var_name }}`.
+- Precedence order (low → high): role defaults → group_vars → host_vars → extra-vars (`-e`).
+- Templates (`.j2`) combine static config with dynamic values.
+- Ansible Vault encrypts secrets at rest inside variable files.
+
+Related notes:
+- [004-variables-facts-templating](./004-variables-facts-templating.md)
+- [008-vault-secrets](./008-vault-secrets.md)
+
+### Roles and Collections (Reuse)
+
+- Role = self-contained unit: `tasks/`, `handlers/`, `defaults/`, `templates/`, `files/`.
+- Collection = bundle of roles + modules + plugins; distributed via Ansible Galaxy.
+- Roles keep playbooks short and reusable across projects.
+
+Related notes:
+- [006-roles-collections-galaxy](./006-roles-collections-galaxy.md)
+
+### Control Flow (Logic)
+
+- `loop` iterates a task over a list.
+- `when` runs a task only when a condition is true (uses Jinja2 expressions).
+- `block`/`rescue`/`always` handles errors like try/catch.
+
+Related notes:
+- [005-loops-conditions-blocks](./005-loops-conditions-blocks.md)
+
+---
+
+# Practical Command Set (Core)
 
 ```bash
-# command structures
-ansible <pattern> -i <inventory> -m <module> [-a "<module_args>"] [--become] [-v|-vv|-vvv]
-ansible-playbook -i <inventory> <playbook.yml> [--limit <pattern>] [--tags <t1,t2>] [--check] [--diff] [-v|-vv|-vvv]
-ansible-inventory -i <inventory> --graph
-ansible-inventory -i <inventory> --list
-ansible-config dump --only-changed
-
-# quick check 
+# version / connectivity check
 ansible --version
 ansible localhost -c local -m ping
+
+# ad-hoc commands
+ansible <pattern> -i <inventory> -m <module> [-a "<args>"] [--become]
+
+# run a playbook
+ansible-playbook -i <inventory> site.yml
+ansible-playbook -i <inventory> site.yml --limit web-01
+ansible-playbook -i <inventory> site.yml --tags deploy
+ansible-playbook -i <inventory> site.yml --check --diff   # dry-run
+
+# inspect inventory
+ansible-inventory -i <inventory> --graph
+ansible-inventory -i <inventory> --list
+
+# configuration
+ansible-config dump --only-changed
+
+# vault
+ansible-vault encrypt group_vars/all/secrets.yml
+ansible-vault view group_vars/all/secrets.yml
+
+# roles/collections
+ansible-galaxy role init <role_name>
+ansible-galaxy collection install -r collections/requirements.yml
 ```
 
-# Learning Path
+- Add `-v`, `-vv`, or `-vvv` to any command for increasing verbosity.
 
-- [001-ansible-overview.md](001-ansible-overview.md) — concepts, terms, first playbook
-- [002-inventory-and-ansible-cfg.md](002-inventory-and-ansible-cfg.md) — inventory, groups, `ansible.cfg`
-- [003-playbooks-tasks-handlers.md](003-playbooks-tasks-handlers.md) — tasks, handlers, notify/restart
-- [004-variables-facts-templating.md](004-variables-facts-templating.md) — vars, facts, Jinja templates
-- [005-loops-conditions-blocks.md](005-loops-conditions-blocks.md) — loop, when, block/rescue
-- [006-roles-collections-galaxy.md](006-roles-collections-galaxy.md) — roles, structure, reuse
-- [007-tags-strategies-debugging.md](007-tags-strategies-debugging.md) — tags, limit, debug, verbosity
-- [008-vault-secrets.md](008-vault-secrets.md) — secrets, vault encrypt/decrypt
-- [009-dynamic-inventory-and-cloud.md](009-dynamic-inventory-and-cloud.md) — dynamic inventory, plugins
-- [010-best-practices-testing.md](010-best-practices-testing.md) — structure, lint, molecule (idea)
 
+# Troubleshooting Flow (Quick)
+
+```text
+Task fails or behaves unexpectedly
+         ↓
+Re-run with --check --diff  (see what would change)
+         ↓
+Add -vvv  (see SSH connection, module args, raw output)
+         ↓
+Insert debug task  (print vars / facts mid-play)
+         ↓
+Check inventory  (ansible-inventory --graph / --list)
+         ↓
+Check variable precedence  (extra-vars win; role defaults lose)
+         ↓
+Run ad-hoc module directly on one host
+         ↓
+Fix and re-run; verify idempotency (second run should be all ok)
+```
+
+
+# Quick Facts (Revision)
+
+- Ansible connects with SSH; no daemon or agent runs on managed nodes.
+- Exit code `0` = all tasks ok/skipped; non-zero = at least one failure.
+- Idempotent = running the same playbook twice produces the same result without extra changes.
+- `gather_facts: false` skips fact collection (speeds up runs when facts are unused).
+- Handlers run **once** at the end of a play, not once per `notify`.
+- `--check` never changes anything; useful for pre-flight validation.
+- Vault password is required at runtime: `--vault-password-file` or `--ask-vault-pass`.
+
+
+# Topic Map
+
+- [01-ansible-overview](./01-ansible-overview.md) — concepts, terms, first playbook
+- [02-inventory-and-ansible-cfg](./02-inventory-and-ansible-cfg.md) — inventory, groups, `ansible.cfg`
+- [003-playbooks-tasks-handlers](./003-playbooks-tasks-handlers.md) — tasks, handlers, notify/restart
+- [004-variables-facts-templating](./004-variables-facts-templating.md) — vars, facts, Jinja2 templates
+- [005-loops-conditions-blocks](./005-loops-conditions-blocks.md) — loop, when, block/rescue
+- [006-roles-collections-galaxy](./006-roles-collections-galaxy.md) — roles, structure, reuse
+- [007-tags-strategies-debugging](./007-tags-strategies-debugging.md) — tags, limit, debug, verbosity
+- [008-vault-secrets](./008-vault-secrets.md) — secrets, vault encrypt/decrypt
+- [009-dynamic-inventory-and-cloud](./009-dynamic-inventory-and-cloud.md) — dynamic inventory, plugins
+- [010-best-practices-testing](./010-best-practices-testing.md) — structure, lint, molecule

@@ -1,84 +1,176 @@
-playbook
-task
-module
-handler
-notify
-idempotent
+# Playbooks, Tasks, and Handlers
 
----
+- A playbook is a YAML file that declares what state managed nodes should be in.
+- Tasks call modules sequentially; each task reports `ok`, `changed`, `failed`, or `skipped`.
+- Handlers are special tasks that run **once at end of play**, triggered only when a notifying task reports `changed`.
+
 
 # Playbook Structure
 
-- Playbook contains one or more plays.
-- Each play targets hosts and runs tasks.
-
-```yaml
-- name: Configure web
-  hosts: web
-  become: true
-  tasks:
-  - name: Install nginx
-    package:
-      name: nginx
-      state: present
+```text
+Playbook (site.yml)
+  └── Play 1: hosts=web, become=true
+        ├── tasks/
+        │     ├── Task 1: install nginx      → ok / changed / failed / skipped
+        │     ├── Task 2: deploy config      → changed  →  notify: "restart nginx"
+        │     └── Task 3: open firewall      → ok
+        └── handlers/
+              └── "restart nginx"            ← runs once at end of play (only if notified)
 ```
 
-# Task
+- Multiple tasks can notify the same handler; it still runs only once.
+- `meta: flush_handlers` forces handlers to run immediately mid-play.
 
-- A task calls a module with arguments.
-- Task result is `ok`, `changed`, `failed`, or `skipped`.
-- Use `name:` for readability.
 
-### Common Task Fields
+# Mental Model
 
-- `become: true` run with privilege escalation
-- `register: result` store output
-- `when: condition` run conditionally
-- `changed_when:` override changed detection (careful)
-- `failed_when:` override failure detection (careful)
-- `tags:` label tasks for partial runs
-
-# Modules (common)
-
-- `package`: install/remove packages
-- `service` or `systemd`: manage services
-- `copy` / `template`: deploy files
-- `file`: permissions, directory, symlink
-- `user` / `group`: manage users
-- `lineinfile` / `blockinfile`: edit files safely
-- `get_url` / `unarchive`: download and extract
-- `command` / `shell`: last option when module does not exist
-
-```yaml
-- name: Create dir
-  file:
-    path: /opt/app
-    state: directory
-    mode: "0755"
+```text
+ansible-playbook site.yml
+        ↓
+Parse YAML → resolve hosts from inventory
+        ↓
+Connect to each host (SSH)
+        ↓
+Gather facts (unless gather_facts: false)
+        ↓
+Execute tasks top-to-bottom
+  each task:  call module → get result → update host state
+  if changed: queue handler name
+        ↓
+All tasks complete → flush handlers (once per queued handler, per host)
+        ↓
+Play ends → next play begins
 ```
 
-# Handlers
 
-- Handler is a special task that runs only when notified.
-- Use it for "restart service when config changed".
-- Handlers run at end of play (per host) by default.
+# Core Building Blocks
+
+### Play Options
+
+```yaml
+- name: Configure web servers
+  hosts: web              # inventory group or pattern
+  become: true            # sudo for all tasks in this play
+  gather_facts: true      # collect host facts at start (default)
+  vars:                   # play-level variables
+    app_port: 8080
+  tasks: [...]
+  handlers: [...]
+```
+
+### Task Fields
+
+| Field | Purpose |
+|---|---|
+| `name:` | Human-readable label (shown in output) |
+| `become: true` | Override sudo at task level |
+| `register: result` | Save task output to variable |
+| `when: condition` | Run task only if condition is true |
+| `changed_when:` | Override changed detection |
+| `failed_when:` | Override failure detection |
+| `tags:` | Label for partial runs (`--tags`) |
+| `notify:` | Queue a handler if this task changes |
+| `ignore_errors: true` | Continue play even if task fails |
+
+Related notes:
+- [005-loops-conditions-blocks](./005-loops-conditions-blocks.md)
+- [007-tags-strategies-debugging](./007-tags-strategies-debugging.md)
+
+### Common Modules
+
+| Module | Use |
+|---|---|
+| `ansible.builtin.package` | Install/remove packages (distro-agnostic) |
+| `ansible.builtin.service` / `systemd` | Manage services |
+| `ansible.builtin.copy` | Copy file from control node |
+| `ansible.builtin.template` | Render Jinja2 template and copy |
+| `ansible.builtin.file` | Create dir, set permissions, symlink |
+| `ansible.builtin.user` / `group` | Manage users and groups |
+| `ansible.builtin.lineinfile` | Ensure a line exists in a file |
+| `ansible.builtin.blockinfile` | Ensure a block exists in a file |
+| `ansible.builtin.get_url` | Download file from URL |
+| `ansible.builtin.unarchive` | Extract archive |
+| `ansible.builtin.command` | Run command (no shell, no pipe) |
+| `ansible.builtin.shell` | Run shell command (use as last resort) |
+
+- Prefer `package` over distro-specific (`apt`, `yum`) for portability.
+- Prefer `command` over `shell`; use `shell` only when pipes/redirects are needed.
+
+### Handlers
 
 ```yaml
 tasks:
-- name: Deploy config
-  template:
-    src: nginx.conf.j2
-    dest: /etc/nginx/nginx.conf
-  notify: restart nginx
+  - name: Deploy nginx config
+    ansible.builtin.template:
+      src: nginx.conf.j2
+      dest: /etc/nginx/nginx.conf
+    notify: restart nginx          # queues handler if this task reports changed
 
 handlers:
-- name: restart nginx
-  service:
-    name: nginx
-    state: restarted
+  - name: restart nginx
+    ansible.builtin.service:
+      name: nginx
+      state: restarted
 ```
 
-### Handler Notes
+Related notes:
+- [004-variables-facts-templating](./004-variables-facts-templating.md)
 
-- Multiple `notify` calls for same handler -> runs once.
-- `meta: flush_handlers` runs handlers immediately (use carefully).
+---
+
+# Practical Command Set (Core)
+
+```bash
+# run playbook
+ansible-playbook -i inventory/ playbooks/site.yml
+
+# dry-run with file diff
+ansible-playbook playbooks/site.yml --check --diff
+
+# run only tagged tasks
+ansible-playbook playbooks/site.yml --tags config
+
+# run against one host only
+ansible-playbook playbooks/site.yml --limit web1
+
+# start from a specific task
+ansible-playbook playbooks/site.yml --start-at-task "Deploy nginx config"
+
+# list all tasks without running
+ansible-playbook playbooks/site.yml --list-tasks
+
+# ad-hoc single module
+ansible web -m ansible.builtin.service -a "name=nginx state=restarted" --become
+```
+
+
+# Troubleshooting Flow (Quick)
+
+```text
+Task fails
+        ↓
+Read error message in output (rc, stderr, msg)
+        ↓
+Re-run with -vvv  (see exact module args sent + raw output)
+        ↓
+Test the module ad-hoc on one host
+        ↓
+Add debug task above failing task to print relevant variables
+        ↓
+Check changed_when / failed_when if result logic seems wrong
+        ↓
+Check become / permissions if "Permission denied"
+        ↓
+Fix → re-run → confirm second run is all ok
+```
+
+
+# Quick Facts (Revision)
+
+- Handlers run **once at end of play** regardless of how many tasks notify them.
+- `meta: flush_handlers` runs pending handlers immediately (use when order matters).
+- `ignore_errors: true` lets the play continue but the task still shows as `failed`.
+- `changed_when: false` is correct for read-only commands (like `nginx -v`).
+- `failed_when` overrides failure; wrong logic here can silently swallow real errors.
+- Always use `name:` on tasks — it makes logs readable and `--start-at-task` work.
+- Prefer `ansible.builtin.*` FQCN to avoid module ambiguity across collections.

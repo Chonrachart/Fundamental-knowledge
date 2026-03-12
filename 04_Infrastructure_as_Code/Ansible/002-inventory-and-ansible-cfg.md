@@ -1,0 +1,199 @@
+# Inventory and ansible.cfg
+
+- Inventory tells Ansible **which hosts exist** and how to reach them.
+- Hosts are organised into **groups**; variables scoped to groups/hosts live in `group_vars/` and `host_vars/`.
+- `ansible.cfg` sets project-wide defaults (inventory path, SSH args, forks, etc.).
+
+
+# Inventory Architecture
+
+```text
+inventory/
+  hosts.ini (or inventory.yaml)     ← host list + groups
+  group_vars/
+    all.yml                         ← vars for every host
+    web.yml                         ← vars for group "web"
+    prod.yml                        ← vars for group "prod"
+  host_vars/
+    web1.yml                        ← vars for host "web1" only
+```
+
+```text
+Variable precedence (low → high):
+
+  role defaults
+      ↓
+  group_vars/all
+      ↓
+  group_vars/<group>
+      ↓
+  host_vars/<host>           ← wins over group
+      ↓
+  extra vars (-e)            ← always wins
+```
+
+
+# Inventory Formats
+
+### Static — INI
+
+```ini
+[web]
+web1 ansible_host=192.168.1.10
+web2 ansible_host=192.168.1.11
+
+[db]
+db1 ansible_host=192.168.1.20
+
+[prod:children]
+web
+db
+```
+
+### Static — YAML (preferred for readability)
+
+```yaml
+all:
+  vars:
+    ansible_user: deploy
+    ansible_become: true
+
+  children:
+    web:
+      hosts:
+        web1:
+          ansible_host: 10.0.1.10
+        web2:
+          ansible_host: 10.0.1.11
+
+    db:
+      hosts:
+        db1:
+          ansible_host: 10.0.1.20
+
+    prod:
+      children:
+        web:
+        db:
+```
+
+### group_vars / host_vars
+
+```yaml
+# group_vars/web.yml
+nginx_port: 8080
+```
+
+```yaml
+# host_vars/web1.yml
+nginx_port: 9090   # overrides group value for web1 only
+```
+
+Related notes:
+- [004-variables-facts-templating](./004-variables-facts-templating.md)
+
+
+# Host Patterns
+
+| Pattern | Meaning |
+|---|---|
+| `all` | Every host in inventory |
+| `web` | All hosts in group `web` |
+| `web,db` | Union of groups `web` and `db` |
+| `web:&prod` | Intersection: hosts in both `web` AND `prod` |
+| `web:!web1` | All `web` hosts except `web1` |
+| `web[0]` | First host in `web` |
+| `web[0:2]` | First three hosts in `web` |
+| `~web.*` | Regex match |
+
+Related notes:
+- [009-dynamic-inventory-and-cloud](./009-dynamic-inventory-and-cloud.md)
+
+
+# Connection Variables (common)
+
+| Variable | Purpose |
+|---|---|
+| `ansible_host` | Real IP or hostname |
+| `ansible_user` | SSH login user |
+| `ansible_port` | SSH port (default 22) |
+| `ansible_ssh_private_key_file` | Path to private key |
+| `ansible_become` | Enable privilege escalation |
+| `ansible_become_method` | `sudo`, `su`, etc. |
+| `ansible_become_user` | Target user (default: root) |
+| `ansible_python_interpreter` | Python path on managed node |
+
+
+# ansible.cfg
+
+- Ansible reads config in precedence order: `./ansible.cfg` > `~/.ansible.cfg` > `/etc/ansible/ansible.cfg`.
+- Project-level `ansible.cfg` (same directory as playbooks) is the most common setup.
+
+```ini
+[defaults]
+inventory           = inventory/inventory.yaml  # default inventory path; skip -i flag in commands
+retry_files_enabled = false                     # don't create .retry files on failure (clutters repo)
+host_key_checking   = false                     # skip SSH known_hosts check (lab only; disable in prod)
+forks               = 20                        # parallel connections (default 5); tune to infra size
+gathering           = smart                     # cache facts per host; re-gather only if host changes
+interpreter_python  = auto_silent               # auto-detect Python on managed node without warning
+
+[ssh_connection]
+pipelining          = true         # bundle module steps into one SSH session; big speed boost
+                                   # requires: Defaults !requiretty in /etc/sudoers on managed nodes
+ssh_args            = -o ControlMaster=auto -o ControlPersist=60s  # reuse SSH connections for 60s
+```
+
+- `pipelining = true` requires `requiretty` to be disabled in sudoers on managed nodes.
+- `host_key_checking = false` is acceptable in isolated lab environments only.
+
+---
+
+# Practical Command Set (Core)
+
+```bash
+# inspect inventory
+ansible-inventory --graph
+ansible-inventory --list
+ansible-inventory --host web1
+
+# test reachability per group
+ansible web -m ping
+ansible all -m ping
+
+# show effective config
+ansible-config dump --only-changed
+
+# ad-hoc with connection var override
+ansible web -m ping -u deploy --private-key ~/.ssh/id_ed25519
+```
+
+
+# Troubleshooting Flow (Quick)
+
+```text
+Host unreachable or wrong host targeted
+        ↓
+ansible-inventory --graph  (confirm host is in correct group)
+        ↓
+ansible <host> -m ping -vvv  (see SSH attempt details)
+        ↓
+Check ansible_host / ansible_user / ansible_port in host_vars
+        ↓
+Check ansible.cfg for correct inventory path
+        ↓
+Verify SSH key auth works manually: ssh -i <key> user@host
+        ↓
+Check group_vars/host_vars precedence if variable value is wrong
+```
+
+
+# Quick Facts (Revision)
+
+- `group_vars/<group>.yml` applies to **all hosts in the group**; `host_vars/<host>.yml` applies to **one host**.
+- `host_vars` beats `group_vars`; `-e` (extra vars) beats everything.
+- YAML inventory is preferred over INI for complex nested group structures.
+- `[prod:children]` (INI) = `prod: children:` (YAML) — groups can contain other groups.
+- `ansible-inventory --graph` is the fastest way to verify inventory structure.
+- `pipelining = true` can significantly speed up playbook runs.
+- Never commit `ansible.cfg` with `host_key_checking = false` to shared repos without a comment warning.
