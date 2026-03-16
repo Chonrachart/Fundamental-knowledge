@@ -2,13 +2,13 @@
 ### this set network via openvswitch
 
 - fisrt disable net plan
-- create service from ovs network 
+- create service from ovs network
 
 ```bash
 #!/bin/bash
 
 /usr/bin/ovs-vsctl add-br [bridge_name]
-/usr/bin/ovs-vsctl add-bond [bridge_name] [bond_name] [NIC1] [NIC2] bond_mode=active-backup 
+/usr/bin/ovs-vsctl add-bond [bridge_name] [bond_name] [NIC1] [NIC2] bond_mode=active-backup
 /usr/bin/ovs-vsctl add-port [bridge_name] [port_name] -- set Interface vnet-trust99 type=internal
 /usr/bin/ovs-vsctl set port [bridge_name] tag=[xx]
 

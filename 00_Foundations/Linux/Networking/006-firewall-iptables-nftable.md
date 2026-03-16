@@ -1,123 +1,224 @@
 # Firewall: iptables and nftables
 
-- Linux packet filtering and NAT are implemented by **Netfilter** in the kernel.
-- **iptables** and **nftables** are user-space tools that configure Netfilter rules.
-- nftables is the modern replacement for iptables; more flexible and faster.
+- Linux packet filtering and NAT are implemented by **Netfilter**, a kernel framework with hooks at key points in the packet path
+- **iptables** (legacy) and **nftables** (modern replacement) are user-space tools that configure Netfilter rules
+- nftables unifies IPv4/IPv6/ARP/bridge filtering into a single framework with better performance
 
----
+# Architecture
 
-# Netfilter Hooks
-
-- Netfilter hooks are points in the kernel where packets can be inspected or modified.
-
-| Hook        | When                         | Common use           |
-| :---------- | :--------------------------- | :--------------------|
-| PREROUTING  | Before routing decision      | DNAT, raw            |
-| INPUT       | For local host               | Filter incoming      |
-| FORWARD     | For forwarded packets        | Filter/NAT forward    |
-| OUTPUT      | Locally generated            | Filter outgoing      |
-| POSTROUTING | After routing, before send   | SNAT, MASQUERADE     |
-
-### Packet Flow and Hooks
-
-```
-Incoming:
-  PREROUTING → routing → INPUT → local process
-
-Forwarded:
-  PREROUTING → routing → FORWARD → POSTROUTING → out
-
-Outgoing:
-  OUTPUT → routing → POSTROUTING → out
+```text
+                         User space
+  +------------------+   +-------------------+
+  | iptables / ip6t  |   | nft (nftables)    |
+  +--------+---------+   +---------+---------+
+           |                       |
+           v                       v
+  +------------------------------------------------+
+  |              Netfilter (kernel)                 |
+  |                                                |
+  |  PREROUTING -> routing -> INPUT   -> local app |
+  |                    |                           |
+  |                    +-> FORWARD -> POSTROUTING  |
+  |                                                |
+  |  local app -> OUTPUT -> routing -> POSTROUTING |
+  +------------------------------------------------+
+           |
+           v
+     Network interfaces (eth0, br0, ...)
 ```
 
-# iptables
+# Mental Model
 
-- Classic tool; uses tables and chains.
-
-### Tables
-
-| Table   | Purpose                    |
-| :------ | :------------------------- |
-| filter  | Packet filtering (default) |
-| nat     | NAT (SNAT, DNAT)           |
-| mangle  | Packet modification        |
-| raw     | Connection tracking bypass |
-
-### Common Commands
+```text
+Packet arrives at NIC
+  |
+  v
+PREROUTING  (DNAT, raw, conntrack)
+  |
+  v
+Routing decision: local or forward?
+  |                      |
+  v                      v
+INPUT (filter)       FORWARD (filter)
+  |                      |
+  v                      v
+Local process        POSTROUTING (SNAT/MASQ)
+  |                      |
+  v                      v
+OUTPUT (filter)      Out via NIC
+  |
+  v
+Routing (final)
+  |
+  v
+POSTROUTING (SNAT/MASQ)
+  |
+  v
+Out via NIC
+```
 
 ```bash
-# List rules
+# Example: allow SSH inbound and masquerade outbound traffic
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+```
+
+# Core Building Blocks
+
+### Netfilter Hooks
+
+- Five hook points where the kernel hands packets to Netfilter for inspection/modification
+
+| Hook          | When triggered                | Common use             |
+| :------------ | :---------------------------- | :--------------------- |
+| PREROUTING    | Before routing decision       | DNAT, raw              |
+| INPUT         | Packet destined for local host| Filter incoming        |
+| FORWARD       | Packet being routed through   | Filter/NAT forwarded   |
+| OUTPUT        | Locally generated packet      | Filter outgoing        |
+| POSTROUTING   | After routing, before send    | SNAT, MASQUERADE       |
+
+```text
+Incoming:   PREROUTING -> routing -> INPUT -> local process
+Forwarded:  PREROUTING -> routing -> FORWARD -> POSTROUTING -> out
+Outgoing:   OUTPUT -> routing -> POSTROUTING -> out
+```
+
+Related notes: [008-Packet-flow](./008-Packet-flow.md)
+
+### iptables Tables and Chains
+
+- Classic tool using a table/chain/rule hierarchy
+- Four built-in tables, each containing predefined chains
+
+| Table   | Purpose                    | Chains used                        |
+| :------ | :------------------------- | :--------------------------------- |
+| filter  | Packet filtering (default) | INPUT, FORWARD, OUTPUT             |
+| nat     | NAT (SNAT, DNAT)          | PREROUTING, OUTPUT, POSTROUTING    |
+| mangle  | Packet header modification | All five hooks                     |
+| raw     | Connection tracking bypass | PREROUTING, OUTPUT                 |
+
+- Chain behaviour:
+  - `INPUT` -- packets destined for the local host
+  - `OUTPUT` -- packets generated by the local host
+  - `FORWARD` -- packets passing through (routed)
+
+Related notes: [008-Packet-flow](./008-Packet-flow.md)
+
+### iptables Commands
+
+```bash
+# List rules (verbose, numeric)
 iptables -L -n -v
 iptables -t nat -L -n -v
 
 # Allow SSH
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 
-# Allow established/related
+# Allow established/related connections
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Default policy
+# Set default policy to DROP
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
 
-# NAT (masquerade for outbound)
+# NAT: masquerade outbound traffic
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 ```
 
-### Chain Structure
+Related notes: [007-Network-namespace](./007-Network-namespace.md)
 
-- `INPUT` — packets for local host
-- `OUTPUT` — packets from local host
-- `FORWARD` — packets passing through
+### nftables Concepts and Commands
 
-# nftables
+- Modern replacement; single framework for IPv4, IPv6, ARP, bridge filtering
+- Uses a table/chain/rule hierarchy similar to iptables but more flexible
 
-- Newer, more efficient; single framework for IPv4, IPv6, ARP, bridge.
-
-### Concepts
-
-- **table** — container for chains
-- **chain** — list of rules
-- **rule** — match + action (accept, drop, reject, etc.)
+| Concept   | Description                                      |
+| :-------- | :----------------------------------------------- |
+| table     | Container for chains (family: inet, ip, ip6, arp)|
+| chain     | Ordered list of rules, attached to a hook        |
+| rule      | Match criteria + action (accept, drop, reject)   |
 
 ```bash
-# List tables
+# List all tables
 nft list tables
 
-# List ruleset
+# List full ruleset
 nft list ruleset
 
-# Add table
+# Add table (inet = IPv4 + IPv6)
 nft add table inet filter
 
-# Add chain
+# Add chain hooked to input
 nft add chain inet filter input { type filter hook input priority 0 \; }
 
-# Add rule
+# Add rules
 nft add rule inet filter input tcp dport 22 accept
 nft add rule inet filter input ct state established,related accept
 nft add rule inet filter input drop
 ```
 
+Related notes: [008-Packet-flow](./008-Packet-flow.md)
+
 ### nftables vs iptables
 
-| iptables        | nftables              |
-| :-------------- | :-------------------- |
-| Separate for v4/v6 | Unified inet table |
-| Many rules = slow | Better performance   |
-| Legacy          | Modern, recommended   |
+| iptables               | nftables                  |
+| :---------------------- | :------------------------ |
+| Separate tools for v4/v6| Unified `inet` table      |
+| Many rules = slow       | Better performance        |
+| Legacy, being phased out| Modern, recommended       |
+| Tables are predefined   | Tables/chains user-defined|
 
-# Persistence
+### Persistence
 
-- Rules are lost on reboot unless saved.
+- Firewall rules live in memory and are lost on reboot unless explicitly saved
 
 ```bash
-# iptables
+# iptables: save and restore
 iptables-save > /etc/iptables/rules.v4
 iptables-restore < /etc/iptables/rules.v4
 
-# nftables
+# nftables: export and reload
 nft list ruleset > /etc/nftables.conf
-# Enable nftables.service to load on boot
+# Enable nftables.service to auto-load /etc/nftables.conf on boot
+systemctl enable nftables.service
 ```
+
+Related notes: [008-Packet-flow](./008-Packet-flow.md)
+
+---
+
+# Troubleshooting Flow (Quick)
+
+```text
+Traffic being dropped?
+  |
+  +-> Check current rules
+  |     iptables -L -n -v  /  nft list ruleset
+  |
+  +-> Identify which chain is dropping
+  |     - INPUT? FORWARD? PREROUTING?
+  |     - Check packet/byte counters for DROP rules
+  |
+  +-> Verify default policy
+  |     iptables -L | grep policy
+  |
+  +-> Is ip_forward enabled? (for FORWARD chain)
+  |     sysctl net.ipv4.ip_forward
+  |
+  +-> Check NAT rules if traffic needs masquerade
+  |     iptables -t nat -L -n -v
+  |
+  +-> Test with temporary ACCEPT rule
+        iptables -I INPUT 1 -p tcp --dport <port> -j ACCEPT
+```
+
+# Quick Facts (Revision)
+
+- Netfilter is the kernel framework; iptables/nftables are user-space configuration tools
+- Five hooks: PREROUTING, INPUT, FORWARD, OUTPUT, POSTROUTING
+- iptables has four tables: filter (default), nat, mangle, raw
+- nftables uses `inet` family to handle both IPv4 and IPv6 in one table
+- Default policy (ACCEPT or DROP) applies when no rule matches
+- Rules are in-memory only; use `iptables-save` or `nft list ruleset` to persist
+- `MASQUERADE` in POSTROUTING is the standard way to NAT outbound traffic
+- nftables is the recommended modern tool; iptables is legacy
