@@ -159,7 +159,7 @@ Related notes: [003-git-branch](./003-git-branch.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
   Push rejected?

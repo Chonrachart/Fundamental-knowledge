@@ -11,15 +11,20 @@
 
 ```text
 User Applications (bash, nginx, python, vim)
-                    ↓
+                    |
+                    v
 Shell / Service Manager (bash, systemd)
-                    ↓
+                    |
+                    v
 System Libraries (glibc)
-                    ↓
+                    |
+                    v
 System Calls (open, read, write, fork, execve)
-                    ↓
+                    |
+                    v
 Linux Kernel
-                    ↓
+                    |
+                    v
 Hardware (CPU, RAM, Disk, NIC)
 ```
 
@@ -46,13 +51,17 @@ Hardware (CPU, RAM, Disk, NIC)
 
 ```text
 User runs command
-    ↓
+    |
+    v
 Shell parses command
-    ↓
+    |
+    v
 Program calls system calls
-    ↓
+    |
+    v
 Kernel performs operation
-    ↓
+    |
+    v
 Result returns to stdout/stderr or file/network/device
 ```
 
@@ -166,17 +175,22 @@ journalctl -u <service> -n 100 --no-pager
 # Troubleshooting Flow (Quick)
 
 ```text
-Symptom appears
-    ↓
-Check service state (systemctl)
-    ↓
-Check logs (journalctl / log files)
-    ↓
-Check process/resources (ps, top, free, df)
-    ↓
-Check network/listening ports (ip, ss, route, dns)
-    ↓
-Apply fix and verify
+Problem: Symptom appears — general diagnostic sequence
+    |
+    v
+[1] Check service state (systemctl)
+    |
+    v
+[2] Check logs (journalctl / log files)
+    |
+    v
+[3] Check process/resources (ps, top, free, df)
+    |
+    v
+[4] Check network/listening ports (ip, ss, route, dns)
+    |
+    v
+[5] Apply fix and verify
 ```
 
 # Quick Facts (Revision)

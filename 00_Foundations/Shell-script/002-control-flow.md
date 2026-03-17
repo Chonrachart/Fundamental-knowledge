@@ -182,7 +182,7 @@ Related notes: [004-io-and-redirection](./004-io-and-redirection.md), [001-varia
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: condition not evaluating as expected

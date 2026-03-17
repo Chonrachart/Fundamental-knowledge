@@ -120,7 +120,7 @@ Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [../Zabbix
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: alert not firing or not delivering notifications

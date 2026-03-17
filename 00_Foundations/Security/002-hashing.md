@@ -167,7 +167,7 @@ openssl passwd -6 -salt randomsalt "mypassword"
 
 Note: for password storage in applications, use bcrypt or Argon2 libraries, not command-line SHA.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Hash mismatch?

@@ -456,7 +456,7 @@ amtool silence query
 amtool alert query --alertname=TestAlert --severity=critical
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Alert fired in Prometheus but not received in Slack

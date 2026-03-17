@@ -105,27 +105,53 @@ Related notes:
 # Troubleshooting Flow (Quick)
 
 ```text
-apt install fails with "Unable to locate package"
-        ↓
-Run apt update first (package lists may be stale)
-        ↓
-Check spelling: apt search <keyword>
-        ↓
-dpkg -i fails with dependency errors
-        ↓
-Run: apt install -f  (fix broken dependencies)
-        ↓
-"dpkg was interrupted" errors
-        ↓
-Run: dpkg --configure -a
-        ↓
-Downloaded .tar.gz but can't run binary
-        ↓
-Check extracted binary has execute permission: chmod +x <binary>
-        ↓
-Binary runs but "command not found"
-        ↓
-Add binary directory to PATH or move to /usr/local/bin
+Problem: apt install fails with "Unable to locate package"
+    |
+    v
+[1] Package lists stale?
+    apt update   (refresh index from repos)
+    |
+    v
+[2] Typo in package name?
+    apt search <keyword>
+    |
+    v
+[3] Package in a missing repo?
+    check /etc/apt/sources.list and sources.list.d/
+
+---
+
+Problem: dpkg -i fails with dependency errors
+    |
+    v
+[1] Run: apt install -f   (auto-install missing deps)
+    |
+    v
+[2] Still broken? Check: dpkg --audit
+
+---
+
+Problem: "dpkg was interrupted, run dpkg --configure -a"
+    |
+    v
+[1] Run: dpkg --configure -a
+    |
+    v
+[2] Still stuck? Run: apt install -f
+
+---
+
+Problem: downloaded .tar.gz binary won't run
+    |
+    v
+[1] Extracted? tar -xvzf <file.tar.gz>
+    |
+    v
+[2] Has execute permission? chmod +x <binary>
+    |
+    v
+[3] "command not found"? Binary not in PATH
+    move to /usr/local/bin  OR  add its directory to PATH
 ```
 
 

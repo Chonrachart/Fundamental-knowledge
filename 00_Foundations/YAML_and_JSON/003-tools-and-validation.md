@@ -342,7 +342,7 @@ yq -o=json input.yml                    # YAML -> JSON
 yq -P input.json                        # JSON -> YAML
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: config file fails validation or tools produce unexpected output

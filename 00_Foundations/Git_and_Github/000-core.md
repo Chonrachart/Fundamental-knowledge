@@ -67,7 +67,7 @@ Related notes: [001-git-setup](./001-git-setup.md), [002-git-interaction](./002-
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem unclear?

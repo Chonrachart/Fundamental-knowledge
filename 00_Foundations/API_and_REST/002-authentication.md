@@ -296,7 +296,7 @@ az account show
 gcloud auth list
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: API returns 401 Unauthorized or 403 Forbidden

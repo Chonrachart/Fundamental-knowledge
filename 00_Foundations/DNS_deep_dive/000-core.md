@@ -132,7 +132,7 @@ drill -T example.com    # trace
 drill -S example.com    # DNSSEC chain
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: DNS resolution not working

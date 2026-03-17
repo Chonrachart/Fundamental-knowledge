@@ -321,7 +321,7 @@ promtool check config /etc/prometheus/prometheus.yml
 promtool check rules /etc/prometheus/rules.yml
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Prometheus targets show as 'down'

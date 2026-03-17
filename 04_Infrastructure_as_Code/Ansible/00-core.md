@@ -27,17 +27,23 @@ Managed Node A  Managed Node B  Managed Node C
 
 ```text
 ansible-playbook site.yml
-         ↓
+         |
+         v
 Parse inventory → resolve target hosts
-         ↓
+         |
+         v
 Connect to each host (SSH)
-         ↓
+         |
+         v
 Gather facts (OS, IPs, packages…) unless gather_facts: false
-         ↓
+         |
+         v
 Execute tasks top-to-bottom (module calls)
-         ↓
+         |
+         v
 Notify handlers if task reports changed
-         ↓
+         |
+         v
 Task result → ok | changed | failed | skipped
 ```
 
@@ -161,24 +167,31 @@ ansible-galaxy collection install -r collections/requirements.yml
 - Add `-v`, `-vv`, or `-vvv` to any command for increasing verbosity.
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Task fails or behaves unexpectedly
-         ↓
-Re-run with --check --diff  (see what would change)
-         ↓
-Add -vvv  (see SSH connection, module args, raw output)
-         ↓
-Insert debug task  (print vars / facts mid-play)
-         ↓
-Check inventory  (ansible-inventory --graph / --list)
-         ↓
-Check variable precedence  (extra-vars win; role defaults lose)
-         ↓
-Run ad-hoc module directly on one host
-         ↓
-Fix and re-run; verify idempotency (second run should be all ok)
+Problem: Task fails or behaves unexpectedly
+    |
+    v
+[1] Re-run with --check --diff  (see what would change)
+    |
+    v
+[2] Add -vvv  (see SSH connection, module args, raw output)
+    |
+    v
+[3] Insert debug task  (print vars / facts mid-play)
+    |
+    v
+[4] Check inventory  (ansible-inventory --graph / --list)
+    |
+    v
+[5] Check variable precedence  (extra-vars win; role defaults lose)
+    |
+    v
+[6] Run ad-hoc module directly on one host
+    |
+    v
+[7] Fix and re-run; verify idempotency (second run should be all ok)
 ```
 
 

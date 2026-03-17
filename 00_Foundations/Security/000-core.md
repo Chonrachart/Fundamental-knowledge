@@ -128,7 +128,7 @@ Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS a
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Security issue?

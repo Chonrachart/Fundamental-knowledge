@@ -443,7 +443,7 @@ curl -s http://kibana:5601/api/status | jq '.state'
 curl -s http://kibana:5601/api/saved_objects/search | jq '.saved_objects[].attributes.title'
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: logs not appearing in Elasticsearch

@@ -13,7 +13,8 @@ Static inventory                    Dynamic inventory
   hand-edited host list               queries cloud API at runtime
   fine for fixed infra                required for auto-scaling, ephemeral VMs
   no dependencies                     requires collection + cloud credentials
-        ↓                                       ↓
+        |                                       |
+        v                                       v
   ansible-playbook -i inventory/    ansible-playbook -i aws_ec2.yml
 ```
 
@@ -22,18 +23,24 @@ Static inventory                    Dynamic inventory
 
 ```text
 ansible-inventory -i aws_ec2.yml --list
-        ↓
+        |
+        v
 Ansible loads inventory plugin declared in YAML config
-        ↓
+        |
+        v
 Plugin calls cloud API (AWS EC2, GCP, Azure, etc.)
-        ↓
+        |
+        v
 Returns JSON: hosts + groups + hostvars
-        ↓
+        |
+        v
 keyed_groups: group hosts by tag/label/attribute
 compose: create custom variables from metadata
-        ↓
+        |
+        v
 Ansible builds in-memory inventory
-        ↓
+        |
+        v
 Playbook targets groups as normal: hosts: env_prod
 ```
 
@@ -141,24 +148,31 @@ ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml --limit env_prod
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-"No hosts matched" with dynamic inventory
-        ↓
-ansible-inventory -i <plugin>.yml --graph  (check groups returned)
-        ↓
-Check cloud credentials (AWS_ACCESS_KEY_ID / AWS profile / IAM role)
-        ↓
-Check region matches where instances are running
-        ↓
-Check filters (instance-state-name: running may exclude stopped instances)
-        ↓
-Check keyed_groups key path matches actual tag/attribute name
-        ↓
-Clear cache and retry: rm /tmp/ansible_aws_cache/*
-        ↓
-Run with -vvv for plugin debug output
+Problem: "No hosts matched" with dynamic inventory
+    |
+    v
+[1] ansible-inventory -i <plugin>.yml --graph  (check groups returned)
+    |
+    v
+[2] Check cloud credentials (AWS_ACCESS_KEY_ID / AWS profile / IAM role)
+    |
+    v
+[3] Check region matches where instances are running
+    |
+    v
+[4] Check filters (instance-state-name: running may exclude stopped instances)
+    |
+    v
+[5] Check keyed_groups key path matches actual tag/attribute name
+    |
+    v
+[6] Clear cache and retry: rm /tmp/ansible_aws_cache/*
+    |
+    v
+[7] Run with -vvv for plugin debug output
 ```
 
 

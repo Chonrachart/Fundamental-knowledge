@@ -29,15 +29,20 @@ Redirection:
 
 ```text
 User types command
-        ↓
+        |
+        v
 Shell resolves path (searches PATH) and forks child process
-        ↓
+        |
+        v
 Child process reads from stdin / operates on file
-        ↓
+        |
+        v
 Output written to stdout (fd 1)
-        ↓
+        |
+        v
 Pipe: stdout wired to next command's stdin
-        ↓
+        |
+        v
 Result appears in terminal or redirected to file
 ```
 
@@ -182,26 +187,41 @@ Ctrl + R         # reverse search through history (repeat to go further back)
 # Troubleshooting Flow (Quick)
 
 ```text
-"command not found"
-        ↓
-which <cmd>  /  type <cmd>  →  is it installed and in PATH?
-        ↓
-"Permission denied" on file
-        ↓
-ls -l <file>  →  check permission bits and owner
-        ↓
-"No space left on device" during file write
-        ↓
-df -h  →  check filesystem usage
-du -sh * | sort -rh | head  →  find large directories
-        ↓
-grep returns no output
-        ↓
-Check pattern quoting, try -i for case, verify file path
-        ↓
-Pipe produces unexpected output
-        ↓
-Run each stage individually to isolate where data changes
+Problem: "command not found"
+    |
+    v
+[1] which <cmd>  /  type <cmd>  →  is it installed and in PATH?
+
+---
+
+Problem: "Permission denied" on file
+    |
+    v
+[1] ls -l <file>  →  check permission bits and owner
+
+---
+
+Problem: "No space left on device" during file write
+    |
+    v
+[1] df -h  →  check filesystem usage
+    |
+    v
+[2] du -sh * | sort -rh | head  →  find large directories
+
+---
+
+Problem: grep returns no output
+    |
+    v
+[1] Check pattern quoting, try -i for case, verify file path
+
+---
+
+Problem: Pipe produces unexpected output
+    |
+    v
+[1] Run each stage individually to isolate where data changes
 ```
 
 

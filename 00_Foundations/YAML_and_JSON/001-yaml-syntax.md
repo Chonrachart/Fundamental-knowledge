@@ -323,7 +323,7 @@ kubectl apply --dry-run=client -f deployment.yml
 cat -A config.yml
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: YAML file causes parse error or unexpected behavior

@@ -249,7 +249,7 @@ Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md)
 
 ---
 
-## Troubleshooting Flow (Quick)
+## Troubleshooting Guide
 
 ```text
   Network security issue?

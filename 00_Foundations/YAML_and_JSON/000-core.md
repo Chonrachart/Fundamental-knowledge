@@ -117,7 +117,7 @@ python3 -m json.tool < input.json > /dev/null
 yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' base.yml override.yml
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: tool rejects your YAML/JSON config file

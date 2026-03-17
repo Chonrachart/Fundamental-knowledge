@@ -9,15 +9,20 @@
 
 ```text
 Application  (read/write files)
-        ↓
+        |
+        v
 Filesystem   (ext4, xfs — organises data)
-        ↓
+        |
+        v
 Block device (LV or raw partition — /dev/mapper/vg-lv or /dev/sdb1)
-        ↓
+        |
+        v
 LVM          (optional: PV → VG → LV)
-        ↓
+        |
+        v
 RAID / mdadm (optional: stripes/mirrors across physical disks)
-        ↓
+        |
+        v
 Physical disk (/dev/sda, /dev/sdb, /dev/nvme0n1)
 ```
 
@@ -28,18 +33,24 @@ LVM flow: `Disk → pvcreate → vgcreate → lvcreate → mkfs → mount`
 
 ```text
 Need more space on /data (LV)
-        ↓
+        |
+        v
 Add new disk or extend existing VG
-        ↓
+        |
+        v
 pvcreate /dev/sdc1           (prepare new disk as PV)
-        ↓
+        |
+        v
 vgextend vg_data /dev/sdc1   (add PV to volume group)
-        ↓
+        |
+        v
 lvextend -L +20G /dev/vg_data/lv_data   (grow LV)
-        ↓
+        |
+        v
 resize2fs /dev/vg_data/lv_data   (grow ext4 filesystem to fill LV)
 OR xfs_growfs /data              (grow xfs filesystem — must be mounted)
-        ↓
+        |
+        v
 df -h /data  →  verify new size
 ```
 
@@ -143,26 +154,38 @@ mdadm --detail /dev/md0      # detailed array info
 # Troubleshooting Flow (Quick)
 
 ```text
-Disk full: "No space left on device"
-        ↓
-df -h  →  which filesystem is full?
-        ↓
-du -sh * | sort -rh | head  →  largest directories
-        ↓
-df -i  →  check inode exhaustion (separate from space)
-        ↓
-LV resize needed
-        ↓
-vgs  →  free space in VG?  yes: lvextend directly
-                           no: pvcreate + vgextend new disk first
-        ↓
-After lvextend: resize2fs (ext4) or xfs_growfs (xfs)
-        ↓
-RAID degraded
-        ↓
-cat /proc/mdstat  →  identify failed disk
-        ↓
-mdadm --manage /dev/md0 --add /dev/sdd1  →  replace and rebuild
+Problem: Disk full — "No space left on device"
+    |
+    v
+[1] df -h  →  which filesystem is full?
+    |
+    v
+[2] du -sh * | sort -rh | head  →  largest directories
+    |
+    v
+[3] df -i  →  check inode exhaustion (separate from space)
+
+---
+
+Problem: LV resize needed
+    |
+    v
+[1] vgs  →  free space in VG?
+    +-- yes: lvextend directly
+    +-- no: pvcreate + vgextend new disk first
+    |
+    v
+[2] After lvextend: resize2fs (ext4) or xfs_growfs (xfs)
+
+---
+
+Problem: RAID degraded
+    |
+    v
+[1] cat /proc/mdstat  →  identify failed disk
+    |
+    v
+[2] mdadm --manage /dev/md0 --add /dev/sdd1  →  replace and rebuild
 ```
 
 

@@ -9,18 +9,22 @@
 
 ```text
 Kernel boots → systemd (PID 1) starts
-        ↓
+        |
+        v
 systemd forks child → child loads service binary → service starts
-        ↓
+        |
+        v
 Process states:
   R  Running / Runnable   (on CPU or ready)
   S  Sleeping             (waiting for event — interruptible)
   D  Disk wait            (uninterruptible sleep — I/O)
   Z  Zombie               (exited, parent not yet called wait())
   T  Stopped              (Ctrl+Z / SIGTSTP)
-        ↓
+        |
+        v
 Process calls exit() → kernel sends SIGCHLD to parent
-        ↓
+        |
+        v
 Parent calls wait() → zombie reaped → PID released
 ```
 
@@ -31,13 +35,17 @@ A zombie process is harmless but indicates a parent not calling `wait()`.
 
 ```text
 Shell runs: nginx
-        ↓
+        |
+        v
 Shell calls fork() → creates identical child process
-        ↓
+        |
+        v
 Child loads nginx binary into memory (replaces shell image)
-        ↓
+        |
+        v
 nginx runs as new process (new PID, still child of shell)
-        ↓
+        |
+        v
 Shell waits (foreground) or returns prompt (background with &)
 ```
 
@@ -158,28 +166,43 @@ Related notes:
 # Troubleshooting Flow (Quick)
 
 ```text
-Process using too much CPU / memory
-        ↓
-top (P for CPU, M for memory)  →  identify PID
-        ↓
-ps aux --sort=-%cpu | head
-        ↓
-cat /proc/<PID>/status  →  inspect memory details
-        ↓
-Process not responding to SIGTERM
-        ↓
-kill -9 <PID>  →  force kill (use as last resort)
-        ↓
-Zombie processes accumulating
-        ↓
-ps aux | grep Z  →  find zombies
-ps -o ppid= <zombie_PID>  →  find parent (parent not calling wait)
-        ↓
-Restart or fix the parent process
-        ↓
-OOM kill suspected
-        ↓
-dmesg | grep -i "oom\|killed process"
+Problem: Process using too much CPU / memory
+    |
+    v
+[1] top (P for CPU, M for memory)  →  identify PID
+    |
+    v
+[2] ps aux --sort=-%cpu | head
+    |
+    v
+[3] cat /proc/<PID>/status  →  inspect memory details
+
+---
+
+Problem: Process not responding to SIGTERM
+    |
+    v
+[1] kill -9 <PID>  →  force kill (use as last resort)
+
+---
+
+Problem: Zombie processes accumulating
+    |
+    v
+[1] ps aux | grep Z  →  find zombies
+    |
+    v
+[2] ps -o ppid= <zombie_PID>  →  find parent (parent not calling wait)
+    |
+    v
+[3] Restart or fix the parent process
+
+---
+
+Problem: OOM kill suspected
+    |
+    v
+[1] dmesg | grep -i "oom\|killed process"
 ```
 
 

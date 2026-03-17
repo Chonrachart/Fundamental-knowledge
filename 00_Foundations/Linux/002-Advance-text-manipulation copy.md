@@ -9,13 +9,17 @@
 
 ```text
 Input (file or stdin)
-        ↓
+        |
+        v
 Read one line at a time
-        ↓
+        |
+        v
 Apply pattern/command (sed) or pattern/action (awk)
-        ↓
+        |
+        v
 Write result to stdout
-        ↓
+        |
+        v
 Next line…
 
 Pipeline example:
@@ -27,25 +31,33 @@ Pipeline example:
 
 ```text
 sed 's/old/new/g' file
-        ↓
+        |
+        v
 Read line
-        ↓
+        |
+        v
 Does line match address/pattern? → no:  print as-is
                                  → yes: apply command (s, d, p, …)
-        ↓
+        |
+        v
 Print result to stdout (unless -n suppresses it)
-        ↓
+        |
+        v
 Repeat for each line
 ***********************************************
 awk '/pattern/ { action }' file
-        ↓
+        |
+        v
 Read line → split into fields $1 $2 … $NF
-        ↓
+        |
+        v
 Does line match pattern? → no:  skip (unless default action)
                          → yes: execute action block
-        ↓
+        |
+        v
 Print / compute / accumulate
-        ↓
+        |
+        v
 END block runs once after all lines are processed
 ```
 
@@ -140,23 +152,33 @@ Related notes:
 # Troubleshooting Flow (Quick)
 
 ```text
-sed substitution makes no change
-        ↓
-Test without -i first: sed 's/old/new/g' file | head
-        ↓
-Check quoting — use single quotes to prevent shell expansion of pattern
-        ↓
-awk prints wrong fields or empty output
-        ↓
-Check delimiter: default is any whitespace run; use -F to set explicit delimiter
-        ↓
-Print $0 to see full raw line, then narrow down field number
-        ↓
-sed -i destroyed file
-        ↓
-Check for .bkp backup if -i.bkp was used
-        ↓
-Restore from git: git checkout -- <file>
+Problem: sed substitution makes no change
+    |
+    v
+[1] Test without -i first: sed 's/old/new/g' file | head
+    |
+    v
+[2] Check quoting — use single quotes to prevent shell expansion of pattern
+
+---
+
+Problem: awk prints wrong fields or empty output
+    |
+    v
+[1] Check delimiter: default is any whitespace run; use -F to set explicit delimiter
+    |
+    v
+[2] Print $0 to see full raw line, then narrow down field number
+
+---
+
+Problem: sed -i destroyed file
+    |
+    v
+[1] Check for .bkp backup if -i.bkp was used
+    |
+    v
+[2] Restore from git: git checkout -- <file>
 ```
 
 

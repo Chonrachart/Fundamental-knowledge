@@ -162,7 +162,7 @@ gh release view v1.0.0
 
 > Prefer annotated tags for anything shared with others. Use `--follow-tags` or configure `push.followTags` to avoid forgetting to push tags.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Tag not showing on remote?

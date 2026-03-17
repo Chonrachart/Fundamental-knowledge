@@ -176,7 +176,7 @@ git revert <hash>
 
 All `git reset <hash>` modes are local-only operations; use `git revert` for pushed history.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Staged a wrong file?

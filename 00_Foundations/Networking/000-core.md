@@ -156,7 +156,7 @@ ss -tulnp
 tcpdump -i eth0 -n port 443
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: cannot reach a service

@@ -9,7 +9,8 @@
 
 ```text
 Full playbook: install → config → deploy → restart
-                  ↓
+                  |
+                  v
 --tags config,deploy   →   runs only config + deploy tasks
 --skip-tags install    →   runs everything except install tasks
 --limit web1           →   runs full playbook but only on web1
@@ -165,24 +166,32 @@ ansible-playbook site.yml --list-tags
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Playbook runs wrong hosts or tasks
-        ↓
---list-hosts + --list-tasks  (verify scope before running)
-        ↓
-Task result unexpected
-        ↓
--vvv  (see raw module input/output)
-        ↓
-Add debug: var=<suspect_variable>  before failing task
-        ↓
-Add assert: to validate assumptions early
-        ↓
-Run --check --diff to preview changes on a single host
-        ↓
-Use --start-at-task to resume after fixing mid-play failure
+Problem: Playbook runs wrong hosts or tasks
+    |
+    v
+[1] --list-hosts + --list-tasks  (verify scope before running)
+
+---
+
+Problem: Task result unexpected
+    |
+    v
+[1] -vvv  (see raw module input/output)
+    |
+    v
+[2] Add debug: var=<suspect_variable>  before failing task
+    |
+    v
+[3] Add assert: to validate assumptions early
+    |
+    v
+[4] Run --check --diff to preview changes on a single host
+    |
+    v
+[5] Use --start-at-task to resume after fixing mid-play failure
 ```
 
 

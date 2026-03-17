@@ -274,7 +274,7 @@ head -20 mydb.sql
 tail -5 mydb.sql
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: backup job failed or restore does not work

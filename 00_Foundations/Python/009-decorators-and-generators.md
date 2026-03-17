@@ -313,7 +313,7 @@ Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md), [005
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: decorator or generator not behaving as expected

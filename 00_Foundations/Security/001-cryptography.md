@@ -130,7 +130,7 @@ openssl rsautl -encrypt -pubin -inkey public.pem -in msg.txt -out msg.enc
 
 Note: RSA can only encrypt data smaller than the key size; use hybrid encryption for larger payloads.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Encryption not working?

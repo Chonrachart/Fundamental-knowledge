@@ -9,13 +9,17 @@
 
 ```text
 User space: open("/data/file.txt")
-        ↓
+        |
+        v
 VFS (Virtual Filesystem Switch) — kernel abstraction layer
-        ↓
+        |
+        v
 Filesystem driver (ext4 / xfs / zfs / tmpfs / nfs…)
-        ↓
+        |
+        v
 Block device layer  (/dev/sda1, /dev/sdb1, /dev/mapper/vg-lv)
-        ↓
+        |
+        v
 Physical storage (SSD / HDD / NFS server / RAM)
 
 Mount table (kernel):
@@ -141,25 +145,37 @@ Related notes:
 # Troubleshooting Flow (Quick)
 
 ```text
-Mount fails: "wrong fs type" or "can't read superblock"
-        ↓
-lsblk -f  →  confirm filesystem type matches what you're mounting
-        ↓
-blkid /dev/sdX  →  verify UUID and fs type
-        ↓
-"Device is busy" on umount
-        ↓
-lsof +D <mountpoint>  or  fuser -m <mountpoint>  →  find blocking process
-        ↓
-System drops into emergency mode on boot
-        ↓
-fstab error — boot with root read-only, edit /etc/fstab, run mount -a to test
-        ↓
-df -h shows 100% disk usage
-        ↓
-du -sh /* | sort -rh | head  →  find large directories
-        ↓
-df -i  →  check if inode exhaustion (not disk space) is the real issue
+Problem: Mount fails with "wrong fs type" or "can't read superblock"
+    |
+    v
+[1] lsblk -f  →  confirm filesystem type matches what you're mounting
+    |
+    v
+[2] blkid /dev/sdX  →  verify UUID and fs type
+
+---
+
+Problem: "Device is busy" on umount
+    |
+    v
+[1] lsof +D <mountpoint>  or  fuser -m <mountpoint>  →  find blocking process
+
+---
+
+Problem: System drops into emergency mode on boot
+    |
+    v
+[1] fstab error — boot with root read-only, edit /etc/fstab, run mount -a to test
+
+---
+
+Problem: df -h shows 100% disk usage
+    |
+    v
+[1] du -sh /* | sort -rh | head  →  find large directories
+    |
+    v
+[2] df -i  →  check if inode exhaustion (not disk space) is the real issue
 ```
 
 

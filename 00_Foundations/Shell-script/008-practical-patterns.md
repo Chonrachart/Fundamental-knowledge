@@ -289,7 +289,7 @@ Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md), [006
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Script fails silently?

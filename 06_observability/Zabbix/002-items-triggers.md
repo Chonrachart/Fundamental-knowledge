@@ -148,7 +148,7 @@ curl -s -X POST http://zabbix.example.com/api_jsonrpc.php \
   -d '{"jsonrpc":"2.0","method":"item.get","params":{"hostids":"10084","output":["name","lastvalue"]},"auth":"<token>","id":1}'
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: item shows "Not supported" or no data

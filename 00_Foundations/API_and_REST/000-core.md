@@ -117,7 +117,7 @@ curl -sL https://api.example.com/resource
 curl -s -o response.json https://api.example.com/resource
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: API call failing or returning errors

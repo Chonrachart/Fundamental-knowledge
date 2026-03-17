@@ -9,19 +9,24 @@
 
 ```text
 System boot
-        ↓
+        |
+        v
 crond starts (systemd service: cron / crond)
-        ↓
+        |
+        v
 Reads all crontab sources:
   /var/spool/cron/crontabs/<user>   (per-user crontabs via crontab -e)
   /etc/crontab                      (system crontab with extra user field)
   /etc/cron.d/*                     (package / admin drop-in files)
   /etc/cron.daily|weekly|monthly/   (scripts run via run-parts)
-        ↓
+        |
+        v
 Every minute: check if any job matches current time
-        ↓
+        |
+        v
 Fork and execute matching commands
-        ↓
+        |
+        v
 Output (stdout/stderr) emailed to user (if mail configured)
 or redirected to file if >> /path/to/log 2>&1 is used
 ```
@@ -146,25 +151,35 @@ chmod 700 /path/to/job.sh           # only owner can read/execute
 # Troubleshooting Flow (Quick)
 
 ```text
-Cron job not running
-        ↓
-systemctl status cron (or crond)  →  is cron service running?
-        ↓
-crontab -l  →  confirm job is actually in crontab
-        ↓
-Test schedule expression at crontab.guru or run manually
-        ↓
-Run command manually as the cron user to check it works
-        ↓
-journalctl -u cron -f  or  grep CRON /var/log/syslog  →  check execution log
-        ↓
-Job runs but does nothing / produces errors
-        ↓
-Redirect output: command >> /tmp/job.log 2>&1  →  capture all output
-        ↓
-Check PATH: add full absolute paths to command and script
-        ↓
-Check script is executable: chmod +x /path/to/job.sh
+Problem: Cron job not running
+    |
+    v
+[1] systemctl status cron (or crond)  →  is cron service running?
+    |
+    v
+[2] crontab -l  →  confirm job is actually in crontab
+    |
+    v
+[3] Test schedule expression at crontab.guru or run manually
+    |
+    v
+[4] Run command manually as the cron user to check it works
+    |
+    v
+[5] journalctl -u cron -f  or  grep CRON /var/log/syslog  →  check execution log
+
+---
+
+Problem: Job runs but does nothing / produces errors
+    |
+    v
+[1] Redirect output: command >> /tmp/job.log 2>&1  →  capture all output
+    |
+    v
+[2] Check PATH: add full absolute paths to command and script
+    |
+    v
+[3] Check script is executable: chmod +x /path/to/job.sh
 ```
 
 

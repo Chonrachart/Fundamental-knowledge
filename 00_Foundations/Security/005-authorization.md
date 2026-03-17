@@ -114,7 +114,7 @@ Related notes: [authentication](./004-authentication.md), [secrets-management](.
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Access denied

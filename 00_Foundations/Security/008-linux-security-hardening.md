@@ -344,7 +344,7 @@ Related notes: [004-authentication](./004-authentication.md)
 
 ---
 
-## Troubleshooting Flow (Quick)
+## Troubleshooting Guide
 
 ```text
   Security issue?

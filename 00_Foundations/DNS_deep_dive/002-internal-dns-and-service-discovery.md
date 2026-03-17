@@ -345,7 +345,7 @@ dig @127.0.0.1 -p 8600 redis.service.consul
 dig @127.0.0.1 -p 8600 redis.service.consul SRV
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: service name not resolving inside Kubernetes

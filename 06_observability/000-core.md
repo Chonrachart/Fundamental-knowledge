@@ -171,7 +171,7 @@ curl -s -X POST http://zabbix:8080/api_jsonrpc.php \
   -d '{"jsonrpc":"2.0","method":"trigger.get","params":{"output":["description","priority"],"filter":{"value":1},"sortfield":"lastchange","limit":5},"auth":"<auth-token>","id":1}' | jq '.result'
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: service degradation or outage detected

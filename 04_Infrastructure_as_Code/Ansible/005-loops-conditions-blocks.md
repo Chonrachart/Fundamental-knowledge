@@ -187,20 +187,25 @@ ansible-playbook site.yml --check --diff
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Task unexpectedly skipped
-        ↓
-Add debug task before it: debug: var=<condition_variable>
-        ↓
-Check type (string "false" vs bool false — use | bool filter)
-        ↓
-Check fact value: ansible web1 -m setup -a "filter=ansible_os_family"
-        ↓
-Verify list variable is defined and non-empty before loop
-        ↓
-Check loop_var conflict if using nested include_tasks with loop
+Problem: Task unexpectedly skipped
+    |
+    v
+[1] Add debug task before it: debug: var=<condition_variable>
+    |
+    v
+[2] Check type (string "false" vs bool false — use | bool filter)
+    |
+    v
+[3] Check fact value: ansible web1 -m setup -a "filter=ansible_os_family"
+    |
+    v
+[4] Verify list variable is defined and non-empty before loop
+    |
+    v
+[5] Check loop_var conflict if using nested include_tasks with loop
 ```
 
 

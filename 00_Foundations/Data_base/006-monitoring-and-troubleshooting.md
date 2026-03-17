@@ -354,7 +354,7 @@ df -h /var/lib/postgresql   # PostgreSQL
 df -h /var/lib/mysql        # MySQL
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: application reports slow database queries

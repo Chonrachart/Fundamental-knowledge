@@ -163,7 +163,7 @@ curl -o /dev/null -s -w "%{http_code}" https://example.com
 curl -X DELETE https://example.com/api/resource/1
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Cannot reach HTTPS site?

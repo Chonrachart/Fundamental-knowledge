@@ -173,7 +173,7 @@ openssl enc -aes-256-cbc -salt -in data.txt -out data.enc -pass pass:secret
 
 Note: in production, use proper key management; never pass passwords on the command line.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Encryption/signing issue?

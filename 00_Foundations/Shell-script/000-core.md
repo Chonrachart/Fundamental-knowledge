@@ -235,7 +235,7 @@ echo $?
 bash -euo pipefail script.sh
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: script fails or behaves unexpectedly

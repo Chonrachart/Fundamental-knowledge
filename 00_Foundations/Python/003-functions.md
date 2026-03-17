@@ -201,7 +201,7 @@ Related notes: [008-classes-and-oop](./008-classes-and-oop.md), [007-modules-and
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: function not behaving as expected

@@ -185,7 +185,7 @@ Related notes: [007-modules-and-imports](./007-modules-and-imports.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: unexpected exception crashing the program

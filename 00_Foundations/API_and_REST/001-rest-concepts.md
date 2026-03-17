@@ -226,7 +226,7 @@ curl -s -X DELETE https://api.example.com/v1/servers/42
 curl -s -o /dev/null -w "%{http_code}" https://api.example.com/v1/servers/42
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: unexpected API response

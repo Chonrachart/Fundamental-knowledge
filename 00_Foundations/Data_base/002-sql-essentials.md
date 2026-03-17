@@ -313,7 +313,7 @@ mysql -h localhost -u root -p mydb < /path/to/script.sql
 mysql -h localhost -u root -p -B -e "SELECT * FROM users;" mydb | tr '\t' ',' > users.csv
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: application reports "data not found" or "wrong data"

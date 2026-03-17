@@ -165,7 +165,7 @@ Related notes: [004-io-and-redirection](./004-io-and-redirection.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: script fails silently or behaves unexpectedly

@@ -126,7 +126,7 @@ tail -f /var/log/zabbix/zabbix_agent2.log
 grep -v '^#\|^$' /etc/zabbix/zabbix_server.conf
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: host shows "Unavailable" in Zabbix frontend

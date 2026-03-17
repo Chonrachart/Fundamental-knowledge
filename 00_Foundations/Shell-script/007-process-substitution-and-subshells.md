@@ -199,7 +199,7 @@ tee >(gzip > backup.gz) < original.txt               # write and compress
 diff <( ssh host1 cat /etc/hosts ) <( ssh host2 cat /etc/hosts )
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Variable lost after loop/pipe?

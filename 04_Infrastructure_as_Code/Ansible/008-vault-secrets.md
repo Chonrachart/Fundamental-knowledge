@@ -12,11 +12,14 @@ Plaintext secret  →  ansible-vault encrypt  →  AES-256 encrypted file (safe 
 
 At runtime:
 ansible-playbook site.yml --vault-password-file .vault_pass
-        ↓
+        |
+        v
 Ansible decrypts vault files in memory
-        ↓
+        |
+        v
 Variables available to tasks/templates as normal
-        ↓
+        |
+        v
 Never written to disk in plaintext
 ```
 
@@ -131,26 +134,36 @@ ansible-vault view group_vars/prod/secrets.yml    # safer — view without writi
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-"Attempting to decrypt but no vault secrets found"
-        ↓
-Forgot to pass --ask-vault-pass or --vault-password-file
-        ↓
-Check ansible.cfg for vault_password_file setting
-        ↓
-"Decryption failed (wrong password?)"
-        ↓
-Wrong vault password or vault ID mismatch
-        ↓
-Check if multiple vault IDs are in use — pass all required --vault-id flags
-        ↓
-Variable is undefined despite being in secrets.yml
-        ↓
-Verify file was encrypted after last edit (ansible-vault view)
-        ↓
-Check group_vars path matches the host's group
+Problem: "Attempting to decrypt but no vault secrets found"
+    |
+    v
+[1] Forgot to pass --ask-vault-pass or --vault-password-file
+    |
+    v
+[2] Check ansible.cfg for vault_password_file setting
+
+---
+
+Problem: "Decryption failed (wrong password?)"
+    |
+    v
+[1] Wrong vault password or vault ID mismatch
+    |
+    v
+[2] Check if multiple vault IDs are in use — pass all required --vault-id flags
+
+---
+
+Problem: Variable is undefined despite being in secrets.yml
+    |
+    v
+[1] Verify file was encrypted after last edit (ansible-vault view)
+    |
+    v
+[2] Check group_vars path matches the host's group
 ```
 
 

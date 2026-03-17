@@ -177,7 +177,7 @@ Related notes: [002-control-flow](./002-control-flow.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: unexpected data structure behavior

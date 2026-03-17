@@ -122,24 +122,31 @@ ansible-inventory -i inventory/hosts.ini --graph
 - Add `-v`, `-vv`, `-vvv` to any command for increasing verbosity.
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Something is wrong
-        ↓
-Re-run with --check --diff  (see what would change without touching anything)
-        ↓
-Add -vvv  (see SSH details, module args, raw output)
-        ↓
-Test connectivity with ad-hoc ping
-        ↓
-Check inventory graph (ansible-inventory --graph)
-        ↓
-Add debug task to print suspect variable
-        ↓
-Run single task with --start-at-task or --tags
-        ↓
-Fix → re-run → verify second run is all ok (idempotency check)
+Problem: Something is wrong
+    |
+    v
+[1] Re-run with --check --diff  (see what would change without touching anything)
+    |
+    v
+[2] Add -vvv  (see SSH details, module args, raw output)
+    |
+    v
+[3] Test connectivity with ad-hoc ping
+    |
+    v
+[4] Check inventory graph (ansible-inventory --graph)
+    |
+    v
+[5] Add debug task to print suspect variable
+    |
+    v
+[6] Run single task with --start-at-task or --tags
+    |
+    v
+[7] Fix → re-run → verify second run is all ok (idempotency check)
 ```
 
 

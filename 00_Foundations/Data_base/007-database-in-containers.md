@@ -463,7 +463,7 @@ kubectl logs db-0
 kubectl port-forward db-0 5432:5432
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: containerized database is not working

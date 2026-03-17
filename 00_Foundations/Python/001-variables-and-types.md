@@ -266,7 +266,7 @@ Related notes: [003-functions](./003-functions.md), [008-classes-and-oop](./008-
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: unexpected type behavior

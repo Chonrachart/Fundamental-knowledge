@@ -392,7 +392,7 @@ curl -s -u admin:admin -X POST http://grafana:3000/api/datasources/1/query \
   -d '{"queries":[{"refId":"A","expr":"{job=\"app\"}"}]}'
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Promtail not shipping logs to Loki

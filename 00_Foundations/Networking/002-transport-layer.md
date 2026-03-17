@@ -180,7 +180,7 @@ tcpdump -i eth0 -n 'tcp port 443 and (tcp[tcpflags] & (tcp-syn|tcp-fin) != 0)'
 ss -s
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: cannot connect to a remote service

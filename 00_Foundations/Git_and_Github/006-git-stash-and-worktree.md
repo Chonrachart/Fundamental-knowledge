@@ -146,7 +146,7 @@ git worktree prune                        # remove stale references
 
 > Use `git stash` for quick, temporary context switches. Use `git worktree` when you need to work on two branches simultaneously for an extended period.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Stash won't apply cleanly?

@@ -226,7 +226,7 @@ openssl rsa -noout -modulus -in key.pem | openssl md5       # key modulus hash
 
 Note: always use `-nodes` (no DES) in dev/test to skip passphrase; in production, protect private keys with passphrases or HSMs.
 
-## Troubleshooting Flow (Quick)
+## Troubleshooting Guide
 
 ```text
   Certificate error?

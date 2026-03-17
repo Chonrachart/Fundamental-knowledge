@@ -22,13 +22,17 @@ inventory/
 Variable precedence (low → high):
 
   role defaults
-      ↓
+      |
+      v
   group_vars/all
-      ↓
+      |
+      v
   group_vars/<group>
-      ↓
+      |
+      v
   host_vars/<host>           ← wins over group
-      ↓
+      |
+      v
   extra vars (-e)            ← always wins
 ```
 
@@ -169,22 +173,32 @@ ansible web -m ping -u deploy --private-key ~/.ssh/id_ed25519
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Host unreachable or wrong host targeted
-        ↓
-ansible-inventory --graph  (confirm host is in correct group)
-        ↓
-ansible <host> -m ping -vvv  (see SSH attempt details)
-        ↓
-Check ansible_host / ansible_user / ansible_port in host_vars
-        ↓
-Check ansible.cfg for correct inventory path
-        ↓
-Verify SSH key auth works manually: ssh -i <key> user@host
-        ↓
-Check group_vars/host_vars precedence if variable value is wrong
+Problem: Host unreachable
+    |
+    v
+[1] ansible <host> -m ping -vvv  (see SSH attempt details)
+    |
+    v
+[2] Check ansible_host / ansible_user / ansible_port in host_vars
+    |
+    v
+[3] Verify SSH key auth works manually: ssh -i <key> user@host
+    |
+    v
+[4] Check ansible.cfg for correct inventory path
+
+---
+
+Problem: Wrong host targeted or variable value unexpected
+    |
+    v
+[1] ansible-inventory --graph  (confirm host is in correct group)
+    |
+    v
+[2] Check group_vars/host_vars precedence if variable value is wrong
 ```
 
 

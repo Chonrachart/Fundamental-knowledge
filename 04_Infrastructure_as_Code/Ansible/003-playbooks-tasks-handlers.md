@@ -26,19 +26,25 @@ Playbook (site.yml)
 
 ```text
 ansible-playbook site.yml
-        ↓
+        |
+        v
 Parse YAML → resolve hosts from inventory
-        ↓
+        |
+        v
 Connect to each host (SSH)
-        ↓
+        |
+        v
 Gather facts (unless gather_facts: false)
-        ↓
+        |
+        v
 Execute tasks top-to-bottom
   each task:  call module → get result → update host state
   if changed: queue handler name
-        ↓
+        |
+        v
 All tasks complete → flush handlers (once per queued handler, per host)
-        ↓
+        |
+        v
 Play ends → next play begins
 ```
 
@@ -144,24 +150,31 @@ ansible web -m ansible.builtin.service -a "name=nginx state=restarted" --become
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Task fails
-        ↓
-Read error message in output (rc, stderr, msg)
-        ↓
-Re-run with -vvv  (see exact module args sent + raw output)
-        ↓
-Test the module ad-hoc on one host
-        ↓
-Add debug task above failing task to print relevant variables
-        ↓
-Check changed_when / failed_when if result logic seems wrong
-        ↓
-Check become / permissions if "Permission denied"
-        ↓
-Fix → re-run → confirm second run is all ok
+Problem: Task fails
+    |
+    v
+[1] Read error message in output (rc, stderr, msg)
+    |
+    v
+[2] Re-run with -vvv  (see exact module args sent + raw output)
+    |
+    v
+[3] Test the module ad-hoc on one host
+    |
+    v
+[4] Add debug task above failing task to print relevant variables
+    |
+    v
+[5] Check changed_when / failed_when if result logic seems wrong
+    |
+    v
+[6] Check become / permissions if "Permission denied"
+    |
+    v
+[7] Fix → re-run → confirm second run is all ok
 ```
 
 

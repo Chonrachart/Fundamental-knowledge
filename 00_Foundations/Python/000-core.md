@@ -208,7 +208,7 @@ python3 -m py_compile script.py
 python3 -W all script.py
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Python script fails or behaves unexpectedly

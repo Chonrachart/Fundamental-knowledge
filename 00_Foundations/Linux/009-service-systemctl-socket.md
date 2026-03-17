@@ -9,19 +9,24 @@
 
 ```text
 Kernel starts → systemd (PID 1)
-        ↓
+        |
+        v
 Reads unit files (highest → lowest priority):
   /etc/systemd/system/          (admin / custom overrides)
   /usr/lib/systemd/system/      (package defaults)
   /lib/systemd/system/          (distribution defaults)
-        ↓
+        |
+        v
 Resolves unit dependencies (After=, Requires=, Wants=)
-        ↓
+        |
+        v
 Activates targets in order:
   sysinit.target → basic.target → multi-user.target → graphical.target
-        ↓
+        |
+        v
 Services, timers, sockets, mounts start under their target
-        ↓
+        |
+        v
 All output captured by journald → readable via journalctl
 ```
 
@@ -30,19 +35,26 @@ All output captured by journald → readable via journalctl
 
 ```text
 systemctl start nginx
-        ↓
+        |
+        v
 systemd reads nginx.service unit file
-        ↓
+        |
+        v
 Checks After= / Requires= dependencies are met
-        ↓
+        |
+        v
 Forks child process → loads nginx binary → nginx starts
-        ↓
+        |
+        v
 stdout/stderr captured by journald
-        ↓
+        |
+        v
 Service state: activating → active (running)
-        ↓
+        |
+        v
 cgroup created: /sys/fs/cgroup/system.slice/nginx.service
-        ↓
+        |
+        v
 systemctl status nginx  →  shows state + recent log lines
 ```
 
@@ -155,25 +167,40 @@ Related notes:
 # Troubleshooting Flow (Quick)
 
 ```text
-Service fails to start
-        ↓
-systemctl status <service>  →  read the last log lines
-        ↓
-journalctl -u <service> -n 50 --no-pager  →  full recent log
-        ↓
-Edited unit file but changes not applied
-        ↓
-systemctl daemon-reload  →  then restart service
-        ↓
-Service starts but port not listening
-        ↓
-ss -tlnp | grep <port>  →  is anything listening?
-journalctl -u <service> -f  →  watch live for bind errors
-        ↓
-Service keeps restarting in a loop
-        ↓
-journalctl -u <service> -p err  →  find root cause
-systemctl show <service> -p Restart -p RestartSec  →  check restart config
+Problem: Service fails to start
+    |
+    v
+[1] systemctl status <service>  →  read the last log lines
+    |
+    v
+[2] journalctl -u <service> -n 50 --no-pager  →  full recent log
+
+---
+
+Problem: Edited unit file but changes not applied
+    |
+    v
+[1] systemctl daemon-reload  →  then restart service
+
+---
+
+Problem: Service starts but port not listening
+    |
+    v
+[1] ss -tlnp | grep <port>  →  is anything listening?
+    |
+    v
+[2] journalctl -u <service> -f  →  watch live for bind errors
+
+---
+
+Problem: Service keeps restarting in a loop
+    |
+    v
+[1] journalctl -u <service> -p err  →  find root cause
+    |
+    v
+[2] systemctl show <service> -p Restart -p RestartSec  →  check restart config
 ```
 
 

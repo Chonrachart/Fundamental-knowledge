@@ -34,17 +34,22 @@ roles/
 
 ```text
 Playbook calls role
-        ↓
+        |
+        v
 Ansible loads role from roles/ or collections/
-        ↓
+        |
+        v
 Merge variable precedence:
   role defaults → group_vars → host_vars → role vars → extra-vars
-        ↓
+        |
+        v
 Execute tasks/main.yml  (top-to-bottom)
   can include sub-files: include_tasks / import_tasks
-        ↓
+        |
+        v
 Register handlers from handlers/main.yml
-        ↓
+        |
+        v
 End of play → flush handlers
 ```
 
@@ -153,26 +158,36 @@ ansible-galaxy role info geerlingguy.nginx
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Role variable has wrong value
-        ↓
-Check precedence: defaults < group_vars < host_vars < vars < extra-vars
-        ↓
-Add debug task at start of role's tasks/main.yml to print key vars
-        ↓
-Role not found error
-        ↓
-Check roles_path in ansible.cfg (default: ./roles)
-        ↓
-Run: ansible-galaxy role install -r requirements.yml
-        ↓
-Module not found from collection
-        ↓
-Run: ansible-galaxy collection install <namespace.collection>
-        ↓
-Use FQCN: namespace.collection.module_name
+Problem: Role variable has wrong value
+    |
+    v
+[1] Check precedence: defaults < group_vars < host_vars < vars < extra-vars
+    |
+    v
+[2] Add debug task at start of role's tasks/main.yml to print key vars
+
+---
+
+Problem: Role not found error
+    |
+    v
+[1] Check roles_path in ansible.cfg (default: ./roles)
+    |
+    v
+[2] Run: ansible-galaxy role install -r requirements.yml
+
+---
+
+Problem: Module not found from collection
+    |
+    v
+[1] Run: ansible-galaxy collection install <namespace.collection>
+    |
+    v
+[2] Use FQCN: namespace.collection.module_name
 ```
 
 

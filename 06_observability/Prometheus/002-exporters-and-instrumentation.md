@@ -387,7 +387,7 @@ curl -I -s -o /dev/null -w '%{http_code}\n' http://localhost:9100/metrics
 ps aux | grep -E 'exporter|node_exporter' | grep -v grep
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Exporter endpoint returns no metrics or errors

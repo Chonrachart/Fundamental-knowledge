@@ -293,7 +293,7 @@ Related notes: [001-variables-and-types](./001-variables-and-types.md), [009-dec
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: unexpected behavior with classes or inheritance

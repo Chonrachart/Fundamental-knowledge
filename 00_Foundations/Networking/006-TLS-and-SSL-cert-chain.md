@@ -220,7 +220,7 @@ ls /etc/ssl/certs/
 update-ca-certificates --fresh
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 TLS connection failing?

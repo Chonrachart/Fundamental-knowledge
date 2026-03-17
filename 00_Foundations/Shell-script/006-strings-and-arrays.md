@@ -184,7 +184,7 @@ Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md), 
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: unexpected behavior with strings or arrays

@@ -176,7 +176,7 @@ aws secretsmanager rotate-secret --secret-id myapp/db
 
 > Use `vault`, `kubectl`, and `aws` CLIs for quick secret operations; automate rotation in CI/CD pipelines.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Secret not accessible

@@ -128,7 +128,7 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Grafana dashboard shows "No Data"

@@ -203,7 +203,7 @@ parse_flags() {
 }
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: function not behaving as expected

@@ -322,7 +322,7 @@ dig example.com CAA
 dig _http._tcp.example.com SRV
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: email not being delivered

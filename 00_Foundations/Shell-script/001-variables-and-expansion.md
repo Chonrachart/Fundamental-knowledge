@@ -185,7 +185,7 @@ export -p
 unset MY_VAR
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: variable not behaving as expected

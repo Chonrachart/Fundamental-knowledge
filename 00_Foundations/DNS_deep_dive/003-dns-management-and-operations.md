@@ -410,7 +410,7 @@ for ns in 8.8.8.8 1.1.1.1 9.9.9.9; do
 done
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: DNS record change not taking effect

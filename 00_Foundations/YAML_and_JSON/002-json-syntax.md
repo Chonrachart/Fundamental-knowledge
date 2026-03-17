@@ -273,7 +273,7 @@ yq -P input.json
 kubectl get pods -o json | jq -r '.items[].metadata.name'
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: JSON file has syntax errors or jq query returns unexpected results

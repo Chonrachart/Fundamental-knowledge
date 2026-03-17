@@ -9,19 +9,26 @@
 
 ```text
 role defaults          (defaults/main.yml)       ← easiest to override
-    ↓
+    |
+    v
 inventory group_vars/all
-    ↓
+    |
+    v
 inventory group_vars/<group>
-    ↓
+    |
+    v
 inventory host_vars/<host>
-    ↓
+    |
+    v
 play vars / vars_files
-    ↓
+    |
+    v
 role vars              (vars/main.yml)
-    ↓
+    |
+    v
 task vars / set_fact / register
-    ↓
+    |
+    v
 extra vars  (-e key=value)                       ← always wins
 ```
 
@@ -89,13 +96,17 @@ Common `register` fields: `.stdout`, `.stderr`, `.rc`, `.changed`, `.stdout_line
 
 ```text
 Play starts
-    ↓
+    |
+    v
 gather_facts: true  (default)
-    ↓
+    |
+    v
 Ansible runs setup module on each host
-    ↓
+    |
+    v
 Facts stored as variables: ansible_*
-    ↓
+    |
+    v
 Available in all tasks and templates
 ```
 
@@ -177,22 +188,28 @@ ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
 ```
 
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
-Variable has wrong value or is undefined
-        ↓
-Add debug task: debug: var=<variable_name>
-        ↓
-Check precedence — is host_vars overriding group_vars?
-        ↓
-Check if -e was passed (always wins)
-        ↓
-Check if set_fact was called earlier in play (runtime override)
-        ↓
-ansible web1 -m setup | grep <fact_name>  (verify fact value)
-        ↓
-Use | default(fallback) in template to handle undefined safely
+Problem: Variable has wrong value or is undefined
+    |
+    v
+[1] Add debug task: debug: var=<variable_name>
+    |
+    v
+[2] Check precedence — is host_vars overriding group_vars?
+    |
+    v
+[3] Check if -e was passed (always wins)
+    |
+    v
+[4] Check if set_fact was called earlier in play (runtime override)
+    |
+    v
+[5] ansible web1 -m setup | grep <fact_name>  (verify fact value)
+    |
+    v
+[6] Use | default(fallback) in template to handle undefined safely
 ```
 
 

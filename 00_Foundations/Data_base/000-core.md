@@ -180,7 +180,7 @@ systemctl status postgresql
 systemctl status mysql
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: cannot connect to database

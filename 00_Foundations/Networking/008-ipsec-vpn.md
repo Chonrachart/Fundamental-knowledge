@@ -183,7 +183,7 @@ tcpdump -i eth0 port 500 or port 4500
 journalctl -u strongswan -f
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 IPsec tunnel not coming up?

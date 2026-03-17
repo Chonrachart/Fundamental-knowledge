@@ -156,7 +156,7 @@ Related notes: [001-variables-and-types](./001-variables-and-types.md), [004-dat
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: file operation fails or behaves unexpectedly

@@ -197,7 +197,7 @@ Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: control flow not behaving as expected

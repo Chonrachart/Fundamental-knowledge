@@ -212,7 +212,7 @@ gh pr create --title "Fix typo" --body "Quick fix" # merge within hours
 
 > In Gitflow, always merge release and hotfix branches into **both** `main` and `develop` to keep them in sync.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Develop and main are out of sync?

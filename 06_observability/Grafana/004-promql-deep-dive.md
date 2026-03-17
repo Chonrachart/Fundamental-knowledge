@@ -145,7 +145,7 @@ curl -s 'http://localhost:9090/api/v1/rules' | jq .
 promtool check rules /etc/prometheus/rules/*.yml
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: PromQL query returns no data or unexpected results

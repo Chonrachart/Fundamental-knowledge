@@ -36,13 +36,15 @@ Access check order: owner match → group match → others (first match wins).
 
 ```text
 Process (running as UID=1001, GID=1001) opens file
-        ↓
+        |
+        v
 Kernel checks: is process UID == file owner UID?
   → yes: apply owner bits
   → no: is process GID in file's group?
         → yes: apply group bits
         → no: apply others bits
-        ↓
+        |
+        v
 Does the matched bit class allow the requested operation?
   → yes: allow
   → no: EACCES (Permission denied)
@@ -167,21 +169,29 @@ setfacl -b <path>                   # remove all ACL entries
 # Troubleshooting Flow (Quick)
 
 ```text
-"Permission denied"
-        ↓
-ls -l <file>  →  check bits and owner
-        ↓
-id  →  confirm current UID and GID
-        ↓
-Is file owned by root and needs sudo?
-        ↓
-Check if directory x-bit is missing (cannot cd/traverse without x)
-        ↓
-getfacl <file>  →  check if ACL is overriding standard permissions
-        ↓
-User added to group but still denied
-        ↓
-Log out and log back in (group membership is set at login time)
+Problem: "Permission denied"
+    |
+    v
+[1] ls -l <file>  →  check bits and owner
+    |
+    v
+[2] id  →  confirm current UID and GID
+    |
+    v
+[3] Is file owned by root and needs sudo?
+    |
+    v
+[4] Check if directory x-bit is missing (cannot cd/traverse without x)
+    |
+    v
+[5] getfacl <file>  →  check if ACL is overriding standard permissions
+
+---
+
+Problem: User added to group but still denied
+    |
+    v
+[1] Log out and log back in (group membership is set at login time)
 ```
 
 

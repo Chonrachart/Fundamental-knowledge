@@ -147,7 +147,7 @@ Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Start: identify which layer is failing

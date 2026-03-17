@@ -124,7 +124,7 @@ Related notes: [cryptography](./001-cryptography.md), [hashing](./002-hashing.md
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Login fails

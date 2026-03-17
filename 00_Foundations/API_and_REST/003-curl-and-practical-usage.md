@@ -356,7 +356,7 @@ echo -e "server1\nserver2\nserver3" | xargs -P3 -I{} \
   curl -s "https://api.example.com/v1/servers/{}" -o "{}.json"
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: curl command not working as expected

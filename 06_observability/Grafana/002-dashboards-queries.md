@@ -161,7 +161,7 @@ curl -s -H "Authorization: Bearer $GRAFANA_TOKEN" \
   http://localhost:3000/api/datasources/proxy/1/api/v1/query?query=up
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: panel shows unexpected or missing data

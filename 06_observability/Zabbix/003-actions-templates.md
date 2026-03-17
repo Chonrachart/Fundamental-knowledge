@@ -112,7 +112,7 @@ Related notes: [004-monitoring-patterns](./004-monitoring-patterns.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: action not sending notifications

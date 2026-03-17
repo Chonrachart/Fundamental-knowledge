@@ -129,7 +129,7 @@ Related notes: [004-git-remote-repository](./004-git-remote-repository.md), [005
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
   Merge failed?

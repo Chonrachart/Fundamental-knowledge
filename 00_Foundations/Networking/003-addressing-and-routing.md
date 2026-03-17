@@ -162,7 +162,7 @@ iptables -t nat -L -n -v
 ipcalc 192.168.1.0/24
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: cannot reach a remote host

@@ -247,7 +247,7 @@ mysql -h 127.0.0.1 -P 6032 -u admin -p -e "SELECT * FROM runtime_mysql_servers;"
 echo "show stat" | socat stdio /var/run/haproxy/admin.sock | cut -d, -f1,2,18
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: replica is lagging or replication is broken

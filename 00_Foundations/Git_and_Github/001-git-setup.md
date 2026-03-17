@@ -163,7 +163,7 @@ git log -p
 
 Check config: `git config --global --list` or `git config --local --list`
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 git init not working?

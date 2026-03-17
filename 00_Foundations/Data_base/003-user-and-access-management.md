@@ -345,7 +345,7 @@ mysql -e "FLUSH PRIVILEGES;"
 mysql -e "SELECT user, host, db, command FROM information_schema.processlist;"
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: user cannot connect to the database

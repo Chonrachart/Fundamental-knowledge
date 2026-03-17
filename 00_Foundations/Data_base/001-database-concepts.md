@@ -266,7 +266,7 @@ alembic revision --autogenerate -m "add email column"
 alembic upgrade head
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: query is slow

@@ -161,7 +161,7 @@ zabbix_agent2 -p
 zabbix_agent2 -t custom.script.key
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: data collection not working for a specific pattern

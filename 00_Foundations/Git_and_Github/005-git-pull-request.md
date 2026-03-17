@@ -166,7 +166,7 @@ git push --delete origin feature-xyz
 
 - Use `git push -u` on the first push to set upstream tracking for the new branch
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
   PR has conflicts?

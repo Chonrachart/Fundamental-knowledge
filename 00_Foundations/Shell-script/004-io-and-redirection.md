@@ -177,7 +177,7 @@ Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: output not going where expected

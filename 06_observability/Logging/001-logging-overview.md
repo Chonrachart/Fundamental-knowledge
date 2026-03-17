@@ -245,7 +245,7 @@ cat /var/log/app.log | jq 'select(.level=="ERROR") | {timestamp, message, error}
 du -sh /var/log/* | sort -rh | head -10
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: missing or delayed logs in centralized system

@@ -9,19 +9,24 @@
 
 ```text
 Login shell starts
-        ↓
+        |
+        v
 Reads startup files:
   /etc/environment          (system-wide, all shells)
   /etc/profile              (system-wide, login shells)
   ~/.profile or ~/.bash_profile  (user login shell)
   ~/.bashrc                 (user interactive non-login shell)
-        ↓
+        |
+        v
 Environment variables loaded into shell memory
-        ↓
+        |
+        v
 Shell forks child process (command, script, subshell)
-        ↓
+        |
+        v
 Child inherits copy of parent's exported environment
-        ↓
+        |
+        v
 Child changes to its env do NOT affect parent
 ```
 
@@ -30,18 +35,23 @@ Child changes to its env do NOT affect parent
 
 ```text
 User types: nginx
-        ↓
+        |
+        v
 Is "nginx" a shell alias?  → yes: use alias expansion
-        ↓
+        |
+        v
 Is "nginx" a shell function?  → yes: call function
-        ↓
+        |
+        v
 Is "nginx" a shell builtin (cd, echo, export…)?  → yes: run builtin
-        ↓
+        |
+        v
 Search PATH left to right:
   /usr/local/sbin/nginx?  not found
   /usr/local/bin/nginx?   not found
   /usr/sbin/nginx?        found → execute
-        ↓
+        |
+        v
 "command not found" if exhausted all PATH directories
 ```
 
@@ -115,26 +125,38 @@ Related notes:
 # Troubleshooting Flow (Quick)
 
 ```text
-"command not found"
-        ↓
-command -v <cmd>  →  does shell find it at all?
-        ↓
-echo $PATH  →  is the binary's directory in PATH?
-        ↓
-ls -l $(which <cmd>)  →  does binary exist and have execute bit?
-        ↓
-which shows wrong version of command
-        ↓
-echo $PATH  →  check order (leftmost directory wins)
-        ↓
-export works in terminal but not in cron / script
-        ↓
-Script runs in non-interactive shell — source the startup file explicitly
-or set PATH at top of script with full absolute paths
-        ↓
-Variable set in script not visible in parent shell
-        ↓
-Use source ./script.sh (not ./script.sh) to run in current shell context
+Problem: "command not found"
+    |
+    v
+[1] command -v <cmd>  →  does shell find it at all?
+    |
+    v
+[2] echo $PATH  →  is the binary's directory in PATH?
+    |
+    v
+[3] ls -l $(which <cmd>)  →  does binary exist and have execute bit?
+
+---
+
+Problem: which shows wrong version of command
+    |
+    v
+[1] echo $PATH  →  check order (leftmost directory wins)
+
+---
+
+Problem: export works in terminal but not in cron / script
+    |
+    v
+[1] Script runs in non-interactive shell — source the startup file explicitly
+    or set PATH at top of script with full absolute paths
+
+---
+
+Problem: Variable set in script not visible in parent shell
+    |
+    v
+[1] Use source ./script.sh (not ./script.sh) to run in current shell context
 ```
 
 
