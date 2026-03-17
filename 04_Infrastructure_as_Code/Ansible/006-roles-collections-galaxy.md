@@ -160,35 +160,20 @@ ansible-galaxy role info geerlingguy.nginx
 
 # Troubleshooting Guide
 
-```text
-Problem: Role variable has wrong value
-    |
-    v
-[1] Check precedence: defaults < group_vars < host_vars < vars < extra-vars
-    |
-    v
-[2] Add debug task at start of role's tasks/main.yml to print key vars
+### Role variable has wrong value
 
----
+1. Check precedence: defaults < group_vars < host_vars < vars < extra-vars.
+2. Add a debug task at the start of the role's `tasks/main.yml` to print key vars.
 
-Problem: Role not found error
-    |
-    v
-[1] Check roles_path in ansible.cfg (default: ./roles)
-    |
-    v
-[2] Run: ansible-galaxy role install -r requirements.yml
+### Role not found error
 
----
+1. Check `roles_path` in `ansible.cfg` (default: `./roles`).
+2. Run `ansible-galaxy role install -r requirements.yml`.
 
-Problem: Module not found from collection
-    |
-    v
-[1] Run: ansible-galaxy collection install <namespace.collection>
-    |
-    v
-[2] Use FQCN: namespace.collection.module_name
-```
+### Module not found from collection
+
+1. Run `ansible-galaxy collection install <namespace.collection>`.
+2. Use FQCN: `namespace.collection.module_name`.
 
 
 # Quick Facts (Revision)

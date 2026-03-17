@@ -174,24 +174,13 @@ journalctl -u <service> -n 100 --no-pager
 
 # Troubleshooting Guide
 
-```text
-Problem: Symptom appears — general diagnostic sequence
-    |
-    v
-[1] Check service state (systemctl)
-    |
-    v
-[2] Check logs (journalctl / log files)
-    |
-    v
-[3] Check process/resources (ps, top, free, df)
-    |
-    v
-[4] Check network/listening ports (ip, ss, route, dns)
-    |
-    v
-[5] Apply fix and verify
-```
+### General diagnostic sequence
+
+1. Check service state: `systemctl status <service>`.
+2. Check logs: `journalctl -u <service> -n 100 --no-pager` or check `/var/log/`.
+3. Check process and resources: `ps aux`, `top`, `free -h`, `df -h`.
+4. Check network and listening ports: `ip a`, `ss -tulnp`, `ip r`, DNS resolution.
+5. Apply fix and verify.
 
 # Quick Facts (Revision)
 

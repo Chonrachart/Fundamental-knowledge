@@ -190,27 +190,14 @@ ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
 
 # Troubleshooting Guide
 
-```text
-Problem: Variable has wrong value or is undefined
-    |
-    v
-[1] Add debug task: debug: var=<variable_name>
-    |
-    v
-[2] Check precedence — is host_vars overriding group_vars?
-    |
-    v
-[3] Check if -e was passed (always wins)
-    |
-    v
-[4] Check if set_fact was called earlier in play (runtime override)
-    |
-    v
-[5] ansible web1 -m setup | grep <fact_name>  (verify fact value)
-    |
-    v
-[6] Use | default(fallback) in template to handle undefined safely
-```
+### Variable has wrong value or is undefined
+
+1. Add a debug task: `debug: var=<variable_name>`.
+2. Check precedence -- is `host_vars` overriding `group_vars`?
+3. Check if `-e` was passed (always wins).
+4. Check if `set_fact` was called earlier in the play (runtime override).
+5. Verify the fact value: `ansible web1 -m setup | grep <fact_name>`.
+6. Use `| default(fallback)` in the template to handle undefined safely.
 
 
 # Quick Facts (Revision)

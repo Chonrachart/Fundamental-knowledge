@@ -166,42 +166,24 @@ Related notes:
 
 # Troubleshooting Guide
 
-```text
-Problem: Service fails to start
-    |
-    v
-[1] systemctl status <service>  →  read the last log lines
-    |
-    v
-[2] journalctl -u <service> -n 50 --no-pager  →  full recent log
+### Service fails to start
 
----
+1. Read the last log lines: `systemctl status <service>`.
+2. Check full recent log: `journalctl -u <service> -n 50 --no-pager`.
 
-Problem: Edited unit file but changes not applied
-    |
-    v
-[1] systemctl daemon-reload  →  then restart service
+### Edited unit file but changes not applied
 
----
+1. Reload unit files and restart service: `systemctl daemon-reload` then `systemctl restart <service>`.
 
-Problem: Service starts but port not listening
-    |
-    v
-[1] ss -tlnp | grep <port>  →  is anything listening?
-    |
-    v
-[2] journalctl -u <service> -f  →  watch live for bind errors
+### Service starts but port not listening
 
----
+1. Check if anything is listening: `ss -tlnp | grep <port>`.
+2. Watch live for bind errors: `journalctl -u <service> -f`.
 
-Problem: Service keeps restarting in a loop
-    |
-    v
-[1] journalctl -u <service> -p err  →  find root cause
-    |
-    v
-[2] systemctl show <service> -p Restart -p RestartSec  →  check restart config
-```
+### Service keeps restarting in a loop
+
+1. Find root cause errors: `journalctl -u <service> -p err`.
+2. Check restart config: `systemctl show <service> -p Restart -p RestartSec`.
 
 
 # Quick Facts (Revision)

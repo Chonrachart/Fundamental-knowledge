@@ -323,101 +323,29 @@ promtool check rules /etc/prometheus/rules.yml
 
 # Troubleshooting Guide
 
-```text
-Problem: Prometheus targets show as 'down'
-    |
-    v
-[1] Can Prometheus reach the target host?
-    ping / curl http://<target>/metrics
-    |
-    +-- network unreachable --> check firewall, routing, DNS
-    |
-    v
-[2] Is the service running and listening on the expected port?
-    ss -tulnp | grep <port>
-    |
-    +-- port not listening --> start service or check config
-    |
-    v
-[3] Does the endpoint exist?
-    curl -v http://<target>:<port>/metrics
-    |
-    +-- 404 or wrong path --> check metrics_path in scrape_config
-    |
-    v
-[4] Check Prometheus scrape logs
-    systemctl status prometheus / docker logs prometheus
-    |
-    +-- connection timeout --> increase scrape_timeout
-    +-- TLS error --> verify ca_file, cert_file, key_file
-    |
-    v
-[5] Check target's application logs
-    Does the app have metrics enabled? Check instrumentation library.
+### Prometheus targets show as 'down'
 
+1. Can Prometheus reach the target host? `ping <target>` / `curl http://<target>/metrics` -- network unreachable --> check firewall, routing, DNS.
+2. Is the service running and listening on the expected port? `ss -tulnp | grep <port>` -- port not listening --> start service or check config.
+3. Does the endpoint exist? `curl -v http://<target>:<port>/metrics` -- 404 or wrong path --> check metrics_path in scrape_config.
+4. Check Prometheus scrape logs: `systemctl status prometheus` / `docker logs prometheus` -- connection timeout --> increase scrape_timeout; TLS error --> verify ca_file, cert_file, key_file.
+5. Check target's application logs. Does the app have metrics enabled? Check instrumentation library.
 
-Problem: Alert not firing even though metric threshold is breached
-    |
-    v
-[1] Is the alert rule being evaluated?
-    curl http://localhost:9090/api/v1/rules | grep <alert_name>
-    |
-    +-- rule not present --> check rule_files path in prometheus.yml
-    +-- rule has syntax error --> promtool check rules
-    |
-    v
-[2] Is the PromQL expression correct?
-    curl 'http://localhost:9090/api/v1/query?query=<expr>'
-    |
-    +-- query returns no data --> wrong metric name or label filter
-    |
-    v
-[3] Is the Alertmanager configured and reachable?
-    curl http://localhost:9093/-/healthy
-    |
-    +-- Alertmanager not running --> start it or update alerting: config
-    |
-    v
-[4] Check alert state transitions
-    curl http://localhost:9090/api/v1/alerts | grep <alert_name>
-    |
-    +-- state: Alerting --> check Alertmanager logs
-    +-- state: Pending --> wait for 'for' duration to pass
-    |
-    v
-[5] Review Prometheus logs for errors
-    journalctl -u prometheus -f
+### Alert not firing even though metric threshold is breached
 
+1. Is the alert rule being evaluated? `curl http://localhost:9090/api/v1/rules | grep <alert_name>` -- rule not present --> check rule_files path in prometheus.yml; rule has syntax error --> `promtool check rules`.
+2. Is the PromQL expression correct? `curl 'http://localhost:9090/api/v1/query?query=<expr>'` -- query returns no data --> wrong metric name or label filter.
+3. Is the Alertmanager configured and reachable? `curl http://localhost:9093/-/healthy` -- Alertmanager not running --> start it or update alerting: config.
+4. Check alert state transitions: `curl http://localhost:9090/api/v1/alerts | grep <alert_name>` -- state: Alerting --> check Alertmanager logs; state: Pending --> wait for 'for' duration to pass.
+5. Review Prometheus logs for errors: `journalctl -u prometheus -f`.
 
-Problem: Prometheus disk usage growing too fast
-    |
-    v
-[1] How many samples per second are being scraped?
-    curl http://localhost:9090/api/v1/query?query=rate(prometheus_tsdb_symbol_table_size_bytes[5m])
-    |
-    v
-[2] Are there too many targets or high cardinality labels?
-    Check number of active time series:
-      curl 'http://localhost:9090/api/v1/query?query=prometheus_tsdb_metric_chunks_created_total'
-    |
-    +-- millions of series --> reduce targets or drop high-cardinality labels
-    |
-    v
-[3] Is retention period too long?
-    Check config: --storage.tsdb.retention.time
-    |
-    +-- reduce retention or implement remote write
-    |
-    v
-[4] Check for memory/CPU saturation
-    ps aux | grep prometheus
-    top / htop
-    |
-    +-- memory high --> increase heap or enable WAL compression
-    |
-    v
-[5] Consider remote write or splitting into multiple instances
-```
+### Prometheus disk usage growing too fast
+
+1. How many samples per second are being scraped? `curl http://localhost:9090/api/v1/query?query=rate(prometheus_tsdb_symbol_table_size_bytes[5m])`.
+2. Are there too many targets or high cardinality labels? Check number of active time series: `curl 'http://localhost:9090/api/v1/query?query=prometheus_tsdb_metric_chunks_created_total'` -- millions of series --> reduce targets or drop high-cardinality labels.
+3. Is retention period too long? Check config: `--storage.tsdb.retention.time` -- reduce retention or implement remote write.
+4. Check for memory/CPU saturation: `ps aux | grep prometheus` / `top` / `htop` -- memory high --> increase heap or enable WAL compression.
+5. Consider remote write or splitting into multiple instances.
 
 # Quick Facts (Revision)
 

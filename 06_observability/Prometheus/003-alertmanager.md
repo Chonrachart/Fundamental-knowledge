@@ -458,116 +458,33 @@ amtool alert query --alertname=TestAlert --severity=critical
 
 # Troubleshooting Guide
 
-```text
-Problem: Alert fired in Prometheus but not received in Slack
-    |
-    v
-[1] Is Alertmanager running and reachable?
-    curl http://alertmanager:9093/-/healthy
-    |
-    +-- connection refused --> start Alertmanager
-    +-- unhealthy --> check logs
-    |
-    v
-[2] Is Prometheus configured to send to Alertmanager?
-    Check prometheus.yml: alerting: alertmanagers:
-    |
-    +-- not configured --> add alertmanager address
-    |
-    v
-[3] Did the alert reach Alertmanager?
-    curl http://alertmanager:9093/api/v1/alerts | grep <alert_name>
-    |
-    +-- not present --> Prometheus not sending, check logs
-    |
-    v
-[4] Is the alert being grouped/routed correctly?
-    Check alertmanager.yml: route tree, group_by labels
-    |
-    +-- wrong receiver --> check route matching logic
-    |
-    v
-[5] Is the alert suppressed by inhibition or silence?
-    curl http://alertmanager:9093/api/v1/silences
-    |
-    +-- silence matches --> check silence end time
-    |
-    v
-[6] Is the receiver configured correctly?
-    Check alertmanager.yml: receivers, Slack webhook URL
-    |
-    +-- webhook URL wrong --> update and reload config
-    |
-    v
-[7] Test Slack webhook directly
-    curl -X POST <slack_webhook_url> \
-      -H 'Content-Type: application/json' \
-      -d '{"text": "test message"}'
-    |
-    +-- fails --> webhook URL invalid or expired
-    |
-    v
-[8] Check Alertmanager logs
-    journalctl -u alertmanager -f
-    Look for: "sending alert", "webhook failed", "error"
-    |
-    v
-[9] Try manually sending test alert to Alertmanager
-    curl -X POST http://alertmanager:9093/api/v1/alerts \
-      -H 'Content-Type: application/json' \
-      -d '[{...}]'
+### Alert fired in Prometheus but not received in Slack
 
+1. Is Alertmanager running and reachable? `curl http://alertmanager:9093/-/healthy` -- connection refused --> start Alertmanager; unhealthy --> check logs.
+2. Is Prometheus configured to send to Alertmanager? Check prometheus.yml: alerting: alertmanagers: -- not configured --> add alertmanager address.
+3. Did the alert reach Alertmanager? `curl http://alertmanager:9093/api/v1/alerts | grep <alert_name>` -- not present --> Prometheus not sending, check logs.
+4. Is the alert being grouped/routed correctly? Check alertmanager.yml: route tree, group_by labels -- wrong receiver --> check route matching logic.
+5. Is the alert suppressed by inhibition or silence? `curl http://alertmanager:9093/api/v1/silences` -- silence matches --> check silence end time.
+6. Is the receiver configured correctly? Check alertmanager.yml: receivers, Slack webhook URL -- webhook URL wrong --> update and reload config.
+7. Test Slack webhook directly: `curl -X POST <slack_webhook_url> -H 'Content-Type: application/json' -d '{"text": "test message"}'` -- fails --> webhook URL invalid or expired.
+8. Check Alertmanager logs: `journalctl -u alertmanager -f` -- look for: "sending alert", "webhook failed", "error".
+9. Try manually sending test alert to Alertmanager: `curl -X POST http://alertmanager:9093/api/v1/alerts -H 'Content-Type: application/json' -d '[{...}]'`.
 
-Problem: Too many notifications received (alert spam)
-    |
-    v
-[1] Adjust grouping parameters
-    Increase group_wait (wait longer before sending)
-    Increase group_interval (less frequent batches)
-    |
-    v
-[2] Adjust repeat_interval
-    Increase repeat_interval to reduce re-sends
-    |
-    v
-[3] Apply inhibition rules
-    Suppress low-severity when high-severity fires
-    |
-    v
-[4] Apply silences for flaky alerts
-    Temporarily suppress known flaky metrics
-    |
-    v
-[5] Fix the underlying alert rule
-    If too sensitive, increase threshold or 'for' duration
+### Too many notifications received (alert spam)
 
+1. Adjust grouping parameters. Increase group_wait (wait longer before sending). Increase group_interval (less frequent batches).
+2. Adjust repeat_interval. Increase repeat_interval to reduce re-sends.
+3. Apply inhibition rules. Suppress low-severity when high-severity fires.
+4. Apply silences for flaky alerts. Temporarily suppress known flaky metrics.
+5. Fix the underlying alert rule. If too sensitive, increase threshold or 'for' duration.
 
-Problem: Alert silenced but should not be
-    |
-    v
-[1] Check active silences
-    curl http://alertmanager:9093/api/v1/silences
-    |
-    v
-[2] Verify silence label matchers
-    Do alert labels match silence matchers?
-    |
-    +-- no match --> delete unrelated silence
-    |
-    v
-[3] Check silence time window
-    Is current time within startsAt and endsAt?
-    |
-    +-- expired --> silence is no longer active
-    |
-    v
-[4] Delete silence
-    curl -X DELETE http://alertmanager:9093/api/v1/silences/<id>
-    |
-    v
-[5] Verify alert fires again
-    curl http://alertmanager:9093/api/v1/alerts | grep <alert_name>
-```
+### Alert silenced but should not be
+
+1. Check active silences: `curl http://alertmanager:9093/api/v1/silences`.
+2. Verify silence label matchers. Do alert labels match silence matchers? -- no match --> delete unrelated silence.
+3. Check silence time window. Is current time within startsAt and endsAt? -- expired --> silence is no longer active.
+4. Delete silence: `curl -X DELETE http://alertmanager:9093/api/v1/silences/<id>`.
+5. Verify alert fires again: `curl http://alertmanager:9093/api/v1/alerts | grep <alert_name>`.
 
 # Quick Facts (Revision)
 

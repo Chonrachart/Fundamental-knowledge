@@ -150,37 +150,19 @@ chmod 700 /path/to/job.sh           # only owner can read/execute
 
 # Troubleshooting Guide
 
-```text
-Problem: Cron job not running
-    |
-    v
-[1] systemctl status cron (or crond)  →  is cron service running?
-    |
-    v
-[2] crontab -l  →  confirm job is actually in crontab
-    |
-    v
-[3] Test schedule expression at crontab.guru or run manually
-    |
-    v
-[4] Run command manually as the cron user to check it works
-    |
-    v
-[5] journalctl -u cron -f  or  grep CRON /var/log/syslog  →  check execution log
+### Cron job not running
 
----
+1. Check if cron service is running: `systemctl status cron` (or `crond`).
+2. Confirm job is actually in crontab: `crontab -l`.
+3. Test schedule expression at crontab.guru or run manually.
+4. Run command manually as the cron user to check it works.
+5. Check execution log: `journalctl -u cron -f` or `grep CRON /var/log/syslog`.
 
-Problem: Job runs but does nothing / produces errors
-    |
-    v
-[1] Redirect output: command >> /tmp/job.log 2>&1  →  capture all output
-    |
-    v
-[2] Check PATH: add full absolute paths to command and script
-    |
-    v
-[3] Check script is executable: chmod +x /path/to/job.sh
-```
+### Job runs but does nothing / produces errors
+
+1. Capture all output: redirect with `command >> /tmp/job.log 2>&1`.
+2. Check PATH: add full absolute paths to command and script.
+3. Check script is executable: `chmod +x /path/to/job.sh`.
 
 
 # Quick Facts (Revision)

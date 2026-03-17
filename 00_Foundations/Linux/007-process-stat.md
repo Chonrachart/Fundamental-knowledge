@@ -165,45 +165,25 @@ Related notes:
 
 # Troubleshooting Guide
 
-```text
-Problem: Process using too much CPU / memory
-    |
-    v
-[1] top (P for CPU, M for memory)  →  identify PID
-    |
-    v
-[2] ps aux --sort=-%cpu | head
-    |
-    v
-[3] cat /proc/<PID>/status  →  inspect memory details
+### Process using too much CPU / memory
 
----
+1. Identify the PID: `top` (press P for CPU, M for memory).
+2. Sort by CPU usage: `ps aux --sort=-%cpu | head`.
+3. Inspect memory details: `cat /proc/<PID>/status`.
 
-Problem: Process not responding to SIGTERM
-    |
-    v
-[1] kill -9 <PID>  →  force kill (use as last resort)
+### Process not responding to SIGTERM
 
----
+1. Force kill (use as last resort): `kill -9 <PID>`.
 
-Problem: Zombie processes accumulating
-    |
-    v
-[1] ps aux | grep Z  →  find zombies
-    |
-    v
-[2] ps -o ppid= <zombie_PID>  →  find parent (parent not calling wait)
-    |
-    v
-[3] Restart or fix the parent process
+### Zombie processes accumulating
 
----
+1. Find zombies: `ps aux | grep Z`.
+2. Find parent (parent not calling wait): `ps -o ppid= <zombie_PID>`.
+3. Restart or fix the parent process.
 
-Problem: OOM kill suspected
-    |
-    v
-[1] dmesg | grep -i "oom\|killed process"
-```
+### OOM kill suspected
+
+1. Check if OOM killer fired: `dmesg | grep -i "oom\|killed process"`.
 
 
 # Quick Facts (Revision)

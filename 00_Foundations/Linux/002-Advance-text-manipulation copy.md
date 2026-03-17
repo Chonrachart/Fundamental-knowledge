@@ -151,35 +151,20 @@ Related notes:
 
 # Troubleshooting Guide
 
-```text
-Problem: sed substitution makes no change
-    |
-    v
-[1] Test without -i first: sed 's/old/new/g' file | head
-    |
-    v
-[2] Check quoting — use single quotes to prevent shell expansion of pattern
+### sed substitution makes no change
 
----
+1. Test without `-i` first: `sed 's/old/new/g' file | head`.
+2. Check quoting — use single quotes to prevent shell expansion of pattern.
 
-Problem: awk prints wrong fields or empty output
-    |
-    v
-[1] Check delimiter: default is any whitespace run; use -F to set explicit delimiter
-    |
-    v
-[2] Print $0 to see full raw line, then narrow down field number
+### awk prints wrong fields or empty output
 
----
+1. Check delimiter: default is any whitespace run; use `-F` to set explicit delimiter.
+2. Print `$0` to see full raw line, then narrow down field number.
 
-Problem: sed -i destroyed file
-    |
-    v
-[1] Check for .bkp backup if -i.bkp was used
-    |
-    v
-[2] Restore from git: git checkout -- <file>
-```
+### sed -i destroyed file
+
+1. Check for `.bkp` backup if `-i.bkp` was used.
+2. Restore from git: `git checkout -- <file>`.
 
 
 # Quick Facts (Revision)

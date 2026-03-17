@@ -394,89 +394,23 @@ curl -s -u admin:admin -X POST http://grafana:3000/api/datasources/1/query \
 
 # Troubleshooting Guide
 
-```text
-Problem: Promtail not shipping logs to Loki
-    |
-    v
-[1] Is Promtail running?
-    systemctl status promtail / docker ps | grep promtail
-    |
-    +-- not running --> start it
-    |
-    v
-[2] Is Promtail config valid?
-    promtail -config.file=config.yml -dry-run
-    journalctl -u promtail -f
-    |
-    +-- config error --> fix and reload
-    |
-    v
-[3] Are log files being tailed?
-    tail -f /var/log/app.log
-    journalctl -u app -f
-    |
-    +-- no new logs --> app not logging
-    |
-    v
-[4] Can Promtail reach Loki?
-    curl -v http://loki:3100/ready
-    journalctl -u promtail | grep "error\|failed"
-    |
-    +-- connection refused --> check firewall, Loki address, port
-    |
-    v
-[5] Are logs arriving at Loki?
-    curl http://loki:3100/loki/api/v1/label
-    Grafana Explore: query {job="app"}
-    |
-    +-- empty result --> check label names in Promtail config
-    |
-    v
-[6] Check Promtail agent logs for errors
-    journalctl -u promtail -f --all
-    docker logs <promtail> -f
-    |
-    +-- debug: invalid JSON parsing, label cardinality, network errors
-    |
-    v
-[7] Check Loki resource usage
-    systemctl status loki
-    curl http://loki:3100/loki/api/v1/status
-    |
-    +-- disk full, memory exhausted --> increase limits or reduce retention
+### Promtail not shipping logs to Loki
 
-Problem: LogQL query returns no results
-    |
-    v
-[1] Does the label exist in Loki?
-    curl http://loki:3100/loki/api/v1/label | jq '.data[]'
-    |
-    +-- missing label --> check Promtail pipeline stages
-    |
-    v
-[2] Check label values
-    curl 'http://loki:3100/loki/api/v1/label/job/values' | jq '.data[]'
-    |
-    +-- value not present --> logs not shipped yet or different value
-    |
-    v
-[3] Try simpler query first
-    {job="app"} (stream selector only)
-    |
-    +-- no results --> no logs from that job
-    +-- results --> add filters one by one
-    |
-    v
-[4] Check time range
-    Grafana: change time picker to "Last 24 hours"
-    API: verify start/end unix timestamps are correct
-    |
-    v
-[5] Check line filters and JSON parsing
-    {job="app"} | json | level="ERROR"
-    |
-    +-- parse error --> verify JSON format in logs, check pipeline
-```
+1. Is Promtail running? `systemctl status promtail` / `docker ps | grep promtail`. Not running means start it.
+2. Is Promtail config valid? `promtail -config.file=config.yml -dry-run` and `journalctl -u promtail -f`. Config error means fix and reload.
+3. Are log files being tailed? `tail -f /var/log/app.log` or `journalctl -u app -f`. No new logs means app not logging.
+4. Can Promtail reach Loki? `curl -v http://loki:3100/ready` and `journalctl -u promtail | grep "error\|failed"`. Connection refused means check firewall, Loki address, port.
+5. Are logs arriving at Loki? `curl http://loki:3100/loki/api/v1/label` or Grafana Explore: query `{job="app"}`. Empty result means check label names in Promtail config.
+6. Check Promtail agent logs for errors: `journalctl -u promtail -f --all` or `docker logs <promtail> -f`. Debug invalid JSON parsing, label cardinality, network errors.
+7. Check Loki resource usage: `systemctl status loki` and `curl http://loki:3100/loki/api/v1/status`. Disk full or memory exhausted means increase limits or reduce retention.
+
+### LogQL query returns no results
+
+1. Does the label exist in Loki? `curl http://loki:3100/loki/api/v1/label | jq '.data[]'`. Missing label means check Promtail pipeline stages.
+2. Check label values: `curl 'http://loki:3100/loki/api/v1/label/job/values' | jq '.data[]'`. Value not present means logs not shipped yet or different value.
+3. Try simpler query first: `{job="app"}` (stream selector only). No results means no logs from that job; results means add filters one by one.
+4. Check time range. Grafana: change time picker to "Last 24 hours". API: verify start/end unix timestamps are correct.
+5. Check line filters and JSON parsing: `{job="app"} | json | level="ERROR"`. Parse error means verify JSON format in logs and check pipeline.
 
 # Quick Facts (Revision)
 

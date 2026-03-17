@@ -153,40 +153,21 @@ mdadm --detail /dev/md0      # detailed array info
 
 # Troubleshooting Guide
 
-```text
-Problem: Disk full — "No space left on device"
-    |
-    v
-[1] df -h  →  which filesystem is full?
-    |
-    v
-[2] du -sh * | sort -rh | head  →  largest directories
-    |
-    v
-[3] df -i  →  check inode exhaustion (separate from space)
+### Disk full — "No space left on device"
 
----
+1. Which filesystem is full? `df -h`.
+2. Find largest directories: `du -sh * | sort -rh | head`.
+3. Check inode exhaustion (separate from space): `df -i`.
 
-Problem: LV resize needed
-    |
-    v
-[1] vgs  →  free space in VG?
-    +-- yes: lvextend directly
-    +-- no: pvcreate + vgextend new disk first
-    |
-    v
-[2] After lvextend: resize2fs (ext4) or xfs_growfs (xfs)
+### LV resize needed
 
----
+1. Check free space in VG: `vgs`. Yes: `lvextend` directly. No: `pvcreate` + `vgextend` new disk first.
+2. After lvextend: `resize2fs` (ext4) or `xfs_growfs` (xfs).
 
-Problem: RAID degraded
-    |
-    v
-[1] cat /proc/mdstat  →  identify failed disk
-    |
-    v
-[2] mdadm --manage /dev/md0 --add /dev/sdd1  →  replace and rebuild
-```
+### RAID degraded
+
+1. Identify failed disk: `cat /proc/mdstat`.
+2. Replace and rebuild: `mdadm --manage /dev/md0 --add /dev/sdd1`.
 
 
 # Quick Facts (Revision)

@@ -114,38 +114,13 @@ Related notes: [004-monitoring-patterns](./004-monitoring-patterns.md)
 
 # Troubleshooting Guide
 
-```text
-Problem: action not sending notifications
-    |
-    v
-[1] Is the action enabled?
-    Configuration > Actions -- check status column
-    |
-    +-- disabled --> enable the action
-    |
-    v
-[2] Do conditions match the trigger event?
-    Check: severity, host group, tags, time period
-    |
-    +-- mismatch --> adjust conditions or create new action
-    |
-    v
-[3] Is the media type configured and working?
-    Administration > Media types -- test the media type
-    |
-    +-- test fails --> check webhook URL / SMTP settings / credentials
-    |
-    v
-[4] Does the user have media configured?
-    Administration > Users > Media tab
-    |
-    +-- no media --> add email/Slack/webhook to user profile
-    |
-    v
-[5] Check action log for errors
-    Reports > Action log -- shows sent/failed per event
-    /var/log/zabbix/zabbix_server.log -- detailed errors
-```
+### Action not sending notifications
+
+1. Is the action enabled? Configuration > Actions -- check status column -- disabled --> enable the action.
+2. Do conditions match the trigger event? Check: severity, host group, tags, time period -- mismatch --> adjust conditions or create new action.
+3. Is the media type configured and working? Administration > Media types -- test the media type -- test fails --> check webhook URL / SMTP settings / credentials.
+4. Does the user have media configured? Administration > Users > Media tab -- no media --> add email/Slack/webhook to user profile.
+5. Check action log for errors: Reports > Action log -- shows sent/failed per event. Also check `/var/log/zabbix/zabbix_server.log` for detailed errors.
 
 # Quick Facts (Revision)
 

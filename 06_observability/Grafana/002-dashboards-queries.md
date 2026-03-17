@@ -163,41 +163,13 @@ curl -s -H "Authorization: Bearer $GRAFANA_TOKEN" \
 
 # Troubleshooting Guide
 
-```text
-Problem: panel shows unexpected or missing data
-    |
-    v
-[1] Check the query in Explore
-    Copy query, run in Explore with same time range
-    |
-    +-- no data --> metric does not exist or labels are wrong
-    +-- data looks correct --> problem is in panel config, go to [3]
-    |
-    v
-[2] Verify metric and labels
-    In Explore: type metric name, check autocomplete for available labels
-    |
-    +-- metric missing --> target not scraped, check Prometheus targets page
-    +-- label mismatch --> fix label selector in query
-    |
-    v
-[3] Check transforms
-    Disable transforms one by one to isolate the issue
-    |
-    +-- transform removes data --> fix filter condition or field name
-    |
-    v
-[4] Check variables
-    Switch variable dropdown to a known-good value
-    |
-    +-- works with specific value --> variable regex or query is wrong
-    |
-    v
-[5] Check visualization settings
-    Field mappings, unit, decimals, thresholds, axis range
-    |
-    +-- values exist but display wrong --> fix override or unit config
-```
+### Panel shows unexpected or missing data
+
+1. Check the query in Explore: copy query, run in Explore with same time range. No data means metric does not exist or labels are wrong; data looks correct means problem is in panel config, skip to step 3.
+2. Verify metric and labels: in Explore, type metric name, check autocomplete for available labels. Metric missing means target not scraped, check Prometheus targets page. Label mismatch means fix label selector in query.
+3. Check transforms: disable transforms one by one to isolate the issue. Transform removes data means fix filter condition or field name.
+4. Check variables: switch variable dropdown to a known-good value. Works with specific value means variable regex or query is wrong.
+5. Check visualization settings: field mappings, unit, decimals, thresholds, axis range. Values exist but display wrong means fix override or unit config.
 
 # Quick Facts (Revision)
 

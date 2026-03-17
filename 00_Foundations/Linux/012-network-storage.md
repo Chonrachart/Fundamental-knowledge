@@ -282,186 +282,49 @@ lvs / vgs / pvs                                            # list volumes / grou
 
 # Troubleshooting Guide
 
-```text
-Problem: NFS mount fails with "mount.nfs: Permission denied"
-    |
-    v
-[1] Is the NFS server exporting to your client?
-    showmount -e <nfs-server>
-    |
-    +-- /export/path not listed --> add to /etc/exports, run exportfs -ra
-    |
-    v
-[2] Does the export rule match your client IP?
-    /etc/exports: /export/path  192.168.1.0/24(rw)
-    |
-    +-- no match --> update /etc/exports, run exportfs -ra
-    |
-    v
-[3] Is the NFS server listening?
-    ss -tulnp | grep :2049
-    |
-    +-- not listening --> systemctl start nfs-server
-    |
-    v
-[4] Check firewall (port 111, 2049)
-    firewall-cmd --list-all
-    |
-    +-- ports blocked --> open ports on server firewall
-```
+### NFS mount fails with "mount.nfs: Permission denied"
 
-```text
-Problem: SMB/CIFS mount fails with "Permission denied" or "Bad password"
-    |
-    v
-[1] Test credentials locally on server
-    smbclient -L //<server>/ -U <user>
-    |
-    +-- fails --> user/password wrong or server not running
-    |
-    v
-[2] Check Samba is running on server
-    systemctl status smbd
-    |
-    +-- not running --> systemctl start smbd
-    |
-    v
-[3] Check share exists in /etc/smb.conf
-    grep -A5 '\[<share>\]' /etc/smb.conf
-    |
-    +-- not found --> add share, run testparm, systemctl reload smbd
-    |
-    v
-[4] Verify credentials file (mode 600) or inline -o options
-    ls -la ~/.cifs_credentials
-    |
-    +-- wrong mode --> chmod 600 ~/.cifs_credentials
-```
+1. Check if the NFS server is exporting to your client: `showmount -e <nfs-server>`. If /export/path is not listed, add to /etc/exports and run `exportfs -ra`.
+2. Check if the export rule matches your client IP in `/etc/exports`. If no match, update /etc/exports and run `exportfs -ra`.
+3. Check if the NFS server is listening: `ss -tulnp | grep :2049`. If not listening, run `systemctl start nfs-server`.
+4. Check firewall (port 111, 2049): `firewall-cmd --list-all`. If ports are blocked, open them on the server firewall.
 
-```text
-Problem: iSCSI target not discovered or login fails
-    |
-    v
-[1] Can you reach the target IP?
-    ping <target-ip>
-    |
-    +-- no response --> check network, firewall, target IP
-    |
-    v
-[2] Is iSCSI port 3260 open?
-    nc -zv <target-ip> 3260
-    |
-    +-- timeout/refused --> firewall or target not listening
-    |
-    v
-[3] Run discovery again
-    iscsiadm -m discovery -t sendtargets -p <target-ip>
-    |
-    +-- no targets found --> check target service on server
-    |
-    v
-[4] Check iscsid daemon
-    systemctl status iscsid
-    |
-    +-- not running --> systemctl start iscsid
-    |
-    v
-[5] Manually login to node
-    iscsiadm -m node -T <IQN> -p <target-ip> -l
-    |
-    +-- login error --> check target logs, authentication
-```
+### SMB/CIFS mount fails with "Permission denied" or "Bad password"
 
-```text
-Problem: Multipath device not created or paths not showing
-    |
-    v
-[1] Are iSCSI initiators logged in?
-    iscsiadm -m session -P 3 | grep "Attached scsi"
-    |
-    +-- no sessions --> login to targets first
-    |
-    v
-[2] Are underlying sd* devices visible?
-    lsblk | grep -E "^sd"
-    |
-    +-- no sd devices --> iSCSI login missing
-    |
-    v
-[3] Is multipathd running?
-    systemctl status multipathd
-    |
-    +-- not running --> systemctl start multipathd
-    |
-    v
-[4] Reload multipath config
-    multipath -r
-    multipath -ll
-    |
-    +-- still no devices --> check /etc/multipath.conf (wwn matching rules)
-```
+1. Test credentials locally on server: `smbclient -L //<server>/ -U <user>`. If it fails, user/password is wrong or server is not running.
+2. Check Samba is running on server: `systemctl status smbd`. If not running, run `systemctl start smbd`.
+3. Check share exists in /etc/smb.conf: `grep -A5 '\[<share>\]' /etc/smb.conf`. If not found, add share, run `testparm`, then `systemctl reload smbd`.
+4. Verify credentials file (mode 600) or inline -o options: `ls -la ~/.cifs_credentials`. If wrong mode, run `chmod 600 ~/.cifs_credentials`.
 
-```text
-Problem: autofs mount on-demand not working
-    |
-    v
-[1] Is autofs daemon running?
-    systemctl status autofs
-    |
-    +-- not running --> systemctl start autofs
-    |
-    v
-[2] Check /etc/auto.master syntax
-    cat /etc/auto.master
-    |
-    +-- error in format --> fix format: <mount-point> <service-map-file> <options>
-    |
-    v
-[3] Check service map (/etc/auto.nfs)
-    cat /etc/auto.nfs
-    |
-    +-- unreachable paths --> test NFS mount manually
-    |
-    v
-[4] Reload autofs and test
-    systemctl reload autofs
-    ls /mnt/auto/nfs/<dirname>  (should trigger mount)
-    mount | grep autofs
-    |
-    +-- not mounted --> check journalctl -u autofs for errors
-```
+### iSCSI target not discovered or login fails
 
-```text
-Problem: LVM extend fails on iSCSI LUN
-    |
-    v
-[1] Is the iSCSI device still connected?
-    iscsiadm -m session -P 3
-    lsblk | grep iscsi
-    |
-    +-- disconnected --> login to target again
-    |
-    v
-[2] Is there free space in the volume group?
-    vgs -o vg_name,size,free
-    |
-    +-- no free space --> extend underlying iSCSI LUN on target side first
-    |
-    v
-[3] Rescan iSCSI device for new size
-    echo 1 > /sys/class/scsi_device/<device:bus:target:lun>/device/rescan
-    |
-    v
-[4] Extend logical volume
-    lvextend -L +50G /dev/vg/<lv-name>
-    |
-    v
-[5] Grow filesystem
-    resize2fs /dev/vg/<lv-name>
-    df -h /mnt
-    |
-    +-- size unchanged --> check filesystem, may need fsck
-```
+1. Check if you can reach the target IP: `ping <target-ip>`. If no response, check network, firewall, and target IP.
+2. Check if iSCSI port 3260 is open: `nc -zv <target-ip> 3260`. If timeout/refused, check firewall or target service.
+3. Run discovery again: `iscsiadm -m discovery -t sendtargets -p <target-ip>`. If no targets found, check target service on server.
+4. Check iscsid daemon: `systemctl status iscsid`. If not running, run `systemctl start iscsid`.
+5. Manually login to node: `iscsiadm -m node -T <IQN> -p <target-ip> -l`. If login error, check target logs and authentication.
+
+### Multipath device not created or paths not showing
+
+1. Check if iSCSI initiators are logged in: `iscsiadm -m session -P 3 | grep "Attached scsi"`. If no sessions, login to targets first.
+2. Check if underlying sd* devices are visible: `lsblk | grep -E "^sd"`. If no sd devices, iSCSI login is missing.
+3. Check if multipathd is running: `systemctl status multipathd`. If not running, run `systemctl start multipathd`.
+4. Reload multipath config: `multipath -r` then `multipath -ll`. If still no devices, check /etc/multipath.conf (wwn matching rules).
+
+### autofs mount on-demand not working
+
+1. Check if autofs daemon is running: `systemctl status autofs`. If not running, run `systemctl start autofs`.
+2. Check /etc/auto.master syntax: `cat /etc/auto.master`. If error in format, fix to: `<mount-point> <service-map-file> <options>`.
+3. Check service map: `cat /etc/auto.nfs`. If paths are unreachable, test NFS mount manually.
+4. Reload autofs and test: `systemctl reload autofs`, then `ls /mnt/auto/nfs/<dirname>` (should trigger mount), then `mount | grep autofs`. If not mounted, check `journalctl -u autofs` for errors.
+
+### LVM extend fails on iSCSI LUN
+
+1. Check if the iSCSI device is still connected: `iscsiadm -m session -P 3` and `lsblk | grep iscsi`. If disconnected, login to target again.
+2. Check if there is free space in the volume group: `vgs -o vg_name,size,free`. If no free space, extend underlying iSCSI LUN on target side first.
+3. Rescan iSCSI device for new size: `echo 1 > /sys/class/scsi_device/<device:bus:target:lun>/device/rescan`.
+4. Extend logical volume: `lvextend -L +50G /dev/vg/<lv-name>`.
+5. Grow filesystem: `resize2fs /dev/vg/<lv-name>`, then verify with `df -h /mnt`. If size unchanged, check filesystem (may need fsck).
 
 # Quick Facts (Revision)
 

@@ -181,38 +181,21 @@ molecule converge && molecule verify
 
 # Troubleshooting Guide
 
-```text
-Problem: Playbook not idempotent (changed on second run)
-    |
-    v
-[1] Find the task(s) reporting changed
-    |
-    v
-[2] Check if a module exists for that operation (replace shell/command)
-    |
-    v
-[3] Add changed_when: false if it's truly read-only
-    |
-    v
-[4] Add creates: / removes: for command tasks with side effects
+### Playbook not idempotent (changed on second run)
 
----
+1. Find the task(s) reporting changed.
+2. Check if a module exists for that operation (replace `shell`/`command`).
+3. Add `changed_when: false` if it is truly read-only.
+4. Add `creates:` / `removes:` for command tasks with side effects.
 
-Problem: ansible-lint reports issues
-    |
-    v
-[1] Fix FQCN, add missing name:, replace deprecated modules
+### ansible-lint reports issues
 
----
+1. Fix FQCN, add missing `name:`, and replace deprecated modules.
 
-Problem: Molecule converge fails
-    |
-    v
-[1] Run molecule converge --debug for full output
-    |
-    v
-[2] Check if Docker image matches target OS (ubuntu:22.04 vs rocky:9)
-```
+### Molecule converge fails
+
+1. Run `molecule converge --debug` for full output.
+2. Check if the Docker image matches the target OS (e.g. `ubuntu:22.04` vs `rocky:9`).
 
 
 # Quick Facts (Revision)

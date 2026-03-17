@@ -152,30 +152,15 @@ ansible web -m ansible.builtin.service -a "name=nginx state=restarted" --become
 
 # Troubleshooting Guide
 
-```text
-Problem: Task fails
-    |
-    v
-[1] Read error message in output (rc, stderr, msg)
-    |
-    v
-[2] Re-run with -vvv  (see exact module args sent + raw output)
-    |
-    v
-[3] Test the module ad-hoc on one host
-    |
-    v
-[4] Add debug task above failing task to print relevant variables
-    |
-    v
-[5] Check changed_when / failed_when if result logic seems wrong
-    |
-    v
-[6] Check become / permissions if "Permission denied"
-    |
-    v
-[7] Fix → re-run → confirm second run is all ok
-```
+### Task fails
+
+1. Read the error message in output (`rc`, `stderr`, `msg`).
+2. Re-run with `-vvv` to see exact module args sent and raw output.
+3. Test the module ad-hoc on one host.
+4. Add a debug task above the failing task to print relevant variables.
+5. Check `changed_when` / `failed_when` if result logic seems wrong.
+6. Check `become` / permissions if "Permission denied".
+7. Fix, re-run, and confirm the second run is all ok.
 
 
 # Quick Facts (Revision)

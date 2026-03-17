@@ -445,102 +445,30 @@ curl -s http://kibana:5601/api/saved_objects/search | jq '.saved_objects[].attri
 
 # Troubleshooting Guide
 
-```text
-Problem: logs not appearing in Elasticsearch
-    |
-    v
-[1] Is Filebeat/Logstash running?
-    systemctl status filebeat / logstash
-    docker ps | grep -E "filebeat|logstash"
-    |
-    +-- not running --> start it
-    |
-    v
-[2] Is the log source generating logs?
-    tail -f /var/log/app.log
-    |
-    +-- no new logs --> app not logging
-    |
-    v
-[3] Is Filebeat/Logstash tailing the file?
-    filebeat test config
-    journalctl -u filebeat -f
-    |
-    +-- error in config --> fix and reload
-    |
-    v
-[4] Can Filebeat/Logstash connect to Elasticsearch?
-    filebeat test output
-    curl http://elasticsearch:9200/_cluster/health
-    |
-    +-- failed --> check firewall, Elasticsearch URL, port
-    |
-    v
-[5] Are logs being shipped to Elasticsearch?
-    curl http://elasticsearch:9200/_cat/indices | grep app
-    |
-    +-- no indices --> parser may be failing, check Logstash logs
-    |
-    v
-[6] Check Filebeat/Logstash logs for errors
-    journalctl -u filebeat -f
-    journalctl -u logstash -f
-    |
-    +-- parsing error, network error, or config issue
-    |
-    v
-[7] Search Elasticsearch for logs
-    curl 'http://elasticsearch:9200/app-*/_search?q=*' | jq '.hits.total'
+### Logs not appearing in Elasticsearch
 
-Problem: Kibana Discover shows "No matching indices"
-    |
-    v
-[1] Do any indices exist?
-    curl http://elasticsearch:9200/_cat/indices
-    |
-    +-- empty --> no logs ingested yet, follow above flow
-    |
-    v
-[2] Is the index pattern configured in Kibana?
-    Kibana UI: Settings > Index Patterns
-    |
-    +-- not listed --> create new index pattern (e.g., "app-*")
-    |
-    v
-[3] Is the time range correct?
-    Kibana Discover: check time picker, verify data in time range
-    |
-    +-- future date or no data in range --> adjust time
-    |
-    v
-[4] Check index mapping
-    curl http://elasticsearch:9200/app-2026.03.17/_mapping | jq
+1. Is Filebeat/Logstash running? `systemctl status filebeat` / `docker ps | grep -E "filebeat|logstash"`. Not running means start it.
+2. Is the log source generating logs? `tail -f /var/log/app.log`. No new logs means app not logging.
+3. Is Filebeat/Logstash tailing the file? `filebeat test config` and `journalctl -u filebeat -f`. Error in config means fix and reload.
+4. Can Filebeat/Logstash connect to Elasticsearch? `filebeat test output` and `curl http://elasticsearch:9200/_cluster/health`. Failed means check firewall, Elasticsearch URL, port.
+5. Are logs being shipped to Elasticsearch? `curl http://elasticsearch:9200/_cat/indices | grep app`. No indices means parser may be failing, check Logstash logs.
+6. Check Filebeat/Logstash logs for errors: `journalctl -u filebeat -f` and `journalctl -u logstash -f`. Look for parsing error, network error, or config issue.
+7. Search Elasticsearch for logs: `curl 'http://elasticsearch:9200/app-*/_search?q=*' | jq '.hits.total'`.
 
-Problem: Elasticsearch cluster health is yellow/red
-    |
-    v
-[1] Check cluster status
-    curl -s http://elasticsearch:9200/_cluster/health | jq
-    |
-    v
-[2] Check unassigned shards
-    curl -s http://elasticsearch:9200/_cat/shards | grep UNASSIGNED
-    |
-    v
-[3] Investigate why shards are unassigned
-    curl -s http://elasticsearch:9200/_cluster/allocation/explain | jq
-    |
-    v
-[4] Most common causes:
-    - insufficient nodes (add node or reduce replicas)
-    - disk full on data nodes (free space)
-    - node not available (restart node)
-    |
-    v
-[5] Quick fix: reduce replica count
-    curl -X PUT http://elasticsearch:9200/_settings \
-      -d '{"number_of_replicas": 0}'
-```
+### Kibana Discover shows "No matching indices"
+
+1. Do any indices exist? `curl http://elasticsearch:9200/_cat/indices`. Empty means no logs ingested yet, follow above flow.
+2. Is the index pattern configured in Kibana? Kibana UI: Settings > Index Patterns. Not listed means create new index pattern (e.g., "app-*").
+3. Is the time range correct? Kibana Discover: check time picker, verify data in time range. Future date or no data in range means adjust time.
+4. Check index mapping: `curl http://elasticsearch:9200/app-2026.03.17/_mapping | jq`.
+
+### Elasticsearch cluster health is yellow/red
+
+1. Check cluster status: `curl -s http://elasticsearch:9200/_cluster/health | jq`.
+2. Check unassigned shards: `curl -s http://elasticsearch:9200/_cat/shards | grep UNASSIGNED`.
+3. Investigate why shards are unassigned: `curl -s http://elasticsearch:9200/_cluster/allocation/explain | jq`.
+4. Most common causes: insufficient nodes (add node or reduce replicas), disk full on data nodes (free space), node not available (restart node).
+5. Quick fix -- reduce replica count: `curl -X PUT http://elasticsearch:9200/_settings -d '{"number_of_replicas": 0}'`.
 
 # Quick Facts (Revision)
 

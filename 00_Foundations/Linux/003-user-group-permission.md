@@ -168,31 +168,17 @@ setfacl -b <path>                   # remove all ACL entries
 
 # Troubleshooting Guide
 
-```text
-Problem: "Permission denied"
-    |
-    v
-[1] ls -l <file>  →  check bits and owner
-    |
-    v
-[2] id  →  confirm current UID and GID
-    |
-    v
-[3] Is file owned by root and needs sudo?
-    |
-    v
-[4] Check if directory x-bit is missing (cannot cd/traverse without x)
-    |
-    v
-[5] getfacl <file>  →  check if ACL is overriding standard permissions
+### "Permission denied"
 
----
+1. Check bits and owner: `ls -l <file>`.
+2. Confirm current UID and GID: `id`.
+3. Is file owned by root and needs sudo?
+4. Check if directory x-bit is missing (cannot cd/traverse without x).
+5. Check if ACL is overriding standard permissions: `getfacl <file>`.
 
-Problem: User added to group but still denied
-    |
-    v
-[1] Log out and log back in (group membership is set at login time)
-```
+### User added to group but still denied
+
+1. Log out and log back in (group membership is set at login time).
 
 
 # Quick Facts (Revision)

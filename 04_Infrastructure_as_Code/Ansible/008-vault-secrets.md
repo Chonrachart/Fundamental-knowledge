@@ -136,35 +136,20 @@ ansible-vault view group_vars/prod/secrets.yml    # safer — view without writi
 
 # Troubleshooting Guide
 
-```text
-Problem: "Attempting to decrypt but no vault secrets found"
-    |
-    v
-[1] Forgot to pass --ask-vault-pass or --vault-password-file
-    |
-    v
-[2] Check ansible.cfg for vault_password_file setting
+### "Attempting to decrypt but no vault secrets found"
 
----
+1. Verify you passed `--ask-vault-pass` or `--vault-password-file`.
+2. Check `ansible.cfg` for the `vault_password_file` setting.
 
-Problem: "Decryption failed (wrong password?)"
-    |
-    v
-[1] Wrong vault password or vault ID mismatch
-    |
-    v
-[2] Check if multiple vault IDs are in use — pass all required --vault-id flags
+### "Decryption failed (wrong password?)"
 
----
+1. Confirm the vault password is correct and matches the vault ID.
+2. Check if multiple vault IDs are in use -- pass all required `--vault-id` flags.
 
-Problem: Variable is undefined despite being in secrets.yml
-    |
-    v
-[1] Verify file was encrypted after last edit (ansible-vault view)
-    |
-    v
-[2] Check group_vars path matches the host's group
-```
+### Variable is undefined despite being in secrets.yml
+
+1. Verify the file was encrypted after the last edit: `ansible-vault view <file>`.
+2. Check that the `group_vars` path matches the host's group.
 
 
 # Quick Facts (Revision)

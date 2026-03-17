@@ -150,30 +150,15 @@ ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml --limit env_prod
 
 # Troubleshooting Guide
 
-```text
-Problem: "No hosts matched" with dynamic inventory
-    |
-    v
-[1] ansible-inventory -i <plugin>.yml --graph  (check groups returned)
-    |
-    v
-[2] Check cloud credentials (AWS_ACCESS_KEY_ID / AWS profile / IAM role)
-    |
-    v
-[3] Check region matches where instances are running
-    |
-    v
-[4] Check filters (instance-state-name: running may exclude stopped instances)
-    |
-    v
-[5] Check keyed_groups key path matches actual tag/attribute name
-    |
-    v
-[6] Clear cache and retry: rm /tmp/ansible_aws_cache/*
-    |
-    v
-[7] Run with -vvv for plugin debug output
-```
+### "No hosts matched" with dynamic inventory
+
+1. Run `ansible-inventory -i <plugin>.yml --graph` to check groups returned.
+2. Check cloud credentials (`AWS_ACCESS_KEY_ID` / AWS profile / IAM role).
+3. Check that the region matches where instances are running.
+4. Check filters (`instance-state-name: running` may exclude stopped instances).
+5. Check that the `keyed_groups` key path matches the actual tag/attribute name.
+6. Clear cache and retry: `rm /tmp/ansible_aws_cache/*`.
+7. Run with `-vvv` for plugin debug output.
 
 
 # Quick Facts (Revision)

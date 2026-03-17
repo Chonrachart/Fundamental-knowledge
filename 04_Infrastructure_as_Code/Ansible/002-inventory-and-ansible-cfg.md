@@ -175,31 +175,17 @@ ansible web -m ping -u deploy --private-key ~/.ssh/id_ed25519
 
 # Troubleshooting Guide
 
-```text
-Problem: Host unreachable
-    |
-    v
-[1] ansible <host> -m ping -vvv  (see SSH attempt details)
-    |
-    v
-[2] Check ansible_host / ansible_user / ansible_port in host_vars
-    |
-    v
-[3] Verify SSH key auth works manually: ssh -i <key> user@host
-    |
-    v
-[4] Check ansible.cfg for correct inventory path
+### Host unreachable
 
----
+1. Run `ansible <host> -m ping -vvv` to see SSH attempt details.
+2. Check `ansible_host` / `ansible_user` / `ansible_port` in host_vars.
+3. Verify SSH key auth works manually: `ssh -i <key> user@host`.
+4. Check `ansible.cfg` for the correct inventory path.
 
-Problem: Wrong host targeted or variable value unexpected
-    |
-    v
-[1] ansible-inventory --graph  (confirm host is in correct group)
-    |
-    v
-[2] Check group_vars/host_vars precedence if variable value is wrong
-```
+### Wrong host targeted or variable value unexpected
+
+1. Run `ansible-inventory --graph` to confirm the host is in the correct group.
+2. Check `group_vars`/`host_vars` precedence if the variable value is wrong.
 
 
 # Quick Facts (Revision)

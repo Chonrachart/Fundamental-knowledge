@@ -130,38 +130,13 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 
 # Troubleshooting Guide
 
-```text
-Problem: Grafana dashboard shows "No Data"
-    |
-    v
-[1] Is the data source configured and reachable?
-    Settings > Data Sources > Test
-    |
-    +-- test fails --> check URL, auth, network/firewall
-    |
-    v
-[2] Does the query return data in Explore?
-    Copy panel query into Explore, run it
-    |
-    +-- no results --> wrong metric name, label filter, or time range
-    |
-    v
-[3] Is the time range correct?
-    Check dashboard time picker (top right)
-    |
-    +-- too narrow or future --> adjust range to match data retention
-    |
-    v
-[4] Panel configuration issue
-    Check visualization type, field mappings, and transform steps
-    |
-    +-- wrong field selected --> fix field override or transform
-    |
-    v
-[5] Check Grafana server logs
-    journalctl -u grafana-server -f
-    docker logs grafana
-```
+### Grafana dashboard shows "No Data"
+
+1. Is the data source configured and reachable? Settings > Data Sources > Test. Test fails means check URL, auth, network/firewall.
+2. Does the query return data in Explore? Copy panel query into Explore, run it. No results means wrong metric name, label filter, or time range.
+3. Is the time range correct? Check dashboard time picker (top right). Too narrow or future means adjust range to match data retention.
+4. Panel configuration issue: check visualization type, field mappings, and transform steps. Wrong field selected means fix field override or transform.
+5. Check Grafana server logs: `journalctl -u grafana-server -f` or `docker logs grafana`.
 
 # Quick Facts (Revision)
 

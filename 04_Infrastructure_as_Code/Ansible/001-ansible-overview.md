@@ -124,30 +124,15 @@ ansible-inventory -i inventory/hosts.ini --graph
 
 # Troubleshooting Guide
 
-```text
-Problem: Something is wrong
-    |
-    v
-[1] Re-run with --check --diff  (see what would change without touching anything)
-    |
-    v
-[2] Add -vvv  (see SSH details, module args, raw output)
-    |
-    v
-[3] Test connectivity with ad-hoc ping
-    |
-    v
-[4] Check inventory graph (ansible-inventory --graph)
-    |
-    v
-[5] Add debug task to print suspect variable
-    |
-    v
-[6] Run single task with --start-at-task or --tags
-    |
-    v
-[7] Fix → re-run → verify second run is all ok (idempotency check)
-```
+### Something is wrong
+
+1. Re-run with `--check --diff` to see what would change without touching anything.
+2. Add `-vvv` to see SSH details, module args, and raw output.
+3. Test connectivity with ad-hoc ping: `ansible <host> -m ping`.
+4. Check inventory graph: `ansible-inventory --graph`.
+5. Add a debug task to print the suspect variable.
+6. Run a single task with `--start-at-task` or `--tags`.
+7. Fix, re-run, and verify the second run is all ok (idempotency check).
 
 
 # Quick Facts (Revision)

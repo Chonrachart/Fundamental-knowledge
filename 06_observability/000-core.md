@@ -173,36 +173,15 @@ curl -s -X POST http://zabbix:8080/api_jsonrpc.php \
 
 # Troubleshooting Guide
 
-```text
-Problem: service degradation or outage detected
-    |
-    v
-[1] Check alert details: which metric breached? which service?
-    Grafana alert / Zabbix trigger
-    |
-    v
-[2] Dashboard review: is it a spike or gradual trend?
-    Grafana dashboard / Zabbix graphs
-    |
-    v
-[3] Drill into metrics: error rate, latency, saturation?
-    PromQL: rate(http_requests_total{status=~"5.."}[5m])
-    |
-    v
-[4] Correlate with logs: errors around the same timestamp?
-    Loki/Elasticsearch: filter by service + time range
-    |
-    v
-[5] Trace the request: where does latency or failure occur?
-    Jaeger/Tempo: search by trace ID from logs
-    |
-    v
-[6] Infrastructure check: host resources, network, dependencies?
-    Zabbix: CPU/memory/disk items, Prometheus: node_exporter
-    |
-    v
-[7] Root cause identified --> apply fix --> verify SLO recovery
-```
+### Service degradation or outage detected
+
+1. Check alert details: which metric breached? which service? Grafana alert / Zabbix trigger.
+2. Dashboard review: is it a spike or gradual trend? Grafana dashboard / Zabbix graphs.
+3. Drill into metrics: error rate, latency, saturation? PromQL: `rate(http_requests_total{status=~"5.."}[5m])`.
+4. Correlate with logs: errors around the same timestamp? Loki/Elasticsearch: filter by service + time range.
+5. Trace the request: where does latency or failure occur? Jaeger/Tempo: search by trace ID from logs.
+6. Infrastructure check: host resources, network, dependencies? Zabbix: CPU/memory/disk items, Prometheus: node_exporter.
+7. Root cause identified, apply fix, verify SLO recovery.
 
 # Quick Facts (Revision)
 

@@ -186,43 +186,26 @@ Ctrl + R         # reverse search through history (repeat to go further back)
 
 # Troubleshooting Guide
 
-```text
-Problem: "command not found"
-    |
-    v
-[1] which <cmd>  /  type <cmd>  →  is it installed and in PATH?
+### "command not found"
 
----
+1. Check if it is installed and in PATH: `which <cmd>` / `type <cmd>`.
 
-Problem: "Permission denied" on file
-    |
-    v
-[1] ls -l <file>  →  check permission bits and owner
+### "Permission denied" on file
 
----
+1. Check permission bits and owner: `ls -l <file>`.
 
-Problem: "No space left on device" during file write
-    |
-    v
-[1] df -h  →  check filesystem usage
-    |
-    v
-[2] du -sh * | sort -rh | head  →  find large directories
+### "No space left on device" during file write
 
----
+1. Check filesystem usage: `df -h`.
+2. Find large directories: `du -sh * | sort -rh | head`.
 
-Problem: grep returns no output
-    |
-    v
-[1] Check pattern quoting, try -i for case, verify file path
+### grep returns no output
 
----
+1. Check pattern quoting, try `-i` for case, verify file path.
 
-Problem: Pipe produces unexpected output
-    |
-    v
-[1] Run each stage individually to isolate where data changes
-```
+### Pipe produces unexpected output
+
+1. Run each stage individually to isolate where data changes.
 
 
 # Quick Facts (Revision)

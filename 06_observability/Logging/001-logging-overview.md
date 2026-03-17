@@ -247,56 +247,15 @@ du -sh /var/log/* | sort -rh | head -10
 
 # Troubleshooting Guide
 
-```text
-Problem: missing or delayed logs in centralized system
-    |
-    v
-[1] Are logs being generated on the source?
-    tail -f /var/log/app.log
-    journalctl -u app -f
-    |
-    +-- no logs --> app not running or not configured to log
-    |
-    v
-[2] Is the log agent running and tailing the file?
-    ps aux | grep promtail / filebeat / logstash
-    systemctl status promtail
-    |
-    +-- not running --> start the agent
-    |
-    v
-[3] Does the agent config point to the right log source?
-    cat /etc/promtail/config.yml | grep -A5 scrape_configs
-    |
-    +-- wrong path or pattern --> fix config, reload agent
-    |
-    v
-[4] Can the agent connect to the backend?
-    curl -v http://loki:3100/loki/api/v1/status
-    curl -v http://elasticsearch:9200/_cluster/health
-    |
-    +-- connection refused/timeout --> check firewall, backend running
-    |
-    v
-[5] Is the backend receiving logs?
-    Check backend API or UI:
-    Loki: curl http://loki:3100/loki/api/v1/label
-    Elasticsearch: curl http://elasticsearch:9200/_cat/indices
-    |
-    +-- no indices/labels --> agent not shipping
-    |
-    v
-[6] Check agent logs for errors
-    journalctl -u promtail -f
-    docker logs <agent-container>
-    |
-    +-- debug errors in agent config or backend connectivity
-    |
-    v
-[7] Query backend to verify logs are indexed
-    Grafana Explore: query {job="app"}
-    Kibana: search service:app
-```
+### Missing or delayed logs in centralized system
+
+1. Are logs being generated on the source? `tail -f /var/log/app.log` or `journalctl -u app -f`. No logs means app not running or not configured to log.
+2. Is the log agent running and tailing the file? `ps aux | grep promtail` / `systemctl status promtail`. Not running means start the agent.
+3. Does the agent config point to the right log source? `cat /etc/promtail/config.yml | grep -A5 scrape_configs`. Wrong path or pattern means fix config and reload agent.
+4. Can the agent connect to the backend? `curl -v http://loki:3100/loki/api/v1/status` or `curl -v http://elasticsearch:9200/_cluster/health`. Connection refused/timeout means check firewall and backend running.
+5. Is the backend receiving logs? Loki: `curl http://loki:3100/loki/api/v1/label`. Elasticsearch: `curl http://elasticsearch:9200/_cat/indices`. No indices/labels means agent not shipping.
+6. Check agent logs for errors: `journalctl -u promtail -f` or `docker logs <agent-container>`. Debug errors in agent config or backend connectivity.
+7. Query backend to verify logs are indexed. Grafana Explore: query `{job="app"}`. Kibana: search `service:app`.
 
 # Quick Facts (Revision)
 

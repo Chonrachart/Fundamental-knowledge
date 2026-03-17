@@ -168,31 +168,17 @@ ansible-playbook site.yml --list-tags
 
 # Troubleshooting Guide
 
-```text
-Problem: Playbook runs wrong hosts or tasks
-    |
-    v
-[1] --list-hosts + --list-tasks  (verify scope before running)
+### Playbook runs wrong hosts or tasks
 
----
+1. Run `--list-hosts` + `--list-tasks` to verify scope before running.
 
-Problem: Task result unexpected
-    |
-    v
-[1] -vvv  (see raw module input/output)
-    |
-    v
-[2] Add debug: var=<suspect_variable>  before failing task
-    |
-    v
-[3] Add assert: to validate assumptions early
-    |
-    v
-[4] Run --check --diff to preview changes on a single host
-    |
-    v
-[5] Use --start-at-task to resume after fixing mid-play failure
-```
+### Task result unexpected
+
+1. Add `-vvv` to see raw module input/output.
+2. Add `debug: var=<suspect_variable>` before the failing task.
+3. Add `assert:` to validate assumptions early.
+4. Run `--check --diff` to preview changes on a single host.
+5. Use `--start-at-task` to resume after fixing a mid-play failure.
 
 
 # Quick Facts (Revision)

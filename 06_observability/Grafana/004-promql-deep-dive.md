@@ -147,45 +147,14 @@ promtool check rules /etc/prometheus/rules/*.yml
 
 # Troubleshooting Guide
 
-```text
-Problem: PromQL query returns no data or unexpected results
-    |
-    v
-[1] Does the metric exist?
-    Prometheus UI > search metric name, or:
-    curl localhost:9090/api/v1/label/__name__/values | grep metric_name
-    |
-    +-- not found --> target not scraped, or metric name wrong
-    |
-    v
-[2] Are the labels correct?
-    Run bare selector: metric_name{job="api"} in Prometheus UI
-    |
-    +-- no results --> label mismatch; check actual labels with metric_name{}
-    |
-    v
-[3] Is the range vector window appropriate?
-    rate(metric[5m]) needs at least 2 samples in 5m
-    |
-    +-- too short window for scrape interval --> increase window
-    |   (window should be >= 4x scrape_interval)
-    |
-    v
-[4] Is the aggregation dropping needed labels?
-    Check by/without clause; missing "by (le)" in histogram_quantile
-    |
-    +-- wrong grouping --> add or remove labels in by/without
-    |
-    v
-[5] Is a recording rule stale or misconfigured?
-    Check /api/v1/rules for errors; verify rule file syntax with promtool
-    |
-    +-- rule error --> fix expr and reload Prometheus (kill -HUP or /-/reload)
-    |
-    v
-[6] Check Prometheus targets and scrape health
-    Prometheus UI > Status > Targets -- look for DOWN targets or scrape errors
-```
+### PromQL query returns no data or unexpected results
+
+1. Does the metric exist? Prometheus UI > search metric name, or: `curl localhost:9090/api/v1/label/__name__/values | grep metric_name`. Not found means target not scraped, or metric name wrong.
+2. Are the labels correct? Run bare selector: `metric_name{job="api"}` in Prometheus UI. No results means label mismatch; check actual labels with `metric_name{}`.
+3. Is the range vector window appropriate? `rate(metric[5m])` needs at least 2 samples in 5m. Too short window for scrape interval means increase window (window should be >= 4x scrape_interval).
+4. Is the aggregation dropping needed labels? Check by/without clause; missing `by (le)` in histogram_quantile. Wrong grouping means add or remove labels in by/without.
+5. Is a recording rule stale or misconfigured? Check `/api/v1/rules` for errors; verify rule file syntax with `promtool`. Rule error means fix expr and reload Prometheus (`kill -HUP` or `/-/reload`).
+6. Check Prometheus targets and scrape health: Prometheus UI > Status > Targets -- look for DOWN targets or scrape errors.
 
 # Quick Facts (Revision)
 

@@ -169,30 +169,15 @@ ansible-galaxy collection install -r collections/requirements.yml
 
 # Troubleshooting Guide
 
-```text
-Problem: Task fails or behaves unexpectedly
-    |
-    v
-[1] Re-run with --check --diff  (see what would change)
-    |
-    v
-[2] Add -vvv  (see SSH connection, module args, raw output)
-    |
-    v
-[3] Insert debug task  (print vars / facts mid-play)
-    |
-    v
-[4] Check inventory  (ansible-inventory --graph / --list)
-    |
-    v
-[5] Check variable precedence  (extra-vars win; role defaults lose)
-    |
-    v
-[6] Run ad-hoc module directly on one host
-    |
-    v
-[7] Fix and re-run; verify idempotency (second run should be all ok)
-```
+### Task fails or behaves unexpectedly
+
+1. Re-run with `--check --diff` to see what would change.
+2. Add `-vvv` to see SSH connection, module args, and raw output.
+3. Insert a debug task to print vars/facts mid-play.
+4. Check inventory with `ansible-inventory --graph` or `--list`.
+5. Check variable precedence (extra-vars win; role defaults lose).
+6. Run the ad-hoc module directly on one host.
+7. Fix and re-run; verify idempotency (second run should be all ok).
 
 
 # Quick Facts (Revision)

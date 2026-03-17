@@ -104,55 +104,27 @@ Related notes:
 
 # Troubleshooting Guide
 
-```text
-Problem: apt install fails with "Unable to locate package"
-    |
-    v
-[1] Package lists stale?
-    apt update   (refresh index from repos)
-    |
-    v
-[2] Typo in package name?
-    apt search <keyword>
-    |
-    v
-[3] Package in a missing repo?
-    check /etc/apt/sources.list and sources.list.d/
+### apt install fails with "Unable to locate package"
 
----
+1. Package lists stale? Run `apt update` to refresh index from repos.
+2. Typo in package name? Run `apt search <keyword>`.
+3. Package in a missing repo? Check `/etc/apt/sources.list` and `sources.list.d/`.
 
-Problem: dpkg -i fails with dependency errors
-    |
-    v
-[1] Run: apt install -f   (auto-install missing deps)
-    |
-    v
-[2] Still broken? Check: dpkg --audit
+### dpkg -i fails with dependency errors
 
----
+1. Auto-install missing deps: `apt install -f`.
+2. Still broken? Check: `dpkg --audit`.
 
-Problem: "dpkg was interrupted, run dpkg --configure -a"
-    |
-    v
-[1] Run: dpkg --configure -a
-    |
-    v
-[2] Still stuck? Run: apt install -f
+### "dpkg was interrupted, run dpkg --configure -a"
 
----
+1. Run: `dpkg --configure -a`.
+2. Still stuck? Run: `apt install -f`.
 
-Problem: downloaded .tar.gz binary won't run
-    |
-    v
-[1] Extracted? tar -xvzf <file.tar.gz>
-    |
-    v
-[2] Has execute permission? chmod +x <binary>
-    |
-    v
-[3] "command not found"? Binary not in PATH
-    move to /usr/local/bin  OR  add its directory to PATH
-```
+### Downloaded .tar.gz binary won't run
+
+1. Extracted? `tar -xvzf <file.tar.gz>`.
+2. Has execute permission? `chmod +x <binary>`.
+3. "command not found"? Binary not in PATH — move to `/usr/local/bin` or add its directory to PATH.
 
 
 # Quick Facts (Revision)

@@ -124,40 +124,23 @@ Related notes:
 
 # Troubleshooting Guide
 
-```text
-Problem: "command not found"
-    |
-    v
-[1] command -v <cmd>  →  does shell find it at all?
-    |
-    v
-[2] echo $PATH  →  is the binary's directory in PATH?
-    |
-    v
-[3] ls -l $(which <cmd>)  →  does binary exist and have execute bit?
+### "command not found"
 
----
+1. Check if shell finds it at all: `command -v <cmd>`.
+2. Check if the binary's directory is in PATH: `echo $PATH`.
+3. Verify binary exists and has execute bit: `ls -l $(which <cmd>)`.
 
-Problem: which shows wrong version of command
-    |
-    v
-[1] echo $PATH  →  check order (leftmost directory wins)
+### which shows wrong version of command
 
----
+1. Check PATH order (leftmost directory wins): `echo $PATH`.
 
-Problem: export works in terminal but not in cron / script
-    |
-    v
-[1] Script runs in non-interactive shell — source the startup file explicitly
-    or set PATH at top of script with full absolute paths
+### export works in terminal but not in cron / script
 
----
+1. Script runs in non-interactive shell — source the startup file explicitly or set PATH at top of script with full absolute paths.
 
-Problem: Variable set in script not visible in parent shell
-    |
-    v
-[1] Use source ./script.sh (not ./script.sh) to run in current shell context
-```
+### Variable set in script not visible in parent shell
+
+1. Use `source ./script.sh` (not `./script.sh`) to run in current shell context.
 
 
 # Quick Facts (Revision)
