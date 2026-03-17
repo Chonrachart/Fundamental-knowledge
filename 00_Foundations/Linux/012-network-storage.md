@@ -95,6 +95,7 @@ Related notes: [005-file-system-mount](./005-file-system-mount.md), [009-service
 
 ### iSCSI (Internet Small Computer System Interface)
 
+- iSCSI is a network storage protocol that allows a computer to access remote block storage over an IP network.
 - SCSI is the protocol your OS uses to talk to local disks (`/dev/sda`). iSCSI wraps those same SCSI commands inside TCP/IP packets so you can access a remote disk over the network as if it were plugged in locally.
 - The result: a disk on a server in the data center appears as `/dev/sdb` on your machine. You can partition it, format it, mount it -- exactly like a local drive.
 
