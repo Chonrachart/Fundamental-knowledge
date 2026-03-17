@@ -202,14 +202,16 @@ Problem: Symptom appears — general diagnostic sequence
 
 # Topic Map
 
-- [01-Basic-file-and-text-manipulation](./01-Basic-file-and-text-manipulation.md)
-- [02-Advance-text-manipulation copy](./02-Advance-text-manipulation%20copy.md)
-- [03-user-group-permission](./03-user-group-permission.md)
-- [04-software-distributed](./04-software-distributed.md)
-- [05-file-system-mount](./05-file-system-mount.md)
-- [06-disk](./06-disk.md)
-- [07-process-stat](./07-process-stat.md)
-- [08-log](./08-log.md)
-- [09-service-systemctl-socket](./09-service-systemctl-socket.md)
-- [10-shell-environment-and-path.md](./10-shell-environment-and-path.md)
-- [Networking Core](./Networking/000-core.md)
+- [001-Basic-file-and-text-manipulation](./001-Basic-file-and-text-manipulation.md) -- ls, cp, mv, rm, cat, grep, find, file operations
+- [002-Advance-text-manipulation](./002-Advance-text-manipulation%20copy.md) -- sed, awk, cut, sort, uniq, tr, text processing pipelines
+- [003-user-group-permission](./003-user-group-permission.md) -- Users, groups, chmod, chown, sudo, /etc/passwd, /etc/shadow
+- [004-software-distributed](./004-software-distributed.md) -- apt, dpkg, yum, tar, wget, package management layers
+- [005-file-system-mount](./005-file-system-mount.md) -- Filesystem types, mount, fstab, /proc, /sys, directory hierarchy
+- [006-disk](./006-disk.md) -- Partitions, LVM, RAID, fdisk, lsblk, df, du, disk management
+- [007-process-stat](./007-process-stat.md) -- ps, top, htop, kill, signals, foreground/background, /proc
+- [008-log](./008-log.md) -- journalctl, syslog, /var/log, log rotation, dmesg
+- [009-service-systemctl-socket](./009-service-systemctl-socket.md) -- systemd, systemctl, unit files, socket activation, targets
+- [010-shell-environment-and-path](./010-shell-environment-and-path.md) -- PATH, env variables, .bashrc, .profile, login vs non-login shells
+- [011-task-scheduling-cron](./011-task-scheduling-cron.md) -- cron, crontab, at, systemd timers, scheduled jobs
+- [012-network-storage](./012-network-storage.md) -- NFS, iSCSI, SMB/CIFS, SAN vs NAS, multipath, autofs
+- [Networking/000-core](./Networking/000-core.md) -- Linux networking: interfaces, ip, routes, sockets, DNS, firewall, namespaces
