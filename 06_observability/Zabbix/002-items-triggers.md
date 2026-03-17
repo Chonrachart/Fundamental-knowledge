@@ -1,48 +1,197 @@
-item
-key
-type
-interval
-trigger
-expression
-severity
-recovery
+# Items and Triggers
+
+- Items define what data to collect, how to collect it, and how often; they are the foundation of all monitoring in Zabbix.
+- Triggers evaluate item data against expressions and fire at a severity level when a condition is met.
+- Together, items and triggers convert raw metrics into actionable problems that drive alerts and automation.
+
+# Architecture
+
+```text
+Item Collection and Trigger Evaluation Flow:
+
++----------+     +----------------+     +-------------+     +-----------+
+| Data     |---->| Item           |---->| Preprocessing|---->| History   |
+| Source   |     | (key+interval) |     | Pipeline     |     | / Trends  |
+| (agent,  |     +----------------+     +-------------+     +-----+-----+
+|  SNMP,   |                                                       |
+|  HTTP)   |                                                       v
++----------+                                               +--------------+
+                                                           | Trigger      |
+                                                           | Expression   |
+                                                           | Evaluator    |
+                                                           +------+-------+
+                                                                  |
+                                          +----------+------------+----------+
+                                          |          |                       |
+                                          v          v                       v
+                                       [OK]    [PROBLEM]               [UNKNOWN]
+                                                  |
+                                                  v
+                                           Action Engine
+                                           (notify / run)
+```
+
+# Mental Model
+
+```text
+Building a trigger expression:
+
+  [1] Select function     -->  last(), avg(), min(), max(), nodata()
+  [2] Set period           -->  time window: 5m, 1h, #3 (last 3 values)
+  [3] Set threshold        -->  comparison: > 80, = 0, <> "running"
+  [4] Set severity         -->  Warning, Average, High, Disaster
+  [5] (Optional) Recovery  -->  separate expression or auto (expression false)
+```
+
+```text
+Example -- CPU trigger:
+
+  Expression:  avg(/web-server-01/system.cpu.util,5m) > 80
+               |       |               |            |    |
+               func    host            item key     period threshold
+
+  Reads as: "Fire when average CPU utilization over 5 minutes exceeds 80%"
+  Severity: High
+  Recovery: avg(/web-server-01/system.cpu.util,5m) < 70
+```
+
+# Core Building Blocks
+
+### Item Types
+
+- **Zabbix agent (passive)**: Server connects to agent port 10050 and requests a key; agent returns the value.
+- **Zabbix agent (active)**: Agent connects to server port 10051, retrieves its check list, collects data, and pushes results.
+- **SNMP**: Polls an OID on network devices (switches, routers, firewalls); supports SNMPv1/v2c/v3.
+- **HTTP agent**: Makes HTTP/HTTPS requests; collects response body, status code, response time.
+- **Script**: Runs a script on server or agent; parses output as the item value.
+- **Calculated**: Formula combining other item values (e.g. percentage from two items).
+- **External check**: Script executed by the server; for hosts where no agent or SNMP is available.
+- **Dependent**: Does not poll; takes its value from a master item and applies preprocessing.
+
+Related notes: [004-monitoring-patterns](./004-monitoring-patterns.md)
+
+### Key Format
+
+- Item key is the identifier for what to collect: `system.cpu.util`, `vfs.fs.size[/,pfree]`.
+- Parameters go in square brackets: `net.tcp.port[,80]` checks if TCP port 80 is open.
+- Templates define standard keys; custom keys follow the same `name[param1,param2]` format.
+
+Related notes: [001-zabbix-overview](./001-zabbix-overview.md)
+
+### Interval and History
+
+- **Update interval**: How often the item collects data (e.g. 30s, 1m, 5m).
+- **History**: Retention period for raw values (e.g. 7d, 30d); stores every collected value.
+- **Trends**: Aggregated data (min, max, avg per hour); kept longer than history (e.g. 365d).
+- **Flexible intervals**: Different collection rates for different time windows (e.g. every 10s during business hours, every 5m at night).
+
+Related notes: [001-zabbix-overview](./001-zabbix-overview.md)
+
+### Trigger Expression Functions
+
+- **last()**: Most recent value; `last(/host/key) > 100`.
+- **avg()**: Average over a period; `avg(/host/key,5m) > 80`.
+- **min()** / **max()**: Minimum or maximum over a period.
+- **nodata()**: True if no data received within a period; `nodata(/host/key,5m) = 1`.
+- **change()**: Difference between last and previous value.
+- **diff()**: Returns 1 if the last value differs from the previous.
+- Combine with logical operators: `and`, `or`; group with parentheses.
+
+Related notes: [003-actions-templates](./003-actions-templates.md)
+
+### Severity Levels
+
+```text
+Level           Color      Typical Use
+------          ------     ----------------
+Not classified  grey       informational, no action
+Information     blue       events of note (service restart)
+Warning         yellow     approaching limit (disk 80%)
+Average         orange     moderate impact (service degraded)
+High            red-orange significant impact (service down)
+Disaster        red        critical (host unreachable, data loss)
+```
+
+- Severity drives action filtering, escalation priority, and dashboard coloring.
+- Choose severity based on business impact, not technical metric value.
+
+Related notes: [003-actions-templates](./003-actions-templates.md)
+
+### Trigger Dependencies
+
+- Trigger A depends on trigger B: if B is in PROBLEM state, A is suppressed (not evaluated).
+- Prevents alert floods when a parent condition (e.g. host unreachable) causes many child triggers to fire.
+- Dependency is on the trigger object, not on the item; configured in the trigger settings.
+
+Related notes: [004-monitoring-patterns](./004-monitoring-patterns.md)
 
 ---
 
-# Item Types
+# Practical Command Set (Core)
 
-- **Zabbix agent**: Passive (server asks) or active (agent pushes); metrics from host.
-- **SNMP**: Poll SNMP OID; network devices, hardware.
-- **HTTP**: Check URL; response time, status code.
-- **Script**: Run script on server or agent; parse output.
-- **Calculated**: Formula from other items.
-- **External**: Script on server; custom collection.
-- **Dependent**: Derive from master item; reduce polling.
+```bash
+# test an item key from the server side
+zabbix_get -s 10.0.1.10 -k system.cpu.util
 
-# Key
+# test a specific item key with parameters
+zabbix_get -s 10.0.1.10 -k vfs.fs.size[/,pfree]
 
-- Identifier for item; e.g. `system.cpu.util`, `vfs.fs.size[/,pfree]`, `net.tcp.port[,80]`.
-- Item key + parameters (in brackets) define what to collect.
-- Templates define standard keys; copy or create custom keys.
+# list all supported keys on an agent
+zabbix_agentd -p
 
-# Interval and History
+# test SNMP item from server
+snmpget -v2c -c public 10.0.1.1 .1.3.6.1.2.1.1.1.0
 
-- **Update interval**: How often to collect (e.g. 30s, 1m).
-- **History**: How long to keep raw values; **Trends**: Aggregated (min, max, avg) for long retention.
-- Flexible intervals: different interval for different time periods.
+# check item value via Zabbix API (curl)
+curl -s -X POST http://zabbix.example.com/api_jsonrpc.php \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"item.get","params":{"hostids":"10084","output":["name","lastvalue"]},"auth":"<token>","id":1}'
+```
 
-# Trigger Expression
+# Troubleshooting Flow (Quick)
 
-- Expression on item value(s); when true, trigger fires.
-- **last()**, **avg()**, **min()**, **max()** over period; **nodata()** for no data.
-- Example: `avg(/Linux CPU/system.cpu.util,5m)}>80` — CPU avg over 5m above 80%.
-- **Recovery expression**: Optional; when true, trigger recovers (default: expression false).
+```text
+Problem: item shows "Not supported" or no data
+    |
+    v
+[1] Is the item key valid on the agent?
+    zabbix_get -s <host-ip> -k <item-key>
+    |
+    +-- "ZBX_NOTSUPPORTED" --> key does not exist or wrong parameters
+    +-- timeout --> agent unreachable (check network / firewall)
+    |
+    v
+[2] Check item configuration in frontend
+    - Is the key spelled correctly?
+    - Is the type correct (agent vs SNMP vs HTTP)?
+    - Is the host interface configured for this type?
+    |
+    v
+[3] Is preprocessing failing?
+    Administration > Queue -- check if item is queued
+    Check item "Info" column for preprocessing errors
+    |
+    v
+[4] For triggers not firing:
+    - Check expression syntax in trigger config
+    - Verify item is collecting expected values (Latest data)
+    - Check trigger dependencies -- is a parent trigger suppressing it?
+    |
+    v
+[5] Check logs for detailed errors
+    /var/log/zabbix/zabbix_server.log
+    /var/log/zabbix/zabbix_agent2.log
+```
 
-# Severity
+# Quick Facts (Revision)
 
-- Not classified, Information, Warning, Average, High, Disaster.
-- Used for filtering and actions; escalation by severity.
+- Item = single metric; defined by type + key + interval; values stored as history (raw) and trends (aggregated).
+- Seven main item types: agent passive, agent active, SNMP, HTTP, script, calculated, dependent.
+- Key format: `name[param1,param2]`; e.g. `vfs.fs.size[/,pfree]` returns free disk percentage.
+- Trigger expression: `function(/host/key,period) operator threshold`; fires when true.
+- Six severity levels from Not classified to Disaster; severity drives filtering and escalation.
+- Trigger dependencies suppress child triggers when a parent trigger is already in PROBLEM state.
+- History = raw values (short retention); Trends = hourly aggregates (long retention).
+- Use `zabbix_get` to test any agent item key from the command line.
 
-# Dependencies
-
-- Trigger can depend on another trigger; if parent fires, dependent is not evaluated (avoids flood when host down).
+Related notes: [../000-core](../000-core.md), [001-zabbix-overview](./001-zabbix-overview.md), [003-actions-templates](./003-actions-templates.md), [004-monitoring-patterns](./004-monitoring-patterns.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)

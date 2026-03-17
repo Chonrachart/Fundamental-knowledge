@@ -1,55 +1,218 @@
-monitoring pattern
-agent
-agentless
-active
-passive
-low-level discovery
-dependent item
-preprocessing
-trigger dependency
+# Monitoring Patterns
+
+- Zabbix supports multiple data collection patterns: agent-based, SNMP, HTTP, and script-based; choosing the right one depends on the target and environment.
+- Passive and active agent modes solve different network topology problems; dependent items and preprocessing reduce polling overhead.
+- Trigger dependencies and LLD handle scale by suppressing alert cascades and auto-discovering dynamic entities.
+
+# Architecture
+
+```text
+Data Collection Patterns:
+
++-------------------+         +-------------------+
+| Passive Agent     |         | Active Agent      |
+| (server -> agent) |         | (agent -> server) |
+|                   |         |                   |
+| Server:10051      |         | Agent connects    |
+|   asks agent      |         |   to Server:10051 |
+|   on port 10050   |         |   pushes results  |
++-------------------+         +-------------------+
+
++-------------------+         +-------------------+
+| SNMP Polling      |         | HTTP Agent        |
+| (server -> device)|         | (server -> URL)   |
+|                   |         |                   |
+| GET OID via       |         | HTTP GET/POST     |
+| UDP 161           |         | parse response    |
++-------------------+         +-------------------+
+
++-------------------+         +-------------------+
+| Dependent Item    |         | Trapper           |
+| (no poll)         |         | (external push)   |
+|                   |         |                   |
+| Master item       |         | zabbix_sender     |
+| collects once;    |         | pushes data to    |
+| dependents parse  |         | Server:10051      |
++-------------------+         +-------------------+
+```
+
+# Mental Model
+
+```text
+Monitoring pattern decision tree:
+
+  What are you monitoring?
+      |
+      +-- OS / application on a server
+      |       |
+      |       +-- Can install agent? --> YES --> Agent (active or passive)
+      |       |                         NO  --> SSH / script / HTTP
+      |       |
+      |       +-- Behind NAT/firewall? --> YES --> Active agent
+      |                                   NO  --> Passive agent (default)
+      |
+      +-- Network device (switch, router, firewall)
+      |       |
+      |       +-- SNMP supported? --> YES --> SNMP polling (v2c/v3)
+      |                              NO  --> HTTP API / SSH
+      |
+      +-- Web service / API endpoint
+      |       |
+      |       +-- HTTP agent (check URL, parse JSON response)
+      |
+      +-- Custom / structured data
+              |
+              +-- One call returns multiple values?
+                      |
+                      +-- YES --> Master item + dependent items
+                      +-- NO  --> Standard item per metric
+```
+
+```text
+Example -- hybrid monitoring for a web stack:
+
+  [Agent]      Linux servers   -->  CPU, memory, disk, processes
+  [SNMP]       Network switch  -->  interface traffic, errors, status
+  [HTTP]       API health      -->  GET /health, check status 200
+  [Dependent]  App metrics     -->  one script returns JSON,
+                                    dependent items extract each field
+```
+
+# Core Building Blocks
+
+### Agent vs Agentless
+
+- **Agent (Zabbix agent/agent2)**: Installed on the host; rich built-in keys for OS metrics (CPU, memory, disk, network, processes); supports custom UserParameters.
+- **Agentless**: No software on the target; use SNMP (network devices), IPMI (hardware), HTTP (APIs), SSH (remote commands), JMX (Java apps).
+- **Hybrid approach**: Agent for servers where install is possible; SNMP for network gear; HTTP for cloud APIs and SaaS endpoints.
+- Choose agent when you need deep OS/application metrics; choose agentless when agent installation is not feasible or when the protocol provides what you need.
+
+Related notes: [001-zabbix-overview](./001-zabbix-overview.md), [002-items-triggers](./002-items-triggers.md)
+
+### Passive vs Active Agent
+
+- **Passive mode**: Server initiates connection to agent port 10050; server sends key name; agent returns value.
+- **Active mode**: Agent initiates connection to server port 10051; agent requests its check list; agent collects and pushes results.
+- Active mode advantages: works behind NAT/firewall (no inbound port needed on host); scales better (agent does scheduling); supports log monitoring.
+- Passive mode advantages: simpler setup; server controls timing; easier to debug with `zabbix_get`.
+- Configure in agent config: `ServerActive=` for active checks; `Server=` for passive checks; can use both simultaneously.
+
+Related notes: [001-zabbix-overview](./001-zabbix-overview.md)
+
+### Low-Level Discovery (LLD)
+
+- Discovery rule runs a key (e.g. `vfs.fs.discovery`) that returns JSON with macros: `{#FSNAME}`, `{#FSTYPE}`.
+- **Item prototypes** use discovery macros in the key: `vfs.fs.size[{#FSNAME},pfree]` -- one real item created per filesystem.
+- **Trigger prototypes** use discovery macros in the expression: fire per discovered entity.
+- **Lifetime**: Controls how long discovered objects persist after the entity disappears (default 30d).
+- Common use cases: filesystems, network interfaces, Docker containers, database tables, Kubernetes pods.
+
+Related notes: [003-actions-templates](./003-actions-templates.md)
+
+### Dependent Items
+
+- **Master item**: Performs the actual data collection (e.g. a script that returns JSON with multiple metrics).
+- **Dependent item**: References the master item; applies preprocessing to extract its specific value.
+- One poll, many metrics: reduces agent load and network traffic.
+- Example: master item runs a script returning `{"cpu":45,"mem":60,"disk":72}`; three dependent items use JSONPath `$.cpu`, `$.mem`, `$.disk`.
+
+Related notes: [002-items-triggers](./002-items-triggers.md)
+
+### Preprocessing
+
+- **Steps** applied to item value before storage: JSONPath, regex, XML XPath, JavaScript, custom multiplier, change per second.
+- **JSONPath**: Extract a field from JSON; e.g. `$.data.cpu_usage` from an API response.
+- **Regex**: Match and extract with capture groups; e.g. `Temperature: (\d+)` to extract the number.
+- **Discard unchanged (with heartbeat)**: Store value only when it changes or every N seconds; reduces storage and prevents trigger flapping.
+- Steps are chained: output of step 1 becomes input of step 2.
+
+Related notes: [002-items-triggers](./002-items-triggers.md)
+
+### Trigger Dependencies
+
+- Trigger A depends on Trigger B: if B is in PROBLEM state, A is suppressed (not evaluated).
+- Prevents alert floods: when "Host unreachable" fires, all other triggers on that host are suppressed.
+- Cascade pattern: Host down -> Service down -> Application error; only the root cause fires.
+- Dependency is configured on the trigger object; a trigger can have multiple dependencies.
+
+Related notes: [002-items-triggers](./002-items-triggers.md), [003-actions-templates](./003-actions-templates.md)
 
 ---
 
-# Agent vs Agentless
+# Practical Command Set (Core)
 
-- **Agent** (Zabbix agent): Installed on host; **passive** (server asks) or **active** (agent pushes to server); low overhead; many built-in keys (CPU, disk, net, custom).
-- **Agentless**: **SNMP** (network devices), **IPMI** (hardware), **HTTP** (check URL), **SSH** (run command), **JMX** (Java); no agent install but often less granular or more overhead.
-- **Hybrid**: Agent for OS/app; SNMP for network gear; HTTP for API health.
+```bash
+# test passive agent key
+zabbix_get -s 10.0.1.10 -k system.cpu.util
 
-# Passive vs Active Agent
+# send a value via trapper (external push)
+zabbix_sender -z zabbix-server -s "web-server-01" -k custom.metric -o 42
 
-- **Passive**: Server connects to agent (default port 10050); server asks for key; agent returns value; **server** must reach **agent** (firewall).
-- **Active**: Agent connects to server (port 10051); agent asks for **list of checks**; agent runs them and sends results; good when agent is behind NAT or firewall blocks inbound.
-- **Active** reduces open ports on hosts; scale better when many agents.
+# test SNMP connectivity
+snmpwalk -v2c -c public 10.0.1.1 .1.3.6.1.2.1.2.2.1.2
 
-# Low-Level Discovery (LLD)
+# check agent configuration (active vs passive)
+grep -E '^Server=|^ServerActive=' /etc/zabbix/zabbix_agent2.conf
 
-- **Discovery rule**: Returns **JSON** with macro names and values (e.g. {#FSNAME}, {#FSTYPE}); Zabbix creates **items**, **triggers**, **graphs** from **item prototypes** and **trigger prototypes**.
-- **Key**: e.g. `vfs.fs.discovery`; **Item prototype** key uses {#FSNAME}; **Trigger prototype** expression uses {#FSNAME}.
-- Use for **filesystems**, **network interfaces**, **mount points**, **custom discovery** (script that outputs JSON).
-- **Lifetime**: Discovered items/triggers are removed when host no longer returns that entity (e.g. disk removed).
+# list agent supported keys
+zabbix_agent2 -p
 
-# Dependent Items
+# test a UserParameter on the agent
+zabbix_agent2 -t custom.script.key
+```
 
-- **Master item**: Item that does the “expensive” work (e.g. script that returns many values).
-- **Dependent item**: No poll itself; **preprocessing** “Dependent item” with master item; parses master’s value (e.g. JSON path).
-- Reduces agent load (one script run, many derived metrics); use for **custom scripts** that return structured data.
+# Troubleshooting Flow (Quick)
 
-# Preprocessing
+```text
+Problem: data collection not working for a specific pattern
+    |
+    v
+[1] Which collection method is configured?
+    Check item type in Configuration > Hosts > Items
+    |
+    +-- Agent (passive) --> can server reach agent port 10050?
+    |       zabbix_get -s <host> -k <key>
+    |
+    +-- Agent (active) --> is agent connecting to server port 10051?
+    |       check agent log: /var/log/zabbix/zabbix_agent2.log
+    |       verify ServerActive= in agent config
+    |
+    +-- SNMP --> can server reach device on UDP 161?
+    |       snmpget -v2c -c <community> <host> <oid>
+    |
+    +-- HTTP --> does the URL respond?
+    |       curl -v <url>
+    |
+    v
+[2] Is the item in "Not supported" state?
+    Check item info column in Latest data
+    |
+    +-- key error --> fix key name or parameters
+    +-- preprocessing error --> check preprocessing steps
+    |
+    v
+[3] For dependent items: is the master item collecting?
+    Check master item value in Latest data
+    |
+    +-- no data --> fix master item first
+    +-- data present --> check preprocessing (JSONPath, regex)
+    |
+    v
+[4] For LLD: are prototypes creating items?
+    Configuration > Hosts > Discovery rules -- check discovered items
+    |
+    +-- no items --> discovery rule not returning data; test key manually
+```
 
-- **Steps**: JSONPath, regex, XML XPath, custom multiplier, threshold, etc.; **chain** multiple steps.
-- **Dependent item** + **JSONPath** from master: e.g. master returns `{"cpu": 45, "mem": 60}`; dependent item **cpu** = JSONPath `$.cpu`.
-- **Discard unchanged with heartbeat**: Reduce storage and trigger flapping; keep value only when changed or every N seconds.
+# Quick Facts (Revision)
 
-# Trigger Dependencies
+- Agent = install on host, rich OS metrics; Agentless = SNMP, HTTP, SSH, IPMI, JMX for devices and services.
+- Passive agent: server asks on port 10050; Active agent: agent pushes to server on port 10051.
+- Use active mode for hosts behind NAT, large-scale deployments, and log monitoring.
+- LLD auto-discovers entities and creates items/triggers from prototypes; lifetime controls cleanup.
+- Dependent items reduce polling: one master item, many derived metrics via preprocessing.
+- Preprocessing chain: JSONPath, regex, JavaScript, discard unchanged; steps execute in order.
+- Trigger dependencies suppress child triggers when a parent is in PROBLEM state; prevents alert storms.
+- Hybrid approach is common: agent for servers, SNMP for network, HTTP for APIs.
 
-- **Trigger A depends on trigger B**: If B is in problem state, A is **not** evaluated (suppressed); when B recovers, A is evaluated again.
-- Use when **B** = “Host unreachable” and **A** = “High CPU”; avoid hundreds of triggers firing when host is down.
-- **Dependency** is on **trigger**, not item; set in trigger config “Depends on”.
-
-# Summary
-
-- Choose **agent** for rich OS/app metrics; **agentless** for devices or when agent not possible.
-- Use **active** agents when scaling or when hosts are behind NAT.
-- Use **LLD** for dynamic entities (disks, NICs); **dependent items** to parse one script into many metrics; **preprocessing** to transform and reduce noise.
-- Use **trigger dependencies** to suppress cascades when a parent (e.g. host down) is in problem state.
+Related notes: [../000-core](../000-core.md), [001-zabbix-overview](./001-zabbix-overview.md), [002-items-triggers](./002-items-triggers.md), [003-actions-templates](./003-actions-templates.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
