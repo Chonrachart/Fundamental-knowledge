@@ -214,4 +214,5 @@ Problem: Symptom appears — general diagnostic sequence
 - [010-shell-environment-and-path](./010-shell-environment-and-path.md) -- PATH, env variables, .bashrc, .profile, login vs non-login shells
 - [011-task-scheduling-cron](./011-task-scheduling-cron.md) -- cron, crontab, at, systemd timers, scheduled jobs
 - [012-network-storage](./012-network-storage.md) -- NFS, iSCSI, SMB/CIFS, SAN vs NAS, multipath, autofs
+- [013-snapshots](./013-snapshots.md) -- CoW, LVM, Btrfs, ZFS, VM, cloud EBS/RDS, Kubernetes CSI, database snapshots
 - [Networking/000-core](./Networking/000-core.md) -- Linux networking: interfaces, ip, routes, sockets, DNS, firewall, namespaces
