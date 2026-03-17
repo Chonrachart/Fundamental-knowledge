@@ -149,7 +149,7 @@ Related notes:
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: sed substitution makes no change

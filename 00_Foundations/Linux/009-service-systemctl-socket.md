@@ -164,7 +164,7 @@ Related notes:
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Service fails to start

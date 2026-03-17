@@ -187,7 +187,7 @@ Related notes: [008-Packet-flow](./008-Packet-flow.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Traffic being dropped?

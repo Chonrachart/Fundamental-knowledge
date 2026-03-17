@@ -142,7 +142,7 @@ Related notes:
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Mount fails with "wrong fs type" or "can't read superblock"

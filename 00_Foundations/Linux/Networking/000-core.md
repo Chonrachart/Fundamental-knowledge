@@ -176,7 +176,7 @@ dig example.com
 
 One tool per layer: `ip` for interfaces/routes, `ss` for sockets, `iptables`/`nft` for firewall.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Network issue?

@@ -184,7 +184,7 @@ Ctrl + R         # reverse search through history (repeat to go further back)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: "command not found"

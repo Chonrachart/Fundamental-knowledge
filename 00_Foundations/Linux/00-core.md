@@ -172,7 +172,7 @@ journalctl -u <service> -n 100 --no-pager
 
 - These commands cover most first-pass Linux troubleshooting.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Symptom appears — general diagnostic sequence

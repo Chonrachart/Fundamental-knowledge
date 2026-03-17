@@ -148,7 +148,7 @@ chmod 700 /path/to/job.sh           # only owner can read/execute
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Cron job not running

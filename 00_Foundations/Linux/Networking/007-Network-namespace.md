@@ -175,7 +175,7 @@ Related notes: [002-ip-command](./002-ip-command.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Cannot reach from namespace?

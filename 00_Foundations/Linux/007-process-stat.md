@@ -163,7 +163,7 @@ Related notes:
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Process using too much CPU / memory

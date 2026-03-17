@@ -102,7 +102,7 @@ Related notes:
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: apt install fails with "Unable to locate package"

@@ -153,7 +153,7 @@ Related notes: [007-Network-namespace](./007-Network-namespace.md)
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Network not working after ip configuration?

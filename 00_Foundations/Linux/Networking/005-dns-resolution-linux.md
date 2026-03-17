@@ -155,7 +155,7 @@ resolvectl flush-caches
 resolvectl status
 ```
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Name not resolving?

@@ -151,7 +151,7 @@ mdadm --detail /dev/md0      # detailed array info
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: Disk full — "No space left on device"

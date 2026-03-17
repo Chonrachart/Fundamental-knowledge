@@ -184,7 +184,7 @@ cat /proc/net/tcp
 
 `ss` is the go-to tool for socket inspection on modern Linux.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Service not reachable?

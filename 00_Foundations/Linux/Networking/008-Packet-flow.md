@@ -171,7 +171,7 @@ Related notes: [003-Route-table](./003-Route-table.md), [006-firewall-iptables-n
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Packet not reaching destination?

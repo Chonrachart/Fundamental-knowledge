@@ -155,7 +155,7 @@ ip link set veth0 master br0
 
 Use `ip link` for interface state, `ip addr` for addresses.
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Interface not working?

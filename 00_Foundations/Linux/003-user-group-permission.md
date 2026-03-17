@@ -166,7 +166,7 @@ setfacl -b <path>                   # remove all ACL entries
 
 ---
 
-# Troubleshooting Flow (Quick)
+# Troubleshooting Guide
 
 ```text
 Problem: "Permission denied"
