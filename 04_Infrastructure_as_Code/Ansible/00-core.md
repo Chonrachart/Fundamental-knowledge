@@ -203,3 +203,4 @@ ansible-galaxy collection install -r collections/requirements.yml
 - [008-vault-secrets](./008-vault-secrets.md) — secrets, vault encrypt/decrypt
 - [009-dynamic-inventory-and-cloud](./009-dynamic-inventory-and-cloud.md) — dynamic inventory, plugins
 - [010-best-practices-testing](./010-best-practices-testing.md) — structure, lint, molecule
+- [011-command-shell-execution](./011-command-shell-execution.md) — command, shell, raw, script modules and idempotency guards
