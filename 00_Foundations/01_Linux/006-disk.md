@@ -28,6 +28,8 @@ Physical disk (/dev/sda, /dev/sdb, /dev/nvme0n1)
 
 LVM flow: `Disk → pvcreate → vgcreate → lvcreate → mkfs → mount`
 
+![LVM](./pic/LVM.png)
+
 
 # Mental Model: LVM Resize
 
@@ -72,6 +74,8 @@ swapoff /dev/sdX1           # disable swap
 - Add to `/etc/fstab` for permanent swap: `UUID=... none swap sw 0 0`
 
 ### Links
+
+![soft-link-vs-hard-link](./pic/soft_link_vs_hard_link.png)
 
 ```bash
 ln <source> <link_name>         # hard link

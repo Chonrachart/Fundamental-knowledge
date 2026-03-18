@@ -7,6 +7,8 @@
 
 # Permission Model
 
+![permission](./pic/permission.png)
+
 ```text
 File: /etc/nginx/nginx.conf
   -rw-r--r--  1  root  root  1234  Jan 1 00:00
