@@ -124,7 +124,7 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md), 
 - Signed by a Certificate Authority (CA); trusted chain
 - Used in TLS/HTTPS, code signing, email (S/MIME)
 
-Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS and SSL cert chain](../Networking/006-TLS-and-SSL-cert-chain.md)
+Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
 
 ---
 

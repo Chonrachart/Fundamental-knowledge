@@ -100,7 +100,7 @@ Related notes: [001-cryptography](./001-cryptography.md), [003-symmetric-vs-asym
 - **Renew** — generate new CSR or use ACME for automated renewal
 - **Revoke** — notify CA to add serial to CRL / OCSP; reasons include key compromise, change of affiliation
 
-Related notes: [TLS and SSL cert chain](../Networking/006-TLS-and-SSL-cert-chain.md)
+Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
 
 ### Certificate Formats
 
@@ -146,7 +146,7 @@ sudo certbot renew --dry-run
 #   chain.pem      — intermediate only
 ```
 
-Related notes: [TLS and SSL cert chain](../Networking/006-TLS-and-SSL-cert-chain.md)
+Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
 
 ### Certificate Pinning
 
@@ -182,7 +182,7 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
   - `ssl_client_certificate /path/to/ca.pem;`
   - `ssl_verify_client on;`
 
-Related notes: [TLS and SSL cert chain](../Networking/006-TLS-and-SSL-cert-chain.md), [004-authentication](./004-authentication.md)
+Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md), [004-authentication](./004-authentication.md)
 
 ---
 

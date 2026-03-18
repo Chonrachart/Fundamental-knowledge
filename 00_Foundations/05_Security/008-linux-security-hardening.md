@@ -151,7 +151,7 @@ sudo ausearch -m avc -ts recent              # find recent denials
 sudo sealert -a /var/log/audit/audit.log     # human-readable analysis
 ```
 
-Related notes: [005-authorization](./005-authorization.md), [003-user-group-permission](../Linux/003-user-group-permission.md)
+Related notes: [005-authorization](./005-authorization.md), [003-user-group-permission](../01_Linux/003-user-group-permission.md)
 
 ### AppArmor
 
@@ -223,7 +223,7 @@ sudo aureport --summary                        # overall summary
 sudo aureport --file --summary                 # file access summary
 ```
 
-Related notes: [003-user-group-permission](../Linux/003-user-group-permission.md)
+Related notes: [003-user-group-permission](../01_Linux/003-user-group-permission.md)
 
 ### Sysctl Security Hardening
 
@@ -278,7 +278,7 @@ EOF
 sudo sysctl --system
 ```
 
-Related notes: [firewall-iptables-nftable](../Linux/Networking/006-firewall-iptables-nftable.md)
+Related notes: [firewall-iptables-nftable](../01_Linux/Networking/006-firewall-iptables-nftable.md)
 
 ### SUID/SGID Audit
 
@@ -306,7 +306,7 @@ sudo chmod u-s /path/to/binary
 # Investigate any unfamiliar SUID binary
 ```
 
-Related notes: [003-user-group-permission](../Linux/003-user-group-permission.md)
+Related notes: [003-user-group-permission](../01_Linux/003-user-group-permission.md)
 
 ### File Integrity Monitoring (AIDE)
 

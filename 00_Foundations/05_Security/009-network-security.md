@@ -103,7 +103,7 @@ Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md)
 - **Micro-segmentation** — granular network segments (per workload or per service); enforce policy at each boundary
 - Implementation tools: service mesh (Istio), identity-aware proxy (BeyondCorp), software-defined perimeter (SDP)
 
-Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md), [TLS and SSL cert chain](../Networking/006-TLS-and-SSL-cert-chain.md)
+Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md), [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
 
 ### Network Segmentation
 
@@ -129,7 +129,7 @@ Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md)
 - Firewall rules between segments control which traffic crosses boundaries
 - Modern: microsegmentation with host-based firewalls, network policies (Kubernetes NetworkPolicy), or service mesh
 
-Related notes: [firewall-iptables-nftable](../Linux/Networking/006-firewall-iptables-nftable.md)
+Related notes: [firewall-iptables-nftable](../01_Linux/Networking/006-firewall-iptables-nftable.md)
 
 ### IDS/IPS
 
@@ -185,7 +185,7 @@ Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md)
 - WAF modes: detection only (log) vs. prevention (block)
 - Must be tuned to reduce false positives — generic rules may block legitimate traffic
 
-Related notes: [TLS and SSL cert chain](../Networking/006-TLS-and-SSL-cert-chain.md)
+Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
 
 ### DDoS Mitigation
 
@@ -215,7 +215,7 @@ sudo sysctl -w net.ipv4.tcp_syncookies=1
 sudo sysctl -w net.ipv4.tcp_max_syn_backlog=4096
 ```
 
-Related notes: [firewall-iptables-nftable](../Linux/Networking/006-firewall-iptables-nftable.md)
+Related notes: [firewall-iptables-nftable](../01_Linux/Networking/006-firewall-iptables-nftable.md)
 
 ### Security Monitoring and SIEM
 
