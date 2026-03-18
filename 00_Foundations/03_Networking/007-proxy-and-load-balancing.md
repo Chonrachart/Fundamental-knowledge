@@ -5,6 +5,7 @@
 - Load balancing distributes traffic across multiple backend servers using algorithms like round robin, least connections, or IP hash.
 
 # Architecture
+![proxy](./pic/proxy.png)
 
 ```text
 Forward Proxy:
