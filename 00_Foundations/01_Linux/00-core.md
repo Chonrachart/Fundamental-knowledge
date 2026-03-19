@@ -7,7 +7,7 @@
 
 # Linux System Architecture
 
-![linux-architecture](./pic/linux_architecture.PNG)
+![linux-architecture](./pic/linux_architecture.png)
 
 ```text
 User Applications (bash, nginx, python, vim)

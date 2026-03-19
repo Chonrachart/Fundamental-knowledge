@@ -6,6 +6,8 @@
 
 # Architecture
 
+![OSI vs TCP/IP Model](./pic/osi-tcpip-model.png)
+
 ```text
         OSI Model (7 layers)              TCP/IP Model (4 layers)
   +---------------------------+     +---------------------------+
