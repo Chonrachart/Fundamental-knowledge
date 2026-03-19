@@ -1,13 +1,3 @@
-registry
-tag
-push
-pull
-digest
-insecure
-login
-
----
-
 # What Is a Registry
 
 - **Registry** = server that stores and serves Docker images (and optionally OCI images).
@@ -77,3 +67,24 @@ docker pull myregistry.com/myapp:1.0
 - In CI/CD, **push by digest** or tag from commit SHA so every build is traceable.
 - Use **digest in production** when you need exact image; re-pull by tag for "latest" of a stream.
 - Avoid storing registry credentials in plain text; use **credential helpers** or orchestrator image pull secrets.
+
+Related notes: [005-images-layers-cache](./005-images-layers-cache.md)
+
+---
+
+# Troubleshooting Guide
+
+### "denied: requested access to the resource is denied"
+1. Check login: `docker login <registry>`.
+2. Check image name matches your repo: `docker tag myapp <registry>/<repo>:tag`.
+3. Check write access to the repository.
+
+### "manifest unknown" on pull
+1. Tag does not exist: verify tag on registry (web UI or `docker manifest inspect`).
+2. Check for typos in image name or tag.
+3. If using digest, confirm it exists: `docker manifest inspect <image>@sha256:...`.
+
+### Pull is slow or times out
+1. Check proxy settings: `docker info | grep -i proxy`.
+2. Check DNS: `nslookup registry-1.docker.io`.
+3. For corporate environments: configure registry mirror in `/etc/docker/daemon.json`.

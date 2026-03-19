@@ -1,18 +1,17 @@
-layer
-cache
-build context
-.dockerignore
-multi-stage
-image size
-
----
-
 # How Layers Work
 
 - Each Dockerfile instruction (except a few like ENV that can be merged) creates a **read-only layer**.
 - Layers are stacked; top layer is the final filesystem view.
 - When you run a container, Docker adds a **writable layer** on top of the image layers; all writes go there (copy-on-write).
 - **Layer = diff** from previous layer; stored by content hash; same layer can be shared across images.
+
+![Container layers with writable layer](../pic/container-layers.png)
+
+### Multiple Containers Sharing Layers
+
+Multiple containers from the same image share all read-only layers; each gets its own thin writable layer.
+
+![Sharing layers across containers](../pic/sharing-layers.png)
 
 # Why Order Matters
 
@@ -79,3 +78,25 @@ CMD ["nginx", "-g", "daemon off;"]
 - Modern build engine (enable with DOCKER_BUILDKIT=1 or in daemon config).
 - Parallel stage builds, better cache, **RUN --mount=type=cache** for persistent cache across builds.
 - **--mount=type=secret**: Mount secret at build time without leaving it in image.
+
+Related notes: [003-dockerfile](./003-dockerfile.md), [006-registry-tagging-push-pull](./006-registry-tagging-push-pull.md)
+
+---
+
+# Troubleshooting Guide
+
+### Build is slow / not using cache
+1. Check instruction order: put `COPY package*.json` + `RUN npm ci` before `COPY . .`.
+2. Check if `.dockerignore` excludes unnecessary files (node_modules, .git, logs).
+3. Enable BuildKit: `DOCKER_BUILDKIT=1 docker build .` — parallel builds and better cache.
+
+### Image unexpectedly large
+1. Check layer sizes: `docker history <image>`.
+2. Look for large RUN layers that install + don't clean: combine `apt install && rm -rf /var/lib/apt/lists/*`.
+3. Use multi-stage build to exclude build tools from final image.
+4. Check if `.dockerignore` is missing — entire build context (including .git) may be copied.
+
+### "layer does not exist" or "manifest unknown"
+1. Image may have been deleted from registry or local cache.
+2. Try `docker pull <image>` again.
+3. If using digest, verify it still exists in registry.

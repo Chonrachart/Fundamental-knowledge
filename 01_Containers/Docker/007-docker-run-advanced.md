@@ -1,14 +1,3 @@
-docker run
-options
-flags
-detach
-publish
-environment
-limit
-restart
-
----
-
 # docker run — Full Picture
 
 - Creates a new container from an image and starts it.
@@ -103,3 +92,24 @@ docker run -m 512m --cpus=0.5 myapp
 | --user | -u | Run as user |
 | --network | | Attach network |
 | --entrypoint | | Override entrypoint |
+
+Related notes: [004-docker-network-volume](./004-docker-network-volume.md), [008-security-user-best-practices](./008-security-user-best-practices.md)
+
+---
+
+# Troubleshooting Guide
+
+### Container OOM killed
+1. Check: `docker inspect <ctr> | grep OOMKilled`.
+2. Increase memory limit: `-m 1g`.
+3. Profile app memory usage; fix leaks.
+
+### Container keeps restarting
+1. Check restart policy: `docker inspect <ctr> --format '{{.HostConfig.RestartPolicy.Name}}'`.
+2. Check logs for crash reason: `docker logs --tail 50 <ctr>`.
+3. Use `on-failure:3` to limit retries instead of `always`.
+
+### Environment variables not set inside container
+1. Verify: `docker exec <ctr> env | grep <VAR>`.
+2. Check `-e` syntax: `-e KEY=value` (no spaces around `=`).
+3. Check `--env-file` format: one `KEY=value` per line, no quotes needed.

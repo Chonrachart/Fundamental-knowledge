@@ -1,12 +1,3 @@
-security
-non-root
-USER
-secrets
-scan
-best practices
-
----
-
 # Run as Non-Root
 
 - Running as root inside container increases risk; if process is compromised, attacker has root in container.
@@ -59,3 +50,24 @@ CMD ["node", "index.js"]
 - Prefer read-only root where possible.
 - Drop unneeded capabilities.
 - Scan images regularly.
+
+Related notes: [003-dockerfile](./003-dockerfile.md), [007-docker-run-advanced](./007-docker-run-advanced.md)
+
+---
+
+# Troubleshooting Guide
+
+### App fails after switching to non-root USER
+1. Check file ownership: `docker exec <ctr> ls -la /app`.
+2. Add `chown` before USER in Dockerfile: `COPY --chown=app:app . .`.
+3. Ensure writable dirs exist: `RUN mkdir -p /app/data && chown app:app /app/data`.
+
+### "read-only file system" errors with --read-only
+1. App needs writable paths: add `--tmpfs /tmp` for temp files.
+2. Mount volume for data dirs: `-v data:/app/data`.
+3. Check app logs to identify which path it tries to write.
+
+### Vulnerability scanner finds CVEs in base image
+1. Update base image tag: `FROM nginx:1.27-alpine` (latest patch).
+2. Rebuild: `docker build --no-cache -t myapp .`.
+3. Consider `distroless` base for fewer packages and attack surface.

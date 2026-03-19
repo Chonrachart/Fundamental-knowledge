@@ -1,16 +1,3 @@
-docker run
-docker ps
-docker logs
-docker exec
-docker stop
-docker rm
-basics
--d
--p
---name
-
----
-
 # Running Your First Container
 
 - **docker run image** — create and start a container from an image; if image not local, Docker pulls it.
@@ -90,3 +77,25 @@ docker rm -f web
 | 4 | docker exec -it web sh | Open shell inside container |
 | 5 | docker stop web | Stop container |
 | 6 | docker rm web | Remove container |
+
+Related notes: [001-docker-overview](./001-docker-overview.md), [007-docker-run-advanced](./007-docker-run-advanced.md)
+
+---
+
+# Troubleshooting Guide
+
+### Container exits immediately after `docker run -d`
+1. Check exit code: `docker ps -a` — look at STATUS (e.g. Exited(1)).
+2. Check logs: `docker logs <container>`.
+3. Common: CMD runs a command that finishes (e.g. `echo`); use a long-running process.
+4. Debug interactively: `docker run -it --entrypoint sh <image>`.
+
+### "port is already allocated"
+1. Another process uses the host port: `ss -tlnp | grep <port>`.
+2. Kill the process or choose a different host port: `-p 8081:80`.
+3. Check for stopped containers still holding the port: `docker ps -a`.
+
+### `docker exec` fails with "is not running"
+1. Container must be running: `docker ps` — not in `docker ps -a` only.
+2. Start it: `docker start <container>`.
+3. If it keeps exiting, check logs first: `docker logs <container>`.

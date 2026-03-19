@@ -1,16 +1,30 @@
-Compose
-docker-compose
-service
-network
-depends_on
-
----
-
 # Docker Compose
 
 - Define and run multi-container apps with a YAML file (`docker-compose.yml`).
 - One project per directory; `docker compose up` starts all services.
 - Use for local dev, integration tests; production often uses Kubernetes or similar.
+
+### How Compose Works
+
+```text
+docker-compose.yml
+       │
+  docker compose up
+       │
+  ┌────┴─────────────────────┐
+  │  Project Network (auto)  │
+  │                          │
+  │  ┌─────┐    ┌─────┐     │
+  │  │ web │───▶│ db  │     │
+  │  │:8080│    │:5432│     │
+  │  └─────┘    └──┬──┘     │
+  │                │        │
+  │           ┌────┴────┐   │
+  │           │ dbdata  │   │
+  │           │(volume) │   │
+  │           └─────────┘   │
+  └──────────────────────────┘
+```
 
 # Service
 
@@ -76,3 +90,28 @@ docker compose ps
 docker compose logs -f web
 docker compose exec web sh
 ```
+
+Related notes: [010-compose-production-patterns](./010-compose-production-patterns.md), [004-docker-network-volume](./004-docker-network-volume.md)
+
+---
+
+# Troubleshooting Guide
+
+### "service web depends on db which is undefined"
+1. Check indentation in YAML — `depends_on` must list valid service names.
+2. Verify service name spelling matches exactly.
+
+### Containers start but app can't connect to DB
+1. `depends_on` only waits for container start, not readiness.
+2. Add `healthcheck` on DB + `condition: service_healthy` on app.
+3. Or use entrypoint script that waits: `wait-for-it.sh db:5432`.
+
+### "network xxx not found" after down/up
+1. Run `docker compose down` to clean up old networks.
+2. Then `docker compose up -d` to recreate.
+3. Check for orphan containers: `docker compose down --remove-orphans`.
+
+### Volume data lost after `docker compose down`
+1. `down` removes containers and networks but NOT named volumes.
+2. `down -v` removes volumes too — avoid unless intended.
+3. Use named volumes (declared in top-level `volumes:`) for persistence.

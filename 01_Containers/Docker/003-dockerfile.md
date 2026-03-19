@@ -1,14 +1,3 @@
-Dockerfile
-FROM
-RUN
-COPY
-CMD
-ENTRYPOINT
-layer
-cache
-
----
-
 # Dockerfile
 
 - Text file named `Dockerfile`; instructions build an image layer by layer.
@@ -77,3 +66,29 @@ CMD ["serve"]
 - Put rarely changing instructions first so cache is reused.
 - Use .dockerignore to exclude files from build context.
 - Pin versions for base image and packages.
+
+Related notes: [005-images-layers-cache](./005-images-layers-cache.md), [008-security-user-best-practices](./008-security-user-best-practices.md)
+
+---
+
+# Troubleshooting Guide
+
+### Build fails with "COPY failed: file not found"
+1. Check file exists in build context (same dir as Dockerfile): `ls <file>`.
+2. Check `.dockerignore` — it may exclude the file.
+3. Verify path is relative to build context, not Dockerfile location.
+
+### Build cache not working (rebuilds every time)
+1. Check if files copied before RUN changed: any file change invalidates cache for that COPY and all after.
+2. Move `COPY package*.json` before `RUN npm ci`, then `COPY . .` after.
+3. Check if `--no-cache` is being passed.
+
+### CMD not running / container exits
+1. Shell form `CMD command` runs under `/bin/sh -c` — if `sh` missing (distroless), use exec form.
+2. Exec form: `CMD ["node", "index.js"]` — must be JSON array with double quotes.
+3. If ENTRYPOINT is set, CMD becomes arguments to ENTRYPOINT.
+
+### Image too large
+1. Check base image: switch to `alpine` or `distroless`.
+2. Use multi-stage build: build in first stage, copy only artifacts to final.
+3. Combine RUN and clean in same layer: `RUN apt install && rm -rf /var/lib/apt/lists/*`.

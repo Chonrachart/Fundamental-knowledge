@@ -1,14 +1,3 @@
-Compose
-production
-override
-env file
-healthcheck
-dependency
-scale
-profiles
-
----
-
 # Compose in Production — When and When Not
 
 - **docker compose** is suitable for **single-node** stacks (e.g. small app + DB + cache); same host, simple networking.
@@ -65,3 +54,24 @@ services:
 - **.env** file (in project dir): **KEY=value**; used for **${KEY}** in compose file (image tag, port, env_file path).
 - **env_file** in service: Passed **into** container as env vars; **.env** for compose file is **not** automatically passed to containers unless you **env_file: .env**.
 - **environment** with **${VAR}**: Substituted from host env or .env; use for overrides per environment.
+
+Related notes: [009-compose-basics](./009-compose-basics.md)
+
+---
+
+# Troubleshooting Guide
+
+### Override file not being applied
+1. `docker-compose.override.yml` is auto-merged only with `docker compose up` (not `-f`).
+2. With `-f`: must list all files: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up`.
+3. Check file naming — must be exact: `docker-compose.override.yml`.
+
+### Healthcheck always shows "unhealthy"
+1. Test the command manually: `docker exec <ctr> pg_isready -U postgres`.
+2. Increase `start_period` — app may need more time to initialize.
+3. Increase `retries` and `interval` for slow-starting services.
+
+### ${VAR} not substituted in compose file
+1. Check `.env` file exists in project root (same dir as compose file).
+2. Verify format: `KEY=value` (no spaces, no export prefix).
+3. Check for typos: `${DB_HOST}` in compose must match `DB_HOST=...` in `.env`.
