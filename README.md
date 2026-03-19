@@ -9,13 +9,13 @@ Personal technical knowledge base — structured Markdown reference notes coveri
    01_Linux/                  Core OS, filesystem, process, disk, logs, networking
    02_Shell_Script/           Bash scripting: variables, control flow, functions, patterns
    03_Networking/             OSI/TCP-IP models, HTTP/HTTPS, TLS, proxy, VPN
-   04_DNS_Deep_Dive/          Record types, service discovery, DNS operations
-   05_Security/               Cryptography, auth, PKI, hardening, network security
-   06_YAML_and_JSON/          Data and config format syntax, tools, validation
-   07_Git_and_Github/         Git workflow, branching, PRs, tags, strategies
-   08_Python/                 Variables, control flow, OOP, decorators, generators
-   09_API_and_REST/           REST concepts, authentication, curl usage
-   10_Database/               SQL, replication, HA, backup, monitoring, containers
+      004_DNS_Deep_Dive/      Record types, service discovery, DNS operations
+   04_Security/               Cryptography, auth, PKI, hardening, network security
+   05_YAML_and_JSON/          Data and config format syntax, tools, validation
+   06_Git_and_Github/         Git workflow, branching, PRs, tags, strategies
+   07_Python/                 Variables, control flow, OOP, decorators, generators
+   08_API_and_REST/           REST concepts, authentication, curl usage
+   09_Database/               SQL, replication, HA, backup, monitoring, containers
 
 01_Containers/
    Docker/                    Images, containers, networking, volumes, Compose, security
