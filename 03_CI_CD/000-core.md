@@ -1,14 +1,3 @@
-overview of
-
-    CI
-    CD
-    pipeline
-    build
-    test
-    deploy
-
----
-
 # CI (Continuous Integration)
 
 - Automatically build and test code when changes are pushed.
@@ -54,10 +43,12 @@ overview of
 ### GitHub Actions
 - [Github_Action/001-github-actions-overview](./Github_Action/001-github-actions-overview.md) — Workflow, job, step, trigger (start here)
 - [Github_Action/002-workflow-syntax](./Github_Action/002-workflow-syntax.md) — on, jobs, env, matrix, needs
-- [Github_Action/003-secrets-cache](./Github_Action/003-secrets-cache.md) — Secrets, cache, artifacts, environments
-- [Github_Action/004-real-world-examples](./Github_Action/004-real-world-examples.md) — Node, Docker, deploy examples
-- [Github_Action/005-expressions-contexts](./Github_Action/005-expressions-contexts.md) — Expressions, contexts, outputs, hashFiles
+- [Github_Action/003-expressions-contexts](./Github_Action/003-expressions-contexts.md) — Expressions, contexts, outputs, hashFiles
+- [Github_Action/004-secrets-cache](./Github_Action/004-secrets-cache.md) — Secrets, cache, artifacts, environments
+- [Github_Action/005-real-world-examples](./Github_Action/005-real-world-examples.md) — Node, Docker, deploy examples
 - [Github_Action/006-reusable-workflows-debugging](./Github_Action/006-reusable-workflows-debugging.md) — Reusable workflows, composite actions, debugging
+- [Github_Action/007-security-oidc](./Github_Action/007-security-oidc.md) — OIDC cloud auth, permissions hardening, supply chain, fork safety
+- [Github_Action/008-self-hosted-runners](./Github_Action/008-self-hosted-runners.md) — Self-hosted runners, labels, groups, security, auto-scaling
 
 ### Argo CD
 - [Argo_CD/001-argocd-overview](./Argo_CD/001-argocd-overview.md) — Architecture, components, Application CRD, Web UI, CLI

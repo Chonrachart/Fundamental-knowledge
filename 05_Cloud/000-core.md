@@ -1,41 +1,42 @@
-overview of
+# Cloud Computing
 
-    cloud
-    IaaS
-    PaaS
-    SaaS
-    region
-    availability zone
+- Cloud delivers compute, storage, networking, and databases as on-demand services over the internet.
+- Service models: IaaS (infrastructure), PaaS (platform), SaaS (software) — each abstracts more from the customer.
+- Key properties: elasticity (scale up/down), pay-per-use, global availability, managed services.
+
+# Core Building Blocks
+
+### IaaS, PaaS, SaaS
+
+| Model | You Manage | Provider Manages | Example |
+|-------|-----------|-----------------|---------|
+| IaaS | OS, runtime, app, data | Hardware, network, virtualization | EC2, GCE |
+| PaaS | App and data | OS, runtime, infra | Elastic Beanstalk, Heroku |
+| SaaS | Nothing (use it) | Everything | Gmail, Slack |
+
+### Region and Availability Zone
+
+- **Region**: Geographic area with multiple data centers (e.g. us-east-1, eu-west-1).
+- **Availability Zone (AZ)**: Isolated data center(s) within a region; deploy across AZs for HA.
+- **Edge Location**: CDN/DNS point of presence for low-latency content delivery.
+
+### Shared Responsibility
+
+- **Provider**: Physical security, hardware, networking, hypervisor.
+- **Customer**: Data, identity, access control, OS patching (IaaS), application config.
+- PaaS/SaaS shifts more responsibility to provider; IaaS gives you more control.
 
 ---
 
-# Cloud
-
-- On-demand compute, storage, and services over the internet; pay per use.
-- Scalable; no need to own and maintain physical hardware.
-
-# IaaS, PaaS, SaaS
-
-- **IaaS**: Virtual machines, networks, storage (e.g. EC2, VPC).
-- **PaaS**: Runtime and platform (e.g. managed DB, app runtimes).
-- **SaaS**: Application delivered over the web (e.g. Gmail, Salesforce).
-
-# Region / Availability Zone
-
-- **Region**: Geographic area (e.g. us-east-1); contains multiple AZs.
-- **Availability Zone**: Isolated datacenter(s) in a region; use multiple AZs for resilience.
-
-# Shared Responsibility
-
-- **Cloud provider**: Security of cloud (hardware, hypervisor, physical network); managed service patching.
-- **Customer**: Security in cloud (OS, app, IAM, network config, data encryption).
-- IaaS: more customer responsibility; SaaS: less.
-
 # Topic Map (basic → advanced)
 
-- [AWS/001-aws-overview](./AWS/001-aws-overview.md) — Region, AZ, EC2, VPC, S3, IAM (start here)
-- [AWS/002-ec2-vpc](./AWS/002-ec2-vpc.md) — EC2, AMI, security group, VPC, subnet, NAT
-- [AWS/003-s3-iam](./AWS/003-s3-iam.md) — S3, bucket, storage class, IAM, policy, role
-- [AWS/004-rds-lambda](./AWS/004-rds-lambda.md) — RDS, Lambda, API Gateway
-- [AWS/005-ec2-deep-dive](./AWS/005-ec2-deep-dive.md) — Instance types, EBS, AMI, user data, instance profile
-- [AWS/006-vpc-networking-deep-dive](./AWS/006-vpc-networking-deep-dive.md) — VPC, route table, IGW, NAT, SG, NACL, peering
+### AWS
+- [AWS/001-aws-overview](./AWS/001-aws-overview.md) — Regions, AZs, service categories, pricing models
+- [AWS/002-iam](./AWS/002-iam.md) — Users, groups, roles, policies, least privilege
+- [AWS/003-vpc-networking](./AWS/003-vpc-networking.md) — VPC, subnets, routing, IGW, NAT, SG, NACL, peering
+- [AWS/004-ec2](./AWS/004-ec2.md) — Instance types, AMI, EBS, user data, instance profiles
+- [AWS/005-s3](./AWS/005-s3.md) — Buckets, objects, storage classes, versioning, lifecycle
+- [AWS/006-rds-databases](./AWS/006-rds-databases.md) — RDS, Multi-AZ, read replicas, Aurora, DynamoDB
+- [AWS/007-elb-auto-scaling](./AWS/007-elb-auto-scaling.md) — ALB, NLB, target groups, Auto Scaling Groups
+- [AWS/008-ecs-eks](./AWS/008-ecs-eks.md) — ECS, Fargate, EKS, ECR, container orchestration
+- [AWS/009-lambda-serverless](./AWS/009-lambda-serverless.md) — Lambda, API Gateway, event-driven patterns
