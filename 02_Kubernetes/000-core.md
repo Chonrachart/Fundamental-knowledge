@@ -183,3 +183,4 @@ Related notes: [008-resource-requests-limits](./008-resource-requests-limits.md)
 - [011-storage-pv-pvc](./011-storage-pv-pvc.md) — PersistentVolume, PVC, StorageClass, dynamic provisioning
 - [012-network-policies](./012-network-policies.md) — NetworkPolicy, ingress/egress rules, default deny, CNI
 - [013-node-management](./013-node-management.md) — Taints, tolerations, affinity, cordon, drain
+- [014-cert-manager](./014-cert-manager.md) — TLS certificate automation, Issuers, ACME, Ingress integration
