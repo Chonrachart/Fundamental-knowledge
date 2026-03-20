@@ -4,7 +4,7 @@
 - It operates across multiple layers — from perimeter firewalls to application-level WAFs — following a defense-in-depth strategy
 - Modern approaches combine traditional perimeter controls with zero-trust principles: verify every request, enforce least privilege, and assume breach
 
-## Architecture
+# Architecture
 
 ```text
   ┌─────────────────────────────────────────────────────────────────┐
@@ -29,7 +29,7 @@
   └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Mental Model
+# Mental Model
 
 ```text
   Segment         Control          Detect           Respond
@@ -66,7 +66,7 @@ Example: basic network segmentation with a DMZ.
   └──────────────┘
 ```
 
-## Core Building Blocks
+# Core Building Blocks
 
 ### Defense in Depth
 
@@ -249,40 +249,45 @@ Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md)
 
 ---
 
-## Troubleshooting Guide
+# Troubleshooting Guide
 
-```text
-  Network security issue?
-    │
-    ├─ Suspected intrusion
-    │    └─► check IDS alerts: snort/suricata logs
-    │         └─► correlate with SIEM (timeline, source IP, target)
-    │              └─► check host: ausearch, file integrity (AIDE)
-    │                   └─► contain: isolate host, block IP at firewall
-    │
-    ├─ DDoS / high traffic
-    │    └─► identify type: check traffic pattern (volumetric vs app-layer)
-    │         ├─► volumetric → enable CDN/scrubbing, blackhole if needed
-    │         └─► app-layer → WAF rules, rate limiting, CAPTCHA
-    │
-    ├─ Legitimate traffic blocked by WAF
-    │    └─► check WAF logs for the blocking rule ID
-    │         └─► whitelist the request pattern or tune the rule
-    │              └─► test in detection-only mode before re-enabling
-    │
-    ├─ Lateral movement detected (east-west)
-    │    └─► review network segmentation: are VLANs/firewalls in place?
-    │         └─► check for flat network → implement microsegmentation
-    │              └─► audit firewall rules between segments
-    │
-    └─ SIEM alert: correlation rule triggered
-         └─► investigate source events across all log sources
-              └─► determine true positive vs false positive
-                   ├─► true positive → follow incident response plan
-                   └─► false positive → tune correlation rule
-```
+### Suspected intrusion
 
-## Quick Facts (Revision)
+1. Check IDS alerts in Snort/Suricata logs for the source IP and attack signature.
+2. Correlate with SIEM: build a timeline of events from the source IP across all log sources.
+3. Check the affected host: `sudo ausearch -ts recent` and `sudo aide --check` for file integrity.
+4. Contain the threat: isolate the host from the network and block the source IP at the firewall.
+5. Follow the incident response plan for forensics and recovery.
+
+### DDoS or abnormally high traffic
+
+1. Identify the attack type by checking traffic patterns: `ss -s` for connection stats, `iftop` or `nethogs` for bandwidth.
+2. For volumetric attacks, enable CDN absorption or scrubbing; use blackhole routing as a last resort.
+3. For application-layer attacks, deploy WAF rules and rate limiting: `sudo iptables -A INPUT -p tcp --dport 80 -m connlimit --connlimit-above 50 -j DROP`.
+4. Enable SYN cookies if SYN flood is detected: `sudo sysctl -w net.ipv4.tcp_syncookies=1`.
+
+### Legitimate traffic blocked by WAF
+
+1. Check WAF logs for the specific blocking rule ID.
+2. Review the blocked request to confirm it is legitimate.
+3. Whitelist the request pattern or tune the rule to reduce false positives.
+4. Test the updated rule in detection-only mode before switching back to prevention mode.
+
+### Lateral movement detected (east-west traffic)
+
+1. Review network segmentation: verify VLANs and firewall rules between segments are in place.
+2. Check for flat network topology where east-west traffic flows unrestricted.
+3. Audit firewall rules between segments: `sudo iptables -L -n -v` or review network policy configurations.
+4. Implement microsegmentation using host-based firewalls, Kubernetes NetworkPolicy, or service mesh policies.
+
+### SIEM correlation rule triggered
+
+1. Investigate the source events across all contributing log sources.
+2. Determine whether it is a true positive or false positive by correlating timestamps, IPs, and user accounts.
+3. For true positives, follow the incident response plan: contain, eradicate, recover, and document.
+4. For false positives, tune the correlation rule thresholds or conditions to reduce noise.
+
+# Quick Facts (Revision)
 
 - Defense in depth layers: perimeter, network, host, application, data — each operates independently
 - Zero trust: never trust, always verify; three pillars are verify explicitly, least privilege, assume breach

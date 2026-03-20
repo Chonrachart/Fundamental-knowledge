@@ -11,20 +11,22 @@
 Task execution per host:
 
   evaluate when:
-    → false: SKIPPED
-    → true: proceed
+    -> false: SKIPPED
+    -> true: proceed
 
   evaluate loop (if present):
-    → iterate: run task once per item
-    → no loop:  run task once
+    -> iterate: run task once per item
+    -> no loop:  run task once
 
   evaluate block/rescue/always (if present):
-    → block fails: run rescue
-    → always:      run regardless
+    -> block fails: run rescue
+    -> always:      run regardless
 ```
 
 
-# when (Conditions)
+# Core Building Blocks
+
+### when (Conditions)
 
 ```yaml
 # fact-based condition
@@ -63,8 +65,10 @@ Task execution per host:
 - Multiple `when` items in a list = **AND** (all must be true).
 - Use `or` inside a single string for OR: `when: x == "a" or x == "b"`.
 
+Related notes:
+- [004-variables-facts-templating](./004-variables-facts-templating.md) — facts used in `when:`
 
-# loop
+### loop
 
 ```yaml
 # simple list
@@ -106,8 +110,7 @@ Task execution per host:
 
 - Default loop variable is `item`; rename with `loop_control.loop_var` to avoid conflicts in nested includes.
 
-
-# block / rescue / always
+### block / rescue / always
 
 ```yaml
 - name: Deploy application
@@ -121,7 +124,7 @@ Task execution per host:
   rescue:
     - name: Notify on failure
       ansible.builtin.debug:
-        msg: "Deployment failed — rolling back"
+        msg: "Deployment failed -- rolling back"
 
     - name: Restart previous version
       ansible.builtin.command: docker start myapp_prev
@@ -138,8 +141,7 @@ Task execution per host:
 - `always`: runs regardless of block/rescue outcome (like `finally`).
 - `when` on a block applies to all tasks inside it.
 
-
-# changed_when and failed_when
+### changed_when and failed_when
 
 ```yaml
 # command is read-only; never mark as changed
@@ -155,8 +157,7 @@ Task execution per host:
   failed_when: migrate_result.rc not in [0, 2]   # 2 = "already migrated"
 ```
 
-
-# retries / until
+### retries / until
 
 ```yaml
 - name: Wait for service to be healthy
@@ -174,7 +175,7 @@ Task execution per host:
 # Practical Command Set (Core)
 
 ```bash
-# run only tasks matching a condition (use tags instead — when is runtime)
+# run only tasks matching a condition (use tags instead -- when is runtime)
 ansible-playbook site.yml --tags deploy
 
 # check what tasks would run (dry-run)
@@ -191,9 +192,9 @@ ansible-playbook site.yml --check --diff
 
 ### Task unexpectedly skipped
 
-1. Add a debug task before it: `debug: var=<condition_variable>`.
+1. Add a debug task before it: `ansible.builtin.debug: var=<condition_variable>`.
 2. Check type (string `"false"` vs bool `false` -- use `| bool` filter).
-3. Check the fact value: `ansible web1 -m setup -a "filter=ansible_os_family"`.
+3. Check the fact value: `ansible web1 -m ansible.builtin.setup -a "filter=ansible_os_family"`.
 4. Verify the list variable is defined and non-empty before the loop.
 5. Check for a `loop_var` conflict if using nested `include_tasks` with loop.
 

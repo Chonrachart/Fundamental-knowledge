@@ -1,4 +1,12 @@
-# Run as Non-Root
+# Security, User, and Best Practices
+
+- Running containers as non-root reduces blast radius if a process is compromised.
+- Never store secrets in images; inject at runtime via env vars, mounted files, or orchestrator secrets.
+- Minimal base images, capability dropping, and image scanning form a defense-in-depth approach.
+
+# Core Building Blocks
+
+### Run as Non-Root
 
 - Running as root inside container increases risk; if process is compromised, attacker has root in container.
 - **USER** in Dockerfile: Switch to non-root user for subsequent instructions and at runtime.
@@ -13,35 +21,38 @@ USER app
 CMD ["node", "index.js"]
 ```
 
-# Do Not Store Secrets in Image
+### Do Not Store Secrets in Image
 
-- **Never** COPY .env or secret files into image; they stay in layers and can be extracted.
-- Use **runtime** injection: environment variables (docker run -e, orchestration secrets), or mounted secret files (Kubernetes secret mount, Docker secret).
-- For **build-time** secrets (private npm, apt repo): use Docker BuildKit **--secret** so they are not written into any layer; or use multi-stage and only copy non-secret artifacts.
+- Never COPY .env or secret files into image; they stay in layers and can be extracted.
+- Use runtime injection: environment variables (docker run -e, orchestration secrets), or mounted secret files (Kubernetes secret mount, Docker secret).
+- For build-time secrets (private npm, apt repo): use Docker BuildKit `--secret` so they are not written into any layer; or use multi-stage and only copy non-secret artifacts.
 
-# Read-Only and Immutable
+### Read-Only and Immutable
 
-- **--read-only**: Container root filesystem read-only; combine with **--tmpfs** for /tmp and writable volume for data.
+- **--read-only**: Container root filesystem read-only; combine with `--tmpfs` for /tmp and writable volume for data.
 - Makes it harder for an attacker to persist or modify files in the image.
 
-# Limit Capabilities
+### Limit Capabilities
 
 - By default containers run with a subset of Linux capabilities; some (e.g. CAP_NET_RAW) can be dropped.
-- **--cap-drop=ALL --cap-add=NET_BIND_SERVICE**: Drop all, add only what is needed.
+- `--cap-drop=ALL --cap-add=NET_BIND_SERVICE`: Drop all, add only what is needed.
 - Reduces impact of container escape or privilege misuse.
 
-# Resource Limits
+### Resource Limits
 
-- Always set **memory limit** (-m) and optionally **CPU** (--cpus) so one container cannot starve the host.
+- Always set memory limit (-m) and optionally CPU (--cpus) so one container cannot starve the host.
 - In production, use orchestrator (Kubernetes) to set requests/limits.
 
-# Image Scanning and Base Image
+Related notes:
+- [007-docker-run-advanced](./007-docker-run-advanced.md)
 
-- Use **trusted base images** (official, verified publisher); pin by digest for reproducibility.
+### Image Scanning and Base Image
+
+- Use trusted base images (official, verified publisher); pin by digest for reproducibility.
 - Scan images for known vulnerabilities (Trivy, Snyk, Docker Scout, registry scanners); fix or upgrade base and dependencies.
 - Prefer minimal bases (alpine, distroless) to reduce attack surface.
 
-# Summary Checklist
+### Security Checklist
 
 - Run as non-root (USER).
 - No secrets in image; inject at runtime or use build secrets.
@@ -51,7 +62,9 @@ CMD ["node", "index.js"]
 - Drop unneeded capabilities.
 - Scan images regularly.
 
-Related notes: [003-dockerfile](./003-dockerfile.md), [007-docker-run-advanced](./007-docker-run-advanced.md)
+Related notes:
+- [003-dockerfile](./003-dockerfile.md)
+- [007-docker-run-advanced](./007-docker-run-advanced.md)
 
 ---
 
@@ -71,3 +84,15 @@ Related notes: [003-dockerfile](./003-dockerfile.md), [007-docker-run-advanced](
 1. Update base image tag: `FROM nginx:1.27-alpine` (latest patch).
 2. Rebuild: `docker build --no-cache -t myapp .`.
 3. Consider `distroless` base for fewer packages and attack surface.
+
+---
+
+# Quick Facts (Revision)
+
+- Always use USER in Dockerfile to run as non-root; create the user with adduser/addgroup.
+- Never COPY secrets into image layers; use `--secret` at build time or env vars at runtime.
+- `--read-only` + `--tmpfs /tmp` + volumes = immutable container with controlled writable paths.
+- `--cap-drop=ALL --cap-add=<needed>` follows least-privilege for Linux capabilities.
+- Pin base image versions and digests for reproducible, auditable builds.
+- Scan images with Trivy, Snyk, or Docker Scout before deploying to production.
+- Alpine and distroless bases minimize attack surface and image size.

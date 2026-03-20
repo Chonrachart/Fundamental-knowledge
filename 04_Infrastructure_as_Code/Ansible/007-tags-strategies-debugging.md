@@ -8,20 +8,22 @@
 # Mental Model: Partial Runs
 
 ```text
-Full playbook: install → config → deploy → restart
+Full playbook: install -> config -> deploy -> restart
                   |
                   v
---tags config,deploy   →   runs only config + deploy tasks
---skip-tags install    →   runs everything except install tasks
---limit web1           →   runs full playbook but only on web1
---start-at-task "Deploy config"  →  skips all tasks before that name
+--tags config,deploy   ->   runs only config + deploy tasks
+--skip-tags install    ->   runs everything except install tasks
+--limit web1           ->   runs full playbook but only on web1
+--start-at-task "Deploy config"  ->  skips all tasks before that name
 ```
 
 - Combine `--limit` + `--tags` for surgical targeted runs.
 - `--list-tasks` + `--tags` shows which tasks would run without executing.
 
 
-# Tags
+# Core Building Blocks
+
+### Tags
 
 ```yaml
 - name: Install nginx
@@ -60,8 +62,7 @@ ansible-playbook site.yml --list-tasks --tags deploy
 - Tag roles in the playbook: `- { role: nginx, tags: web }` — applies to all tasks in the role.
 - Special tags: `always` (always runs), `never` (only runs if explicitly requested).
 
-
-# limit and start-at-task
+### limit and start-at-task
 
 ```bash
 # target subset of hosts
@@ -73,8 +74,7 @@ ansible-playbook site.yml --limit "web:!web1"      # pattern
 ansible-playbook site.yml --start-at-task "Deploy config"
 ```
 
-
-# Check Mode and Diff
+### Check Mode and Diff
 
 ```bash
 # dry-run: show what would change without touching anything
@@ -90,11 +90,10 @@ ansible-playbook site.yml --check --diff
 - Not all modules support `--check` (e.g. `command`/`shell` always skip in check mode).
 - `--diff` only shows diffs for `template`, `copy`, `lineinfile`, `blockinfile`.
 
-
-# Strategy and Serial
+### Strategy and Serial
 
 ```yaml
-# default: linear — all hosts run task N before any host runs task N+1
+# default: linear -- all hosts run task N before any host runs task N+1
 - name: Standard deploy
   hosts: web
   strategy: linear    # default; most predictable
@@ -104,7 +103,7 @@ ansible-playbook site.yml --check --diff
   hosts: web
   strategy: free      # harder to read logs; good for independent hosts
 
-# serial: rolling update — batch by batch
+# serial: rolling update -- batch by batch
 - name: Rolling deploy
   hosts: web
   serial: 2           # 2 hosts at a time
@@ -119,8 +118,7 @@ ansible-playbook site.yml --check --diff
 Related notes:
 - [010-best-practices-testing](./010-best-practices-testing.md)
 
-
-# Debugging
+### Debugging
 
 ```yaml
 # print a variable
@@ -175,8 +173,8 @@ ansible-playbook site.yml --list-tags
 ### Task result unexpected
 
 1. Add `-vvv` to see raw module input/output.
-2. Add `debug: var=<suspect_variable>` before the failing task.
-3. Add `assert:` to validate assumptions early.
+2. Add `ansible.builtin.debug: var=<suspect_variable>` before the failing task.
+3. Add `ansible.builtin.assert:` to validate assumptions early.
 4. Run `--check --diff` to preview changes on a single host.
 5. Use `--start-at-task` to resume after fixing a mid-play failure.
 

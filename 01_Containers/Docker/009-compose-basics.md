@@ -1,10 +1,10 @@
-# Docker Compose
+# Docker Compose Basics
 
 - Define and run multi-container apps with a YAML file (`docker-compose.yml`).
 - One project per directory; `docker compose up` starts all services.
 - Use for local dev, integration tests; production often uses Kubernetes or similar.
 
-### How Compose Works
+# Architecture
 
 ```text
 docker-compose.yml
@@ -26,7 +26,9 @@ docker-compose.yml
   └──────────────────────────┘
 ```
 
-# Service
+# Core Building Blocks
+
+### Service
 
 - One container definition; can specify image, build, ports, env, volumes, etc.
 - Service name becomes hostname for other services on same network.
@@ -52,19 +54,22 @@ volumes:
   dbdata:
 ```
 
-# Build and Image
+### Build and Image
 
 - **build**: Build from Dockerfile; path and optional context/dockerfile.
 - **image**: Use pre-built image; if both, image names the built image.
-- **restart**: `no`, `always`, `on-failure` — when to restart container.
+- **restart**: `no`, `always`, `on-failure` -- when to restart container.
 
-# Network
+### Network
 
 - By default Compose creates one network per project; all services join it and resolve each other by service name.
 - **networks**: Define custom networks; attach services with `networks: [front]`.
 - **ports**: Publish host:container; only publish what you need.
 
-# Volumes
+Related notes:
+- [004-docker-network-volume](./004-docker-network-volume.md)
+
+### Volumes
 
 - **volumes**: Named or anonymous; persist data; list under top-level `volumes:` to name them.
 - **bind mount**: Host path:container path; e.g. `.:/app` for live code.
@@ -76,12 +81,15 @@ volumes:
   - cache:/app/cache
 ```
 
-# depends_on
+### depends_on
 
 - Start order only; does not wait for service to be "ready" (e.g. DB accepting connections).
 - For health-based ordering use condition: `depends_on: db: condition: service_healthy` with healthcheck on db.
 
-# Commands
+Related notes:
+- [010-compose-production-patterns](./010-compose-production-patterns.md)
+
+### Commands
 
 ```bash
 docker compose up -d
@@ -91,14 +99,12 @@ docker compose logs -f web
 docker compose exec web sh
 ```
 
-Related notes: [010-compose-production-patterns](./010-compose-production-patterns.md), [004-docker-network-volume](./004-docker-network-volume.md)
-
 ---
 
 # Troubleshooting Guide
 
 ### "service web depends on db which is undefined"
-1. Check indentation in YAML — `depends_on` must list valid service names.
+1. Check indentation in YAML -- `depends_on` must list valid service names.
 2. Verify service name spelling matches exactly.
 
 ### Containers start but app can't connect to DB
@@ -113,5 +119,17 @@ Related notes: [010-compose-production-patterns](./010-compose-production-patter
 
 ### Volume data lost after `docker compose down`
 1. `down` removes containers and networks but NOT named volumes.
-2. `down -v` removes volumes too — avoid unless intended.
+2. `down -v` removes volumes too -- avoid unless intended.
 3. Use named volumes (declared in top-level `volumes:`) for persistence.
+
+---
+
+# Quick Facts (Revision)
+
+- `docker compose up -d` starts all services in background; `docker compose down` stops and removes them.
+- Service names become DNS hostnames on the project network.
+- Compose creates one bridge network per project automatically.
+- `depends_on` controls start order only; use `condition: service_healthy` for readiness.
+- Top-level `volumes:` declares named volumes that persist across `docker compose down`.
+- `docker compose down -v` removes volumes too -- use with caution.
+- `docker compose exec <service> sh` opens a shell in a running service container.

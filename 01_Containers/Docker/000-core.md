@@ -4,7 +4,7 @@
 - Uses client-server architecture: CLI talks to Docker daemon, daemon manages images/containers.
 - Build once, run anywhere (dev, CI, production).
 
-### Architecture
+# Architecture
 
 ```text
  docker CLI ──REST API──▶ dockerd (daemon)
@@ -17,7 +17,7 @@
               (pull/push)   (lifecycle)   (create)
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Dockerfile  ──build──▶  Image  ──run──▶  Container
@@ -27,6 +27,8 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
                        Registry
                     (Docker Hub, ECR)
 ```
+
+# Core Building Blocks
 
 ### Key Commands
 
@@ -39,6 +41,10 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 | docker exec       | Run command in running container |
 | docker logs       | View container logs          |
 | docker rm / rmi   | Remove container / image     |
+
+Related notes:
+- [001-docker-overview](./001-docker-overview.md)
+- [002-running-containers-basics](./002-running-containers-basics.md)
 
 ---
 
@@ -63,7 +69,7 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 
 # Quick Facts (Revision)
 
-- Docker uses client-server model: CLI → daemon → containerd → runc.
+- Docker uses client-server model: CLI -> daemon -> containerd -> runc.
 - Image is immutable read-only layers; container adds a writable layer.
 - Dockerfile builds image; `docker run` creates container from image.
 - Registry stores and distributes images (Docker Hub is default).
@@ -71,15 +77,15 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 - `docker compose` for multi-container apps on single host.
 - Use alpine/distroless bases for minimal image size and attack surface.
 
-# Topic Map (basic → advanced)
+# Topic Map (basic to advanced)
 
-- [001-docker-overview](./001-docker-overview.md) — Images, containers, Dockerfile, registry
-- [002-running-containers-basics](./002-running-containers-basics.md) — run, ps, logs, exec, stop, rm
-- [003-dockerfile](./003-dockerfile.md) — Dockerfile instructions, FROM, RUN, COPY, CMD
-- [004-docker-network-volume](./004-docker-network-volume.md) — Networking, volumes
-- [005-images-layers-cache](./005-images-layers-cache.md) — Layers, cache, .dockerignore, multi-stage
-- [006-registry-tagging-push-pull](./006-registry-tagging-push-pull.md) — Registry, tag, digest, push/pull
-- [007-docker-run-advanced](./007-docker-run-advanced.md) — docker run flags, limits, env, restart
-- [008-security-user-best-practices](./008-security-user-best-practices.md) — Non-root, secrets, scanning
-- [009-compose-basics](./009-compose-basics.md) — Compose, services, networks, volumes
-- [010-compose-production-patterns](./010-compose-production-patterns.md) — Healthcheck, profiles, scale, override
+- [001-docker-overview](./001-docker-overview.md) -- Images, containers, Dockerfile, registry
+- [002-running-containers-basics](./002-running-containers-basics.md) -- run, ps, logs, exec, stop, rm
+- [003-dockerfile](./003-dockerfile.md) -- Dockerfile instructions, FROM, RUN, COPY, CMD
+- [004-docker-network-volume](./004-docker-network-volume.md) -- Networking, volumes
+- [005-images-layers-cache](./005-images-layers-cache.md) -- Layers, cache, .dockerignore, multi-stage
+- [006-registry-tagging-push-pull](./006-registry-tagging-push-pull.md) -- Registry, tag, digest, push/pull
+- [007-docker-run-advanced](./007-docker-run-advanced.md) -- docker run flags, limits, env, restart
+- [008-security-user-best-practices](./008-security-user-best-practices.md) -- Non-root, secrets, scanning
+- [009-compose-basics](./009-compose-basics.md) -- Compose, services, networks, volumes
+- [010-compose-production-patterns](./010-compose-production-patterns.md) -- Healthcheck, profiles, scale, override

@@ -8,7 +8,7 @@
 # How Vault Works
 
 ```text
-Plaintext secret  →  ansible-vault encrypt  →  AES-256 encrypted file (safe to commit)
+Plaintext secret  ->  ansible-vault encrypt  ->  AES-256 encrypted file (safe to commit)
 
 At runtime:
 ansible-playbook site.yml --vault-password-file .vault_pass
@@ -27,7 +27,9 @@ Never written to disk in plaintext
 - `rekey` changes the password without decrypting to disk permanently.
 
 
-# Vault Commands
+# Core Building Blocks
+
+### Vault Commands
 
 ```bash
 # create a new encrypted file
@@ -36,7 +38,7 @@ ansible-vault create group_vars/prod/secrets.yml
 # encrypt an existing file in-place
 ansible-vault encrypt group_vars/prod/secrets.yml
 
-# decrypt a file in-place (use carefully — don't commit plaintext)
+# decrypt a file in-place (use carefully -- don't commit plaintext)
 ansible-vault decrypt group_vars/prod/secrets.yml
 
 # view encrypted file content without decrypting to disk
@@ -49,8 +51,7 @@ ansible-vault edit group_vars/prod/secrets.yml
 ansible-vault rekey group_vars/prod/secrets.yml
 ```
 
-
-# Encrypt a Single String (inline secret)
+### Encrypt a Single String (inline secret)
 
 ```bash
 ansible-vault encrypt_string 'supersecret123' --name 'db_password'
@@ -64,8 +65,7 @@ db_password: !vault |
   3938386636313963653366...
 ```
 
-
-# Running Playbooks with Vault
+### Running Playbooks with Vault
 
 ```bash
 # prompt for password at runtime
@@ -87,8 +87,7 @@ Add to `ansible.cfg` to set a default password file:
 vault_password_file = .vault_pass.txt   # path relative to ansible.cfg
 ```
 
-
-# Vault IDs (Multiple Passwords)
+### Vault IDs (Multiple Passwords)
 
 ```bash
 # label vaults by environment
@@ -101,18 +100,20 @@ ansible-playbook site.yml --vault-id prod@prompt --vault-id dev@.vault_dev_pass.
 
 - Vault IDs allow different passwords per environment (dev/staging/prod) in one run.
 
-
-# Recommended Secrets Layout
+### Recommended Secrets Layout
 
 ```text
 group_vars/
   prod/
-    vars.yml         ← non-sensitive vars (committed plaintext)
-    secrets.yml      ← vault-encrypted: db_password, api_keys, etc.
+    vars.yml         <- non-sensitive vars (committed plaintext)
+    secrets.yml      <- vault-encrypted: db_password, api_keys, etc.
   dev/
     vars.yml
     secrets.yml
 ```
+
+Related notes:
+- [002-inventory-and-ansible-cfg](./002-inventory-and-ansible-cfg.md) — group_vars layout
 
 ---
 
@@ -130,7 +131,7 @@ find . -name "secrets.yml" | xargs ansible-vault encrypt
 
 # decrypt to review (never commit after this)
 ansible-vault decrypt group_vars/prod/secrets.yml
-ansible-vault view group_vars/prod/secrets.yml    # safer — view without writing plaintext
+ansible-vault view group_vars/prod/secrets.yml    # safer -- view without writing plaintext
 ```
 
 

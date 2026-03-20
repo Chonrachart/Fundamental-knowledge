@@ -45,7 +45,9 @@ Playbook targets groups as normal: hosts: env_prod
 ```
 
 
-# AWS EC2 Plugin (amazon.aws)
+# Core Building Blocks
+
+### AWS EC2 Plugin (amazon.aws)
 
 ```bash
 # install collection first
@@ -64,9 +66,9 @@ filters:
 
 keyed_groups:
   - key: tags.Environment       # group by EC2 tag "Environment"
-    prefix: env                 # → groups: env_prod, env_staging, env_dev
+    prefix: env                 # -> groups: env_prod, env_staging, env_dev
   - key: tags.Role
-    prefix: role                # → groups: role_web, role_db
+    prefix: role                # -> groups: role_web, role_db
 
 compose:
   ansible_host: public_ip_address   # use public IP to connect
@@ -95,8 +97,7 @@ ansible -i inventory/aws_ec2.yml env_prod -m ping
 Related notes:
 - [002-inventory-and-ansible-cfg](./002-inventory-and-ansible-cfg.md) — static inventory + host patterns
 
-
-# Other Common Plugins
+### Other Common Plugins
 
 | Plugin | Collection | Source |
 |---|---|---|
@@ -107,8 +108,7 @@ Related notes:
 | `ansible.builtin.script` | builtin | Custom script output |
 | `ansible.builtin.constructed` | builtin | Build groups from existing inventory |
 
-
-# Stable Playbooks with Dynamic Inventory
+### Stable Playbooks with Dynamic Inventory
 
 ```yaml
 # playbook stays the same regardless of inventory source

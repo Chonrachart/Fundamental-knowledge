@@ -2,45 +2,47 @@
 
 - Ansible is easy to start but hard to scale without discipline — structure and testing prevent playbook rot.
 - Key principles: idempotency, small roles, explicit variable scoping, version-pinned dependencies.
-- Testing pyramid: `--check --diff` → `ansible-lint` → molecule (role-level integration test).
+- Testing pyramid: `--check --diff` -> `ansible-lint` -> molecule (role-level integration test).
 
 
 # Project Structure (Recommended)
 
 ```text
 ansible/
-  ansible.cfg                   ← project config (inventory, forks, pipelining)
+  ansible.cfg                   <- project config (inventory, forks, pipelining)
   inventory/
-    inventory.yaml              ← static or dynamic inventory config
+    inventory.yaml              <- static or dynamic inventory config
     group_vars/
       all/
-        vars.yml                ← non-sensitive vars for all hosts
-        secrets.yml             ← vault-encrypted secrets
+        vars.yml                <- non-sensitive vars for all hosts
+        secrets.yml             <- vault-encrypted secrets
       web/
         vars.yml
     host_vars/
       web1.yml
   playbooks/
-    site.yml                    ← main entry point (calls roles)
-    bootstrap.yml               ← first-run setup (create users, SSH keys)
+    site.yml                    <- main entry point (calls roles)
+    bootstrap.yml               <- first-run setup (create users, SSH keys)
   roles/
-    common/                     ← applied to every host
+    common/                     <- applied to every host
     nginx/
     app/
   collections/
-    requirements.yml            ← pinned collection + role versions
-  .vault_pass.txt               ← gitignored vault password file
+    requirements.yml            <- pinned collection + role versions
+  .vault_pass.txt               <- gitignored vault password file
   .gitignore
 ```
 
 
-# Idempotency Rules
+# Core Building Blocks
+
+### Idempotency Rules
 
 ```text
-Write playbook → run it → run it again → second run must be all ok / skipped
+Write playbook -> run it -> run it again -> second run must be all ok / skipped
 ```
 
-- Use modules (`package`, `file`, `service`) over `shell`/`command` — modules check state.
+- Use modules (`ansible.builtin.package`, `ansible.builtin.file`, `ansible.builtin.service`) over `shell`/`command` — modules check state.
 - When `command`/`shell` is unavoidable, add `changed_when` and `creates`/`removes`.
 
 ```yaml
@@ -59,19 +61,18 @@ Write playbook → run it → run it again → second run must be all ok / skipp
     creates: /opt/app/.installed   # skip if this file exists
 ```
 
-
-# Variable Discipline
+### Variable Discipline
 
 ```yaml
-# role defaults/main.yml  — document every input variable
+# role defaults/main.yml  -- document every input variable
 nginx_port: 80              # port nginx listens on
 nginx_worker_processes: auto  # number of worker processes
 nginx_log_dir: /var/log/nginx
 
-# group_vars/web/vars.yml  — environment-specific values
+# group_vars/web/vars.yml  -- environment-specific values
 nginx_port: 8080
 
-# host_vars/web1.yml  — host-specific overrides (use sparingly)
+# host_vars/web1.yml  -- host-specific overrides (use sparingly)
 # nginx_port: 9090
 ```
 
@@ -81,8 +82,7 @@ nginx_port: 8080
 Related notes:
 - [004-variables-facts-templating](./004-variables-facts-templating.md)
 
-
-# Linting with ansible-lint
+### Linting with ansible-lint
 
 ```bash
 # install
@@ -108,15 +108,14 @@ Common issues caught:
 Related notes:
 - [007-tags-strategies-debugging](./007-tags-strategies-debugging.md)
 
-
-# Testing with Molecule (Role-level)
+### Testing with Molecule (Role-level)
 
 ```text
 Molecule test flow:
-  create     → spin up test instance (Docker / Vagrant / cloud VM)
-  converge   → run the role against it
-  verify     → run assertions (testinfra / ansible verify tasks)
-  destroy    → tear down the instance
+  create     -> spin up test instance (Docker / Vagrant / cloud VM)
+  converge   -> run the role against it
+  verify     -> run assertions (testinfra / ansible verify tasks)
+  destroy    -> tear down the instance
 ```
 
 ```bash

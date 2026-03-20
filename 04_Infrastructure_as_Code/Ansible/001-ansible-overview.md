@@ -25,7 +25,7 @@ Control Node
 - `become: true` triggers privilege escalation (sudo) on the managed node.
 
 
-# Core Concepts
+# Core Building Blocks
 
 ```text
 Inventory  →  Who to target (hosts, groups)
@@ -64,10 +64,9 @@ Related notes:
 ### Idempotent
 
 - Running the same playbook twice produces the same result — no extra changes.
-- Example: `package: name=nginx state=present` is safe to re-run; it won't reinstall.
+- Example: `ansible.builtin.package: name=nginx state=present` is safe to re-run; it won't reinstall.
 
-
-# First Playbook
+### First Playbook
 
 ```yaml
 # playbooks/site.yml
@@ -113,7 +112,7 @@ ansible-playbook -i inventory/hosts.ini playbooks/site.yml
 ansible-playbook -i inventory/hosts.ini playbooks/site.yml --check --diff
 
 # ad-hoc one-liner
-ansible web -m package -a "name=curl state=present" --become
+ansible web -m ansible.builtin.package -a "name=curl state=present" --become
 
 # inspect inventory
 ansible-inventory -i inventory/hosts.ini --graph

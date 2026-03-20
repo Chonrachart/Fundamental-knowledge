@@ -9,17 +9,17 @@
 
 ```text
 inventory/
-  hosts.ini (or inventory.yaml)     ← host list + groups
+  hosts.ini (or inventory.yaml)     <- host list + groups
   group_vars/
-    all.yml                         ← vars for every host
-    web.yml                         ← vars for group "web"
-    prod.yml                        ← vars for group "prod"
+    all.yml                         <- vars for every host
+    web.yml                         <- vars for group "web"
+    prod.yml                        <- vars for group "prod"
   host_vars/
-    web1.yml                        ← vars for host "web1" only
+    web1.yml                        <- vars for host "web1" only
 ```
 
 ```text
-Variable precedence (low → high):
+Variable precedence (low -> high):
 
   role defaults
       |
@@ -30,16 +30,16 @@ Variable precedence (low → high):
   group_vars/<group>
       |
       v
-  host_vars/<host>           ← wins over group
+  host_vars/<host>           <- wins over group
       |
       v
-  extra vars (-e)            ← always wins
+  extra vars (-e)            <- always wins
 ```
 
 
-# Inventory Formats
+# Core Building Blocks
 
-### Static — INI
+### Inventory Formats — Static INI
 
 ```ini
 [web]
@@ -54,7 +54,7 @@ web
 db
 ```
 
-### Static — YAML (preferred for readability)
+### Inventory Formats — Static YAML (preferred for readability)
 
 ```yaml
 all:
@@ -96,8 +96,7 @@ nginx_port: 9090   # overrides group value for web1 only
 Related notes:
 - [004-variables-facts-templating](./004-variables-facts-templating.md)
 
-
-# Host Patterns
+### Host Patterns
 
 | Pattern | Meaning |
 |---|---|
@@ -113,8 +112,7 @@ Related notes:
 Related notes:
 - [009-dynamic-inventory-and-cloud](./009-dynamic-inventory-and-cloud.md)
 
-
-# Connection Variables (common)
+### Connection Variables (common)
 
 | Variable | Purpose |
 |---|---|
@@ -127,8 +125,7 @@ Related notes:
 | `ansible_become_user` | Target user (default: root) |
 | `ansible_python_interpreter` | Python path on managed node |
 
-
-# ansible.cfg
+### ansible.cfg
 
 - Ansible reads config in precedence order: `./ansible.cfg` > `~/.ansible.cfg` > `/etc/ansible/ansible.cfg`.
 - Project-level `ansible.cfg` (same directory as playbooks) is the most common setup.

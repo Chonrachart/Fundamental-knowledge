@@ -4,7 +4,7 @@
 - It binds public keys to identities via a Certificate Authority (CA) that digitally signs certificates, enabling trust chains
 - Certificates are the foundation of TLS/SSL, code signing, email encryption (S/MIME), and mutual authentication
 
-## Architecture
+# Architecture
 
 ```text
                           ┌──────────────┐
@@ -44,7 +44,7 @@
     └─────────────────────────────────────┘
 ```
 
-## Mental Model
+# Mental Model
 
 ```text
   Key Pair       CSR            CA Signs         Deploy         Renew/Revoke
@@ -73,7 +73,7 @@ openssl req -x509 -newkey rsa:2048 \
   -subj "/CN=example.com"
 ```
 
-## Core Building Blocks
+# Core Building Blocks
 
 ### PKI Components
 
@@ -186,7 +186,7 @@ Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-ch
 
 ---
 
-## Practical Command Set (Core)
+# Practical Command Set (Core)
 
 ```bash
 # --- Key and CSR generation ---
@@ -226,35 +226,44 @@ openssl rsa -noout -modulus -in key.pem | openssl md5       # key modulus hash
 
 Note: always use `-nodes` (no DES) in dev/test to skip passphrase; in production, protect private keys with passphrases or HSMs.
 
-## Troubleshooting Guide
+# Troubleshooting Guide
 
-```text
-  Certificate error?
-    │
-    ├─ "certificate has expired"
-    │    └─► check dates: openssl x509 -in cert.pem -noout -dates
-    │         └─► renew cert (certbot renew / request new from CA)
-    │
-    ├─ "unable to get local issuer certificate"
-    │    └─► missing intermediate cert in chain
-    │         └─► append intermediate to cert bundle (fullchain.pem)
-    │              └─► verify: openssl verify -CAfile ca.pem -untrusted inter.pem cert.pem
-    │
-    ├─ "certificate signature failure"
-    │    └─► cert was not signed by the CA you think
-    │         └─► check issuer: openssl x509 -in cert.pem -noout -issuer
-    │              └─► ensure correct CA cert in trust store
-    │
-    ├─ "key does not match certificate"
-    │    └─► compare modulus hashes of key and cert (see commands above)
-    │         └─► regenerate CSR with the correct key
-    │
-    └─ "certificate revoked"
-         └─► cert is on CRL or OCSP returns "revoked"
-              └─► request new certificate from CA
-```
+### Certificate has expired
 
-## Quick Facts (Revision)
+1. Check certificate dates: `openssl x509 -in cert.pem -noout -dates`.
+2. Compare `notAfter` with current date to confirm expiry.
+3. Renew the certificate: `sudo certbot renew` or request a new one from the CA.
+4. Restart the service to load the new certificate: `sudo systemctl restart nginx`.
+
+### Unable to get local issuer certificate (missing intermediate)
+
+1. Verify the chain: `openssl verify -CAfile ca.pem -untrusted intermediate.pem cert.pem`.
+2. If intermediate is missing, append it to the cert bundle to create a fullchain file: `cat cert.pem intermediate.pem > fullchain.pem`.
+3. Update the server config to use the fullchain file.
+4. Restart the service and test: `openssl s_client -connect host:443 -showcerts`.
+
+### Certificate signature failure
+
+1. Check the issuer: `openssl x509 -in cert.pem -noout -issuer`.
+2. Verify the cert was signed by the expected CA: `openssl verify -CAfile expected-ca.pem cert.pem`.
+3. If the CA is wrong, ensure the correct CA certificate is in the trust store.
+4. Update the trust store: `sudo update-ca-certificates` (Debian) or `sudo update-ca-trust` (RHEL).
+
+### Key does not match certificate
+
+1. Compare modulus hashes of the key and cert: `openssl x509 -noout -modulus -in cert.pem | openssl md5` and `openssl rsa -noout -modulus -in key.pem | openssl md5`.
+2. If the MD5 outputs differ, the key and cert are mismatched.
+3. Regenerate the CSR using the correct private key: `openssl req -new -key server.key -out server.csr`.
+4. Submit the new CSR to the CA for signing.
+
+### Certificate revoked
+
+1. Check revocation status via OCSP: `openssl ocsp -issuer ca.pem -cert cert.pem -url http://ocsp.ca.com`.
+2. Confirm the serial number appears in the CRL if OCSP is unavailable.
+3. Request a new certificate from the CA with a new key pair.
+4. Deploy the new certificate and update the service configuration.
+
+# Quick Facts (Revision)
 
 - A certificate binds a public key to an identity; the CA's signature is the proof of that binding
 - Root CAs are self-signed and kept offline; intermediate CAs handle day-to-day issuance

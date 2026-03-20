@@ -130,21 +130,33 @@ Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS a
 
 # Troubleshooting Guide
 
-```text
-Security issue?
-  │
-  ├─ Data exposed? ──▶ Check encryption (at rest / in transit)
-  │                     └─ Key compromised? ──▶ Rotate keys immediately
-  │
-  ├─ Unauthorized access? ──▶ Check authentication mechanism
-  │                           └─ Valid creds stolen? ──▶ Revoke + MFA
-  │
-  ├─ Data tampered? ──▶ Verify hashes / signatures
-  │                     └─ No integrity check? ──▶ Add HMAC or signing
-  │
-  └─ Service down? ──▶ Check availability controls
-                       └─ DDoS? ──▶ Rate limiting, CDN, WAF
-```
+### Data exposed or leaked
+
+1. Check whether encryption is applied at rest and in transit: `openssl s_client -connect host:443` for TLS verification.
+2. Identify scope of exposure: review access logs and affected data stores.
+3. If a key is compromised, rotate keys immediately and re-encrypt affected data.
+4. Audit key management practices and revoke any leaked credentials.
+
+### Unauthorized access detected
+
+1. Check authentication mechanism: verify identity provider logs and token validity.
+2. Review access logs for the unauthorized session: `journalctl -u sshd` or application auth logs.
+3. If valid credentials were stolen, revoke the compromised credentials immediately.
+4. Enforce MFA on all affected accounts and review authorization policies.
+
+### Data tampered or integrity violation
+
+1. Verify data integrity with hashes or signatures: `sha256sum <file>` against known-good values.
+2. Check HMAC or digital signature validation on the affected data or messages.
+3. If no integrity check exists, add HMAC or signing to the data pipeline.
+4. Investigate the source and timeline of the tampering via audit logs.
+
+### Service unavailable (availability issue)
+
+1. Check system and service status: `systemctl status <service>`.
+2. Review resource utilization: `top`, `free -h`, `df -h` for CPU, memory, and disk.
+3. If DDoS is suspected, check traffic patterns: `ss -s` and firewall logs.
+4. Apply rate limiting, enable CDN caching, or deploy WAF rules to mitigate.
 
 # Quick Facts (Revision)
 

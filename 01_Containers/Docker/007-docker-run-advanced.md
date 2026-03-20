@@ -1,10 +1,12 @@
-# docker run — Full Picture
+# docker run -- Advanced
 
-- Creates a new container from an image and starts it.
+- `docker run` creates a new container from an image and starts it with configurable options.
 - Syntax: `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]`
-- If image not found locally, Docker pulls it from configured registry (if pull policy allows).
+- Flags control ports, env vars, resource limits, restart policies, volumes, user, and network.
 
-# Detach vs Foreground
+# Core Building Blocks
+
+### Detach vs Foreground
 
 - **-d, --detach**: Run in background; returns container ID; logs not shown.
 - Without -d: runs in foreground; Ctrl+C stops container (unless --sig-proxy=false); logs to terminal.
@@ -15,15 +17,18 @@ docker run -d --name web nginx:alpine
 docker run --rm alpine echo "hello"
 ```
 
-# Publish Ports (-p, -P)
+### Publish Ports (-p, -P)
 
 - **-p host_port:container_port**: Map host port to container port; multiple -p allowed.
-- **-p 8080:80**: Host 8080 → container 80; access via localhost:8080.
+- **-p 8080:80**: Host 8080 maps to container 80; access via localhost:8080.
 - **-p 127.0.0.1:8080:80**: Bind only to localhost (not all interfaces).
-- **-p 80**: Random host port → container 80; see with `docker port`.
+- **-p 80**: Random host port maps to container 80; see with `docker port`.
 - **-P**: Publish all ports declared in EXPOSE to random host ports.
 
-# Environment Variables (-e, --env-file)
+Related notes:
+- [004-docker-network-volume](./004-docker-network-volume.md)
+
+### Environment Variables (-e, --env-file)
 
 - **-e KEY=value**: Set env var in container; multiple -e allowed.
 - **--env-file path**: Read KEY=value lines from file; one var per line.
@@ -34,9 +39,9 @@ docker run -e DB_HOST=db -e DB_PASS=secret myapp
 docker run --env-file .env myapp
 ```
 
-# Memory and CPU Limits
+### Memory and CPU Limits
 
-- **--memory**, **-m**: Max memory (e.g. `512m`, `1g`); container can be OOM-killed if exceeded.
+- **--memory, -m**: Max memory (e.g. `512m`, `1g`); container can be OOM-killed if exceeded.
 - **--memory-swap**: Total memory + swap; set to same as --memory to disable swap.
 - **--cpus**: Cap CPU (e.g. `1.5` = 1.5 cores); **--cpu-shares**: Relative weight (default 1024).
 - **--cpuset-cpus**: Pin to specific CPU cores (e.g. `0-3`).
@@ -45,39 +50,42 @@ docker run --env-file .env myapp
 docker run -m 512m --cpus=0.5 myapp
 ```
 
-# Restart Policy (--restart)
+### Restart Policy (--restart)
 
 - **no** (default): Do not restart.
 - **always**: Always restart; on daemon restart, container starts too.
 - **on-failure**: Restart only if exit code non-zero; optional max count: `on-failure:3`.
 - **unless-stopped**: Like always, but do not start after stop if daemon restarted.
 
-# User and Capabilities
+### User and Capabilities
 
-- **--user**, **-u**: Run as user (e.g. `1000:1000` or `www-data`); container may need writable dirs.
+- **--user, -u**: Run as user (e.g. `1000:1000` or `www-data`); container may need writable dirs.
 - **--read-only**: Mount root filesystem read-only; use tmpfs or volumes for writable paths.
-- **--cap-add**, **--cap-drop**: Add or drop Linux capabilities; drop all then add minimal: `--cap-drop=ALL --cap-add=NET_BIND_SERVICE`.
+- **--cap-add, --cap-drop**: Add or drop Linux capabilities; drop all then add minimal: `--cap-drop=ALL --cap-add=NET_BIND_SERVICE`.
 
-# Network and DNS
+Related notes:
+- [008-security-user-best-practices](./008-security-user-best-practices.md)
+
+### Network and DNS
 
 - **--network**: Attach to network (bridge, host, none, or user-defined name).
 - **--dns**: DNS server inside container (e.g. `8.8.8.8`).
 - **--add-host**: Add line to /etc/hosts (e.g. `--add-host=db:10.0.0.5`).
 - **--hostname**: Set container hostname.
 
-# Volume and Mount
+### Volume and Mount
 
-- **-v**, **--volume**: Bind mount or named volume; `host_path:container_path[:options]`.
+- **-v, --volume**: Bind mount or named volume; `host_path:container_path[:options]`.
 - **:ro**: Read-only in container.
 - **--mount**: More explicit; type=bind|volume|tmpfs, source, target, and options.
 - **--tmpfs**: Mount tmpfs at path (e.g. `--tmpfs /tmp`).
 
-# Entrypoint and Command Override
+### Entrypoint and Command Override
 
 - **--entrypoint**: Override image ENTRYPOINT; useful for debug (e.g. `--entrypoint sh`).
-- Args after image name override CMD; combined with ENTRYPOINT: `docker run myimg arg1` → ENTRYPOINT receives arg1.
+- Args after image name override CMD; combined with ENTRYPOINT: `docker run myimg arg1` means ENTRYPOINT receives arg1.
 
-# Summary Table (Common Flags)
+### Common Flags Summary
 
 | Flag | Short | Purpose |
 |------|--------|---------|
@@ -93,7 +101,9 @@ docker run -m 512m --cpus=0.5 myapp
 | --network | | Attach network |
 | --entrypoint | | Override entrypoint |
 
-Related notes: [004-docker-network-volume](./004-docker-network-volume.md), [008-security-user-best-practices](./008-security-user-best-practices.md)
+Related notes:
+- [004-docker-network-volume](./004-docker-network-volume.md)
+- [008-security-user-best-practices](./008-security-user-best-practices.md)
 
 ---
 
@@ -113,3 +123,15 @@ Related notes: [004-docker-network-volume](./004-docker-network-volume.md), [008
 1. Verify: `docker exec <ctr> env | grep <VAR>`.
 2. Check `-e` syntax: `-e KEY=value` (no spaces around `=`).
 3. Check `--env-file` format: one `KEY=value` per line, no quotes needed.
+
+---
+
+# Quick Facts (Revision)
+
+- `-d` runs detached; `--rm` auto-removes on exit; combine for one-off background tasks.
+- `-p 127.0.0.1:8080:80` binds only to localhost; `-p 8080:80` binds to all interfaces.
+- `-m 512m` sets memory limit; `--cpus=1.5` limits to 1.5 CPU cores.
+- Restart policies: `no`, `always`, `on-failure[:max]`, `unless-stopped`.
+- `--cap-drop=ALL --cap-add=<needed>` follows least-privilege principle.
+- `--read-only` makes root filesystem immutable; use with `--tmpfs` and volumes.
+- `--entrypoint sh` overrides ENTRYPOINT for debugging.

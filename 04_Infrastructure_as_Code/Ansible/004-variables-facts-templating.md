@@ -5,10 +5,10 @@
 - Jinja2 templates combine static config with dynamic variable values.
 
 
-# Variable Precedence (low → high)
+# Variable Precedence (low -> high)
 
 ```text
-role defaults          (defaults/main.yml)       ← easiest to override
+role defaults          (defaults/main.yml)       <- easiest to override
     |
     v
 inventory group_vars/all
@@ -29,25 +29,25 @@ role vars              (vars/main.yml)
 task vars / set_fact / register
     |
     v
-extra vars  (-e key=value)                       ← always wins
+extra vars  (-e key=value)                       <- always wins
 ```
 
 - Rule of thumb: use `defaults/` for role inputs (easy to override), `vars/` for internal role constants.
 - Avoid relying on deep precedence tricks — prefer explicit variable scoping.
 
 
-# Variable Sources
+# Core Building Blocks
 
 ### group_vars / host_vars
 
 ```yaml
-# group_vars/web.yml  →  applies to all hosts in "web"
+# group_vars/web.yml  ->  applies to all hosts in "web"
 nginx_port: 8080
 app_env: production
 ```
 
 ```yaml
-# host_vars/web1.yml  →  overrides group for web1 only
+# host_vars/web1.yml  ->  overrides group for web1 only
 nginx_port: 9090
 ```
 
@@ -91,8 +91,7 @@ Related notes:
 
 Common `register` fields: `.stdout`, `.stderr`, `.rc`, `.changed`, `.stdout_lines`.
 
-
-# Facts
+### Facts
 
 ```text
 Play starts
@@ -111,13 +110,13 @@ Available in all tasks and templates
 ```
 
 ```yaml
-- debug:
+- ansible.builtin.debug:
     var: ansible_hostname        # short hostname
-- debug:
+- ansible.builtin.debug:
     var: ansible_default_ipv4.address
-- debug:
+- ansible.builtin.debug:
     var: ansible_os_family       # "Debian", "RedHat", etc.
-- debug:
+- ansible.builtin.debug:
     var: ansible_distribution    # "Ubuntu", "CentOS", etc.
 ```
 
@@ -127,10 +126,7 @@ Available in all tasks and templates
 Related notes:
 - [005-loops-conditions-blocks](./005-loops-conditions-blocks.md) — using facts in `when:`
 
-
-# Jinja2 Templating
-
-### In task arguments
+### Jinja2 Templating — In task arguments
 
 ```yaml
 - name: Create app config
@@ -140,7 +136,7 @@ Related notes:
     mode: "0644"
 ```
 
-### In template files (.j2)
+### Jinja2 Templating — In template files (.j2)
 
 ```jinja2
 # app.conf.j2
@@ -192,11 +188,11 @@ ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
 
 ### Variable has wrong value or is undefined
 
-1. Add a debug task: `debug: var=<variable_name>`.
+1. Add a debug task: `ansible.builtin.debug: var=<variable_name>`.
 2. Check precedence -- is `host_vars` overriding `group_vars`?
 3. Check if `-e` was passed (always wins).
 4. Check if `set_fact` was called earlier in the play (runtime override).
-5. Verify the fact value: `ansible web1 -m setup | grep <fact_name>`.
+5. Verify the fact value: `ansible web1 -m ansible.builtin.setup | grep <fact_name>`.
 6. Use `| default(fallback)` in the template to handle undefined safely.
 
 

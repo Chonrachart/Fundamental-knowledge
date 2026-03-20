@@ -9,21 +9,21 @@
 
 ```text
 roles/
-  nginx/                        ← role name
+  nginx/                        <- role name
     tasks/
-      main.yml                  ← entry point; all tasks go here (or include sub-files)
+      main.yml                  <- entry point; all tasks go here (or include sub-files)
     handlers/
-      main.yml                  ← handlers used by this role
+      main.yml                  <- handlers used by this role
     defaults/
-      main.yml                  ← default variable values (lowest precedence; easy to override)
+      main.yml                  <- default variable values (lowest precedence; easy to override)
     vars/
-      main.yml                  ← role-internal constants (higher precedence; harder to override)
+      main.yml                  <- role-internal constants (higher precedence; harder to override)
     templates/
-      nginx.conf.j2             ← Jinja2 templates
+      nginx.conf.j2             <- Jinja2 templates
     files/
-      index.html                ← static files for copy module
+      index.html                <- static files for copy module
     meta/
-      main.yml                  ← role dependencies, Galaxy metadata
+      main.yml                  <- role dependencies, Galaxy metadata
 ```
 
 - `defaults/main.yml` = inputs/parameters for the role (put user-facing vars here).
@@ -40,7 +40,7 @@ Ansible loads role from roles/ or collections/
         |
         v
 Merge variable precedence:
-  role defaults → group_vars → host_vars → role vars → extra-vars
+  role defaults -> group_vars -> host_vars -> role vars -> extra-vars
         |
         v
 Execute tasks/main.yml  (top-to-bottom)
@@ -50,11 +50,13 @@ Execute tasks/main.yml  (top-to-bottom)
 Register handlers from handlers/main.yml
         |
         v
-End of play → flush handlers
+End of play -> flush handlers
 ```
 
 
-# Using Roles in a Playbook
+# Core Building Blocks
+
+### Using Roles in a Playbook
 
 ```yaml
 # simple usage
@@ -82,8 +84,7 @@ End of play → flush handlers
         status_code: 200
 ```
 
-
-# include_role vs import_role
+### include_role vs import_role
 
 | | `import_role` | `include_role` |
 |---|---|---|
@@ -105,8 +106,7 @@ End of play → flush handlers
     name: common
 ```
 
-
-# Collections
+### Collections
 
 ```text
 Collection namespace: vendor.collection_name

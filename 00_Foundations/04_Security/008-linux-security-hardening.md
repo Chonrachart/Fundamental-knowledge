@@ -4,7 +4,7 @@
 - It spans multiple layers: SSH access, mandatory access control (SELinux/AppArmor), kernel parameters, file permissions, and audit logging
 - A hardened system follows the principle of least privilege at every level — network, process, user, and filesystem
 
-## Architecture
+# Architecture
 
 ```text
   ┌─────────────────────────────────────────────────────────┐
@@ -38,7 +38,7 @@
   └─────────────────────────────────────────────────────────┘
 ```
 
-## Mental Model
+# Mental Model
 
 ```text
   Identify         Reduce           Enforce          Monitor
@@ -75,7 +75,7 @@ EOF
 sudo systemctl restart sshd
 ```
 
-## Core Building Blocks
+# Core Building Blocks
 
 ### SSH Hardening
 
@@ -344,41 +344,45 @@ Related notes: [004-authentication](./004-authentication.md)
 
 ---
 
-## Troubleshooting Guide
+# Troubleshooting Guide
 
-```text
-  Security issue?
-    │
-    ├─ SSH login fails after hardening
-    │    └─► check sshd_config syntax: sshd -t
-    │         ├─► verify AllowUsers includes your user
-    │         ├─► verify key permissions: ~/.ssh/ (700), authorized_keys (600)
-    │         └─► check fail2ban: sudo fail2ban-client status sshd
-    │              └─► unban: sudo fail2ban-client set sshd unbanip <IP>
-    │
-    ├─ SELinux denial (AVC)
-    │    └─► check denial: sudo ausearch -m avc -ts recent
-    │         ├─► context mismatch → restorecon -Rv /path
-    │         ├─► boolean needed → setsebool -P <bool> on
-    │         └─► custom policy → audit2allow -a -M mypolicy
-    │
-    ├─ AppArmor blocking app
-    │    └─► check logs: journalctl | grep apparmor
-    │         ├─► set to complain: aa-complain /etc/apparmor.d/<profile>
-    │         └─► update profile, then re-enforce
-    │
-    ├─ Suspicious file changes detected
-    │    └─► run: sudo aide --check
-    │         ├─► legitimate change → sudo aide --update
-    │         └─► unauthorized change → investigate, restore from backup
-    │
-    └─ Unexpected SUID binary found
-         └─► identify: file /path/to/binary; rpm -qf /path (RHEL)
-              ├─► known package → verify: rpm -V <package>
-              └─► unknown → quarantine, investigate, remove SUID bit
-```
+### SSH login fails after hardening
 
-## Quick Facts (Revision)
+1. Check sshd_config syntax: `sudo sshd -t`.
+2. Verify `AllowUsers` includes your username: `grep AllowUsers /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*`.
+3. Verify key permissions: `ls -la ~/.ssh/` (directory should be 700, `authorized_keys` should be 600).
+4. Check if fail2ban banned your IP: `sudo fail2ban-client status sshd`.
+5. Unban if needed: `sudo fail2ban-client set sshd unbanip <IP>`.
+
+### SELinux denial (AVC)
+
+1. Check for recent denials: `sudo ausearch -m avc -ts recent`.
+2. If context mismatch, restore default context: `sudo restorecon -Rv /path`.
+3. If a boolean is needed, enable it: `sudo setsebool -P <boolean_name> on`.
+4. If a custom policy is required, generate one: `sudo audit2allow -a -M mypolicy && sudo semodule -i mypolicy.pp`.
+
+### AppArmor blocking application
+
+1. Check AppArmor logs: `journalctl | grep apparmor`.
+2. Set the profile to complain mode for testing: `sudo aa-complain /etc/apparmor.d/<profile>`.
+3. Run the application and review logged violations.
+4. Update the profile to allow the required access, then re-enforce: `sudo aa-enforce /etc/apparmor.d/<profile>`.
+
+### Suspicious file changes detected
+
+1. Run an integrity check: `sudo aide --check`.
+2. Review the AIDE report for modified files and compare against expected changes.
+3. If changes are legitimate, update the baseline: `sudo aide --update && sudo mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db`.
+4. If changes are unauthorized, investigate the source, restore affected files from backup, and check audit logs: `sudo ausearch -f /path/to/changed/file`.
+
+### Unexpected SUID binary found
+
+1. Identify the file: `file /path/to/binary`.
+2. Check if it belongs to a known package: `rpm -qf /path/to/binary` (RHEL) or `dpkg -S /path/to/binary` (Debian).
+3. If from a known package, verify package integrity: `rpm -V <package>` or `debsums <package>`.
+4. If unknown, quarantine the binary, remove the SUID bit (`sudo chmod u-s /path/to/binary`), and investigate further.
+
+# Quick Facts (Revision)
 
 - SSH hardening minimum: `PermitRootLogin no`, `PasswordAuthentication no`, key-based auth only
 - Fail2ban reads auth logs and creates firewall rules to ban IPs after repeated failures

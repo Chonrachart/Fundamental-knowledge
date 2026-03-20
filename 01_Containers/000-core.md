@@ -4,7 +4,7 @@
 - Uses Linux namespaces (PID, net, mount, UTS, IPC, user) for isolation and cgroups for resource limits.
 - Portable and reproducible: same image produces identical runtime on any host.
 
-### Architecture
+# Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────┐
@@ -40,7 +40,7 @@ vs VM:
             Host OS
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Dockerfile  ──build──▶  Image  ──run──▶  Container
@@ -67,13 +67,15 @@ docker logs web
 docker exec -it web sh
 ```
 
+# Core Building Blocks
+
 ### Container vs VM
 
 | Aspect | Container | VM |
 |--------|-----------|-----|
 | Isolation | Process-level (namespaces) | Hardware-level (hypervisor) |
 | Kernel | Shares host kernel | Own guest kernel |
-| Start time | Milliseconds | Seconds–minutes |
+| Start time | Milliseconds | Seconds-minutes |
 | Size | MBs (app + libs) | GBs (full OS) |
 | Overhead | Minimal | High (CPU/RAM for guest OS) |
 | Use case | App packaging, density, microservices | Strong isolation, different OS/kernel |
@@ -84,7 +86,8 @@ docker exec -it web sh
 - Layers are cached and shared across images by content hash.
 - Copy-on-write: container gets a thin writable layer on top.
 
-Related notes: [005-images-layers-cache](./Docker/005-images-layers-cache.md)
+Related notes:
+- [005-images-layers-cache](./Docker/005-images-layers-cache.md)
 
 ### Runtime Stack
 
@@ -100,15 +103,16 @@ Docker CLI / docker compose
   Linux Kernel (namespaces + cgroups)
 ```
 
-- **Namespaces**: PID, network, mount, UTS, IPC, user — isolate what container can see.
-- **cgroups**: Limit CPU, memory, I/O — isolate what container can use.
+- **Namespaces**: PID, network, mount, UTS, IPC, user -- isolate what container can see.
+- **cgroups**: Limit CPU, memory, I/O -- isolate what container can use.
 
 ### Orchestration
 
 - Manage many containers across hosts: scheduling, scaling, self-healing, networking.
 - **Kubernetes** is the standard; Docker Swarm, Nomad are alternatives.
 
-Related notes: [../../02_Kubernetes/001-kubernetes-overview](../../02_Kubernetes/001-kubernetes-overview.md)
+Related notes:
+- [../../02_Kubernetes/001-kubernetes-overview](../../02_Kubernetes/001-kubernetes-overview.md)
 
 ---
 
@@ -144,11 +148,11 @@ Related notes: [../../02_Kubernetes/001-kubernetes-overview](../../02_Kubernetes
 - Container shares host kernel; VM has its own guest OS.
 - Image is immutable read-only layers; container adds a writable layer on top.
 - Namespaces = what you can see; cgroups = what you can use.
-- `docker build` → image; `docker run` → container; `docker push` → registry.
+- `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
 - OCI = Open Container Initiative; standard for container format and runtime.
 - containerd manages lifecycle; runc creates the actual container process.
 - Alpine base images are ~5MB; distroless even smaller.
 
 # Topic Map
 
-- [Docker/000-core](./Docker/000-core.md) — Docker overview, key commands, topic map
+- [Docker/000-core](./Docker/000-core.md) -- Docker overview, key commands, topic map
