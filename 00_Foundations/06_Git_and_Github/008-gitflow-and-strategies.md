@@ -102,6 +102,7 @@ Related notes: [003-git-branch](./003-git-branch.md)
 ```
 
 Related notes: [003-git-branch](./003-git-branch.md), [005-git-pull-request](./005-git-pull-request.md)
+- **Team size 1-5, deploying continuously** --> GitHub Flow
 
 ### Gitflow
 
@@ -153,6 +154,7 @@ Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository
 ```
 
 Related notes: [003-git-branch](./003-git-branch.md), [005-git-pull-request](./005-git-pull-request.md)
+- **Team with mature CI/CD, feature flags, rapid deploys** --> Trunk-Based Development
 
 ### Strategy comparison
 
@@ -170,15 +172,11 @@ Related notes: [003-git-branch](./003-git-branch.md), [005-git-pull-request](./0
 Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository](./004-git-remote-repository.md), [005-git-pull-request](./005-git-pull-request.md)
 
 ### Choosing the right strategy
-
-- **Team size 1-5, deploying continuously** --> GitHub Flow
+Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository](./004-git-remote-repository.md)
 - **Team size 5-20, scheduled releases** --> Gitflow
-- **Team with mature CI/CD, feature flags, rapid deploys** --> Trunk-Based Development
 - You can **evolve**: start with GitHub Flow, adopt Gitflow as releases formalize, move to trunk-based as CI/CD matures
 - Hybrid approaches are valid — e.g., GitHub Flow + release tags without full Gitflow
 - The best strategy is the one your entire team actually follows consistently
-
-Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository](./004-git-remote-repository.md)
 
 ---
 
@@ -212,6 +210,15 @@ gh pr create --title "Fix typo" --body "Quick fix" # merge within hours
 
 > In Gitflow, always merge release and hotfix branches into **both** `main` and `develop` to keep them in sync.
 
+
+- **GitHub Flow**: main + feature branches + PRs -- every merge deploys
+- **Gitflow**: main + develop + feature/release/hotfix branches -- structured release cycle
+- **Trunk-Based**: everyone commits to main -- feature flags hide WIP
+- Gitflow hotfix branches must merge to **both** main and develop
+- Gitflow release branches freeze features -- only bug fixes allowed after cut
+- Trunk-Based requires mature CI/CD and feature flag infrastructure
+- Start simple (GitHub Flow), add structure only when needed
+- The best strategy is the one the whole team follows consistently
 # Troubleshooting Guide
 
 ```text
@@ -240,14 +247,3 @@ Which strategy am I using?
   +-> Only main + feature branches? --> GitHub Flow
   +-> Everyone pushes to main directly? --> Trunk-Based
 ```
-
-# Quick Facts (Revision)
-
-- **GitHub Flow**: main + feature branches + PRs -- every merge deploys
-- **Gitflow**: main + develop + feature/release/hotfix branches -- structured release cycle
-- **Trunk-Based**: everyone commits to main -- feature flags hide WIP
-- Gitflow hotfix branches must merge to **both** main and develop
-- Gitflow release branches freeze features -- only bug fixes allowed after cut
-- Trunk-Based requires mature CI/CD and feature flag infrastructure
-- Start simple (GitHub Flow), add structure only when needed
-- The best strategy is the one the whole team follows consistently

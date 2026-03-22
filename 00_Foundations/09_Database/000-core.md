@@ -117,12 +117,10 @@ Related notes: [005-replication-and-ha](./005-replication-and-ha.md)
 Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-troubleshooting.md)
 
 ### Database in Containers
-
+Related notes: [007-database-in-containers](./007-database-in-containers.md)
 - Run databases in containers for dev/test easily; production use requires careful volume management and backup strategy.
 - Always mount data directories on named volumes or host paths -- container filesystems are ephemeral.
 - Connection strings change in containerized environments; use service names (Docker Compose) or ClusterIP (Kubernetes) instead of localhost.
-
-Related notes: [007-database-in-containers](./007-database-in-containers.md)
 
 ---
 
@@ -180,6 +178,15 @@ systemctl status postgresql
 systemctl status mysql
 ```
 
+
+- Default ports: PostgreSQL = 5432, MySQL = 3306, MongoDB = 27017, Redis = 6379.
+- ACID = Atomicity, Consistency, Isolation, Durability -- the guarantees of relational transactions.
+- WAL (Write-Ahead Log) ensures durability; changes are logged before being written to data files.
+- pg_hba.conf controls PostgreSQL client authentication; my.cnf (or mysqld.cnf) is the main MySQL config.
+- Logical backup (pg_dump/mysqldump) = portable SQL; physical backup = raw file copy, faster for large data.
+- Replication lag is the delay between primary write and replica apply -- monitor it or reads go stale.
+- Always test your restore procedure; a backup you cannot restore is worthless.
+- Connection pooling (PgBouncer, ProxySQL) reduces overhead when many short-lived app connections hit the database.
 # Troubleshooting Guide
 
 ```text
@@ -217,17 +224,6 @@ Problem: cannot connect to database
     PostgreSQL: SELECT count(*) FROM pg_stat_activity;
     MySQL: SHOW STATUS LIKE 'Threads_connected';
 ```
-
-# Quick Facts (Revision)
-
-- Default ports: PostgreSQL = 5432, MySQL = 3306, MongoDB = 27017, Redis = 6379.
-- ACID = Atomicity, Consistency, Isolation, Durability -- the guarantees of relational transactions.
-- WAL (Write-Ahead Log) ensures durability; changes are logged before being written to data files.
-- pg_hba.conf controls PostgreSQL client authentication; my.cnf (or mysqld.cnf) is the main MySQL config.
-- Logical backup (pg_dump/mysqldump) = portable SQL; physical backup = raw file copy, faster for large data.
-- Replication lag is the delay between primary write and replica apply -- monitor it or reads go stale.
-- Always test your restore procedure; a backup you cannot restore is worthless.
-- Connection pooling (PgBouncer, ProxySQL) reduces overhead when many short-lived app connections hit the database.
 
 # Topic Map
 

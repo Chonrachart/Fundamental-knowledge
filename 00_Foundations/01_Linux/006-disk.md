@@ -72,6 +72,7 @@ swapoff /dev/sdX1           # disable swap
 
 - Swap is virtual memory on disk — used when RAM is exhausted.
 - Add to `/etc/fstab` for permanent swap: `UUID=... none swap sw 0 0`
+- Swap on SSD is fast but wears the drive — prefer adding RAM over heavy swap usage.
 
 ### Links
 
@@ -89,6 +90,7 @@ ls -li                          # show inode numbers (same inode = hard link)
 | Works if source deleted | Yes | No (becomes broken) |
 | Cross-filesystem | No | Yes |
 | Link directories | No | Yes |
+- Hard links share the same inode; soft links point to a path and break if the target is removed.
 
 ### Disk Usage
 
@@ -98,6 +100,7 @@ df -i                       # inode usage
 du -sh <dir>                # size of directory
 du -sh * | sort -rh | head  # top directories by size
 ```
+- `df -h` shows space; `df -i` shows inodes — both can independently reach 100%.
 
 ### LVM (Logical Volume Manager)
 
@@ -122,6 +125,8 @@ xfs_growfs /mountpoint              # xfs (mounted)
 # snapshot
 lvcreate -L 2G -s -n snap_data /dev/vg_data/lv_data
 ```
+- LVM resize workflow: `pvcreate → vgextend → lvextend → resize2fs/xfs_growfs`.
+- `xfs_growfs` requires the filesystem to be mounted; `resize2fs` works unmounted.
 
 Related notes:
 - [05-file-system-mount](./05-file-system-mount.md) — mkfs and mounting after LVM setup
@@ -146,12 +151,15 @@ mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb1 /dev/sdc1
 cat /proc/mdstat             # RAID status and rebuild progress
 mdadm --detail /dev/md0      # detailed array info
 ```
+- RAID 5 tolerates 1 disk failure; RAID 6 tolerates 2 — prefer RAID 6 for large disk counts.
+- RAID is not a backup — it protects against disk failure, not accidental deletion or corruption.
 
 ### Ceph (Distributed Storage)
 
 - Software-defined storage platform: block + object + file storage from a cluster of servers.
 - Core properties: data distributed across nodes, replicated, no single point of failure, scales horizontally.
 - Used in cloud environments (OpenStack, Kubernetes persistent volumes).
+
 
 ---
 
@@ -173,13 +181,3 @@ mdadm --detail /dev/md0      # detailed array info
 1. Identify failed disk: `cat /proc/mdstat`.
 2. Replace and rebuild: `mdadm --manage /dev/md0 --add /dev/sdd1`.
 
-
-# Quick Facts (Revision)
-
-- `df -h` shows space; `df -i` shows inodes — both can independently reach 100%.
-- Hard links share the same inode; soft links point to a path and break if the target is removed.
-- LVM resize workflow: `pvcreate → vgextend → lvextend → resize2fs/xfs_growfs`.
-- `xfs_growfs` requires the filesystem to be mounted; `resize2fs` works unmounted.
-- RAID 5 tolerates 1 disk failure; RAID 6 tolerates 2 — prefer RAID 6 for large disk counts.
-- RAID is not a backup — it protects against disk failure, not accidental deletion or corruption.
-- Swap on SSD is fast but wears the drive — prefer adding RAM over heavy swap usage.

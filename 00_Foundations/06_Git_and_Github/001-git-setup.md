@@ -121,12 +121,6 @@ Related notes: [002-git-interaction](./002-git-interaction.md)
 Related notes: [003-git-branch](./003-git-branch.md)
 
 ### .gitignore
-
-- A file that tells Git which files or directories should NOT be tracked.
-- Does NOT remove files from your system; only prevents Git from tracking them.
-- Affects only untracked files.
-- If a file is already committed, use `git rm --cached file_to_ignore` then commit the change.
-
 #### Basic syntax
 
 | Pattern           | Meaning                              |
@@ -138,6 +132,10 @@ Related notes: [003-git-branch](./003-git-branch.md)
 | *.log + !keep.log | ignore all .log files except keep.log |
 
 Related notes: [002-git-interaction](./002-git-interaction.md)
+- A file that tells Git which files or directories should NOT be tracked.
+- Does NOT remove files from your system; only prevents Git from tracking them.
+- Affects only untracked files.
+- If a file is already committed, use `git rm --cached file_to_ignore` then commit the change.
 
 ---
 
@@ -163,6 +161,14 @@ git log -p
 
 Check config: `git config --global --list` or `git config --local --list`
 
+
+- `git init` creates `.git/` directory; skip if repository was cloned.
+- `git config --global` sets identity for all repos; `--local` overrides per-repo.
+- Three areas: Working Tree (edit), Staging Area (stage), Repository (commit).
+- Commit reads from Index only, never directly from Working Tree.
+- HEAD points to current branch; branch points to latest commit.
+- `.gitignore` affects untracked files only; use `git rm --cached` for already-tracked files.
+- Each commit is a SHA-1 hash forming an immutable linked chain.
 # Troubleshooting Guide
 
 ```text
@@ -179,13 +185,3 @@ git status shows unexpected files?
 Config not taking effect?
   +--> --local overrides --global --> check both with --list
 ```
-
-# Quick Facts (Revision)
-
-- `git init` creates `.git/` directory; skip if repository was cloned.
-- `git config --global` sets identity for all repos; `--local` overrides per-repo.
-- Three areas: Working Tree (edit), Staging Area (stage), Repository (commit).
-- Commit reads from Index only, never directly from Working Tree.
-- HEAD points to current branch; branch points to latest commit.
-- `.gitignore` affects untracked files only; use `git rm --cached` for already-tracked files.
-- Each commit is a SHA-1 hash forming an immutable linked chain.

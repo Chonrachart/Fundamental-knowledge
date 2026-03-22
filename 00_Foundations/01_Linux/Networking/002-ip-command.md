@@ -55,6 +55,11 @@ ip route add default via 192.168.1.1
 
 - View and configure IP addresses on interfaces
 - Key output fields: `inet` (IPv4 + CIDR), `inet6` (IPv6), `scope` (global/link/host), `state` (UP/DOWN)
+- `ip` is part of iproute2; it replaces ifconfig, route, and arp
+- `ip addr` = L3 addresses; `ip link` = L2 interface state; `ip route` = routing table
+- `ip -4 addr show` filters to IPv4 only; `ip -6` for IPv6
+- `ip addr show` scope values: `global` (routable), `link` (local subnet), `host` (loopback)
+- Shorthand: `ip a` = `ip addr show`, `ip r` = `ip route show`
 
 ```bash
 # Show all addresses
@@ -91,6 +96,7 @@ ip link set eth0 mtu 1500
 # Rename interface (must be down)
 ip link set eth0 name eth1
 ```
+- All `ip` changes are ephemeral -- lost on reboot unless persisted by a network manager
 
 Related notes: [001-Network-interface](./001-Network-interface.md)
 
@@ -114,6 +120,7 @@ ip route add 10.0.0.0/8 via 192.168.1.1 dev eth0
 ip route del default
 ip route del 10.0.0.0/8
 ```
+- `ip route add default via <gw>` sets the default gateway
 
 Related notes: [003-Route-table](./003-Route-table.md)
 
@@ -128,13 +135,11 @@ ip neigh show
 # Flush ARP cache
 ip neigh flush all
 ```
+- `ip neigh` shows ARP cache; useful for diagnosing L2 issues
 
 Related notes: [001-Network-interface](./001-Network-interface.md)
 
 ### ip netns (Network Namespaces)
-
-- Manage network namespaces: create, delete, execute commands inside them
-
 ```bash
 # List namespaces
 ip netns list
@@ -150,6 +155,8 @@ ip netns del myns
 ```
 
 Related notes: [007-Network-namespace](./007-Network-namespace.md)
+- Manage network namespaces: create, delete, execute commands inside them
+
 
 ---
 
@@ -168,14 +175,3 @@ Network not working after ip configuration?
   │
   └─ Settings lost after reboot? ──── ip changes are runtime-only → use netplan/NetworkManager/ifupdown
 ```
-
-# Quick Facts (Revision)
-
-- `ip` is part of iproute2; it replaces ifconfig, route, and arp
-- `ip addr` = L3 addresses; `ip link` = L2 interface state; `ip route` = routing table
-- `ip -4 addr show` filters to IPv4 only; `ip -6` for IPv6
-- All `ip` changes are ephemeral -- lost on reboot unless persisted by a network manager
-- `ip addr show` scope values: `global` (routable), `link` (local subnet), `host` (loopback)
-- `ip route add default via <gw>` sets the default gateway
-- `ip neigh` shows ARP cache; useful for diagnosing L2 issues
-- Shorthand: `ip a` = `ip addr show`, `ip r` = `ip route show`

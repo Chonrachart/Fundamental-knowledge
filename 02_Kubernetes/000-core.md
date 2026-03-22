@@ -74,14 +74,16 @@ kubectl get pods -o wide            # see pods and their nodes
 - **etcd**: Distributed key-value store; single source of truth for cluster state.
 - **kube-scheduler**: Watches unscheduled pods; assigns to nodes based on resources, affinity, taints.
 - **kube-controller-manager**: Runs controllers (Deployment, ReplicaSet, Node, Endpoint, etc.); reconciles actual → desired state.
+- Kubernetes = control plane (API, scheduler, controllers, etcd) + worker nodes (kubelet, kube-proxy, runtime).
+- Declarative: `kubectl apply -f` is idempotent; controllers reconcile continuously.
 
 Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md)
 
 ### Worker Node
 
 - **kubelet**: Agent on each node; ensures containers in pods are running and healthy.
-- **kube-proxy**: Maintains network rules (iptables/IPVS) for Service → Pod routing.
-- **Container runtime**: Runs containers (containerd, CRI-O); communicates via CRI.
+- **kube-proxy**: Maintains network rules (`iptables`/IPVS) for Service → Pod routing.
+- **Container runtime**: Runs containers (`containerd`, `CRI-O`); communicates via CRI.
 
 Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md)
 
@@ -95,6 +97,10 @@ Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md)
 | DaemonSet | One pod per node (logging, monitoring agents) |
 | HPA | Auto-scale pods based on metrics (CPU, memory, custom) |
 
+- Pod is the smallest deployable unit; Deployment manages pods via ReplicaSets.
+- Labels + selectors connect Deployments to pods, Services to pods, HPA to Deployments.
+- HPA scales by metrics; PDB protects against voluntary disruption during drain/upgrade.
+
 Related notes: [002-pods-labels](./002-pods-labels.md), [003-deployments-rolling-update](./003-deployments-rolling-update.md), [007-statefulset-daemonset](./007-statefulset-daemonset.md), [009-hpa-pod-disruption](./009-hpa-pod-disruption.md)
 
 ### Networking and Access
@@ -105,6 +111,8 @@ Related notes: [002-pods-labels](./002-pods-labels.md), [003-deployments-rolling
 | Ingress | HTTP/HTTPS routing into cluster via domain names |
 | Namespace | Virtual cluster for isolation (dev, prod, team-a) |
 
+- Service provides stable DNS/IP; ClusterIP (internal), NodePort (external port), LoadBalancer (cloud LB).
+
 Related notes: [004-services-ingress](./004-services-ingress.md)
 
 ### Configuration
@@ -114,12 +122,15 @@ Related notes: [004-services-ingress](./004-services-ingress.md)
 | ConfigMap | Inject non-sensitive config into pods (env or volume) |
 | Secret | Inject sensitive data into pods (base64, encrypt at rest) |
 
+- ConfigMap for config, Secret for credentials; inject via env or volume mount.
+
 Related notes: [005-configmaps-secrets](./005-configmaps-secrets.md)
 
 ### Resource Management
 
 - **requests**: Scheduler reserves capacity; **limits**: cap usage (CPU throttle, memory OOMKill).
 - **ResourceQuota** and **LimitRange** govern namespace-level capacity.
+- Namespace isolates resources; ResourceQuota and LimitRange govern namespace capacity.
 
 Related notes: [008-resource-requests-limits](./008-resource-requests-limits.md)
 
@@ -141,7 +152,7 @@ Related notes: [008-resource-requests-limits](./008-resource-requests-limits.md)
 
 ### ImagePullBackOff
 1. Check image name/tag: typo or tag doesn't exist in registry.
-2. Private registry: need `imagePullSecrets` on pod or ServiceAccount.
+2. Private registry: need `imagePullSecrets` on pod or `ServiceAccount`.
 3. Network/proxy: node can't reach registry; check DNS and proxy config.
 
 ### Service not routing traffic to pods
@@ -154,19 +165,6 @@ Related notes: [008-resource-requests-limits](./008-resource-requests-limits.md)
 1. Check node: `kubectl describe node <name>` — Conditions section.
 2. Check kubelet: `systemctl status kubelet` on the node; `journalctl -u kubelet`.
 3. Common: kubelet stopped, container runtime down, disk/memory pressure.
-
----
-
-# Quick Facts (Revision)
-
-- Kubernetes = control plane (API, scheduler, controllers, etcd) + worker nodes (kubelet, kube-proxy, runtime).
-- Pod is the smallest deployable unit; Deployment manages pods via ReplicaSets.
-- Service provides stable DNS/IP; ClusterIP (internal), NodePort (external port), LoadBalancer (cloud LB).
-- Labels + selectors connect Deployments to pods, Services to pods, HPA to Deployments.
-- Namespace isolates resources; ResourceQuota and LimitRange govern namespace capacity.
-- Declarative: `kubectl apply -f` is idempotent; controllers reconcile continuously.
-- ConfigMap for config, Secret for credentials; inject via env or volume mount.
-- HPA scales by metrics; PDB protects against voluntary disruption during drain/upgrade.
 
 # Topic Map (basic → advanced)
 

@@ -110,6 +110,8 @@ answer: "yes"           # string "yes"
 - Rule of thumb: if a string value could be mistaken for a boolean, quote it.
 
 Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
+- **Octal numbers**: `0777` is parsed as octal (511 decimal) in YAML 1.1 -- quote if you mean the string.
+- **Timestamps**: `2024-01-01` is parsed as a date object -- quote if you want a string.
 
 ### Multi-line Strings
 
@@ -288,16 +290,12 @@ metadata:
 Related notes: [002-json-syntax](./002-json-syntax.md)
 
 ### Common Gotchas for DevOps
-
+Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
 - **Norway problem**: `NO` is parsed as `false` -- always quote country codes and similar values.
 - **Colon in strings**: `url: http://example.com` works, but `key: value: extra` breaks -- quote if ambiguous.
 - **Tabs**: any tab character causes a parse error -- configure your editor to insert spaces.
 - **Trailing spaces**: can cause subtle issues -- enable "show whitespace" in your editor.
 - **Version numbers**: `version: 1.0` is a float (1.0), not string "1.0" -- use `version: "1.0"`.
-- **Octal numbers**: `0777` is parsed as octal (511 decimal) in YAML 1.1 -- quote if you mean the string.
-- **Timestamps**: `2024-01-01` is parsed as a date object -- quote if you want a string.
-
-Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
 
 ---
 
@@ -323,6 +321,15 @@ kubectl apply --dry-run=client -f deployment.yml
 cat -A config.yml
 ```
 
+
+- YAML uses indentation (spaces only, never tabs) to denote structure.
+- Unquoted `yes`, `no`, `on`, `off`, `true`, `false` are all booleans -- quote when you mean strings.
+- `|` preserves newlines (literal); `>` folds newlines into spaces (folded).
+- `-` after block indicator (`|-`, `>-`) strips the trailing newline.
+- `&anchor` defines, `*alias` references, `<<: *merge` merges a mapping.
+- `---` separates multiple documents in one file.
+- Keys containing `:`, `#`, `{`, `[` or starting with `- ` must be quoted.
+- YAML 1.1 (PyYAML, most tools) has more boolean values than YAML 1.2 (strict spec).
 # Troubleshooting Guide
 
 ```text
@@ -349,14 +356,3 @@ Problem: YAML file causes parse error or unexpected behavior
     ensure <<: *alias syntax is correct
     verify the anchor (&name) is defined before the alias (*name)
 ```
-
-# Quick Facts (Revision)
-
-- YAML uses indentation (spaces only, never tabs) to denote structure.
-- Unquoted `yes`, `no`, `on`, `off`, `true`, `false` are all booleans -- quote when you mean strings.
-- `|` preserves newlines (literal); `>` folds newlines into spaces (folded).
-- `-` after block indicator (`|-`, `>-`) strips the trailing newline.
-- `&anchor` defines, `*alias` references, `<<: *merge` merges a mapping.
-- `---` separates multiple documents in one file.
-- Keys containing `:`, `#`, `{`, `[` or starting with `- ` must be quoted.
-- YAML 1.1 (PyYAML, most tools) has more boolean values than YAML 1.2 (strict spec).

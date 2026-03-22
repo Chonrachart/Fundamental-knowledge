@@ -145,6 +145,7 @@ scrape_configs:
 - **Compactor** -- post-compaction; re-orders and compresses old chunks in storage for better read performance and lower space.
 - **Index** -- stores stream labels only (not full-text); enables fast label filtering but requires good label design.
 - **Storage backends** -- S3, GCS, Azure Blob, or filesystem `/var/loki/chunks`.
+- Loki stores chunks in memory and flushes to storage (S3, GCS, filesystem) every 1-5 minutes.
 
 Related notes: [001-logging-overview](./001-logging-overview.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
 
@@ -155,6 +156,7 @@ Related notes: [001-logging-overview](./001-logging-overview.md), [../Grafana/00
 - **Trade-off** -- full-text search (e.g., search by error message) is slow; must filter by label first, then grep content.
 - **Best practice** -- add labels for high-cardinality dimensions (service, environment, instance); add low-cardinality labels (level, error_type).
 - **Anti-pattern** -- do not add high-cardinality labels (user_id, request_id); use log content and trace_id instead.
+- Loki indexes labels only (not content), reducing cost and complexity compared to Elasticsearch.
 
 ```text
 Good labels: {job="api", env="prod", level="ERROR", region="us-west"}
@@ -172,6 +174,7 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
 - **Targets** -- log files (glob pattern), systemd services, syslog listening port.
 - **Labels** -- static labels added to all logs from this config; can be overridden by pipeline stages.
 - **Pipeline stages** -- ordered steps to parse, transform, and filter logs before shipping.
+- Promtail is a log agent that scrapes files and journald, applies pipeline stages (parse, relabel, filter), ships to Loki.
 
 ```text
 Scrape config sections:
@@ -202,6 +205,7 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
 - **drop** -- filter out logs matching a condition (reduce noise, save storage).
 - **keep** -- keep only logs matching a condition.
 - **metrics** -- create metrics (counts, histograms) from logs on the fly.
+- Pipeline stages: json, regex, timestamp, labels, drop, keep, metrics; order matters.
 
 ```bash
 # Example: parse JSON, set labels, drop DEBUG
@@ -231,6 +235,7 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
 - **relabel_configs** -- Prometheus-style relabeling to rename, drop, or keep labels before shipping.
 - **Common uses** -- extract hostname from filepath, drop PII labels, standardize label names.
 - **Order matters** -- each relabel rule processes labels sequentially.
+- Relabel rules rename, drop, or keep labels before shipping; use for hostname extraction, PII removal.
 
 ```bash
 # Example: extract instance from file path
@@ -256,6 +261,7 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
 - **JSON/logfmt parser** `| json` or `| logfmt` -- parse line content as JSON or key=value.
 - **Regex filter** `| regex "pattern"` -- match lines by regex.
 - **Metric queries** -- aggregate logs into metrics (count, rate, sum, histogram).
+- LogQL: stream selector `{job="app"}`, line filter `| level="ERROR"`, metric queries `rate(...)`.
 
 ```text
 LogQL examples:
@@ -290,6 +296,7 @@ Related notes: [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive
 - **High-cardinality labels** (user_id, request_id, api_key) -- avoid; put in log content instead.
 - **Cardinality explosion** -- if a label has millions of unique values, Loki performance degrades and storage explodes.
 - **Rule of thumb** -- Loki works best with < 10-20 labels per stream, each with < 1000 unique values.
+- Labels should be low-cardinality (< 1000 unique values each); use log content for high-cardinality data (user_id, request_id).
 
 ```text
 Example label design:
@@ -316,9 +323,10 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
 
 - **Retention period** -- how long logs are kept (e.g., 30 days); older logs are deleted.
 - **Chunk retention** -- Loki flushes in-memory chunks to storage every 1-5 minutes; each chunk is independently compressed.
-- **Storage backends** -- local filesystem (/var/loki/chunks), S3, GCS, Azure Blob.
+- **Storage backends** -- local filesystem (`/var/loki/chunks`), S3, GCS, Azure Blob.
 - **Compaction** -- periodically re-compress and re-order chunks in storage to reduce size and improve query speed.
 - **Index retention** -- index is kept longer than chunk data to allow lookups of old logs.
+- Retention period (e.g., 30 days) is configurable; old logs and chunks are deleted automatically.
 
 ```bash
 # Loki config: retention and storage
@@ -411,14 +419,3 @@ curl -s -u admin:admin -X POST http://grafana:3000/api/datasources/1/query \
 3. Try simpler query first: `{job="app"}` (stream selector only). No results means no logs from that job; results means add filters one by one.
 4. Check time range. Grafana: change time picker to "Last 24 hours". API: verify start/end unix timestamps are correct.
 5. Check line filters and JSON parsing: `{job="app"} | json | level="ERROR"`. Parse error means verify JSON format in logs and check pipeline.
-
-# Quick Facts (Revision)
-
-- Loki indexes labels only (not content), reducing cost and complexity compared to Elasticsearch.
-- Promtail is a log agent that scrapes files and journald, applies pipeline stages (parse, relabel, filter), ships to Loki.
-- Labels should be low-cardinality (< 1000 unique values each); use log content for high-cardinality data (user_id, request_id).
-- LogQL: stream selector `{job="app"}`, line filter `| level="ERROR"`, metric queries `rate(...)`.
-- Pipeline stages: json, regex, timestamp, labels, drop, keep, metrics; order matters.
-- Relabel rules rename, drop, or keep labels before shipping; use for hostname extraction, PII removal.
-- Loki stores chunks in memory and flushes to storage (S3, GCS, filesystem) every 1-5 minutes.
-- Retention period (e.g., 30 days) is configurable; old logs and chunks are deleted automatically.

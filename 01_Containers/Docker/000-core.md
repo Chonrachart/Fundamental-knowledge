@@ -34,13 +34,21 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 
 | Command           | Purpose                |
 | :---------------- | :--------------------- |
-| docker build      | Build image from Dockerfile |
-| docker run        | Create and start container  |
-| docker ps         | List running containers     |
-| docker images     | List images                 |
-| docker exec       | Run command in running container |
-| docker logs       | View container logs          |
-| docker rm / rmi   | Remove container / image     |
+| `docker build`      | Build image from Dockerfile |
+| `docker run`        | Create and start container  |
+| `docker ps`         | List running containers     |
+| `docker images`     | List images                 |
+| `docker exec`       | Run command in running container |
+| `docker logs`       | View container logs          |
+| `docker rm` / `rmi`   | Remove container / image     |
+
+- Docker uses client-server model: CLI -> daemon -> `containerd` -> `runc`.
+- Image is immutable read-only layers; container adds a writable layer.
+- Dockerfile builds image; `docker run` creates container from image.
+- Registry stores and distributes images (Docker Hub is default).
+- `-d` detached, `-p` publish port, `-v` volume, `-e` env var.
+- `docker compose` for multi-container apps on single host.
+- Use alpine/distroless bases for minimal image size and attack surface.
 
 Related notes:
 - [001-docker-overview](./001-docker-overview.md)
@@ -64,18 +72,6 @@ Related notes:
 1. A container with same name exists: `docker ps -a | grep <name>`.
 2. Remove it: `docker rm <name>` or `docker rm -f <name>`.
 3. Or use a different `--name`.
-
----
-
-# Quick Facts (Revision)
-
-- Docker uses client-server model: CLI -> daemon -> containerd -> runc.
-- Image is immutable read-only layers; container adds a writable layer.
-- Dockerfile builds image; `docker run` creates container from image.
-- Registry stores and distributes images (Docker Hub is default).
-- `-d` detached, `-p` publish port, `-v` volume, `-e` env var.
-- `docker compose` for multi-container apps on single host.
-- Use alpine/distroless bases for minimal image size and attack surface.
 
 # Topic Map (basic to advanced)
 

@@ -64,6 +64,9 @@ spec:
 - **podSelector**: Which pods this policy applies to (empty = all pods in namespace).
 - **policyTypes**: `Ingress`, `Egress`, or both.
 - **ingress/egress**: Rules defining allowed traffic sources/destinations.
+- No NetworkPolicy = all traffic allowed; first policy on a pod implicitly denies non-matching traffic.
+- Multiple policies on the same pod are additive (union of rules), never restrictive.
+- `podSelector: {}` (empty) selects ALL pods in the namespace.
 
 ### Ingress Rules (Incoming Traffic)
 
@@ -131,6 +134,14 @@ spec:
 
 Related notes: [004-services-ingress](./004-services-ingress.md), [002-pods-labels](./002-pods-labels.md)
 
+
+- No NetworkPolicy = all traffic allowed; first policy on a pod implicitly denies non-matching traffic.
+- Multiple policies on the same pod are additive (union of rules), never restrictive.
+- `podSelector: {}` (empty) selects ALL pods in the namespace.
+- Ingress and egress are independent; you can restrict one without the other.
+- Always allow DNS egress (UDP 53) when adding egress policies, or pods can't resolve service names.
+- NetworkPolicy is namespaced; it cannot control traffic to/from other namespaces without namespaceSelector.
+- Flannel does not support NetworkPolicy; use Calico or Cilium for enforcement.
 ---
 
 # Troubleshooting Guide
@@ -150,13 +161,3 @@ Related notes: [004-services-ingress](./004-services-ingress.md), [002-pods-labe
 1. Check CNI plugin: `kubectl get pods -n kube-system | grep -E 'calico|cilium|weave'`.
 2. Flannel does NOT enforce NetworkPolicy — policies exist but are ignored.
 3. Verify policy is in the correct namespace.
-
-# Quick Facts (Revision)
-
-- No NetworkPolicy = all traffic allowed; first policy on a pod implicitly denies non-matching traffic.
-- Multiple policies on the same pod are additive (union of rules), never restrictive.
-- `podSelector: {}` (empty) selects ALL pods in the namespace.
-- Ingress and egress are independent; you can restrict one without the other.
-- Always allow DNS egress (UDP 53) when adding egress policies, or pods can't resolve service names.
-- NetworkPolicy is namespaced; it cannot control traffic to/from other namespaces without namespaceSelector.
-- Flannel does not support NetworkPolicy; use Calico or Cilium for enforcement.

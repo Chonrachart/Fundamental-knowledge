@@ -100,6 +100,15 @@ terraform apply -replace=aws_instance.web  # force recreate
 
 Related notes: [001-terraform-overview](./001-terraform-overview.md), [005-state-backend](./005-state-backend.md)
 
+
+- `terraform plan -out=file` + `terraform apply file` is the safest CI workflow.
+- `-target` should be used sparingly — creates incomplete state.
+- `-auto-approve` is for CI only; always review plan interactively in development.
+- `state rm` removes from state without destroying real infrastructure.
+- `state mv` renames resources in state — essential during refactoring.
+- `fmt -check` returns exit code 1 if files are unformatted — use in CI.
+- `validate` checks syntax without API calls — fast pre-commit check.
+- `taint` is deprecated; use `-replace` instead.
 ---
 
 # Troubleshooting Guide
@@ -122,14 +131,3 @@ Related notes: [001-terraform-overview](./001-terraform-overview.md), [005-state
 1. Resource exists in cloud but not in Terraform state.
 2. Import it: `terraform import <address> <id>`.
 3. Or: if managed elsewhere, remove the resource block from your config.
-
-# Quick Facts (Revision)
-
-- `terraform plan -out=file` + `terraform apply file` is the safest CI workflow.
-- `-target` should be used sparingly — creates incomplete state.
-- `-auto-approve` is for CI only; always review plan interactively in development.
-- `state rm` removes from state without destroying real infrastructure.
-- `state mv` renames resources in state — essential during refactoring.
-- `fmt -check` returns exit code 1 if files are unformatted — use in CI.
-- `validate` checks syntax without API calls — fast pre-commit check.
-- `taint` is deprecated; use `-replace` instead.

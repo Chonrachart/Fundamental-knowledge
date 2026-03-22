@@ -90,6 +90,8 @@ echo "Hello $name, today is $today"
 - First line `#!/bin/bash` or `#!/usr/bin/env bash` tells the kernel which interpreter to use.
 - `#!/usr/bin/env bash` searches PATH for bash; more portable across systems.
 - Make executable with `chmod +x script.sh`; run with `./script.sh` (subshell) or `source script.sh` (current shell).
+- Shebang `#!/usr/bin/env bash` is the most portable way to invoke Bash.
+- `source script.sh` runs in the current shell; `./script.sh` runs in a subshell.
 
 ```bash
 ./script.sh        # runs in new subshell; variables do not persist
@@ -119,6 +121,8 @@ Related notes: [002-control-flow](./002-control-flow.md)
 - **Double quotes** `"..."` -- expand variables, `$()`, and escapes (`\`, `$`, backtick).
 - **Single quotes** `'...'` -- everything is literal; no expansion at all.
 - **Unquoted** -- subject to word splitting and glob expansion; almost always a bug.
+- Single quotes are literal; double quotes expand variables and command substitution.
+- Always quote `"$variable"` to prevent word splitting and glob expansion.
 
 ```bash
 name="world"
@@ -134,6 +138,7 @@ Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
 - `$(command)` runs command in a subshell and substitutes its stdout into the current line.
 - Backtick form `` `command` `` is legacy; `$(...)` nests cleanly and is preferred.
 - Always double-quote the result to prevent word splitting: `"$(command)"`.
+- `$()` is preferred over backticks for command substitution; it nests cleanly.
 
 ```bash
 today=$(date +%Y-%m-%d)
@@ -180,6 +185,9 @@ Related notes: [004-io-and-redirection](./004-io-and-redirection.md)
 - Every command returns an exit code: 0 = success, non-zero = failure.
 - `set -euo pipefail` enables strict mode: exit on error, undefined variable, pipe failure.
 - `trap` registers cleanup handlers for signals and script exit.
+- `set -euo pipefail` is the standard strict mode for robust scripts.
+- Exit code 0 = success; anything else = failure; check with `$?`.
+- `bash -x` enables trace mode; `bash -n` checks syntax without running.
 
 Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md)
 
@@ -200,12 +208,10 @@ Related notes: [006-strings-and-arrays](./006-strings-and-arrays.md)
 Related notes: [007-process-substitution-and-subshells](./007-process-substitution-and-subshells.md)
 
 ### Practical Patterns
-
+Related notes: [008-practical-patterns](./008-practical-patterns.md)
 - Standard script template: shebang, strict mode, trap cleanup, usage function, main logic.
 - Argument parsing with `getopts` (short options) or manual loop (long options).
 - Lock files (`flock`, `mkdir`) prevent concurrent execution; `mktemp` + trap handles temp files.
-
-Related notes: [008-practical-patterns](./008-practical-patterns.md)
 
 ---
 
@@ -234,6 +240,7 @@ echo $?
 # run with strict mode inline
 bash -euo pipefail script.sh
 ```
+
 
 # Troubleshooting Guide
 
@@ -268,17 +275,6 @@ Problem: script fails or behaves unexpectedly
 [7] Exit codes: which command returns non-zero?
     echo $? after each suspect command
 ```
-
-# Quick Facts (Revision)
-
-- Shebang `#!/usr/bin/env bash` is the most portable way to invoke Bash.
-- `source script.sh` runs in the current shell; `./script.sh` runs in a subshell.
-- Single quotes are literal; double quotes expand variables and command substitution.
-- Always quote `"$variable"` to prevent word splitting and glob expansion.
-- `$()` is preferred over backticks for command substitution; it nests cleanly.
-- `set -euo pipefail` is the standard strict mode for robust scripts.
-- Exit code 0 = success; anything else = failure; check with `$?`.
-- `bash -x` enables trace mode; `bash -n` checks syntax without running.
 
 # Topic Map
 

@@ -140,6 +140,7 @@ fi
 - The option string: leading `:` enables silent error mode; trailing `:` means the option takes an argument.
 - `OPTARG` holds the argument value; `OPTIND` tracks the index for `shift`.
 - `getopts` does not support long options (`--verbose`); use manual parsing for those.
+- `getopts` handles short options only; use a manual `while/case` loop for `--long-options`.
 
 ```bash
 # getopts for short options
@@ -179,6 +180,9 @@ Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md), 
 - `set -o pipefail` -- pipe returns the exit code of the first failing command.
 - `readonly` for constants prevents accidental reassignment.
 - `SCRIPT_DIR` pattern resolves the script's own location regardless of cwd.
+- `set -euo pipefail` is the standard strict mode: exit on error, unset var error, pipe failure propagation.
+- `${VAR:-default}` provides fallback values; `${VAR:?msg}` exits if the variable is unset.
+- `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` reliably resolves the script's own directory.
 
 ```bash
 #!/usr/bin/env bash
@@ -196,6 +200,7 @@ Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md), [000
 - Source a config file to load variables into the current shell.
 - Guard with existence check; provide defaults for missing values.
 - Use `:-` for default values; use `:?` to require a value.
+- `source config.conf` loads variables into the current shell; guard with `[[ -f ]]` check.
 
 ```bash
 # Source config if it exists
@@ -247,6 +252,7 @@ Related notes: [004-io-and-redirection](./004-io-and-redirection.md), [003-funct
 - `flock` is the standard Linux advisory lock mechanism.
 - `mkdir` can serve as an atomic lock for portability (mkdir is atomic on all filesystems).
 - Always pair lock acquisition with trap-based cleanup.
+- `flock -n` provides non-blocking advisory locks; lock auto-releases when the process exits.
 
 ```bash
 # Method 1: flock (preferred on Linux)
@@ -264,11 +270,6 @@ trap cleanup EXIT
 Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md), [004-io-and-redirection](./004-io-and-redirection.md)
 
 ### Temp Files and Cleanup
-
-- `mktemp` creates unique temporary files/directories securely.
-- Always register a trap to clean up temp files on exit (normal or error).
-- Use `mktemp -d` for temporary directories.
-
 ```bash
 # Create temp file and register cleanup
 TMPFILE="$(mktemp /tmp/myscript.XXXXXX)"
@@ -286,6 +287,12 @@ process "$TMPFILE"
 ```
 
 Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md), [006-strings-and-arrays](./006-strings-and-arrays.md)
+- `mktemp` creates unique temporary files/directories securely.
+- Always register a trap to clean up temp files on exit (normal or error).
+- Use `mktemp -d` for temporary directories.
+- `mktemp` creates unique temp files; always pair with trap cleanup to prevent leaks.
+- `trap cleanup EXIT` guarantees cleanup runs on any exit (normal, error, or caught signal).
+
 
 ---
 
@@ -323,14 +330,3 @@ Script fails silently?
           +--> Permissions? (must be readable)
           +--> Syntax error in conf? Run: bash -n app.conf
 ```
-
-# Quick Facts (Revision)
-
-- `set -euo pipefail` is the standard strict mode: exit on error, unset var error, pipe failure propagation.
-- `getopts` handles short options only; use a manual `while/case` loop for `--long-options`.
-- `trap cleanup EXIT` guarantees cleanup runs on any exit (normal, error, or caught signal).
-- `mktemp` creates unique temp files; always pair with trap cleanup to prevent leaks.
-- `flock -n` provides non-blocking advisory locks; lock auto-releases when the process exits.
-- `source config.conf` loads variables into the current shell; guard with `[[ -f ]]` check.
-- `${VAR:-default}` provides fallback values; `${VAR:?msg}` exits if the variable is unset.
-- `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` reliably resolves the script's own directory.

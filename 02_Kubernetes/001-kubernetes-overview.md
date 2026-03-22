@@ -1,8 +1,8 @@
 # Kubernetes Overview
 
 - Kubernetes orchestrates containers across a cluster of nodes, managing scheduling, scaling, and self-healing.
-- A control plane (API server, scheduler, controller-manager, etcd) makes decisions; worker nodes (kubelet, container runtime) run pods.
-- `kubectl` is the CLI client that talks to the API server using kubeconfig for auth and cluster selection.
+- A control plane (API server, scheduler, controller-manager, `etcd`) makes decisions; worker nodes (`kubelet`, container runtime) run pods.
+- `kubectl` is the CLI client that talks to the API server using `kubeconfig` for auth and cluster selection.
 
 # Architecture
 
@@ -60,8 +60,15 @@ kubectl get pods                    # see pods created by ReplicaSet
 ### Cluster
 
 - **Control plane**: API server, scheduler, controller-manager, etcd.
-- **Nodes**: Run kubelet and container runtime; execute pods.
+- **Nodes**: Run `kubelet` and container runtime; execute pods.
 - `kubectl cluster-info` — check cluster.
+- The API server is the only component that talks to `etcd` directly.
+- `etcd` stores all cluster state; losing `etcd` without backup means losing the cluster.
+- Scheduler assigns pods to nodes based on resource requests, affinity, and taints/tolerations.
+- Controller Manager runs reconciliation loops (Deployment, ReplicaSet, Node, etc.).
+- `kubelet` on each node ensures containers described in PodSpecs are running and healthy.
+- `kube-proxy` maintains network rules on nodes for Service traffic forwarding.
+- Default API server port is 6443 (HTTPS).
 
 ### Pod
 
@@ -94,7 +101,7 @@ kubectl scale deployment/myapp --replicas=3
 
 ### Service
 
-- Stable DNS and IP for pods; types: ClusterIP, NodePort, LoadBalancer.
+- Stable DNS and IP for pods; types: `ClusterIP`, `NodePort`, `LoadBalancer`.
 - Selects pods by label selector.
 
 ```yaml
@@ -112,7 +119,8 @@ spec:
 
 ### kubectl
 
-- CLI to talk to cluster; uses kubeconfig for auth and cluster.
+- CLI to talk to cluster; uses `kubeconfig` for auth and cluster.
+- `kubectl config current-context` shows which cluster/namespace you are targeting.
 
 ```bash
 kubectl get pods
@@ -129,27 +137,16 @@ Related notes: [002-pods-labels](./002-pods-labels.md), [003-deployments-rolling
 # Troubleshooting Guide
 
 ### Cannot connect to cluster
-1. Check kubeconfig: `kubectl config view` — verify server URL, context, and credentials.
+1. Check `kubeconfig`: `kubectl config view` — verify server URL, context, and credentials.
 2. Check context: `kubectl config current-context` — switch with `kubectl config use-context <name>`.
 3. Check API server reachable: `curl -k https://<api-server>:6443/healthz`.
 
 ### kubectl command returns "connection refused"
 1. API server may be down: check `systemctl status kube-apiserver` on control plane node.
-2. Wrong kubeconfig: ensure `~/.kube/config` points to the right cluster.
+2. Wrong `kubeconfig`: ensure `~/.kube/config` points to the right cluster.
 3. Firewall blocking port 6443: check with `ss -tlnp | grep 6443` on the control plane.
 
 ### Deployment created but no pods appear
 1. Check deployment: `kubectl describe deployment <name>` — look at Events.
 2. Check ReplicaSet: `kubectl get rs` — verify desired/current/ready counts.
 3. If replicas are 0: check if `replicas:` is set correctly in the spec.
-
-# Quick Facts (Revision)
-
-- The API server is the only component that talks to etcd directly.
-- etcd stores all cluster state; losing etcd without backup means losing the cluster.
-- Scheduler assigns pods to nodes based on resource requests, affinity, and taints/tolerations.
-- Controller Manager runs reconciliation loops (Deployment, ReplicaSet, Node, etc.).
-- kubelet on each node ensures containers described in PodSpecs are running and healthy.
-- kube-proxy maintains network rules on nodes for Service traffic forwarding.
-- `kubectl config current-context` shows which cluster/namespace you are targeting.
-- Default API server port is 6443 (HTTPS).

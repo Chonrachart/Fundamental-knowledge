@@ -81,7 +81,9 @@ Progressive delivery with ArgoCD + Argo Rollouts:
 
 - Replaces Kubernetes Deployment with Rollout CRD for progressive delivery.
 - Canary: route a percentage of traffic to the new version, monitor, and expand.
-- Requires a traffic management solution: Istio, NGINX Ingress, ALB, SMI, Traefik.
+- Requires a traffic management solution: `Istio`, `NGINX Ingress`, `ALB`, `SMI`, `Traefik`.
+- Argo Rollouts: Rollout CRD replaces Deployment for canary and blue-green strategies.
+- Canary steps: setWeight, pause, analysis — controlled traffic shifting.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -155,6 +157,7 @@ spec:
 
 - Promotion: `kubectl argo rollouts promote myapp` or via ArgoCD UI.
 - Rollback: `kubectl argo rollouts abort myapp` switches back to stable.
+- Blue-Green: activeService + previewService; instant switch with auto/manual promotion.
 
 Related notes: [003-argocd-sync-strategies](./003-argocd-sync-strategies.md)
 
@@ -162,7 +165,7 @@ Related notes: [003-argocd-sync-strategies](./003-argocd-sync-strategies.md)
 
 - AnalysisTemplate defines metrics to evaluate during canary/blue-green deployments.
 - AnalysisRun is a concrete execution of a template.
-- Metric providers: Prometheus, Datadog, NewRelic, CloudWatch, Web (custom HTTP).
+- Metric providers: `Prometheus`, `Datadog`, `NewRelic`, `CloudWatch`, Web (custom HTTP).
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -190,6 +193,7 @@ spec:
 - Success/failure conditions use expr language.
 - `failureLimit`: how many metric failures before rollback.
 - `count` + `interval`: how many times to check over what duration.
+- AnalysisTemplate: define metrics (Prometheus, Datadog) to evaluate during rollout.
 
 Related notes: [003-argocd-sync-strategies](./003-argocd-sync-strategies.md)
 
@@ -219,6 +223,7 @@ metadata:
 ```
 
 - Write-back methods: `git` (commits to repo) or `argocd` (parameter override, no Git change).
+- Image Updater: auto-detect new tags in registry, update Git, trigger sync.
 
 Related notes: [002-argocd-applications](./002-argocd-applications.md)
 
@@ -255,6 +260,7 @@ metadata:
 
 - Triggers define when to send; templates define what to send.
 - Subscribe via annotations on individual Applications.
+- Notifications: Slack/email/webhook on sync events; configure via ConfigMap + annotations.
 
 Related notes: [005-argocd-admin-operations](./005-argocd-admin-operations.md)
 
@@ -293,6 +299,7 @@ spec:
 
 - Cluster labels: tag clusters with metadata (env, region, tier) for generator filtering.
 - Hub-spoke model: ArgoCD in a management cluster deploys to workload clusters.
+- Multi-cluster: register clusters, use ApplicationSet cluster generator.
 
 Related notes: [002-argocd-applications](./002-argocd-applications.md)
 
@@ -318,6 +325,7 @@ generators:
 - **Merge generator**: merge parameters from multiple generators (override defaults per cluster).
 - **Pull Request generator**: create preview environments per PR (see 002-argocd-applications).
 - **SCM Provider generator**: discover repos from GitHub/GitLab org and create apps.
+- Matrix generator: combine clusters x apps for dynamic multi-cluster deployments.
 
 Related notes: [002-argocd-applications](./002-argocd-applications.md)
 
@@ -329,7 +337,7 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 
 1. Check Rollout status: `kubectl argo rollouts get rollout myapp`.
 2. Check if the canary pods are healthy: `kubectl get pods -l rollouts-pod-template-hash`.
-3. Check AnalysisRun: `kubectl get analysisrun` — is it still running, failed, or succeeded?
+3. Check `AnalysisRun`: `kubectl get analysisrun` — is it still running, failed, or succeeded?
 4. Check traffic routing: is the Ingress/Istio VirtualService splitting traffic correctly?
 5. Manual promote: `kubectl argo rollouts promote myapp` to proceed.
 6. Abort if unhealthy: `kubectl argo rollouts abort myapp`.
@@ -339,7 +347,7 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 1. Check Image Updater logs: `kubectl logs -n argocd deploy/argocd-image-updater`.
 2. Verify registry credentials: Image Updater needs pull access to the registry.
 3. Check annotation syntax: `argocd-image-updater.argoproj.io/image-list` format.
-4. Check allow-tags filter: does the regex match the new tag?
+4. Check `allow-tags` filter: does the regex match the new tag?
 5. Check update interval: default 2 minutes; may need to wait.
 6. Verify write-back method: `git` needs write access to the manifest repo.
 
@@ -350,16 +358,3 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 3. Check trigger condition: `when` expression must match the app state.
 4. Verify subscribe annotation on the Application.
 5. Test with `argocd admin notifications trigger get <trigger-name>`.
-
----
-
-# Quick Facts (Revision)
-
-- Argo Rollouts: Rollout CRD replaces Deployment for canary and blue-green strategies.
-- AnalysisTemplate: define metrics (Prometheus, Datadog) to evaluate during rollout.
-- Canary steps: setWeight, pause, analysis — controlled traffic shifting.
-- Blue-Green: activeService + previewService; instant switch with auto/manual promotion.
-- Image Updater: auto-detect new tags in registry, update Git, trigger sync.
-- Notifications: Slack/email/webhook on sync events; configure via ConfigMap + annotations.
-- Multi-cluster: register clusters, use ApplicationSet cluster generator.
-- Matrix generator: combine clusters x apps for dynamic multi-cluster deployments.

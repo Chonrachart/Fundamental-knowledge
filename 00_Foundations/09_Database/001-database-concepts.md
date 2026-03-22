@@ -266,6 +266,15 @@ alembic revision --autogenerate -m "add email column"
 alembic upgrade head
 ```
 
+
+- A table = a relation; a row = a tuple/record; a column = an attribute/field.
+- Primary key = unique + not null; foreign key = references another table's primary key.
+- ACID guarantees reliable transactions; BASE (Basically Available, Soft state, Eventually consistent) describes many NoSQL systems.
+- B-tree is the default index type in both PostgreSQL and MySQL; it handles equality and range queries.
+- An index on a column used in WHERE can turn a full table scan (O(n)) into a B-tree lookup (O(log n)).
+- Schema migrations should be versioned, idempotent where possible, and tested against production-like data.
+- PostgreSQL uses MVCC (Multi-Version Concurrency Control) so readers never block writers and vice versa.
+- When in doubt, start with PostgreSQL -- it covers relational, JSON (JSONB), and full-text search in one engine.
 # Troubleshooting Guide
 
 ```text
@@ -301,14 +310,3 @@ Problem: query is slow
     Check innodb_buffer_pool_size (MySQL)
     Monitor CPU, RAM, disk I/O during query
 ```
-
-# Quick Facts (Revision)
-
-- A table = a relation; a row = a tuple/record; a column = an attribute/field.
-- Primary key = unique + not null; foreign key = references another table's primary key.
-- ACID guarantees reliable transactions; BASE (Basically Available, Soft state, Eventually consistent) describes many NoSQL systems.
-- B-tree is the default index type in both PostgreSQL and MySQL; it handles equality and range queries.
-- An index on a column used in WHERE can turn a full table scan (O(n)) into a B-tree lookup (O(log n)).
-- Schema migrations should be versioned, idempotent where possible, and tested against production-like data.
-- PostgreSQL uses MVCC (Multi-Version Concurrency Control) so readers never block writers and vice versa.
-- When in doubt, start with PostgreSQL -- it covers relational, JSON (JSONB), and full-text search in one engine.

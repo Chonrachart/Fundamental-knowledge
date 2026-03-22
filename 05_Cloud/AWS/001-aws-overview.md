@@ -12,6 +12,7 @@
 - **AZ**: One or more isolated data centers within a region; connected by low-latency links.
 - **Multi-AZ**: Deploy across AZs for high availability; if one AZ fails, others continue.
 - **Edge Locations**: CDN (CloudFront) and DNS (Route 53) points of presence worldwide.
+- Region = geographic area; AZ = isolated data center(s) within a region.
 
 ### Service Categories
 
@@ -25,6 +26,7 @@
 | Monitoring | CloudWatch, CloudTrail, X-Ray |
 | IaC | CloudFormation, CDK |
 | Containers | ECS, EKS, ECR, Fargate |
+- IAM, Route 53, CloudFront, and S3 namespace are global; most services are regional.
 
 ### Shared Responsibility Model
 
@@ -42,6 +44,8 @@ AWS responsibility ("security OF the cloud"):
   ├── Hypervisor and host OS
   └── Managed service infrastructure (RDS, Lambda, S3)
 ```
+- Shared responsibility: AWS secures infrastructure; you secure your configs, data, and access.
+- Always enable MFA on root account; use IAM users/roles for daily work.
 
 ### AWS CLI and Access
 
@@ -54,6 +58,7 @@ aws s3 ls                              # list S3 buckets
 
 - Prefer IAM roles over access keys.
 - Use `aws-vault` or SSO for secure credential management.
+- `aws sts get-caller-identity` is the first debugging step for permission issues.
 
 ### Pricing Models
 
@@ -63,6 +68,8 @@ aws s3 ls                              # list S3 buckets
 | Reserved (1–3yr) | Steady-state workloads; up to 72% discount |
 | Spot | Fault-tolerant workloads; up to 90% discount; can be interrupted |
 | Savings Plans | Flexible commitment; applies across instance families |
+- Spot instances save up to 90% but can be interrupted with 2-minute warning.
+- Use tags for cost allocation, automation, and access control.
 
 Related notes: [002-iam](./002-iam.md), [003-vpc-networking](./003-vpc-networking.md), [004-ec2](./004-ec2.md)
 
@@ -84,13 +91,3 @@ Related notes: [002-iam](./002-iam.md), [003-vpc-networking](./003-vpc-networkin
 1. Check for running EC2 instances, NAT Gateways, and unattached Elastic IPs.
 2. Use AWS Cost Explorer or Billing Dashboard.
 3. Enable AWS Budgets for alerts.
-
-# Quick Facts (Revision)
-
-- Region = geographic area; AZ = isolated data center(s) within a region.
-- IAM, Route 53, CloudFront, and S3 namespace are global; most services are regional.
-- Shared responsibility: AWS secures infrastructure; you secure your configs, data, and access.
-- Spot instances save up to 90% but can be interrupted with 2-minute warning.
-- Use tags for cost allocation, automation, and access control.
-- `aws sts get-caller-identity` is the first debugging step for permission issues.
-- Always enable MFA on root account; use IAM users/roles for daily work.

@@ -183,6 +183,15 @@ tcpdump -i eth0 port 500 or port 4500
 journalctl -u strongswan -f
 ```
 
+
+- IPsec works at Layer 3; it secures all IP traffic transparently to applications.
+- VPN is the use case; IPsec is one technology that implements it.
+- ESP (protocol 50) provides encryption + integrity; AH (protocol 51) provides integrity only.
+- IKEv2 is the modern standard for key negotiation; uses UDP 500/4500.
+- Transport mode: protects payload, keeps original IP header (host-to-host).
+- Tunnel mode: encapsulates entire packet in new IP header (site-to-site VPN).
+- IPsec secures network-layer traffic; TLS secures application-layer traffic -- they serve different purposes.
+- If you only need secure web traffic, TLS is sufficient; for network-to-network encryption, use IPsec.
 # Troubleshooting Guide
 
 ```text
@@ -212,14 +221,3 @@ IPsec tunnel not coming up?
           +--> SA lifetime mismatch? --> align rekey timers
           +--> DPD (Dead Peer Detection) failing? --> check connectivity
 ```
-
-# Quick Facts (Revision)
-
-- IPsec works at Layer 3; it secures all IP traffic transparently to applications.
-- VPN is the use case; IPsec is one technology that implements it.
-- ESP (protocol 50) provides encryption + integrity; AH (protocol 51) provides integrity only.
-- IKEv2 is the modern standard for key negotiation; uses UDP 500/4500.
-- Transport mode: protects payload, keeps original IP header (host-to-host).
-- Tunnel mode: encapsulates entire packet in new IP header (site-to-site VPN).
-- IPsec secures network-layer traffic; TLS secures application-layer traffic -- they serve different purposes.
-- If you only need secure web traffic, TLS is sufficient; for network-to-network encryption, use IPsec.

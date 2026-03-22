@@ -12,6 +12,9 @@
 - Use in workflow: `${{ secrets.MY_SECRET }}`; must exist or step fails.
 - **GITHUB_TOKEN**: Auto-injected; scoped to repo; permissions set in job or workflow.
 - Limit GITHUB_TOKEN permissions to least needed (contents: read, packages: write, etc.).
+- Secrets are masked in logs automatically; never echo them intentionally.
+- `GITHUB_TOKEN` is auto-generated per workflow run and scoped to the current repo.
+- Forked PRs do not receive secrets — this is a security feature, not a bug.
 
 ```yaml
 jobs:
@@ -28,6 +31,8 @@ jobs:
 - **actions/cache**: Save and restore directory by key; restore key for fallback.
 - Key often includes hash of lockfile: `npm-${{ hashFiles('**/package-lock.json') }}`.
 - Scope: branch; cache can be shared across branches (cache from default branch).
+- Cache keys should include `hashFiles()` of the lockfile so changes invalidate stale caches.
+- `restore-keys:` provides fallback cache matching when the exact key misses.
 
 ```yaml
 - uses: actions/cache@v4
@@ -42,6 +47,7 @@ jobs:
 - **actions/upload-artifact**: Upload files from job; stored with workflow run.
 - **actions/download-artifact**: Download in same or later job (by name).
 - Use for build outputs, test results, logs; retention configurable.
+- Artifacts are stored per workflow run and can be downloaded by dependent jobs via `needs:`.
 
 ```yaml
 - uses: actions/upload-artifact@v4
@@ -55,6 +61,7 @@ jobs:
 - Define environments in repo (e.g. staging, production); optional protection rules (required reviewers, wait timer).
 - **environment**: In job; use for approval gates and env-specific secrets.
 - Reference: `environment: production`; secrets can be per-environment.
+- Environment protection rules (reviewers, wait timers) only apply when the job specifies `environment:`.
 
 Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [003-expressions-contexts](./003-expressions-contexts.md)
 
@@ -81,13 +88,3 @@ Related notes: [001-github-actions-overview](./001-github-actions-overview.md), 
 1. Add explicit `permissions:` block to the job or workflow level.
 2. Default token may have read-only access; add `packages: write`, `contents: write`, etc. as needed.
 3. For organization repos: check if org settings restrict GITHUB_TOKEN permissions.
-
-# Quick Facts (Revision)
-
-- Secrets are masked in logs automatically; never echo them intentionally.
-- `GITHUB_TOKEN` is auto-generated per workflow run and scoped to the current repo.
-- Cache keys should include `hashFiles()` of the lockfile so changes invalidate stale caches.
-- `restore-keys:` provides fallback cache matching when the exact key misses.
-- Artifacts are stored per workflow run and can be downloaded by dependent jobs via `needs:`.
-- Environment protection rules (reviewers, wait timers) only apply when the job specifies `environment:`.
-- Forked PRs do not receive secrets — this is a security feature, not a bug.

@@ -135,6 +135,15 @@ kubectl drain node1 --ignore-daemonsets --grace-period=60
 
 Related notes: [002-pods-labels](./002-pods-labels.md), [009-hpa-pod-disruption](./009-hpa-pod-disruption.md)
 
+
+- Taints are on nodes; tolerations are on pods. They work as a pair.
+- `NoExecute` is the only effect that evicts already-running pods.
+- nodeSelector is simpler but less flexible than node affinity.
+- Pod anti-affinity with `topologyKey: kubernetes.io/hostname` spreads replicas across nodes.
+- `kubectl drain` evicts all pods except DaemonSet pods and respects PDB constraints.
+- Cordon only prevents new scheduling; existing pods continue running.
+- `IgnoredDuringExecution` means affinity rules are checked at schedule time but not enforced after.
+- Toleration with `operator: Exists` and empty key matches any taint — use with caution.
 ---
 
 # Troubleshooting Guide
@@ -155,14 +164,3 @@ Related notes: [002-pods-labels](./002-pods-labels.md), [009-hpa-pod-disruption]
 1. Check taint syntax: `kubectl describe node <name> | grep Taint`.
 2. Check pod tolerations: a toleration with `operator: Exists` and no key matches ALL taints.
 3. `PreferNoSchedule` is a soft rule — pods may still land there if no better node exists.
-
-# Quick Facts (Revision)
-
-- Taints are on nodes; tolerations are on pods. They work as a pair.
-- `NoExecute` is the only effect that evicts already-running pods.
-- nodeSelector is simpler but less flexible than node affinity.
-- Pod anti-affinity with `topologyKey: kubernetes.io/hostname` spreads replicas across nodes.
-- `kubectl drain` evicts all pods except DaemonSet pods and respects PDB constraints.
-- Cordon only prevents new scheduling; existing pods continue running.
-- `IgnoredDuringExecution` means affinity rules are checked at schedule time but not enforced after.
-- Toleration with `operator: Exists` and empty key matches any taint — use with caution.

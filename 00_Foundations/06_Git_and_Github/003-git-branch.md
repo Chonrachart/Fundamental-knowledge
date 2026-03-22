@@ -44,6 +44,8 @@ git branch -vv                # list branches with tracking info
 ```
 
 Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
+- A branch is just a pointer to a commit — creating one is instant and cheap
+- `git branch -vv` shows tracking relationships at a glance
 
 ### Switching Branches
 
@@ -56,6 +58,7 @@ git switch -c <new_name>      # create new branch and switch to it
 - Uncommitted changes may block the switch if they conflict
 
 Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
+- `git switch -c <name>` = create + switch in one command
 
 ### Merge
 
@@ -70,6 +73,7 @@ git merge --no-ff <branch>    # force a merge commit even if fast-forward is pos
   - Safe for shared/public branches
 
 Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
+- `--no-ff` forces a merge commit to preserve branch topology
 
 ### Merge Types
 
@@ -101,32 +105,14 @@ Merge Result
 ![three-way-merge_result](./pic/git-merge-three-way.png)
 
 Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
+- Fast-forward merge: no merge commit, pointer moves forward
+- Three-way merge: new merge commit with two parents
 
 ### Merge Conflicts
-
 - Happens when both branches edit the same part of a file and Git cannot auto-merge
 - Must be resolved before the merge can complete
-
-**Resolution steps:**
-
-1. Open the conflicting file(s)
-2. Edit and keep the correct changes
-3. Remove conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
-4. Stage and commit:
-
-```bash
-git add <file>
-git commit
-```
-
-**Cancel a merge in progress:**
-
-```bash
-git merge --abort              # restore repo to pre-merge state
-```
-
-Related notes: [004-git-remote-repository](./004-git-remote-repository.md), [005-git-pull-request](./005-git-pull-request.md)
-
+- Conflict markers: `<<<<<<<` (yours), `=======` (divider), `>>>>>>>` (theirs)
+- `git merge --abort` cancels an in-progress merge
 ---
 
 # Troubleshooting Guide
@@ -142,14 +128,3 @@ Related notes: [004-git-remote-repository](./004-git-remote-repository.md), [005
            YES --> git merge --abort
            NO  --> resolve all conflicts, then git commit
 ```
-
-# Quick Facts (Revision)
-
-- A branch is just a pointer to a commit — creating one is instant and cheap
-- `git switch -c <name>` = create + switch in one command
-- Fast-forward merge: no merge commit, pointer moves forward
-- Three-way merge: new merge commit with two parents
-- `--no-ff` forces a merge commit to preserve branch topology
-- Conflict markers: `<<<<<<<` (yours), `=======` (divider), `>>>>>>>` (theirs)
-- `git merge --abort` cancels an in-progress merge
-- `git branch -vv` shows tracking relationships at a glance

@@ -148,6 +148,15 @@ updates:
 
 Related notes: [004-secrets-cache](./004-secrets-cache.md), [003-expressions-contexts](./003-expressions-contexts.md), [008-self-hosted-runners](./008-self-hosted-runners.md)
 
+
+- OIDC eliminates long-lived cloud credentials; tokens are scoped to repo + branch + environment.
+- `permissions: id-token: write` is required for any OIDC authentication.
+- AWS OIDC uses `sts:AssumeRoleWithWebIdentity`; GCP uses Workload Identity Federation.
+- Pin actions by commit SHA for supply chain security; use Dependabot to track updates.
+- `pull_request_target` has write permissions and secrets access — never checkout fork code with it.
+- Default GITHUB_TOKEN should be read-only at org level; grant write only where needed.
+- OIDC subject claims can be scoped to repo, branch, tag, or environment for fine-grained access.
+- Fork PRs on `pull_request` event are safe by default: no secrets, read-only token.
 ---
 
 # Troubleshooting Guide
@@ -173,14 +182,3 @@ Related notes: [004-secrets-cache](./004-secrets-cache.md), [003-expressions-con
 1. Review the changelog for breaking changes.
 2. Check if the action still has the same inputs/outputs.
 3. Prefer major version pins (`@v4`) for flexibility; SHA pins for maximum security.
-
-# Quick Facts (Revision)
-
-- OIDC eliminates long-lived cloud credentials; tokens are scoped to repo + branch + environment.
-- `permissions: id-token: write` is required for any OIDC authentication.
-- AWS OIDC uses `sts:AssumeRoleWithWebIdentity`; GCP uses Workload Identity Federation.
-- Pin actions by commit SHA for supply chain security; use Dependabot to track updates.
-- `pull_request_target` has write permissions and secrets access — never checkout fork code with it.
-- Default GITHUB_TOKEN should be read-only at org level; grant write only where needed.
-- OIDC subject claims can be scoped to repo, branch, tag, or environment for fine-grained access.
-- Fork PRs on `pull_request` event are safe by default: no secrets, read-only token.

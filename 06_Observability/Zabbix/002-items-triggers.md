@@ -148,17 +148,6 @@ curl -s -X POST http://zabbix.example.com/api_jsonrpc.php \
   -d '{"jsonrpc":"2.0","method":"item.get","params":{"hostids":"10084","output":["name","lastvalue"]},"auth":"<token>","id":1}'
 ```
 
-# Troubleshooting Guide
-
-### Item shows "Not supported" or no data
-
-1. Is the item key valid on the agent? `zabbix_get -s <host-ip> -k <item-key>` -- "ZBX_NOTSUPPORTED" --> key does not exist or wrong parameters; timeout --> agent unreachable (check network / firewall).
-2. Check item configuration in frontend. Is the key spelled correctly? Is the type correct (agent vs SNMP vs HTTP)? Is the host interface configured for this type?
-3. Is preprocessing failing? Administration > Queue -- check if item is queued. Check item "Info" column for preprocessing errors.
-4. For triggers not firing: check expression syntax in trigger config; verify item is collecting expected values (Latest data); check trigger dependencies -- is a parent trigger suppressing it?
-5. Check logs for detailed errors: `/var/log/zabbix/zabbix_server.log` and `/var/log/zabbix/zabbix_agent2.log`.
-
-# Quick Facts (Revision)
 
 - Item = single metric; defined by type + key + interval; values stored as history (raw) and trends (aggregated).
 - Seven main item types: agent passive, agent active, SNMP, HTTP, script, calculated, dependent.
@@ -170,3 +159,12 @@ curl -s -X POST http://zabbix.example.com/api_jsonrpc.php \
 - Use `zabbix_get` to test any agent item key from the command line.
 
 Related notes: [../000-core](../000-core.md), [001-zabbix-overview](./001-zabbix-overview.md), [003-actions-templates](./003-actions-templates.md), [004-monitoring-patterns](./004-monitoring-patterns.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
+# Troubleshooting Guide
+
+### Item shows "Not supported" or no data
+
+1. Is the item key valid on the agent? `zabbix_get -s <host-ip> -k <item-key>` -- "ZBX_NOTSUPPORTED" --> key does not exist or wrong parameters; timeout --> agent unreachable (check network / firewall).
+2. Check item configuration in frontend. Is the key spelled correctly? Is the type correct (agent vs SNMP vs HTTP)? Is the host interface configured for this type?
+3. Is preprocessing failing? Administration > Queue -- check if item is queued. Check item "Info" column for preprocessing errors.
+4. For triggers not firing: check expression syntax in trigger config; verify item is collecting expected values (Latest data); check trigger dependencies -- is a parent trigger suppressing it?
+5. Check logs for detailed errors: `/var/log/zabbix/zabbix_server.log` and `/var/log/zabbix/zabbix_agent2.log`.

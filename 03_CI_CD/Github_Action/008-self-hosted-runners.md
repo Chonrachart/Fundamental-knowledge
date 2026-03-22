@@ -112,6 +112,15 @@ jobs:
 
 Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [002-workflow-syntax](./002-workflow-syntax.md)
 
+
+- Self-hosted runners poll GitHub; GitHub doesn't push to them — no inbound firewall rules needed.
+- Default labels are auto-detected: `self-hosted`, OS, architecture.
+- `--ephemeral` runners handle one job then exit — best for security and clean state.
+- Never use self-hosted runners for public repos — fork PRs can execute arbitrary code.
+- Runner groups (org/enterprise) restrict which repos can target which runners.
+- actions-runner-controller (ARC) is the standard solution for auto-scaling runners on Kubernetes.
+- Runner agent auto-updates; logs are in `_diag/` directory.
+- Self-hosted runners have access to the host network — useful for private registries and internal services.
 ---
 
 # Troubleshooting Guide
@@ -133,14 +142,3 @@ Related notes: [001-github-actions-overview](./001-github-actions-overview.md), 
 2. Use `--ephemeral` flag for clean environment per job.
 3. Add cleanup step at end of workflow: `- run: rm -rf $GITHUB_WORKSPACE/*`.
 4. Use container-based jobs (`container:` in job spec) for isolation.
-
-# Quick Facts (Revision)
-
-- Self-hosted runners poll GitHub; GitHub doesn't push to them — no inbound firewall rules needed.
-- Default labels are auto-detected: `self-hosted`, OS, architecture.
-- `--ephemeral` runners handle one job then exit — best for security and clean state.
-- Never use self-hosted runners for public repos — fork PRs can execute arbitrary code.
-- Runner groups (org/enterprise) restrict which repos can target which runners.
-- actions-runner-controller (ARC) is the standard solution for auto-scaling runners on Kubernetes.
-- Runner agent auto-updates; logs are in `_diag/` directory.
-- Self-hosted runners have access to the host network — useful for private registries and internal services.

@@ -132,6 +132,9 @@ def timer(func):
 ```
 
 Related notes: [003-functions](./003-functions.md), [008-classes-and-oop](./008-classes-and-oop.md)
+- `@decorator` is sugar for `func = decorator(func)` -- the decorator receives and returns a callable.
+- Always use `@functools.wraps(func)` to preserve `__name__`, `__doc__`, `__module__` of the wrapped function.
+- Stacked decorators apply bottom-up: `@a @b def f` means `f = a(b(f))`.
 
 ### Parameterized Decorators
 
@@ -207,6 +210,8 @@ squares = (x**2 for x in range(1_000_000))   # no memory spike
 ```
 
 Related notes: [005-io-and-files](./005-io-and-files.md), [002-control-flow](./002-control-flow.md)
+- A generator function contains `yield`; calling it returns a generator object without running any code.
+- `yield from sub_gen` delegates to a sub-generator, forwarding `next()` and `send()` calls.
 
 ### Iterator Protocol
 
@@ -236,6 +241,7 @@ for n in Range(1, 4):
 ```
 
 Related notes: [008-classes-and-oop](./008-classes-and-oop.md), [002-control-flow](./002-control-flow.md)
+- Generators implement the iterator protocol (`__iter__`, `__next__`) automatically.
 
 ### itertools
 
@@ -266,51 +272,14 @@ list(itertools.combinations("ABC", 2))       # [('A','B'),('A','C'),('B','C')]
 ```
 
 Related notes: [007-modules-and-imports](./007-modules-and-imports.md), [004-data-structures](./004-data-structures.md)
+- `itertools` functions return lazy iterators -- they consume almost no memory regardless of input size.
 
 ### Context Managers
-
 - `with` statement ensures setup/teardown code always runs (even on exceptions).
 - Class-based: define `__enter__` (setup, return resource) and `__exit__` (teardown).
 - Function-based: use `@contextlib.contextmanager` with a single `yield`.
 - `__exit__` receives exception info; returning `True` suppresses the exception.
-
-```python
-from contextlib import contextmanager
-
-@contextmanager
-def temp_directory():
-    import tempfile, shutil
-    path = tempfile.mkdtemp()
-    try:
-        yield path             # resource given to `as` variable
-    finally:
-        shutil.rmtree(path)    # cleanup always runs
-
-with temp_directory() as tmpdir:
-    print(tmpdir)              # /tmp/xyz...
-# directory is deleted after the block
-```
-
-```python
-# Class-based context manager
-class Timer:
-    def __enter__(self):
-        import time
-        self.start = time.perf_counter()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        import time
-        self.elapsed = time.perf_counter() - self.start
-        print(f"Elapsed: {self.elapsed:.4f}s")
-        return False           # do not suppress exceptions
-
-with Timer() as t:
-    sum(range(1_000_000))
-```
-
-Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md), [005-io-and-files](./005-io-and-files.md)
-
+- `@contextmanager` requires exactly one `yield`; put it inside `try/finally` for guaranteed cleanup.
 ---
 
 # Troubleshooting Guide
@@ -349,14 +318,3 @@ Problem: decorator or generator not behaving as expected
     +-- using @contextmanager --> ensure yield is inside try/finally
     +-- class-based --> check __exit__ is defined and handles exceptions
 ```
-
-# Quick Facts (Revision)
-
-- `@decorator` is sugar for `func = decorator(func)` -- the decorator receives and returns a callable.
-- Always use `@functools.wraps(func)` to preserve `__name__`, `__doc__`, `__module__` of the wrapped function.
-- Stacked decorators apply bottom-up: `@a @b def f` means `f = a(b(f))`.
-- A generator function contains `yield`; calling it returns a generator object without running any code.
-- Generators implement the iterator protocol (`__iter__`, `__next__`) automatically.
-- `yield from sub_gen` delegates to a sub-generator, forwarding `next()` and `send()` calls.
-- `itertools` functions return lazy iterators -- they consume almost no memory regardless of input size.
-- `@contextmanager` requires exactly one `yield`; put it inside `try/finally` for guaranteed cleanup.

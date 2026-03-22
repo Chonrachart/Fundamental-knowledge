@@ -74,6 +74,9 @@ process_data "$TMPFILE"
 - `$?` holds the exit code of the most recently executed command.
 - `exit N` terminates the script with code N; bare `exit` uses the last command's code.
 - Convention: `1` = general error, `2` = misuse of builtin, `126` = not executable, `127` = command not found, `128+N` = killed by signal N.
+- Exit code `0` = success; anything `1-255` = failure.
+- `$?` holds the exit code of the last command; `${PIPESTATUS[@]}` holds all pipeline exit codes.
+- Signal `128+N` means the process was killed by signal N (e.g., 130 = SIGINT, 137 = SIGKILL).
 
 ```bash
 ls /tmp
@@ -112,6 +115,8 @@ echo "hello" | grep "world" | cat
 ```
 
 - Exceptions to `set -e`: commands in `if` conditions, `||`/`&&` chains, and `!`-prefixed commands do not trigger errexit.
+- `set -euo pipefail` is the standard "strict mode" for production scripts.
+- `set -e` does not trigger inside `if`, `||`, `&&`, or `!` constructs.
 
 Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
 
@@ -138,17 +143,12 @@ LOCKFILE="/var/lock/myscript.lock"
 - `trap -l` -- list all signal names and numbers.
 - `trap '' SIGNAL` -- ignore a signal (empty string = ignore).
 - `trap - SIGNAL` -- reset a signal to its default behavior.
+- `trap 'cmd' EXIT` always fires -- normal exit, error exit, or signal-caused exit.
+- `trap 'cmd' ERR` only fires if `set -e` (errexit) is also active.
 
 Related notes: [003-functions](./003-functions.md)
 
 ### Debugging (set -x)
-
-- `set -x` (xtrace) -- print each command and its expanded arguments before execution.
-- `set +x` -- turn tracing off.
-- `bash -x script.sh` -- run an entire script in trace mode without editing it.
-- `PS4='+ ${BASH_SOURCE}:${LINENO}: '` -- customize the trace prefix to show file and line number.
-- `BASH_XTRACEFD=5` -- redirect trace output to a file descriptor (keeps stderr clean).
-
 ```bash
 #!/bin/bash
 set -euo pipefail
@@ -162,6 +162,13 @@ echo "hello $name"
 ```
 
 Related notes: [004-io-and-redirection](./004-io-and-redirection.md)
+- `set -x` (xtrace) -- print each command and its expanded arguments before execution.
+- `set +x` -- turn tracing off.
+- `bash -x script.sh` -- run an entire script in trace mode without editing it.
+- `PS4='+ ${BASH_SOURCE}:${LINENO}: '` -- customize the trace prefix to show file and line number.
+- `BASH_XTRACEFD=5` -- redirect trace output to a file descriptor (keeps stderr clean).
+- `set -x` prints every command before execution; `PS4` controls the trace prefix.
+
 
 ---
 
@@ -194,14 +201,3 @@ Problem: script fails silently or behaves unexpectedly
 [4] Still unclear?
     Run with set -x or bash -x script.sh to trace execution
 ```
-
-# Quick Facts (Revision)
-
-- Exit code `0` = success; anything `1-255` = failure.
-- `$?` holds the exit code of the last command; `${PIPESTATUS[@]}` holds all pipeline exit codes.
-- `set -euo pipefail` is the standard "strict mode" for production scripts.
-- `set -e` does not trigger inside `if`, `||`, `&&`, or `!` constructs.
-- `trap 'cmd' EXIT` always fires -- normal exit, error exit, or signal-caused exit.
-- `trap 'cmd' ERR` only fires if `set -e` (errexit) is also active.
-- `set -x` prints every command before execution; `PS4` controls the trace prefix.
-- Signal `128+N` means the process was killed by signal N (e.g., 130 = SIGINT, 137 = SIGKILL).

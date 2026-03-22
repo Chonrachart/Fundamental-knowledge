@@ -127,15 +127,13 @@ git push origin main                             # update your fork on GitHub
 Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
 
 ### PR Best Practices
-
+Related notes: [003-git-branch](./003-git-branch.md)
 - **Small, focused PRs** — one concern per PR; easier to review and less risky
 - **Descriptive titles** — summarize the change, not the file (e.g., "Add rate limiting to auth endpoint" not "Update auth.py")
 - **Link issues** — use `Fixes #N` in the description to auto-close related issues
 - **CI checks** — ensure all automated tests and linters pass before requesting review
 - **Self-review first** — review your own diff before assigning reviewers
 - **Respond to feedback** — address all comments; push fix commits or explain why no change is needed
-
-Related notes: [003-git-branch](./003-git-branch.md)
 
 ---
 
@@ -166,6 +164,15 @@ git push --delete origin feature-xyz
 
 - Use `git push -u` on the first push to set upstream tracking for the new branch
 
+
+- Fork = your copy of someone else's repo; PR = request to merge back
+- PR has a base branch (target) and compare branch (your changes)
+- Three GitHub merge strategies: merge commit, squash and merge, rebase and merge
+- Draft PRs signal work-in-progress and block merging
+- `Fixes #N` in PR description auto-closes the linked issue on merge
+- Keep forks in sync: `git fetch upstream` then `git merge upstream/main`
+- Small, focused PRs with descriptive titles get reviewed faster
+- Always run CI checks before requesting review
 # Troubleshooting Guide
 
 ```text
@@ -187,14 +194,3 @@ git push --delete origin feature-xyz
     +--> Verify you pushed to the correct branch
     +--> Check base branch is set correctly on GitHub
 ```
-
-# Quick Facts (Revision)
-
-- Fork = your copy of someone else's repo; PR = request to merge back
-- PR has a base branch (target) and compare branch (your changes)
-- Three GitHub merge strategies: merge commit, squash and merge, rebase and merge
-- Draft PRs signal work-in-progress and block merging
-- `Fixes #N` in PR description auto-closes the linked issue on merge
-- Keep forks in sync: `git fetch upstream` then `git merge upstream/main`
-- Small, focused PRs with descriptive titles get reviewed faster
-- Always run CI checks before requesting review

@@ -178,6 +178,14 @@ molecule converge && molecule verify
 ```
 
 
+
+- Idempotency: second run must produce zero `changed` results.
+- Use `args: creates:` as a guard for `command` tasks that are not natively idempotent.
+- `ansible-lint` catches style and safety issues early — run it in CI.
+- Molecule tests roles in isolation; use Docker for fast local iteration.
+- Pin `requirements.yml` versions — unpinned installs break on Galaxy updates.
+- `--syntax-check` catches YAML/Jinja2 errors without connecting to any host.
+- Keep `defaults/main.yml` documented — it is the contract between the role and its callers.
 # Troubleshooting Guide
 
 ### Playbook not idempotent (changed on second run)
@@ -196,13 +204,3 @@ molecule converge && molecule verify
 1. Run `molecule converge --debug` for full output.
 2. Check if the Docker image matches the target OS (e.g. `ubuntu:22.04` vs `rocky:9`).
 
-
-# Quick Facts (Revision)
-
-- Idempotency: second run must produce zero `changed` results.
-- Use `args: creates:` as a guard for `command` tasks that are not natively idempotent.
-- `ansible-lint` catches style and safety issues early — run it in CI.
-- Molecule tests roles in isolation; use Docker for fast local iteration.
-- Pin `requirements.yml` versions — unpinned installs break on Galaxy updates.
-- `--syntax-check` catches YAML/Jinja2 errors without connecting to any host.
-- Keep `defaults/main.yml` documented — it is the contract between the role and its callers.

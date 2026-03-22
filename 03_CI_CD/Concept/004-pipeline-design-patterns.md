@@ -113,6 +113,7 @@ jobs:
 - Best for: small projects, few tests, simple build/test/deploy.
 - Drawback: total time = sum of all job times; no speed benefit.
 - In GHA: use `needs` to create the chain.
+- Pipeline = directed acyclic graph (DAG); edges are job dependencies.
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
@@ -123,6 +124,7 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 - Best for: lint + unit tests + security scan can all start from checkout.
 - Total time = slowest parallel job (not sum of all).
 - Watch for runner limits: too many parallel jobs may queue.
+- Parallel jobs: no `needs` = run simultaneously; total time = slowest job.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -134,6 +136,7 @@ Related notes: [003-best-practices](./003-best-practices.md)
   - Use case: all platform tests must pass before deploy.
 - In GHA: fan-in = one job with `needs: [job-a, job-b, job-c]`.
 - Forms a diamond pattern when combined: build --> (test-A, test-B) --> deploy.
+- Fan-in: one job with `needs: [A, B, C]` waits for all three.
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
@@ -144,6 +147,7 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 - GHA generates one job per combination automatically.
 - Use `exclude` to skip specific combinations; `include` to add extra cases.
 - Best for: cross-platform testing, multi-version compatibility.
+- Matrix: same job, multiple parameter combinations, auto-parallelized.
 
 ```yaml
 strategy:
@@ -165,6 +169,7 @@ Related notes: [006-testing-strategies](./006-testing-strategies.md)
   - `on.pull_request.branches: [main]` — run on PR targeting main.
   - `on.push.tags: ['v*']` — run on version tags.
 - Use `if: github.ref == 'refs/heads/main'` in jobs for conditional logic.
+- Branch strategy: feature = CI only; main = CI + staging; tag = production.
 
 Related notes: [008-environment-management](./008-environment-management.md)
 
@@ -175,6 +180,7 @@ Related notes: [008-environment-management](./008-environment-management.md)
 - Never rebuild for production — same image/binary, different config.
 - Tag artifacts with git SHA or semantic version for traceability.
 - Promotion may require manual approval (GHA: `environment: production`).
+- Build once, promote: same artifact through staging and production.
 
 Related notes: [007-artifact-management](./007-artifact-management.md), [008-environment-management](./008-environment-management.md)
 
@@ -185,6 +191,7 @@ Related notes: [007-artifact-management](./007-artifact-management.md), [008-env
 - Pass inputs (parameters) and secrets from caller to callee.
 - Best for: shared build-test, deploy logic across multiple repos or services.
 - Composite actions: reusable step sequences (smaller scope than workflows).
+- Reusable workflows: `workflow_call` for shared logic across repos.
 
 ```yaml
 # Reusable workflow (callee)
@@ -221,8 +228,9 @@ on:
       - 'libs/shared/**'     # shared lib changes affect api too
 ```
 
-- Tools: Nx, Turborepo, Bazel for intelligent dependency-aware task running.
+- Tools: `Nx`, `Turborepo`, `Bazel` for intelligent dependency-aware task running.
 - Alternatively: one workflow per service, each with path filters.
+- Path filters: trigger only affected service pipelines in monorepos.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -255,18 +263,5 @@ Related notes: [003-best-practices](./003-best-practices.md)
 
 1. Add path filters to `on.push.paths` and `on.pull_request.paths`.
 2. Include shared library paths in dependent service filters.
-3. Consider using a monorepo build tool (Nx, Turborepo) for dependency-aware filtering.
+3. Consider using a monorepo build tool (`Nx`, `Turborepo`) for dependency-aware filtering.
 4. Verify path filters are on the correct trigger (push vs pull_request).
-
----
-
-# Quick Facts (Revision)
-
-- Pipeline = directed acyclic graph (DAG); edges are job dependencies.
-- Parallel jobs: no `needs` = run simultaneously; total time = slowest job.
-- Fan-in: one job with `needs: [A, B, C]` waits for all three.
-- Matrix: same job, multiple parameter combinations, auto-parallelized.
-- Build once, promote: same artifact through staging and production.
-- Path filters: trigger only affected service pipelines in monorepos.
-- Reusable workflows: `workflow_call` for shared logic across repos.
-- Branch strategy: feature = CI only; main = CI + staging; tag = production.

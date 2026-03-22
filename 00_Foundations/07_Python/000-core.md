@@ -163,13 +163,11 @@ Related notes: [007-modules-and-imports](./007-modules-and-imports.md)
 Related notes: [008-classes-and-oop](./008-classes-and-oop.md)
 
 ### Decorators and Generators
-
+Related notes: [009-decorators-and-generators](./009-decorators-and-generators.md)
 - Decorators wrap functions to add behavior: `@decorator` syntax.
 - Common built-in decorators: `@staticmethod`, `@classmethod`, `@property`.
 - Generators use `yield` to produce values lazily, one at a time.
 - Generator expressions: `(x for x in iterable)` -- memory-efficient iteration.
-
-Related notes: [009-decorators-and-generators](./009-decorators-and-generators.md)
 
 ---
 
@@ -208,6 +206,15 @@ python3 -m py_compile script.py
 python3 -W all script.py
 ```
 
+
+- Python is interpreted but compiles to bytecode (.pyc) cached in `__pycache__/`.
+- Indentation (4 spaces) defines blocks; mixing tabs and spaces raises `TabError`.
+- Everything is an object; variables are names bound to objects (dynamic typing).
+- `python3 -m venv env` creates an isolated environment; always use one per project.
+- LEGB scope rule: Local > Enclosing > Global > Built-in.
+- `with` statement manages resources (files, locks) via context managers.
+- `__name__ == "__main__"` guard separates reusable modules from script entry points.
+- PEP 8 is the style guide; enforce with `flake8` or `ruff`.
 # Troubleshooting Guide
 
 ```text
@@ -238,17 +245,6 @@ Problem: Python script fails or behaves unexpectedly
 [6] Logic: add print() or use pdb
     python3 -m pdb script.py
 ```
-
-# Quick Facts (Revision)
-
-- Python is interpreted but compiles to bytecode (.pyc) cached in `__pycache__/`.
-- Indentation (4 spaces) defines blocks; mixing tabs and spaces raises `TabError`.
-- Everything is an object; variables are names bound to objects (dynamic typing).
-- `python3 -m venv env` creates an isolated environment; always use one per project.
-- LEGB scope rule: Local > Enclosing > Global > Built-in.
-- `with` statement manages resources (files, locks) via context managers.
-- `__name__ == "__main__"` guard separates reusable modules from script entry points.
-- PEP 8 is the style guide; enforce with `flake8` or `ruff`.
 
 # Topic Map
 

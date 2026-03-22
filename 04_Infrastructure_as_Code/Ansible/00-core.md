@@ -167,6 +167,14 @@ ansible-galaxy collection install -r collections/requirements.yml
 - Add `-v`, `-vv`, or `-vvv` to any command for increasing verbosity.
 
 
+
+- Ansible connects with SSH; no daemon or agent runs on managed nodes.
+- Exit code `0` = all tasks ok/skipped; non-zero = at least one failure.
+- Idempotent = running the same playbook twice produces the same result without extra changes.
+- `gather_facts: false` skips fact collection (speeds up runs when facts are unused).
+- Handlers run **once** at the end of a play, not once per `notify`.
+- `--check` never changes anything; useful for pre-flight validation.
+- Vault password is required at runtime: `--vault-password-file` or `--ask-vault-pass`.
 # Troubleshooting Guide
 
 ### Task fails or behaves unexpectedly
@@ -178,17 +186,6 @@ ansible-galaxy collection install -r collections/requirements.yml
 5. Check variable precedence (extra-vars win; role defaults lose).
 6. Run the ad-hoc module directly on one host.
 7. Fix and re-run; verify idempotency (second run should be all ok).
-
-
-# Quick Facts (Revision)
-
-- Ansible connects with SSH; no daemon or agent runs on managed nodes.
-- Exit code `0` = all tasks ok/skipped; non-zero = at least one failure.
-- Idempotent = running the same playbook twice produces the same result without extra changes.
-- `gather_facts: false` skips fact collection (speeds up runs when facts are unused).
-- Handlers run **once** at the end of a play, not once per `notify`.
-- `--check` never changes anything; useful for pre-flight validation.
-- Vault password is required at runtime: `--vault-password-file` or `--ask-vault-pass`.
 
 
 # Topic Map

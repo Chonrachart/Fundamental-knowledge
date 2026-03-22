@@ -46,6 +46,9 @@ kubectl auth can-i get pods -n dev --as=system:serviceaccount:dev:my-app
 - **Role**: Namespaced; grants permissions within one namespace.
 - **ClusterRole**: Cluster-wide; grants permissions across all namespaces or on cluster-scoped resources (nodes, PVs).
 - Rules: list of `apiGroups`, `resources`, `verbs`.
+- RBAC has four objects: Role, ClusterRole, RoleBinding, ClusterRoleBinding.
+- Role is namespaced; ClusterRole is cluster-wide.
+- API groups: `""` is core (pods, services), `apps` is deployments, `rbac.authorization.k8s.io` is RBAC.
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -74,6 +77,7 @@ rules:
 - **RoleBinding**: Binds a Role (or ClusterRole) to subjects in one namespace.
 - **ClusterRoleBinding**: Binds a ClusterRole to subjects cluster-wide.
 - Subjects: User, Group, or ServiceAccount.
+- RoleBinding can reference a ClusterRole but scopes it to the binding's namespace.
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -95,7 +99,9 @@ roleRef:
 
 - Every namespace has a `default` ServiceAccount; pods use it unless specified otherwise.
 - Custom ServiceAccount: create and assign to pod via `spec.serviceAccountName`.
-- **automountServiceAccountToken: false**: Disable token mount when pod doesn't need API access.
+- `automountServiceAccountToken: false`: Disable token mount when pod doesn't need API access.
+- Every pod gets the `default` ServiceAccount unless `serviceAccountName` is set.
+- `automountServiceAccountToken: false` is a security best practice for pods that don't call the API.
 
 ```yaml
 apiVersion: v1
@@ -119,6 +125,7 @@ spec:
 - Set `automountServiceAccountToken: false` on the default ServiceAccount and on pods that don't need API access.
 - Use separate ServiceAccounts per application; don't share the default.
 - Prefer Role + RoleBinding (namespaced) over ClusterRole + ClusterRoleBinding when possible.
+- `kubectl auth can-i` tests permissions without actually performing the action.
 
 Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md), [005-configmaps-secrets](./005-configmaps-secrets.md)
 
@@ -142,13 +149,3 @@ Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md), [005-con
 1. Check `automountServiceAccountToken` on both the ServiceAccount and Pod spec.
 2. If false on SA, override with `automountServiceAccountToken: true` on the pod (or vice versa).
 3. Check: `kubectl exec <pod> -- ls /var/run/secrets/kubernetes.io/serviceaccount/`.
-
-# Quick Facts (Revision)
-
-- RBAC has four objects: Role, ClusterRole, RoleBinding, ClusterRoleBinding.
-- Role is namespaced; ClusterRole is cluster-wide.
-- RoleBinding can reference a ClusterRole but scopes it to the binding's namespace.
-- Every pod gets the `default` ServiceAccount unless `serviceAccountName` is set.
-- `kubectl auth can-i` tests permissions without actually performing the action.
-- `automountServiceAccountToken: false` is a security best practice for pods that don't call the API.
-- API groups: `""` is core (pods, services), `apps` is deployments, `rbac.authorization.k8s.io` is RBAC.

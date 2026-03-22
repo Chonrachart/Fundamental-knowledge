@@ -1,7 +1,7 @@
 # Alertmanager
 
 - Alertmanager receives alerts from Prometheus, groups and deduplicates them, applies inhibition rules, and routes notifications to configured receivers.
-- Core features: alert grouping (group_by labels), grouping behavior (group_wait, group_interval, repeat_interval), inhibition rules, silence management.
+- Core features: alert grouping (`group_by` labels), grouping behavior (`group_wait`, `group_interval`, `repeat_interval`), inhibition rules, silence management.
 - Notification integrations: Slack, email, PagerDuty, Opsgenie, webhook, generic HTTP, SMS, chat (Discord, Mattermost, Telegram).
 
 # Architecture
@@ -195,10 +195,10 @@ Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [../Graf
 
 ### Grouping Behavior
 
-- **group_by**: list of label names to group alerts by. Example: `group_by: [alertname, severity]` groups alerts by alert name and severity.
-- **group_wait**: wait time before sending first notification for a new group (default 10s). Allows related alerts to arrive together.
-- **group_interval**: wait time between sending successive notifications for the same group (default 5m). Lower = more frequent batches.
-- **repeat_interval**: wait time before re-sending a group notification if alert still active (default 4h).
+- **`group_by`**: list of label names to group alerts by. Example: `group_by: [alertname, severity]` groups alerts by alert name and severity.
+- **`group_wait`**: wait time before sending first notification for a new group (default 10s). Allows related alerts to arrive together.
+- **`group_interval`**: wait time between sending successive notifications for the same group (default 5m). Lower = more frequent batches.
+- **`repeat_interval`**: wait time before re-sending a group notification if alert still active (default 4h).
 
 ```text
 Timing example:
@@ -218,7 +218,7 @@ Related notes: [001-prometheus-overview](./001-prometheus-overview.md)
 
 - Inhibition suppresses certain alerts when others are firing.
 - Use case: suppress low-severity alerts when high-severity ones exist (e.g. suppress warning when critical exists).
-- Matched via source_match/source_match_re (condition to check) and target_match/target_match_re (alerts to suppress).
+- Matched via `source_match`/`source_match_re` (condition to check) and `target_match`/`target_match_re` (alerts to suppress).
 - `equal` labels must have the same value in both source and target for inhibition to apply.
 
 ```yaml
@@ -456,24 +456,33 @@ amtool silence query
 amtool alert query --alertname=TestAlert --severity=critical
 ```
 
+
+- Alertmanager receives alerts from Prometheus, deduplicates/groups them, applies inhibition/silences, and routes to receivers.
+- Grouping: `group_by` labels, `group_wait` (wait before first send), `group_interval` (wait between batches), `repeat_interval` (re-send delay).
+- Routing: tree of rules matching labels to receivers; nested routes override parent settings.
+- Inhibition: suppress low-severity alerts when high-severity exist; uses `source_match`, `target_match`, `equal` labels.
+- Silences: time-window suppression by label match; useful for maintenance windows; persisted to disk.
+- Receivers: Slack, email, PagerDuty, Opsgenie, webhook, SMS, chat (Discord, Mattermost, Telegram).
+- HA cluster: multiple Alertmanager instances with gossip protocol sync; all listen on same port, access via load balancer.
+- Alert states: Pending (Prometheus only), Firing (sent to Alertmanager), Resolved (condition false), Suppressed (inhibited/silenced).
 # Troubleshooting Guide
 
 ### Alert fired in Prometheus but not received in Slack
 
 1. Is Alertmanager running and reachable? `curl http://alertmanager:9093/-/healthy` -- connection refused --> start Alertmanager; unhealthy --> check logs.
-2. Is Prometheus configured to send to Alertmanager? Check prometheus.yml: alerting: alertmanagers: -- not configured --> add alertmanager address.
+2. Is Prometheus configured to send to Alertmanager? Check `prometheus.yml`: `alerting: alertmanagers:` -- not configured --> add alertmanager address.
 3. Did the alert reach Alertmanager? `curl http://alertmanager:9093/api/v1/alerts | grep <alert_name>` -- not present --> Prometheus not sending, check logs.
-4. Is the alert being grouped/routed correctly? Check alertmanager.yml: route tree, group_by labels -- wrong receiver --> check route matching logic.
+4. Is the alert being grouped/routed correctly? Check `alertmanager.yml`: route tree, `group_by` labels -- wrong receiver --> check route matching logic.
 5. Is the alert suppressed by inhibition or silence? `curl http://alertmanager:9093/api/v1/silences` -- silence matches --> check silence end time.
-6. Is the receiver configured correctly? Check alertmanager.yml: receivers, Slack webhook URL -- webhook URL wrong --> update and reload config.
+6. Is the receiver configured correctly? Check `alertmanager.yml`: receivers, Slack webhook URL -- webhook URL wrong --> update and reload config.
 7. Test Slack webhook directly: `curl -X POST <slack_webhook_url> -H 'Content-Type: application/json' -d '{"text": "test message"}'` -- fails --> webhook URL invalid or expired.
 8. Check Alertmanager logs: `journalctl -u alertmanager -f` -- look for: "sending alert", "webhook failed", "error".
 9. Try manually sending test alert to Alertmanager: `curl -X POST http://alertmanager:9093/api/v1/alerts -H 'Content-Type: application/json' -d '[{...}]'`.
 
 ### Too many notifications received (alert spam)
 
-1. Adjust grouping parameters. Increase group_wait (wait longer before sending). Increase group_interval (less frequent batches).
-2. Adjust repeat_interval. Increase repeat_interval to reduce re-sends.
+1. Adjust grouping parameters. Increase `group_wait` (wait longer before sending). Increase `group_interval` (less frequent batches).
+2. Adjust `repeat_interval`. Increase `repeat_interval` to reduce re-sends.
 3. Apply inhibition rules. Suppress low-severity when high-severity fires.
 4. Apply silences for flaky alerts. Temporarily suppress known flaky metrics.
 5. Fix the underlying alert rule. If too sensitive, increase threshold or 'for' duration.
@@ -485,14 +494,3 @@ amtool alert query --alertname=TestAlert --severity=critical
 3. Check silence time window. Is current time within startsAt and endsAt? -- expired --> silence is no longer active.
 4. Delete silence: `curl -X DELETE http://alertmanager:9093/api/v1/silences/<id>`.
 5. Verify alert fires again: `curl http://alertmanager:9093/api/v1/alerts | grep <alert_name>`.
-
-# Quick Facts (Revision)
-
-- Alertmanager receives alerts from Prometheus, deduplicates/groups them, applies inhibition/silences, and routes to receivers.
-- Grouping: group_by labels, group_wait (wait before first send), group_interval (wait between batches), repeat_interval (re-send delay).
-- Routing: tree of rules matching labels to receivers; nested routes override parent settings.
-- Inhibition: suppress low-severity alerts when high-severity exist; uses source_match, target_match, equal labels.
-- Silences: time-window suppression by label match; useful for maintenance windows; persisted to disk.
-- Receivers: Slack, email, PagerDuty, Opsgenie, webhook, SMS, chat (Discord, Mattermost, Telegram).
-- HA cluster: multiple Alertmanager instances with gossip protocol sync; all listen on same port, access via load balancer.
-- Alert states: Pending (Prometheus only), Firing (sent to Alertmanager), Resolved (condition false), Suppressed (inhibited/silenced).

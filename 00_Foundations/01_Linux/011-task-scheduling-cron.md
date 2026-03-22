@@ -59,6 +59,7 @@ crontab -l              # list current user's crontab
 crontab -r              # remove current user's crontab (careful — no confirmation)
 crontab -u <user> -l    # list another user's crontab (root only)
 ```
+- `crontab -r` deletes the entire crontab with no confirmation — be careful.
 
 ### Common Schedule Examples
 
@@ -92,6 +93,7 @@ crontab -u <user> -l    # list another user's crontab (root only)
 @monthly  /path/to/monthly.sh      # equivalent to: 0 0 1 * *
 @yearly   /path/to/yearly.sh       # equivalent to: 0 0 1 1 *
 ```
+- `@reboot` runs once at system boot, not after every login.
 
 ### System Cron Files
 
@@ -112,6 +114,7 @@ Format difference:
 # /etc/crontab and /etc/cron.d/* — has extra user field:
 * * * * * root /path/command
 ```
+- `/etc/crontab` and files in `/etc/cron.d/` require an explicit username field.
 
 ### Environment in Cron
 
@@ -123,6 +126,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # always redirect output to capture errors
 */5 * * * * /usr/bin/bash /home/user/job.sh >> /var/log/job.log 2>&1
 ```
+- Cron's `PATH` is `/usr/bin:/bin` by default — always use absolute paths or set `PATH=` at top of crontab.
+- Output from cron jobs goes to the user's mail unless redirected to a file with `>> /log 2>&1`.
 
 Related notes:
 - [10-shell-environment-and-path](./10-shell-environment-and-path.md) — PATH and environment variables
@@ -137,6 +142,8 @@ Related notes:
 
 - `flock -n` skips this run if the previous run is still holding the lock.
 - Prevents multiple instances of a long-running job from piling up.
+- `flock -n` is the correct way to prevent overlapping cron job executions.
+- For dependency control, missed-run catching, and richer logging, use `systemd timers` instead of cron.
 
 ### Security
 
@@ -145,6 +152,7 @@ chmod 700 /path/to/job.sh           # only owner can read/execute
 # Do NOT put plain-text secrets in crontab
 # Use a secrets file with restricted permissions instead
 ```
+
 
 ---
 
@@ -164,13 +172,3 @@ chmod 700 /path/to/job.sh           # only owner can read/execute
 2. Check PATH: add full absolute paths to command and script.
 3. Check script is executable: `chmod +x /path/to/job.sh`.
 
-
-# Quick Facts (Revision)
-
-- Cron's `PATH` is `/usr/bin:/bin` by default — always use absolute paths or set `PATH=` at top of crontab.
-- `crontab -r` deletes the entire crontab with no confirmation — be careful.
-- `@reboot` runs once at system boot, not after every login.
-- Output from cron jobs goes to the user's mail unless redirected to a file with `>> /log 2>&1`.
-- `/etc/crontab` and files in `/etc/cron.d/` require an explicit username field.
-- `flock -n` is the correct way to prevent overlapping cron job executions.
-- For dependency control, missed-run catching, and richer logging, use `systemd timers` instead of cron.

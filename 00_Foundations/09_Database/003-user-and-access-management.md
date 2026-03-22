@@ -273,14 +273,6 @@ openssl s_client -connect dbhost:3306 -starttls mysql
 Related notes: [000-core](./000-core.md)
 
 ### Best Practices
-
-- **No root/superuser for applications** -- create dedicated users with limited grants.
-- **Separate user per application** -- if app A is compromised, app B is unaffected.
-- **Principle of least privilege** -- grant only SELECT if the app only reads data.
-- **Host restriction** -- bind users to specific IPs or subnets, never `'%'` in production.
-- **Password rotation** -- change passwords periodically, use secret managers (Vault, AWS Secrets Manager).
-- **Audit grants regularly** -- review who has access and remove stale users.
-
 ```text
 Good setup example:
 
@@ -301,6 +293,12 @@ Bad setup (avoid):
 ```
 
 Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-troubleshooting.md)
+- **No root/superuser for applications** -- create dedicated users with limited grants.
+- **Separate user per application** -- if app A is compromised, app B is unaffected.
+- **Principle of least privilege** -- grant only SELECT if the app only reads data.
+- **Host restriction** -- bind users to specific IPs or subnets, never `'%'` in production.
+- **Password rotation** -- change passwords periodically, use secret managers (Vault, AWS Secrets Manager).
+- **Audit grants regularly** -- review who has access and remove stale users.
 
 ---
 
@@ -345,6 +343,15 @@ mysql -e "FLUSH PRIVILEGES;"
 mysql -e "SELECT user, host, db, command FROM information_schema.processlist;"
 ```
 
+
+- PostgreSQL: roles are users (with LOGIN) or groups (without LOGIN); MySQL: users are `'name'@'host'` pairs.
+- PostgreSQL `pg_hba.conf` is evaluated top to bottom -- first matching rule wins; reload after editing.
+- MySQL `FLUSH PRIVILEGES` is needed after direct edits to grant tables (not after GRANT/REVOKE statements).
+- Use `scram-sha-256` (PostgreSQL) or `caching_sha2_password` (MySQL 8) -- avoid legacy md5/mysql_native_password for new setups.
+- Never use the superuser/root account for application connections.
+- Separate users per application limits blast radius of credential leaks.
+- Always restrict user host access: use specific IPs or subnets, not `'%'` or `0.0.0.0/0`.
+- Use `hostssl` in pg_hba.conf or `REQUIRE SSL` in MySQL to enforce encrypted connections.
 # Troubleshooting Guide
 
 ```text
@@ -388,14 +395,3 @@ Problem: user cannot connect to the database
     |
     +-- SSL missing --> connect with sslmode=require / --ssl-mode=REQUIRED
 ```
-
-# Quick Facts (Revision)
-
-- PostgreSQL: roles are users (with LOGIN) or groups (without LOGIN); MySQL: users are `'name'@'host'` pairs.
-- PostgreSQL `pg_hba.conf` is evaluated top to bottom -- first matching rule wins; reload after editing.
-- MySQL `FLUSH PRIVILEGES` is needed after direct edits to grant tables (not after GRANT/REVOKE statements).
-- Use `scram-sha-256` (PostgreSQL) or `caching_sha2_password` (MySQL 8) -- avoid legacy md5/mysql_native_password for new setups.
-- Never use the superuser/root account for application connections.
-- Separate users per application limits blast radius of credential leaks.
-- Always restrict user host access: use specific IPs or subnets, not `'%'` or `0.0.0.0/0`.
-- Use `hostssl` in pg_hba.conf or `REQUIRE SSL` in MySQL to enforce encrypted connections.

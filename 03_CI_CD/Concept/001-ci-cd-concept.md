@@ -89,6 +89,8 @@ git push origin feature/add-auth
   - Automated tests run on every push/PR.
   - Broken builds are fixed immediately (top priority).
 - Without CI: long-lived branches, painful merges, late bug discovery.
+- CI = merge often + automated build/test on every change.
+- Broken build = highest priority fix; never leave main broken.
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md), [006-testing-strategies](./006-testing-strategies.md)
 
@@ -99,6 +101,7 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md), [006-testing-str
 - Every commit that passes CI/CD pipeline could be released — but a human decides when.
 - Requires: comprehensive automated tests, artifact versioning, environment parity.
 - Common in regulated environments where releases need sign-off.
+- Continuous Delivery = always deployable, manual release decision.
 
 Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [008-environment-management](./008-environment-management.md)
 
@@ -109,6 +112,7 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [008
 - Requires: high test confidence, feature flags, monitoring, automated rollback.
 - Common in SaaS/web applications with fast iteration cycles.
 - Risk mitigation: canary deployments, feature flags, automated health checks.
+- Continuous Deployment = auto-deploy to prod on every passing pipeline.
 
 Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [010-metrics-and-dora](./010-metrics-and-dora.md)
 
@@ -119,6 +123,9 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [010
 - Fail-fast: if a stage fails, subsequent stages skip (unless configured otherwise).
 - Pipelines are versioned in the repository alongside application code.
 - Common platforms: GitHub Actions, GitLab CI, Jenkins, CircleCI, Azure Pipelines.
+- Pipeline = automated stages defined as code, triggered by events.
+- Fail fast = quick checks first, cancel on failure.
+- Pipeline as code = workflow files versioned in the same repository.
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md), [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
@@ -128,6 +135,7 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md), [004-pipeline-de
 - Caching dependencies and build layers reduces build time significantly.
 - Build should be reproducible: same input produces same output.
 - Output is stored in an artifact registry (Docker registry, npm, S3).
+- Build once, deploy many = same artifact through all environments.
 
 Related notes: [007-artifact-management](./007-artifact-management.md)
 
@@ -155,8 +163,8 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [008
 
 ### Pipeline not triggering
 
-1. Check trigger configuration (on.push, on.pull_request) matches the event.
-2. Verify branch name matches the filter (branches: [main] vs branches: [master]).
+1. Check trigger configuration (`on.push`, `on.pull_request`) matches the event.
+2. Verify branch name matches the filter (`branches: [main]` vs `branches: [master]`).
 3. Check if workflow file is on the correct branch (GHA reads from the target branch for PRs).
 4. Look for syntax errors in the workflow YAML — invalid YAML silently disables the workflow.
 5. Check if Actions are enabled for the repository (Settings > Actions > General).
@@ -174,18 +182,5 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [008
 1. Profile each stage — identify the slowest step.
 2. Add dependency caching (lockfile-based keys).
 3. Run independent jobs in parallel instead of sequential.
-4. Use shallow clone for checkout (fetch-depth: 1).
+4. Use shallow clone for checkout (`fetch-depth: 1`).
 5. Split large test suites; run unit tests first, e2e later.
-
----
-
-# Quick Facts (Revision)
-
-- CI = merge often + automated build/test on every change.
-- Continuous Delivery = always deployable, manual release decision.
-- Continuous Deployment = auto-deploy to prod on every passing pipeline.
-- Pipeline = automated stages defined as code, triggered by events.
-- Fail fast = quick checks first, cancel on failure.
-- Build once, deploy many = same artifact through all environments.
-- Pipeline as code = workflow files versioned in the same repository.
-- Broken build = highest priority fix; never leave main broken.

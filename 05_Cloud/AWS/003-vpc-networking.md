@@ -36,12 +36,16 @@ NAT Gateway — in public subnet, has Elastic IP
 - Subnets divide the VPC CIDR; each subnet is in **one AZ**.
 - AWS reserves first 4 and last 1 IP in each subnet (5 IPs total).
 - Common pattern: `/16` VPC → `/24` subnets (251 usable IPs each).
+- VPC is regional; subnets are AZ-specific.
+- AWS reserves 5 IPs per subnet (first 4 + last 1).
+- Default VPC exists in every region but use custom VPCs for production.
 
 ### Subnets
 
 - **Public subnet**: Has route `0.0.0.0/0 → IGW`; instances can have public IPs.
 - **Private subnet**: No IGW route; outbound via NAT Gateway; instances have private IPs only.
 - Deploy across multiple AZs for high availability.
+- Deploy across 2+ AZs for high availability.
 
 ### Route Tables
 
@@ -55,12 +59,14 @@ NAT Gateway — in public subnet, has Elastic IP
 - One per VPC; enables internet connectivity.
 - Must be attached to VPC and referenced in route table (`0.0.0.0/0 → igw-xxx`).
 - **Public IP**: Auto-assigned at launch (changes on stop/start) or **Elastic IP** (static; charged if unattached).
+- Elastic IPs are free when attached to a running instance; charged when unattached.
 
 ### NAT Gateway
 
 - Placed in **public** subnet; has Elastic IP; private subnet routes `0.0.0.0/0 → nat-xxx`.
 - Allows outbound internet (e.g. package updates) without inbound access.
 - Managed by AWS; one per AZ for HA; costs per hour + per GB.
+- NAT Gateway enables outbound-only internet for private subnets.
 
 ### Security Group — Stateful Firewall
 
@@ -93,12 +99,14 @@ SG: web-server
 | Rules | Allow only | Allow + Deny |
 | Evaluation | All rules (union) | In order (first match) |
 | Default | Deny in, Allow out | Allow all |
+- Security Groups are stateful (return traffic auto-allowed); NACLs are stateless.
 
 ### VPC Peering
 
 - Connect two VPCs (same/different accounts/regions); non-transitive.
 - Both VPCs must add routes to each other's CIDR: `10.1.0.0/16 → pcx-xxx`.
 - No overlapping CIDRs allowed.
+- VPC Peering is non-transitive; use Transit Gateway for hub-and-spoke.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [004-ec2](./004-ec2.md), [007-elb-auto-scaling](./007-elb-auto-scaling.md)
 
@@ -123,14 +131,3 @@ Related notes: [001-aws-overview](./001-aws-overview.md), [004-ec2](./004-ec2.md
 2. Check Security Groups allow traffic from peer VPC CIDR.
 3. Check CIDRs don't overlap.
 4. Check peering connection is in "Active" state (both sides must accept).
-
-# Quick Facts (Revision)
-
-- VPC is regional; subnets are AZ-specific.
-- AWS reserves 5 IPs per subnet (first 4 + last 1).
-- Security Groups are stateful (return traffic auto-allowed); NACLs are stateless.
-- NAT Gateway enables outbound-only internet for private subnets.
-- Elastic IPs are free when attached to a running instance; charged when unattached.
-- VPC Peering is non-transitive; use Transit Gateway for hub-and-spoke.
-- Default VPC exists in every region but use custom VPCs for production.
-- Deploy across 2+ AZs for high availability.

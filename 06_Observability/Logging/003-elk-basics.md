@@ -131,6 +131,7 @@ service:api AND level:ERROR AND @timestamp:[now-1h TO now]
 - **Replica** -- copy of a shard on another node; provides redundancy and improves read throughput.
 - **Mapping** -- schema that defines field names, types (text, keyword, number, date), and analyzers.
 - **Document** -- a single log entry; stored as JSON with all fields flattened.
+- Elasticsearch indexes all fields using an inverted index; enables full-text search but requires more storage than Loki.
 
 ```text
 Index structure:
@@ -164,6 +165,8 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
   - **mutate** -- rename, add, remove, or transform fields.
   - **drop** -- discard logs matching a condition.
 - **Output** -- send processed logs to destination (Elasticsearch, S3, HTTP).
+- Logstash is a powerful processing pipeline (input/filter/output); Filebeat is lightweight for simple log shipping.
+- Grok is a regex-based pattern language for parsing unstructured logs; pre-built patterns available for common formats.
 
 ```bash
 # Logstash grok filter example
@@ -232,6 +235,7 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
   - **Visualization types** -- line charts, bar charts, tables, maps, metrics.
   - **Interactions** -- click a bar to drill down into logs, export CSV.
 - **Alerting** -- run aggregation queries on schedule; notify on threshold breach.
+- KQL (Kibana Query Language) uses field:value syntax; supports AND/OR/NOT and range queries.
 
 ```bash
 # KQL query examples
@@ -263,6 +267,7 @@ Related notes: [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview
 - **Warm phase** -- no new writes; read-only; optionally force merge to save space.
 - **Cold phase** -- older data; compress and move to cheaper storage (warm tier).
 - **Delete phase** -- remove index after retention period (30 days, 1 year, etc.).
+- ILM (Index Lifecycle Management) moves indices through hot -> warm -> cold -> delete phases based on age or conditions.
 
 ```bash
 # ILM policy example
@@ -328,6 +333,7 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
 - Many unstructured logs or legacy formats
 - Need advanced analytics (histograms, percentiles, geolocation)
 - Mature team familiar with Elasticsearch
+- Choose Loki for structured logs and simplicity; choose ELK for complex analysis and unstructured logs.
 
 Related notes: [001-logging-overview](./001-logging-overview.md), [002-loki-and-promtail](./002-loki-and-promtail.md)
 
@@ -337,6 +343,8 @@ Related notes: [001-logging-overview](./001-logging-overview.md), [002-loki-and-
 - **Node roles** -- master (cluster coordination), data (stores shards), ingest (process data), ml (machine learning).
 - **Sharding strategy** -- balance between query parallelism and overhead; typically 1-3 shards per index.
 - **Replica count** -- 0 (fast writes, data loss risk), 1 (standard, balanced), 2+ (high availability, slower writes).
+- Shards enable parallel processing; replicas provide redundancy and read scaling.
+- Cluster health: green (all shards allocated), yellow (replicas not allocated), red (primary shard missing).
 
 ```bash
 # Elasticsearch cluster commands
@@ -469,14 +477,3 @@ curl -s http://kibana:5601/api/saved_objects/search | jq '.saved_objects[].attri
 3. Investigate why shards are unassigned: `curl -s http://elasticsearch:9200/_cluster/allocation/explain | jq`.
 4. Most common causes: insufficient nodes (add node or reduce replicas), disk full on data nodes (free space), node not available (restart node).
 5. Quick fix -- reduce replica count: `curl -X PUT http://elasticsearch:9200/_settings -d '{"number_of_replicas": 0}'`.
-
-# Quick Facts (Revision)
-
-- Elasticsearch indexes all fields using an inverted index; enables full-text search but requires more storage than Loki.
-- Logstash is a powerful processing pipeline (input/filter/output); Filebeat is lightweight for simple log shipping.
-- ILM (Index Lifecycle Management) moves indices through hot -> warm -> cold -> delete phases based on age or conditions.
-- KQL (Kibana Query Language) uses field:value syntax; supports AND/OR/NOT and range queries.
-- Shards enable parallel processing; replicas provide redundancy and read scaling.
-- Cluster health: green (all shards allocated), yellow (replicas not allocated), red (primary shard missing).
-- Choose Loki for structured logs and simplicity; choose ELK for complex analysis and unstructured logs.
-- Grok is a regex-based pattern language for parsing unstructured logs; pre-built patterns available for common formats.

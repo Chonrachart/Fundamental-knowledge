@@ -68,6 +68,7 @@ ip route show
 - IPv6: 128-bit address, written in hexadecimal groups (e.g., `2001:db8::1`). Virtually unlimited address space.
 - IP is connectionless and best-effort -- it does not guarantee delivery (that is TCP's job).
 - Each packet is routed independently based on its destination IP.
+- IPv4 = 32-bit (4 octets, ~4.3 billion addresses); IPv6 = 128-bit (8 hex groups, virtually unlimited).
 
 Related notes: [001-network-models](./001-network-models.md), [002-transport-layer](./002-transport-layer.md)
 
@@ -81,6 +82,8 @@ Related notes: [001-network-models](./001-network-models.md), [002-transport-lay
   - `/32` = single host address
   - `/0` = all addresses (default route)
 - Hosts in the same subnet communicate directly; hosts in different subnets need a router.
+- CIDR `/24` = 256 addresses; `/16` = 65,536; `/32` = single host; `/0` = default route.
+- Hosts in the same subnet communicate directly via ARP; different subnets need a router.
 
 Related notes: [000-core](./000-core.md)
 
@@ -90,6 +93,7 @@ Related notes: [000-core](./000-core.md)
 - Routers maintain routing tables with entries: destination network, next hop, interface.
 - Default route (`0.0.0.0/0`): used when no more specific route matches -- typically points to the internet gateway.
 - Static routes are manually configured; dynamic routes are learned via protocols (OSPF, BGP, etc.).
+- Routing table: destination + next hop + interface. Default route = `0.0.0.0/0`.
 
 Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
 
@@ -98,6 +102,7 @@ Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
 - The default gateway is the router that connects a local network to other networks (including the internet).
 - When a host sends a packet to an IP outside its subnet, it forwards the packet to the gateway.
 - The gateway then routes the packet toward the destination using its own routing table.
+- Default gateway connects local subnet to the rest of the network.
 
 Related notes: [001-network-models](./001-network-models.md)
 
@@ -110,18 +115,11 @@ Related notes: [001-network-models](./001-network-models.md)
   - `traceroute` -- ICMP Time Exceeded messages (map the path)
   - Destination Unreachable -- tells sender that packet cannot be delivered
 - Useful for checking reachability and troubleshooting routing problems.
+- ICMP is for diagnostics (ping, traceroute), not data transfer.
 
 Related notes: [000-core](./000-core.md)
 
 ### NAT (Network Address Translation)
-
-- NAT translates private IPs to a public IP (and back) at the network boundary.
-- Allows many devices on a private network to share one public IP address.
-- Types:
-  - **SNAT** (Source NAT): outbound traffic; private source IP is replaced with public IP
-  - **DNAT** (Destination NAT): inbound traffic; public IP:port is mapped to a private IP:port
-- NAT maintains a translation table to map connections back to the correct internal host.
-
 ```text
 Outbound (SNAT):
   192.168.1.10:51514  -->  [Router/NAT]  -->  203.0.113.1:51514  -->  Internet
@@ -131,6 +129,14 @@ Inbound (DNAT):
 ```
 
 Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+- NAT translates private IPs to a public IP (and back) at the network boundary.
+- Allows many devices on a private network to share one public IP address.
+- Types:
+  - **SNAT** (Source NAT): outbound traffic; private source IP is replaced with public IP
+  - **DNAT** (Destination NAT): inbound traffic; public IP:port is mapped to a private IP:port
+- NAT maintains a translation table to map connections back to the correct internal host.
+- SNAT = outbound (private to public); DNAT = inbound (public to private).
+- NAT translation table maps internal connections to external addresses for return traffic.
 
 ---
 
@@ -161,6 +167,7 @@ iptables -t nat -L -n -v
 # calculate subnet info
 ipcalc 192.168.1.0/24
 ```
+
 
 # Troubleshooting Guide
 
@@ -196,14 +203,3 @@ Problem: cannot reach a remote host
 [5] NAT issue? Check translation table
     iptables -t nat -L -n -v
 ```
-
-# Quick Facts (Revision)
-
-- IPv4 = 32-bit (4 octets, ~4.3 billion addresses); IPv6 = 128-bit (8 hex groups, virtually unlimited).
-- CIDR `/24` = 256 addresses; `/16` = 65,536; `/32` = single host; `/0` = default route.
-- Routing table: destination + next hop + interface. Default route = `0.0.0.0/0`.
-- Default gateway connects local subnet to the rest of the network.
-- ICMP is for diagnostics (ping, traceroute), not data transfer.
-- SNAT = outbound (private to public); DNAT = inbound (public to private).
-- Hosts in the same subnet communicate directly via ARP; different subnets need a router.
-- NAT translation table maps internal connections to external addresses for return traffic.

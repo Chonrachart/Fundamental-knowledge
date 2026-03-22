@@ -96,6 +96,7 @@ except TypeError:
 ```
 
 Related notes: [005-io-and-files](./005-io-and-files.md)
+- Order `except` blocks from most specific to most general.
 
 ### Exception Types
 
@@ -112,6 +113,7 @@ except ValueError as e:
 ```
 
 Related notes: [008-classes-and-oop](./008-classes-and-oop.md)
+- `except Exception as e:` captures the exception object; `e.args` holds the arguments.
 
 ### raise
 
@@ -130,6 +132,7 @@ except SomeError:
 ```
 
 Related notes: [003-functions](./003-functions.md)
+- `raise` with no argument re-raises the current exception preserving the traceback.
 
 ### else and finally
 
@@ -148,6 +151,7 @@ finally:
 ```
 
 Related notes: [002-control-flow](./002-control-flow.md), [005-io-and-files](./005-io-and-files.md)
+- `finally` runs even if `return` is inside `try` or `except`.
 
 ### Exception Hierarchy
 
@@ -166,23 +170,15 @@ Related notes: [002-control-flow](./002-control-flow.md), [005-io-and-files](./0
 | RuntimeError       | Generic runtime error         |
 
 Related notes: [008-classes-and-oop](./008-classes-and-oop.md)
+- Never use bare `except:` or `except BaseException:` -- catches `KeyboardInterrupt` and `SystemExit`.
+- Custom exceptions should inherit from `Exception`, not `BaseException`.
 
 ### Traceback
-
 - Stack trace printed when an exception is unhandled; shows the call chain bottom-up.
 - `traceback.print_exc()` -- print current exception to stderr.
 - `traceback.format_exc()` -- return traceback as string (useful for logging).
-
-```python
-import traceback
-try:
-    risky()
-except Exception:
-    traceback.print_exc()
-```
-
-Related notes: [007-modules-and-imports](./007-modules-and-imports.md)
-
+- `try/except` catches exceptions; `else` runs on success; `finally` always runs.
+- Traceback reads bottom-up: the last line is the exception, lines above show the call chain.
 ---
 
 # Troubleshooting Guide
@@ -219,14 +215,3 @@ Problem: unexpected exception crashing the program
 [5] Still stuck?
     traceback.print_exc() in the except block for full context
 ```
-
-# Quick Facts (Revision)
-
-- `try/except` catches exceptions; `else` runs on success; `finally` always runs.
-- Order `except` blocks from most specific to most general.
-- `except Exception as e:` captures the exception object; `e.args` holds the arguments.
-- `raise` with no argument re-raises the current exception preserving the traceback.
-- Never use bare `except:` or `except BaseException:` -- catches `KeyboardInterrupt` and `SystemExit`.
-- Custom exceptions should inherit from `Exception`, not `BaseException`.
-- Traceback reads bottom-up: the last line is the exception, lines above show the call chain.
-- `finally` runs even if `return` is inside `try` or `except`.

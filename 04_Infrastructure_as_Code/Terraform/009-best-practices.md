@@ -114,6 +114,15 @@ tfsec / checkov                     # security scanning
 
 Related notes: [001-terraform-overview](./001-terraform-overview.md), [004-variables-outputs-locals](./004-variables-outputs-locals.md), [006-modules-workspaces](./006-modules-workspaces.md)
 
+
+- Split config into `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf` — standard convention.
+- Always tag resources with Project, Environment, ManagedBy, Owner at minimum.
+- Plan on PR + apply on merge is the standard CI/CD workflow.
+- Never commit secrets to `.tfvars` files — use env vars, vault, or SSM.
+- `tflint` catches provider-specific errors that `validate` misses.
+- `tfsec` and `checkov` scan for security misconfigurations.
+- Use `locals` with `merge()` for DRY tagging across all resources.
+- Module versioning prevents breaking changes from propagating silently.
 ---
 
 # Troubleshooting Guide
@@ -132,14 +141,3 @@ Related notes: [001-terraform-overview](./001-terraform-overview.md), [004-varia
 1. Use semantic versioning for modules: `version = "~> 2.0"`.
 2. Don't remove outputs or variables without major version bump.
 3. Use `moved` blocks for resource renames instead of destroy/recreate.
-
-# Quick Facts (Revision)
-
-- Split config into `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf` — standard convention.
-- Always tag resources with Project, Environment, ManagedBy, Owner at minimum.
-- Plan on PR + apply on merge is the standard CI/CD workflow.
-- Never commit secrets to `.tfvars` files — use env vars, vault, or SSM.
-- `tflint` catches provider-specific errors that `validate` misses.
-- `tfsec` and `checkov` scan for security misconfigurations.
-- Use `locals` with `merge()` for DRY tagging across all resources.
-- Module versioning prevents breaking changes from propagating silently.

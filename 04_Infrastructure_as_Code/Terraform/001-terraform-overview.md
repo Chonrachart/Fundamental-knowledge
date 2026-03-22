@@ -87,6 +87,14 @@ terraform destroy       # remove all managed resources
 
 Related notes: [002-hcl-syntax-resources](./002-hcl-syntax-resources.md), [005-state-backend](./005-state-backend.md), [007-cli-commands](./007-cli-commands.md)
 
+
+- Terraform is declarative: describe what, not how.
+- `terraform plan` is read-only and safe; always run before `apply`.
+- State file is the link between config and real infrastructure.
+- Providers are downloaded during `init` and cached in `.terraform/`.
+- `.terraform.lock.hcl` pins exact provider versions — commit it to Git.
+- `terraform destroy` removes ALL managed resources — use `-target` for selective removal.
+- HCL files are typically split: `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`.
 ---
 
 # Troubleshooting Guide
@@ -104,13 +112,3 @@ Related notes: [002-hcl-syntax-resources](./002-hcl-syntax-resources.md), [005-s
 1. Provider bug or API returning unexpected values.
 2. Run `terraform plan` again — transient issue may resolve.
 3. If persistent: check provider GitHub issues; upgrade provider version.
-
-# Quick Facts (Revision)
-
-- Terraform is declarative: describe what, not how.
-- `terraform plan` is read-only and safe; always run before `apply`.
-- State file is the link between config and real infrastructure.
-- Providers are downloaded during `init` and cached in `.terraform/`.
-- `.terraform.lock.hcl` pins exact provider versions — commit it to Git.
-- `terraform destroy` removes ALL managed resources — use `-target` for selective removal.
-- HCL files are typically split: `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`.

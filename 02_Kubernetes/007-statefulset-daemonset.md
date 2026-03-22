@@ -49,8 +49,12 @@ Scenario: Deploy a 3-node Redis cluster with StatefulSet
 - **serviceName**: headless Service (clusterIP: None) used for pod identity and DNS; each pod gets `pod-name.serviceName.ns.svc.cluster.local`.
 - **replicas**: desired number of pods.
 - **volumeClaimTemplates**: one PVC template per pod; each pod gets its own PVC `<vc-name>-<statefulset-name>-<ordinal>`; PVC is not deleted when pod is deleted (retain data).
-- **podManagementPolicy**: OrderedReady (default, create/delete in order) or Parallel (all at once).
-- **updateStrategy**: RollingUpdate (with partition option) or OnDelete.
+- **podManagementPolicy**: `OrderedReady` (default, create/delete in order) or `Parallel` (all at once).
+- **updateStrategy**: `RollingUpdate` (with `partition` option) or `OnDelete`.
+- StatefulSet pods are named `<name>-<ordinal>` (e.g. `web-0`, `web-1`) and created in order by default.
+- PVCs from `volumeClaimTemplates` are NOT deleted when pods or the StatefulSet are removed -- manual cleanup required.
+- `podManagementPolicy: Parallel` skips ordered startup if ordering is not needed.
+- StatefulSet update with `partition` lets you canary-roll a subset of pods (ordinals >= partition value).
 
 ```yaml
 apiVersion: apps/v1
@@ -86,16 +90,19 @@ spec:
 
 ### Headless Service
 
-- `clusterIP: None` -- no virtual IP; DNS returns A records for each pod IP (web-0.web.ns.svc.cluster.local).
+- `clusterIP: None` -- no virtual IP; DNS returns A records for each pod IP (`web-0.web.ns.svc.cluster.local`).
 - Required for StatefulSet `serviceName`; allows peers to discover each other by name.
+- Headless Service (`clusterIP: None`) is required for StatefulSet; gives each pod a stable DNS name.
 
 ### DaemonSet Spec
 
 - No **replicas** field; number of pods = number of matching nodes.
-- **updateStrategy**: RollingUpdate (default, maxUnavailable in number) or OnDelete.
-- **template**: same as Deployment; often runs as privileged or mounts host paths (e.g. /var/log, /var/lib/docker).
+- **updateStrategy**: `RollingUpdate` (default, `maxUnavailable` in number) or `OnDelete`.
+- **template**: same as Deployment; often runs as privileged or mounts host paths (e.g. `/var/log`, `/var/lib/docker`).
 - **nodeSelector** / **affinity** / **tolerations**: limit which nodes get the pod (e.g. only GPU nodes).
 - Use for: node-level agents (logging, monitoring, storage), CNI, kube-proxy.
+- DaemonSet has no `replicas` field; pod count equals matching node count.
+- DaemonSet pods often need `tolerations` to run on control-plane/master nodes.
 
 ```yaml
 apiVersion: apps/v1
@@ -149,7 +156,7 @@ Related notes: [003-deployments-rolling-update](./003-deployments-rolling-update
 ### StatefulSet pods stuck in Pending
 1. Check PVC: `kubectl get pvc` -- each pod needs its own PVC from `volumeClaimTemplates`.
 2. No PV available or StorageClass can't provision: `kubectl describe pvc <name>`.
-3. Pods are created in order -- if pod-0 is stuck, pod-1 won't start (OrderedReady).
+3. Pods are created in order -- if `pod-0` is stuck, `pod-1` won't start (`OrderedReady`).
 
 ### StatefulSet pod deleted but PVC remains
 1. By design -- PVCs are NOT deleted when pods or StatefulSet are deleted (data safety).
@@ -160,13 +167,3 @@ Related notes: [003-deployments-rolling-update](./003-deployments-rolling-update
 1. Check tolerations: node may have taints (e.g. master nodes): `kubectl describe node <name> | grep Taint`.
 2. Add `tolerations` to DaemonSet pod spec to match node taints.
 3. Check `nodeSelector` if set -- may exclude some nodes.
-
-# Quick Facts (Revision)
-
-- StatefulSet pods are named `<name>-<ordinal>` (e.g. web-0, web-1) and created in order by default.
-- Headless Service (`clusterIP: None`) is required for StatefulSet; gives each pod a stable DNS name.
-- PVCs from `volumeClaimTemplates` are NOT deleted when pods or the StatefulSet are removed -- manual cleanup required.
-- `podManagementPolicy: Parallel` skips ordered startup if ordering is not needed.
-- DaemonSet has no `replicas` field; pod count equals matching node count.
-- DaemonSet pods often need `tolerations` to run on control-plane/master nodes.
-- StatefulSet update with `partition` lets you canary-roll a subset of pods (ordinals >= partition value).

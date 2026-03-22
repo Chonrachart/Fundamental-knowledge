@@ -167,6 +167,15 @@ openssl passwd -6 -salt randomsalt "mypassword"
 
 Note: for password storage in applications, use bcrypt or Argon2 libraries, not command-line SHA.
 
+
+- Hash = fixed-size, one-way, deterministic digest of any input
+- Avalanche effect: 1-bit input change flips ~50% of output bits
+- MD5 and SHA-1 are broken (practical collision attacks); use SHA-256+
+- Salt = random data prepended/appended to input before hashing; defeats rainbow tables
+- bcrypt: slow by design, built-in salt, cost factor controls speed
+- Argon2id: modern default for password hashing; resists GPU/ASIC attacks
+- Fast hashes (SHA-256) for integrity; slow hashes (bcrypt/Argon2) for passwords
+- HMAC = keyed hash; provides both integrity and authentication
 # Troubleshooting Guide
 
 ```text
@@ -182,14 +191,3 @@ Hash mismatch?
   │
   └─ Using MD5/SHA-1? ──▶ Upgrade to SHA-256 or SHA-3 (deprecated for security)
 ```
-
-# Quick Facts (Revision)
-
-- Hash = fixed-size, one-way, deterministic digest of any input
-- Avalanche effect: 1-bit input change flips ~50% of output bits
-- MD5 and SHA-1 are broken (practical collision attacks); use SHA-256+
-- Salt = random data prepended/appended to input before hashing; defeats rainbow tables
-- bcrypt: slow by design, built-in salt, cost factor controls speed
-- Argon2id: modern default for password hashing; resists GPU/ASIC attacks
-- Fast hashes (SHA-256) for integrity; slow hashes (bcrypt/Argon2) for passwords
-- HMAC = keyed hash; provides both integrity and authentication

@@ -342,6 +342,15 @@ yq -o=json input.yml                    # YAML -> JSON
 yq -P input.json                        # JSON -> YAML
 ```
 
+
+- `yamllint` checks both syntax and style; configure with `.yamllint.yml`.
+- `yq` (v4, Go) is the recommended YAML processor -- it also handles JSON and XML.
+- `jq` is the standard CLI JSON processor -- use `-r` for raw output, `-s` to slurp files.
+- `python3 -m json.tool` is built-in and needs no install -- good for quick JSON validation.
+- Always use `yaml.safe_load()` in Python, never `yaml.load()` (security risk).
+- YAML to JSON conversion is lossless for data but loses comments and formatting.
+- IDE schema validation (via JSON Schema) provides the fastest feedback loop.
+- Pre-commit hooks with yamllint prevent bad YAML from entering version control.
 # Troubleshooting Guide
 
 ```text
@@ -378,14 +387,3 @@ Problem: config file fails validation or tools produce unexpected output
     file <filename>          # check if UTF-8
     cat -A <filename>        # show hidden characters
 ```
-
-# Quick Facts (Revision)
-
-- `yamllint` checks both syntax and style; configure with `.yamllint.yml`.
-- `yq` (v4, Go) is the recommended YAML processor -- it also handles JSON and XML.
-- `jq` is the standard CLI JSON processor -- use `-r` for raw output, `-s` to slurp files.
-- `python3 -m json.tool` is built-in and needs no install -- good for quick JSON validation.
-- Always use `yaml.safe_load()` in Python, never `yaml.load()` (security risk).
-- YAML to JSON conversion is lossless for data but loses comments and formatting.
-- IDE schema validation (via JSON Schema) provides the fastest feedback loop.
-- Pre-commit hooks with yamllint prevent bad YAML from entering version control.

@@ -73,6 +73,8 @@ diff <(sort file1.txt) <(sort file2.txt)
 - All variable assignments, `cd`, traps, and options (`set`) are local to the subshell.
 - Parent shell is unaffected after the subshell exits.
 - Exit code of the subshell is the exit code of its last command.
+- `( )` forks a subshell (new PID); all variable/cd/trap changes are discarded on exit.
+- Command substitution `$(cmd)` also runs in a subshell but captures stdout into a variable.
 
 ```bash
 X=1
@@ -98,6 +100,7 @@ Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md), [003
 - Commands run in the current shell -- all side effects persist.
 - Syntax requires a space after `{`, a semicolon (or newline) before `}`.
 - Useful for combining output of multiple commands into a single redirect.
+- `{ }` groups commands in the current shell; changes persist. Requires space after `{` and `;` before `}`.
 
 ```bash
 # Redirect combined output to a file
@@ -120,6 +123,9 @@ Related notes: [004-io-and-redirection](./004-io-and-redirection.md), [001-varia
 - `>(command)` -- bash provides a writable file descriptor; anything written to it goes to `command`'s stdin.
 - Only available in bash (and zsh), not POSIX sh.
 - The file descriptor is a named pipe (FIFO) -- data flows once, not seekable.
+- `<(cmd)` creates a readable file descriptor from command output; `>(cmd)` creates a writable one.
+- Process substitution produces `/dev/fd/N` paths -- they are named pipes, not regular files (not seekable).
+- Process substitution requires bash or zsh; it is not available in POSIX sh.
 
 ```bash
 # Compare two directory listings
@@ -136,12 +142,9 @@ echo <(true)   # prints something like /dev/fd/63
 ```
 
 Related notes: [004-io-and-redirection](./004-io-and-redirection.md), [000-core](./000-core.md)
-
-### Avoiding the Subshell Pipe Trap
-
-- A common pitfall: variables set inside a piped `while read` loop are lost.
 - Solutions: process substitution, `lastpipe`, or here-string.
 
+### Avoiding the Subshell Pipe Trap
 ```bash
 # BROKEN -- count is always 0 after loop (subshell)
 count=0
@@ -174,6 +177,9 @@ echo "$count"   # correct count
 ```
 
 Related notes: [002-control-flow](./002-control-flow.md), [001-variables-and-expansion](./001-variables-and-expansion.md)
+- A common pitfall: variables set inside a piped `while read` loop are lost.
+- Pipes (`|`) create implicit subshells -- variables set in a pipe segment do not survive.
+- `while read < <(cmd)` avoids the pipe-subshell trap by using process substitution.
 
 ---
 
@@ -198,6 +204,7 @@ tee >(gzip > backup.gz) < original.txt               # write and compress
 # --- Nested combinations ---
 diff <( ssh host1 cat /etc/hosts ) <( ssh host2 cat /etc/hosts )
 ```
+
 
 # Troubleshooting Guide
 
@@ -224,14 +231,3 @@ Variable lost after loop/pipe?
           |
           +--> cd inside { } affects parent -- wrap in ( ) to isolate
 ```
-
-# Quick Facts (Revision)
-
-- `( )` forks a subshell (new PID); all variable/cd/trap changes are discarded on exit.
-- `{ }` groups commands in the current shell; changes persist. Requires space after `{` and `;` before `}`.
-- `<(cmd)` creates a readable file descriptor from command output; `>(cmd)` creates a writable one.
-- Process substitution produces `/dev/fd/N` paths -- they are named pipes, not regular files (not seekable).
-- Pipes (`|`) create implicit subshells -- variables set in a pipe segment do not survive.
-- `while read < <(cmd)` avoids the pipe-subshell trap by using process substitution.
-- Process substitution requires bash or zsh; it is not available in POSIX sh.
-- Command substitution `$(cmd)` also runs in a subshell but captures stdout into a variable.

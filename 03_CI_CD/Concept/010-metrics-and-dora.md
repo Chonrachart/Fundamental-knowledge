@@ -105,6 +105,7 @@ Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md), [005-deployment-stra
   - Pipeline speed (caching, parallelism, fast tests).
   - Review turnaround (small PRs, clear descriptions, async review).
   - Deployment automation (no manual steps).
+- Smaller PRs improve lead time, review time, and change failure rate.
 
 Related notes: [003-best-practices](./003-best-practices.md), [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
@@ -118,7 +119,7 @@ Related notes: [003-best-practices](./003-best-practices.md), [004-pipeline-desi
   - **Medium**: between one day and one week.
   - **Low**: more than one week.
 - Improving:
-  - Automated rollback (health check triggers, Argo Rollouts).
+  - Automated rollback (health check triggers, `Argo Rollouts`).
   - Good observability (metrics, logs, traces — fast diagnosis).
   - Runbooks and incident response procedures.
   - Feature flags as kill switches.
@@ -151,6 +152,7 @@ Related notes: [006-testing-strategies](./006-testing-strategies.md), [008-envir
 - **Cache hit rate**: percentage of cache hits; low rate means wasted build time.
 - **Runner utilization**: are runners overloaded or underutilized?
 - Track these as dashboard metrics with alerts on degradation.
+- Pipeline metrics: build duration, test pass rate, flaky test rate, queue time.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -171,7 +173,8 @@ Related notes: [003-best-practices](./003-best-practices.md)
 - Data sources: CI/CD platform APIs (GitHub Actions, GitLab CI), deployment logs, incident tracking.
 - Trends: track weekly/monthly averages; flag regressions.
 - Alerts: notify when build duration increases >20%, test pass rate drops, queue time spikes.
-- Tools: Sleuth, LinearB, Haystack, Faros AI, custom Grafana dashboards.
+- Tools: `Sleuth`, `LinearB`, `Haystack`, `Faros AI`, custom Grafana dashboards.
+- Track trends and alert on regressions in pipeline health.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -186,6 +189,8 @@ Related notes: [003-best-practices](./003-best-practices.md)
   - High failure rate? --> Test gaps or environment parity.
   - Low deploy frequency? --> Large batch sizes or manual gates.
   - High MTTR? --> Observability or rollback automation.
+- Measure weekly/monthly; focus on one bottleneck at a time.
+- Continuous improvement: measure, identify bottleneck, improve, re-measure.
 
 Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 
@@ -205,6 +210,9 @@ Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 - Elite performers deploy more often AND have lower failure rates (speed and stability are not trade-offs).
 - Moving up one level at a time is realistic; jumping from low to elite is not.
 - Teams that invest in CI/CD practices consistently improve over time.
+- DORA four key metrics: deployment frequency, lead time, change failure rate, MTTR.
+- Elite performers: multiple deploys/day, <1hr lead time, <5% failure rate, <1hr MTTR.
+- Speed and stability are NOT trade-offs — elite teams excel at both.
 
 Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 
@@ -240,16 +248,3 @@ Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 2. Check rollback process: is it automated or manual?
 3. Check incident response: are runbooks documented and practiced?
 4. Solutions: automated rollback triggers, better alerting, feature flag kill switches.
-
----
-
-# Quick Facts (Revision)
-
-- DORA four key metrics: deployment frequency, lead time, change failure rate, MTTR.
-- Elite performers: multiple deploys/day, <1hr lead time, <5% failure rate, <1hr MTTR.
-- Speed and stability are NOT trade-offs — elite teams excel at both.
-- Pipeline metrics: build duration, test pass rate, flaky test rate, queue time.
-- Measure weekly/monthly; focus on one bottleneck at a time.
-- Smaller PRs improve lead time, review time, and change failure rate.
-- Track trends and alert on regressions in pipeline health.
-- Continuous improvement: measure, identify bottleneck, improve, re-measure.

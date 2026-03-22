@@ -117,6 +117,7 @@ jobs:
 - Anti-pattern: inverted pyramid (many e2e, few unit) — slow pipelines, flaky results.
 - Anti-pattern: ice cream cone (heavy manual testing, few automated tests).
 - Goal: maximize confidence while minimizing pipeline time.
+- Test pyramid: many unit (fast, cheap), fewer integration, minimal e2e (slow, expensive).
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -126,8 +127,10 @@ Related notes: [003-best-practices](./003-best-practices.md)
 - Mock/stub external dependencies (database, HTTP, filesystem).
 - Fast: hundreds of tests in seconds; run on every commit.
 - Coverage target: 80%+ on business logic; 100% on critical paths.
-- Frameworks: Jest, pytest, go test, JUnit, xUnit.
+- Frameworks: `Jest`, `pytest`, `go test`, `JUnit`, `xUnit`.
 - Focus on behavior, not implementation: test inputs/outputs, not internal state.
+- Unit tests: every commit; integration: every PR; e2e: on merge or nightly.
+- Coverage threshold is a guide, not a guarantee of quality.
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
@@ -145,7 +148,7 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
 - Test complete user flows through the full application stack.
 - Run against a deployed environment (staging or local full stack).
-- Tools: Playwright, Cypress, Selenium.
+- Tools: `Playwright`, `Cypress`, `Selenium`.
 - Keep the suite small: focus on critical business flows (5-20 scenarios).
 - Most brittle test type: sensitive to UI changes, timing, and environment issues.
 - Run less frequently: on merge to main, nightly, or pre-release.
@@ -156,11 +159,12 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
 - Analyze source code without executing it — find bugs, vulnerabilities, and style issues.
 - Types:
-  - **Linting**: code style, formatting (ESLint, Pylint, golangci-lint).
-  - **Type checking**: type errors (TypeScript, mypy, go vet).
-  - **Security scanning**: known vulnerability patterns (Semgrep, CodeQL, SonarQube).
+  - **Linting**: code style, formatting (`ESLint`, `Pylint`, `golangci-lint`).
+  - **Type checking**: type errors (`TypeScript`, `mypy`, `go vet`).
+  - **Security scanning**: known vulnerability patterns (`Semgrep`, `CodeQL`, `SonarQube`).
 - Run on every PR; fast enough to be a first-stage check.
 - Gate: block merge on critical/high severity findings.
+- SAST: analyze code statically; DAST: test running application.
 
 Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 
@@ -168,7 +172,7 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 
 - Test a running application for vulnerabilities by sending requests and analyzing responses.
 - Finds: XSS, SQL injection, authentication issues, misconfigurations.
-- Tools: OWASP ZAP, Burp Suite, Nuclei.
+- Tools: `OWASP ZAP`, `Burp Suite`, `Nuclei`.
 - Requires a deployed instance (staging or ephemeral environment).
 - Run less frequently: weekly, pre-release, or on-demand.
 - Complements SAST: SAST finds code issues, DAST finds runtime issues.
@@ -182,6 +186,8 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 - CI runs tests on every push, not just before release.
 - Security scanning in PR, not just before deploy.
 - Cost of fixing defects increases exponentially as they move right (dev --> staging --> prod).
+- Shift-left: test earlier = cheaper fixes; run in PR, not just pre-release.
+- Security scanning belongs in the pipeline, not just before release.
 
 ```text
 Cost of fixing a defect:
@@ -198,11 +204,12 @@ Related notes: [003-best-practices](./003-best-practices.md)
 - Tests need consistent, isolated, reproducible data.
 - Strategies:
   - **Fixtures**: static data files loaded before tests.
-  - **Factories**: generate test data programmatically (factory_bot, Faker).
+  - **Factories**: generate test data programmatically (`factory_bot`, `Faker`).
   - **Seeding**: populate database with known state before test suite.
   - **Transaction rollback**: wrap each test in a transaction, rollback after.
 - Isolation: each test should not depend on or affect other tests.
 - In CI: use fresh database per test run or per test suite.
+- Test data must be isolated and reproducible for each test run.
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
@@ -217,6 +224,7 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
   3. Fix: address root cause (proper waits, isolated state, mocks).
   4. Prevent: review new tests for flakiness patterns.
 - Metric: flaky test rate; target: <1% of test suite.
+- Flaky tests erode pipeline trust — quarantine, fix, prevent.
 
 Related notes: [003-best-practices](./003-best-practices.md), [010-metrics-and-dora](./010-metrics-and-dora.md)
 
@@ -255,16 +263,3 @@ Related notes: [003-best-practices](./003-best-practices.md), [010-metrics-and-d
 3. Review if the threshold is appropriate (80% is common, 100% is rarely practical).
 4. Check for untestable code: complex functions may need refactoring for testability.
 5. Exclude generated code and configuration from coverage calculation.
-
----
-
-# Quick Facts (Revision)
-
-- Test pyramid: many unit (fast, cheap), fewer integration, minimal e2e (slow, expensive).
-- Shift-left: test earlier = cheaper fixes; run in PR, not just pre-release.
-- Unit tests: every commit; integration: every PR; e2e: on merge or nightly.
-- SAST: analyze code statically; DAST: test running application.
-- Flaky tests erode pipeline trust — quarantine, fix, prevent.
-- Test data must be isolated and reproducible for each test run.
-- Coverage threshold is a guide, not a guarantee of quality.
-- Security scanning belongs in the pipeline, not just before release.

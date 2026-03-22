@@ -19,6 +19,9 @@
 - run: echo "Branch ${{ github.ref }}"
 - run: echo "SHA ${{ github.sha }}"
 ```
+- `${{ }}` expressions are evaluated by GitHub Actions before the shell sees them.
+- `github.ref` returns the full ref path (e.g. `refs/heads/main`), not just the branch name.
+- `github.head_ref` and `github.base_ref` are only available on `pull_request` events.
 
 ### env Context
 
@@ -43,6 +46,8 @@
 - **Step outputs**: Step with **id:** can set **outputs.name: value**; value often from **run: echo "value" >> $GITHUB_OUTPUT** (multiline: delimiter).
 - **Job outputs**: **outputs.out_name: ${{ steps.step_id.outputs.name }}**; other jobs: **needs.this_job.outputs.out_name**.
 - Use to pass version, path, or flag between steps or jobs.
+- Step outputs use `echo "key=value" >> $GITHUB_OUTPUT`; the old `::set-output` syntax is deprecated.
+- Job outputs require both a step `id:` and a job-level `outputs:` mapping.
 
 ```yaml
 jobs:
@@ -69,11 +74,14 @@ jobs:
 - **hashFiles('path/glob')** — hash of file contents; use for **cache key** so cache invalidates when files change.
 - **hashFiles('**/package-lock.json')** — hash of all lockfiles; **hashFiles('**/*.go')** — all Go files.
 - Result is deterministic; same files produce the same key.
+- `hashFiles()` is deterministic — same file contents always produce the same hash.
 
 ### format() and fromJSON
 
 - **format('Hello {0}', github.actor)** — string format; **fromJSON('{"a":1}')** — parse JSON; use **toJSON** for output.
 - Useful for dynamic matrix or env from one output.
+- `toJSON(context)` is the best debugging tool for inspecting available context values.
+- `fromJSON()` can dynamically generate matrix values from a previous step's output.
 
 Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [006-reusable-workflows-debugging](./006-reusable-workflows-debugging.md)
 
@@ -97,14 +105,3 @@ Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [006-reusable-wo
 2. String comparison is case-sensitive.
 3. `github.ref` includes full path: `refs/heads/main` not just `main`.
 4. Use `contains()`, `startsWith()`, `endsWith()` for partial matching.
-
-# Quick Facts (Revision)
-
-- `${{ }}` expressions are evaluated by GitHub Actions before the shell sees them.
-- `github.ref` returns the full ref path (e.g. `refs/heads/main`), not just the branch name.
-- `github.head_ref` and `github.base_ref` are only available on `pull_request` events.
-- Step outputs use `echo "key=value" >> $GITHUB_OUTPUT`; the old `::set-output` syntax is deprecated.
-- Job outputs require both a step `id:` and a job-level `outputs:` mapping.
-- `hashFiles()` is deterministic — same file contents always produce the same hash.
-- `toJSON(context)` is the best debugging tool for inspecting available context values.
-- `fromJSON()` can dynamically generate matrix values from a previous step's output.

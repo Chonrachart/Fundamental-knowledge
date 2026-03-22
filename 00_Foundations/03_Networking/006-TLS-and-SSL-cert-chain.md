@@ -160,10 +160,6 @@ Example CAs:
 Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 
 ### Certificate Chain
-
-- A certificate chain is the hierarchical trust path from server certificate to trusted root CA.
-- The chain links through one or more intermediate certificates.
-
 ```text
 Server Certificate          (issued by Intermediate CA)
        |
@@ -188,6 +184,8 @@ Root CA Certificate         (self-signed, in browser/OS trust store)
 5. If all valid, connection is trusted.
 
 Related notes: [005-http-https](./005-http-https.md)
+- A certificate chain is the hierarchical trust path from server certificate to trusted root CA.
+- The chain links through one or more intermediate certificates.
 
 ---
 
@@ -220,6 +218,15 @@ ls /etc/ssl/certs/
 update-ca-certificates --fresh
 ```
 
+
+- SSL is deprecated; TLS 1.2 and 1.3 are current standards.
+- TLS provides three properties: encryption, authentication, integrity.
+- TLS 1.3 handshake completes in 1 round trip (1-RTT); supports 0-RTT resumption.
+- Certificate chain: Server Cert -> Intermediate CA -> Root CA (in trust store).
+- The server must send its certificate and all intermediates; the root is already trusted locally.
+- HTTPS = HTTP over TLS; uses port 443.
+- Forward secrecy (ECDHE) ensures past sessions cannot be decrypted even if the server key is later compromised.
+- Use `openssl s_client -connect host:443` to debug TLS issues from the command line.
 # Troubleshooting Guide
 
 ```text
@@ -242,14 +249,3 @@ TLS connection failing?
           +--> Firewall blocking? --> check with telnet/nc to port 443
           +--> Service not listening? --> check server config (nginx/apache)
 ```
-
-# Quick Facts (Revision)
-
-- SSL is deprecated; TLS 1.2 and 1.3 are current standards.
-- TLS provides three properties: encryption, authentication, integrity.
-- TLS 1.3 handshake completes in 1 round trip (1-RTT); supports 0-RTT resumption.
-- Certificate chain: Server Cert -> Intermediate CA -> Root CA (in trust store).
-- The server must send its certificate and all intermediates; the root is already trusted locally.
-- HTTPS = HTTP over TLS; uses port 443.
-- Forward secrecy (ECDHE) ensures past sessions cannot be decrypted even if the server key is later compromised.
-- Use `openssl s_client -connect host:443` to debug TLS issues from the command line.

@@ -135,6 +135,14 @@ ansible-vault view group_vars/prod/secrets.yml    # safer -- view without writin
 ```
 
 
+
+- Never commit plaintext secrets — always encrypt before `git add`.
+- `ansible-vault view` is safer than `decrypt` — reads without writing plaintext to disk.
+- Separate secrets from non-secrets (`secrets.yml` + `vars.yml`) for readable diffs.
+- Vault IDs allow per-environment passwords — use `prod@prompt`, `dev@file`.
+- Add `.vault_pass.txt` to `.gitignore` — never commit the password file.
+- `rekey` rotates the vault password; run it when a team member leaves.
+- `encrypt_string` is useful for single values; full file encryption is better for many secrets.
 # Troubleshooting Guide
 
 ### "Attempting to decrypt but no vault secrets found"
@@ -152,13 +160,3 @@ ansible-vault view group_vars/prod/secrets.yml    # safer -- view without writin
 1. Verify the file was encrypted after the last edit: `ansible-vault view <file>`.
 2. Check that the `group_vars` path matches the host's group.
 
-
-# Quick Facts (Revision)
-
-- Never commit plaintext secrets — always encrypt before `git add`.
-- `ansible-vault view` is safer than `decrypt` — reads without writing plaintext to disk.
-- Separate secrets from non-secrets (`secrets.yml` + `vars.yml`) for readable diffs.
-- Vault IDs allow per-environment passwords — use `prod@prompt`, `dev@file`.
-- Add `.vault_pass.txt` to `.gitignore` — never commit the password file.
-- `rekey` rotates the vault password; run it when a team member leaves.
-- `encrypt_string` is useful for single values; full file encryption is better for many secrets.

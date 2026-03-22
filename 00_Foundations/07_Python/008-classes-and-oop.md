@@ -119,6 +119,7 @@ p = Point(3, 4)
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md), [003-functions](./003-functions.md)
+- `__init__` initializes; `__new__` creates -- override `__new__` only for immutable types or metaclasses.
 
 ### Instance vs Class Variables
 
@@ -137,6 +138,9 @@ class Counter:
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md), [004-data-structures](./004-data-structures.md)
+- Instance variables live in `obj.__dict__`; class variables live in `ClassName.__dict__`.
+- Name mangling: `__var` becomes `_ClassName__var` -- discourages (does not prevent) external access.
+- `isinstance(obj, Class)` checks inheritance chain; `type(obj) is Class` checks exact type.
 
 ### Methods -- Instance, Class, Static
 
@@ -196,6 +200,8 @@ print(D.__mro__)        # D -> B -> C -> A -> object
 ```
 
 Related notes: [003-functions](./003-functions.md)
+- MRO follows C3 linearization: inspect with `ClassName.__mro__` or `help(ClassName)`.
+- `super()` in Python 3 needs no arguments -- it follows MRO, not just the direct parent.
 
 ### Dunder / Magic Methods
 
@@ -229,6 +235,7 @@ v = Vector(1, 2) + Vector(3, 4)   # Vector(4, 6)
 ```
 
 Related notes: [009-decorators-and-generators](./009-decorators-and-generators.md), [004-data-structures](./004-data-structures.md)
+- Always define `__repr__`; define `__str__` only when a user-friendly format differs.
 
 ### Properties -- `@property`, Getter/Setter
 
@@ -263,34 +270,12 @@ print(c.area)       # 314.159 -- computed on access
 Related notes: [009-decorators-and-generators](./009-decorators-and-generators.md)
 
 ### Dataclasses (Python 3.7+)
-
 - `@dataclass` auto-generates `__init__`, `__repr__`, `__eq__` from field definitions.
 - Reduces boilerplate for classes that primarily hold data.
 - `field(default_factory=list)` for mutable defaults.
 - `frozen=True` makes instances immutable (generates `__hash__` too).
 - `order=True` generates comparison methods (`__lt__`, `__le__`, etc.).
-
-```python
-from dataclasses import dataclass, field
-
-@dataclass
-class Employee:
-    name: str
-    department: str
-    salary: float = 50000.0
-    skills: list = field(default_factory=list)
-
-@dataclass(frozen=True)
-class Point:
-    x: float
-    y: float
-
-e = Employee("Alice", "Engineering", skills=["Python", "K8s"])
-print(e)  # Employee(name='Alice', department='Engineering', salary=50000.0, skills=['Python', 'K8s'])
-```
-
-Related notes: [001-variables-and-types](./001-variables-and-types.md), [009-decorators-and-generators](./009-decorators-and-generators.md)
-
+- `@dataclass` auto-generates `__init__`, `__repr__`, `__eq__` -- use `frozen=True` for immutability.
 ---
 
 # Troubleshooting Guide
@@ -327,14 +312,3 @@ Problem: unexpected behavior with classes or inheritance
 [5] @property not working?
     check you used @property, not calling as method (no parentheses)
 ```
-
-# Quick Facts (Revision)
-
-- `__init__` initializes; `__new__` creates -- override `__new__` only for immutable types or metaclasses.
-- Instance variables live in `obj.__dict__`; class variables live in `ClassName.__dict__`.
-- MRO follows C3 linearization: inspect with `ClassName.__mro__` or `help(ClassName)`.
-- `super()` in Python 3 needs no arguments -- it follows MRO, not just the direct parent.
-- Always define `__repr__`; define `__str__` only when a user-friendly format differs.
-- `@dataclass` auto-generates `__init__`, `__repr__`, `__eq__` -- use `frozen=True` for immutability.
-- Name mangling: `__var` becomes `_ClassName__var` -- discourages (does not prevent) external access.
-- `isinstance(obj, Class)` checks inheritance chain; `type(obj) is Class` checks exact type.

@@ -184,6 +184,14 @@ ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
 ```
 
 
+
+- `{{ var }}` is substitution; `{% %}` is logic (conditionals/loops) in Jinja2.
+- Always use `| default(value)` in templates for optional variables to avoid undefined errors.
+- `register` output fields: `.stdout`, `.stderr`, `.rc`, `.changed`, `.stdout_lines`.
+- `gather_facts: false` speeds up runs when no `ansible_*` facts are needed.
+- `set_fact` is per-host and persists for the rest of the play only.
+- Extra vars `-e` override everything — useful for CI/CD pipeline overrides.
+- `ansible_os_family` returns `"Debian"` or `"RedHat"` — good for branching config by distro.
 # Troubleshooting Guide
 
 ### Variable has wrong value or is undefined
@@ -195,13 +203,3 @@ ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
 5. Verify the fact value: `ansible web1 -m ansible.builtin.setup | grep <fact_name>`.
 6. Use `| default(fallback)` in the template to handle undefined safely.
 
-
-# Quick Facts (Revision)
-
-- `{{ var }}` is substitution; `{% %}` is logic (conditionals/loops) in Jinja2.
-- Always use `| default(value)` in templates for optional variables to avoid undefined errors.
-- `register` output fields: `.stdout`, `.stderr`, `.rc`, `.changed`, `.stdout_lines`.
-- `gather_facts: false` speeds up runs when no `ansible_*` facts are needed.
-- `set_fact` is per-host and persists for the rest of the play only.
-- Extra vars `-e` override everything — useful for CI/CD pipeline overrides.
-- `ansible_os_family` returns `"Debian"` or `"RedHat"` — good for branching config by distro.

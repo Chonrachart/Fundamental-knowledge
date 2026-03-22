@@ -56,6 +56,9 @@ ss -tulnp
 - Flow control (receiver advertises window size) and congestion control (sender adjusts rate).
 - Uses sequence numbers and acknowledgement numbers to track every byte of data.
 - Used by: HTTP, HTTPS, SSH, FTP, SMTP.
+- TCP = connection-oriented, reliable, ordered; UDP = connectionless, best-effort, fast.
+- TCP uses a 3-way handshake (SYN, SYN-ACK, ACK) to establish and a 4-way teardown (FIN, ACK, FIN, ACK) to close.
+- TCP header is 20+ bytes; UDP header is 8 bytes.
 
 Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
 
@@ -67,6 +70,7 @@ Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chai
 - No retransmission or built-in recovery -- application must handle if needed.
 - Best when speed matters more than perfect delivery.
 - Used by: DNS, DHCP, video streaming, VoIP, gaming.
+- Lower overhead than TCP: smaller header (8 bytes vs TCP 20+ bytes).
 
 Related notes: [004-DNS](./004-DNS.md)
 
@@ -92,6 +96,8 @@ Related notes: [001-network-models](./001-network-models.md)
   - `0-1023` -- well-known ports (HTTP 80, HTTPS 443, SSH 22, DNS 53)
   - `1024-49151` -- registered ports (assigned to specific applications)
   - `49152-65535` -- dynamic / ephemeral ports (used by clients)
+- Port range: 0-65535. Well-known: 0-1023. Registered: 1024-49151. Ephemeral: 49152-65535.
+- Common ports: HTTP 80, HTTPS 443, SSH 22, DNS 53, SMTP 25.
 
 Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
 
@@ -100,6 +106,7 @@ Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
 - Socket = IP + Port + Protocol -- the endpoint for sending or receiving data.
 - Client creates a socket and connects to a server socket; server listens on a port.
 - A TCP connection is uniquely identified by the 4-tuple: source IP, source port, destination IP, destination port.
+- Socket = IP + Port + Protocol. A TCP connection = 4-tuple (srcIP, srcPort, dstIP, dstPort).
 
 ```text
 Example:
@@ -150,14 +157,13 @@ Client               Server
 Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
 
 ### Common TCP Flags
-
+Related notes: [001-network-models](./001-network-models.md)
 - **SYN** -- start (synchronize) a new connection
 - **ACK** -- acknowledge received data
 - **FIN** -- finish (close) the connection gracefully
 - **RST** -- reset the connection immediately (abort)
 - **PSH** -- push data to the application without buffering
-
-Related notes: [001-network-models](./001-network-models.md)
+- RST flag immediately aborts a connection; FIN gracefully closes it.
 
 ---
 
@@ -179,6 +185,7 @@ tcpdump -i eth0 -n 'tcp port 443 and (tcp[tcpflags] & (tcp-syn|tcp-fin) != 0)'
 # show per-protocol statistics (retransmits, errors)
 ss -s
 ```
+
 
 # Troubleshooting Guide
 
@@ -209,13 +216,3 @@ Problem: cannot connect to a remote service
 [4] Application-level issue
     curl -v / openssl s_client / application logs
 ```
-
-# Quick Facts (Revision)
-
-- TCP = connection-oriented, reliable, ordered; UDP = connectionless, best-effort, fast.
-- TCP uses a 3-way handshake (SYN, SYN-ACK, ACK) to establish and a 4-way teardown (FIN, ACK, FIN, ACK) to close.
-- Port range: 0-65535. Well-known: 0-1023. Registered: 1024-49151. Ephemeral: 49152-65535.
-- Socket = IP + Port + Protocol. A TCP connection = 4-tuple (srcIP, srcPort, dstIP, dstPort).
-- Common ports: HTTP 80, HTTPS 443, SSH 22, DNS 53, SMTP 25.
-- TCP header is 20+ bytes; UDP header is 8 bytes.
-- RST flag immediately aborts a connection; FIN gracefully closes it.

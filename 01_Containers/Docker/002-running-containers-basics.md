@@ -11,6 +11,7 @@
 - `docker run image` -- create and start a container from an image.
 - `docker run nginx:alpine` -- runs in foreground; logs to terminal; Ctrl+C stops the container.
 - Add `-d` to run in background (detached); you get the container ID back and your terminal is free.
+- `docker run` creates and starts a container; `-d` for background mode.
 
 ```bash
 docker run nginx:alpine
@@ -24,6 +25,7 @@ docker run -d nginx:alpine
 
 - `--name myweb` -- name the container so you can use `myweb` instead of long ID.
 - Without `--name`, Docker assigns a random name; named containers are easier for `docker logs myweb`, `docker stop myweb`.
+- `--name` gives the container a human-readable name.
 
 ```bash
 docker run -d --name web nginx:alpine
@@ -34,6 +36,7 @@ docker run -d --name web nginx:alpine
 - Container has its own network; to reach the app from your machine you publish a port.
 - `-p 8080:80` -- host port 8080 maps to container port 80; open http://localhost:8080.
 - Format: `-p host_port:container_port`; you can use multiple `-p` for several ports.
+- `-p host:container` publishes ports; without it, the container is only reachable from its network.
 
 ```bash
 docker run -d --name web -p 8080:80 nginx:alpine
@@ -51,14 +54,16 @@ Related notes:
 
 ### Viewing Logs
 
-- `docker logs web` -- stdout/stderr of the container; `docker logs -f web` -- follow (like tail -f).
+- `docker logs web` -- stdout/stderr of the container; `docker logs -f web` -- follow (like `tail -f`).
 - `docker logs --tail 100 web` -- last 100 lines; useful when the container is running and you're debugging.
+- `docker logs -f` follows container output in real time.
 
 ### Running a Command Inside a Running Container
 
 - `docker exec web command` -- run a command in the existing container.
 - `docker exec -it web sh` -- interactive shell (`-it` = interactive + TTY); type `exit` to leave (container keeps running).
 - Use to debug, check files, or run one-off commands (e.g. `docker exec web nginx -t` to test config).
+- `docker exec -it <ctr> sh` opens an interactive shell inside a running container.
 
 ```bash
 docker exec web cat /etc/nginx/nginx.conf
@@ -70,6 +75,8 @@ docker exec -it web sh
 - `docker stop web` -- stop the container (SIGTERM then SIGKILL); container still exists, status "Exited".
 - `docker rm web` -- remove the container; must be stopped first (or use `docker rm -f` to force stop + remove).
 - `docker run --rm` -- automatically remove the container when it exits; good for one-off runs.
+- `docker stop` sends SIGTERM then SIGKILL; `docker rm` removes the stopped container.
+- `docker run --rm` auto-removes the container on exit.
 
 ```bash
 docker stop web
@@ -112,15 +119,3 @@ Related notes:
 1. Container must be running: `docker ps` -- not in `docker ps -a` only.
 2. Start it: `docker start <container>`.
 3. If it keeps exiting, check logs first: `docker logs <container>`.
-
----
-
-# Quick Facts (Revision)
-
-- `docker run` creates and starts a container; `-d` for background mode.
-- `--name` gives the container a human-readable name.
-- `-p host:container` publishes ports; without it, the container is only reachable from its network.
-- `docker logs -f` follows container output in real time.
-- `docker exec -it <ctr> sh` opens an interactive shell inside a running container.
-- `docker stop` sends SIGTERM then SIGKILL; `docker rm` removes the stopped container.
-- `docker run --rm` auto-removes the container on exit.

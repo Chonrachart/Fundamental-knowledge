@@ -182,15 +182,6 @@ Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-trouble
 Related notes: [001-database-concepts](./001-database-concepts.md)
 
 ### Connection Pooling and Proxies
-
-- Database connections are expensive (memory, process/thread per connection). Pooling reuses a smaller set of connections.
-- **PgBouncer** (PostgreSQL) -- lightweight connection pooler. Modes: session, transaction, statement.
-  - Transaction pooling is the most common -- connection returned to pool after each transaction.
-- **ProxySQL** (MySQL) -- connection pooler + query router + query caching.
-  - Routes reads to replicas, writes to primary based on query rules.
-  - Can handle automatic failover with query rules and health checks.
-- **HAProxy** -- generic TCP/HTTP load balancer, used in front of database replicas for read distribution.
-
 ```text
 Connection flow with PgBouncer:
 
@@ -201,6 +192,13 @@ Connection flow with PgBouncer:
 ```
 
 Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-troubleshooting.md), [007-database-in-containers](./007-database-in-containers.md)
+- Database connections are expensive (memory, process/thread per connection). Pooling reuses a smaller set of connections.
+- **PgBouncer** (PostgreSQL) -- lightweight connection pooler. Modes: session, transaction, statement.
+  - Transaction pooling is the most common -- connection returned to pool after each transaction.
+- **ProxySQL** (MySQL) -- connection pooler + query router + query caching.
+  - Routes reads to replicas, writes to primary based on query rules.
+  - Can handle automatic failover with query rules and health checks.
+- **HAProxy** -- generic TCP/HTTP load balancer, used in front of database replicas for read distribution.
 
 ---
 
@@ -247,6 +245,15 @@ mysql -h 127.0.0.1 -P 6032 -u admin -p -e "SELECT * FROM runtime_mysql_servers;"
 echo "show stat" | socat stdio /var/run/haproxy/admin.sock | cut -d, -f1,2,18
 ```
 
+
+- Primary handles writes; replicas serve reads and act as warm standbys.
+- Async replication is fast but can lose committed transactions on primary failure. Sync replication prevents data loss but adds latency.
+- MySQL replication uses binary logs (binlog); PostgreSQL uses WAL (Write-Ahead Log).
+- GTID (MySQL) and LSN (PostgreSQL) uniquely identify replication positions -- essential for failover.
+- Split-brain (two primaries) is the worst failure mode -- prevent it with fencing and quorum.
+- Connection poolers (PgBouncer, ProxySQL) reduce backend connection count and improve efficiency.
+- Automatic failover requires a consensus mechanism (etcd, Raft) to avoid split-brain.
+- Monitor replication lag continuously -- it directly affects data freshness on read replicas.
 # Troubleshooting Guide
 
 ```text
@@ -290,14 +297,3 @@ Problem: replica is lagging or replication is broken
     +-- verify quorum / etcd / consensus store is healthy
     +-- check proxy config points to correct primary
 ```
-
-# Quick Facts (Revision)
-
-- Primary handles writes; replicas serve reads and act as warm standbys.
-- Async replication is fast but can lose committed transactions on primary failure. Sync replication prevents data loss but adds latency.
-- MySQL replication uses binary logs (binlog); PostgreSQL uses WAL (Write-Ahead Log).
-- GTID (MySQL) and LSN (PostgreSQL) uniquely identify replication positions -- essential for failover.
-- Split-brain (two primaries) is the worst failure mode -- prevent it with fencing and quorum.
-- Connection poolers (PgBouncer, ProxySQL) reduce backend connection count and improve efficiency.
-- Automatic failover requires a consensus mechanism (etcd, Raft) to avoid split-brain.
-- Monitor replication lag continuously -- it directly affects data freshness on read replicas.

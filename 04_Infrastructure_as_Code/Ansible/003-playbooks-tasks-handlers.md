@@ -21,7 +21,6 @@ Playbook (site.yml)
 - Multiple tasks can notify the same handler; it still runs only once.
 - `meta: flush_handlers` forces handlers to run immediately mid-play.
 
-
 # Mental Model
 
 ```text
@@ -78,6 +77,11 @@ Play ends → next play begins
 | `notify:` | Queue a handler if this task changes |
 | `ignore_errors: true` | Continue play even if task fails |
 
+- `ignore_errors: true` lets the play continue but the task still shows as `failed`.
+- `changed_when: false` is correct for read-only commands (like `nginx -v`).
+- `failed_when` overrides failure; wrong logic here can silently swallow real errors.
+- Always use `name:` on tasks — it makes logs readable and `--start-at-task` work.
+
 Related notes:
 - [005-loops-conditions-blocks](./005-loops-conditions-blocks.md)
 - [007-tags-strategies-debugging](./007-tags-strategies-debugging.md)
@@ -101,6 +105,7 @@ Related notes:
 
 - Prefer `package` over distro-specific (`apt`, `yum`) for portability.
 - Prefer `command` over `shell`; use `shell` only when pipes/redirects are needed.
+- Prefer `ansible.builtin.*` FQCN to avoid module ambiguity across collections.
 
 ### Handlers
 
@@ -118,6 +123,9 @@ handlers:
       name: nginx
       state: restarted
 ```
+
+- Handlers run **once at end of play** regardless of how many tasks notify them.
+- `meta: flush_handlers` runs pending handlers immediately (use when order matters).
 
 Related notes:
 - [004-variables-facts-templating](./004-variables-facts-templating.md)
@@ -149,7 +157,6 @@ ansible-playbook playbooks/site.yml --list-tasks
 ansible web -m ansible.builtin.service -a "name=nginx state=restarted" --become
 ```
 
-
 # Troubleshooting Guide
 
 ### Task fails
@@ -157,18 +164,8 @@ ansible web -m ansible.builtin.service -a "name=nginx state=restarted" --become
 1. Read the error message in output (`rc`, `stderr`, `msg`).
 2. Re-run with `-vvv` to see exact module args sent and raw output.
 3. Test the module ad-hoc on one host.
-4. Add a debug task above the failing task to print relevant variables.
+4. Add a `debug` task above the failing task to print relevant variables.
 5. Check `changed_when` / `failed_when` if result logic seems wrong.
 6. Check `become` / permissions if "Permission denied".
-7. Fix, re-run, and confirm the second run is all ok.
+7. Fix, re-run, and confirm the second run is all `ok`.
 
-
-# Quick Facts (Revision)
-
-- Handlers run **once at end of play** regardless of how many tasks notify them.
-- `meta: flush_handlers` runs pending handlers immediately (use when order matters).
-- `ignore_errors: true` lets the play continue but the task still shows as `failed`.
-- `changed_when: false` is correct for read-only commands (like `nginx -v`).
-- `failed_when` overrides failure; wrong logic here can silently swallow real errors.
-- Always use `name:` on tasks — it makes logs readable and `--start-at-task` work.
-- Prefer `ansible.builtin.*` FQCN to avoid module ambiguity across collections.

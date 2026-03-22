@@ -198,10 +198,6 @@ LEFT JOIN orders o ON u.user_id = o.user_id;
 Related notes: [001-database-concepts](./001-database-concepts.md)
 
 ### Useful DevOps Queries
-
-- Queries for monitoring database health and investigating issues.
-- Syntax differs between MySQL and PostgreSQL.
-
 ```sql
 -- ============================================
 -- DATABASE SIZE
@@ -278,6 +274,8 @@ KILL <process_id>;         -- kill the connection
 ```
 
 Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-troubleshooting.md)
+- Queries for monitoring database health and investigating issues.
+- Syntax differs between MySQL and PostgreSQL.
 
 ---
 
@@ -313,6 +311,15 @@ mysql -h localhost -u root -p mydb < /path/to/script.sql
 mysql -h localhost -u root -p -B -e "SELECT * FROM users;" mydb | tr '\t' ',' > users.csv
 ```
 
+
+- CRUD maps to SQL: Create=INSERT, Read=SELECT, Update=UPDATE, Delete=DELETE.
+- NEVER run UPDATE or DELETE without a WHERE clause -- always SELECT first to verify.
+- `COUNT(*)` counts all rows; `COUNT(column)` counts non-NULL values only.
+- INNER JOIN returns matching rows only; LEFT JOIN returns all left-table rows plus matches.
+- Use `IS NULL` / `IS NOT NULL` to check for NULLs (not `= NULL`).
+- `LIKE` patterns: `%` matches any characters, `_` matches exactly one character.
+- PostgreSQL uses `pg_stat_activity` for connections; MySQL uses `SHOW PROCESSLIST`.
+- Always wrap destructive operations in a transaction: `BEGIN; ... ROLLBACK;` to test, then `COMMIT;` to apply.
 # Troubleshooting Guide
 
 ```text
@@ -348,14 +355,3 @@ Problem: application reports "data not found" or "wrong data"
     v
 [5] Check application logs and query logs for the actual SQL being sent
 ```
-
-# Quick Facts (Revision)
-
-- CRUD maps to SQL: Create=INSERT, Read=SELECT, Update=UPDATE, Delete=DELETE.
-- NEVER run UPDATE or DELETE without a WHERE clause -- always SELECT first to verify.
-- `COUNT(*)` counts all rows; `COUNT(column)` counts non-NULL values only.
-- INNER JOIN returns matching rows only; LEFT JOIN returns all left-table rows plus matches.
-- Use `IS NULL` / `IS NOT NULL` to check for NULLs (not `= NULL`).
-- `LIKE` patterns: `%` matches any characters, `_` matches exactly one character.
-- PostgreSQL uses `pg_stat_activity` for connections; MySQL uses `SHOW PROCESSLIST`.
-- Always wrap destructive operations in a transaction: `BEGIN; ... ROLLBACK;` to test, then `COMMIT;` to apply.

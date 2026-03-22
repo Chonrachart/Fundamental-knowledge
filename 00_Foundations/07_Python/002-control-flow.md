@@ -86,6 +86,8 @@ if 0 < x < 10:
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md)
+- Python uses indentation to define blocks; no braces, no end keywords.
+- Falsy values: `False`, `None`, `0`, `0.0`, `""`, `[]`, `{}`, `()`, `set()`. Everything else is truthy.
 
 ### Iteration (for)
 
@@ -108,6 +110,7 @@ for a, b in zip([1, 2], ["x", "y"]):
 ```
 
 Related notes: [004-data-structures](./004-data-structures.md), [009-decorators-and-generators](./009-decorators-and-generators.md)
+- `for` iterates over any iterable; `enumerate()` adds an index, `zip()` pairs elements.
 
 ### While Loops
 
@@ -127,6 +130,7 @@ while True:
 ```
 
 Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md)
+- `while True: ... break` is the standard pattern for input loops and polling.
 
 ### Pattern Matching (match) -- Python 3.10+
 
@@ -154,6 +158,7 @@ match point:
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md)
+- `match/case` (3.10+) does structural pattern matching, not just value comparison.
 
 ### Range
 
@@ -170,31 +175,14 @@ list(range(5, 0, -1)) # [5, 4, 3, 2, 1]
 ```
 
 Related notes: [003-functions](./003-functions.md)
+- `range()` is lazy (does not create a list in memory); use `list(range(...))` to materialize.
 
 ### Loop Control (break, continue, else)
-
 - `break` -- exit innermost loop immediately.
 - `continue` -- skip rest of current iteration, go to next.
 - `else` on `for`/`while` -- runs only if loop completes without `break`.
-
-```python
-for i in range(10):
-    if i == 5:
-        break
-    if i % 2 == 0:
-        continue
-    print(i)  # 1, 3
-
-# else on loop -- runs when no break occurred
-for i in range(5):
-    if i == 10:
-        break
-else:
-    print("loop completed normally")
-```
-
-Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md)
-
+- `else` on a loop runs only when no `break` occurred -- useful for search patterns.
+- `break` and `continue` affect only the innermost loop.
 ---
 
 # Troubleshooting Guide
@@ -234,14 +222,3 @@ Problem: control flow not behaving as expected
     |
     +-- runs when it should not --> a break was never triggered; check break condition
 ```
-
-# Quick Facts (Revision)
-
-- Python uses indentation to define blocks; no braces, no end keywords.
-- Falsy values: `False`, `None`, `0`, `0.0`, `""`, `[]`, `{}`, `()`, `set()`. Everything else is truthy.
-- `for` iterates over any iterable; `enumerate()` adds an index, `zip()` pairs elements.
-- `while True: ... break` is the standard pattern for input loops and polling.
-- `match/case` (3.10+) does structural pattern matching, not just value comparison.
-- `range()` is lazy (does not create a list in memory); use `list(range(...))` to materialize.
-- `else` on a loop runs only when no `break` occurred -- useful for search patterns.
-- `break` and `continue` affect only the innermost loop.

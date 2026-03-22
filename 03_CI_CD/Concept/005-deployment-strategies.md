@@ -84,6 +84,7 @@ Choosing a deployment strategy:
 - Best for: non-production environments, batch jobs, stateful apps that can't run mixed versions.
 - Drawback: users experience downtime; no gradual rollout.
 - In Kubernetes: `strategy.type: Recreate` in Deployment spec.
+- Recreate: simplest, has downtime; use for non-critical or dev environments.
 
 ```yaml
 # Kubernetes Deployment
@@ -102,6 +103,7 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 - Control speed with `maxSurge` (how many extra pods) and `maxUnavailable` (how many can be down).
 - Rollback: reverse the rolling update (but takes time, not instant).
 - Requires: backward-compatible changes (v1 and v2 coexist briefly).
+- Rolling update: zero-downtime, gradual; Kubernetes default; requires backward compatibility.
 
 ```yaml
 # Kubernetes Deployment
@@ -121,7 +123,8 @@ Related notes: [008-environment-management](./008-environment-management.md)
 - Deploy v2 to Green; test it; switch traffic from Blue to Green.
 - Rollback: switch traffic back to Blue (instant, seconds).
 - Cost: requires 2x infrastructure during deployment.
-- Implementation: DNS switch, load balancer update, or Kubernetes service selector change.
+- Implementation: DNS switch, load balancer update, or Kubernetes Service selector change.
+- Blue-Green: instant switch and rollback; costs 2x infrastructure.
 
 ```text
 Steps:
@@ -142,7 +145,8 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md)
 - Monitor error rates, latency, and business metrics on the canary.
 - If healthy: gradually increase traffic percentage (5% --> 25% --> 50% --> 100%).
 - If unhealthy: route all traffic back to v1 (fast rollback).
-- Tools: Kubernetes Ingress with traffic splitting, Argo Rollouts, Flagger, Istio.
+- Tools: Kubernetes Ingress with traffic splitting, `Argo Rollouts`, `Flagger`, `Istio`.
+- Canary: test with real traffic at small scale; expand gradually.
 
 ```text
 Canary progression:
@@ -159,8 +163,9 @@ Related notes: [010-metrics-and-dora](./010-metrics-and-dora.md), [011-gitops](.
 - Deploy code to production but control feature visibility with runtime toggles.
 - Decouple deployment (code ships) from release (feature is enabled).
 - Enables: gradual rollout by user %, A/B testing, kill switch for broken features.
-- Implementation: feature flag service (LaunchDarkly, Unleash, Flagsmith) or config-based.
+- Implementation: feature flag service (`LaunchDarkly`, `Unleash`, `Flagsmith`) or config-based.
 - Clean up: remove old flags after full rollout to avoid technical debt.
+- Feature flags: decouple deploy from release; must clean up old flags.
 
 ```text
 Feature flag lifecycle:
@@ -201,7 +206,10 @@ Related notes: [010-metrics-and-dora](./010-metrics-and-dora.md)
   - Error rate exceeds threshold.
   - Latency spikes above SLO.
   - Health check failures.
-  - Alertmanager integration with deployment controller.
+  - `Alertmanager` integration with deployment controller.
+- Always have a tested rollback plan before deploying.
+- Database migrations must be backward-compatible for zero-downtime strategies.
+- Automated rollback triggers: error rate, latency, health check failures.
 
 Related notes: [009-ci-cd-security](./009-ci-cd-security.md), [008-environment-management](./008-environment-management.md)
 
@@ -211,10 +219,10 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md), [008-environment-m
 
 ### Rolling update stuck (pods not becoming ready)
 
-1. Check pod status: `kubectl get pods` — look for CrashLoopBackOff or ImagePullBackOff.
+1. Check pod status: `kubectl get pods` — look for `CrashLoopBackOff` or `ImagePullBackOff`.
 2. Check pod logs: `kubectl logs <pod>` for application errors.
 3. Check readiness probe: is the health endpoint responding correctly?
-4. Check resource limits: pod may be OOMKilled (check `kubectl describe pod`).
+4. Check resource limits: pod may be `OOMKilled` (check `kubectl describe pod`).
 5. Rollback: `kubectl rollout undo deployment/<name>`.
 
 ### Blue-Green switch causes errors
@@ -240,16 +248,3 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md), [008-environment-m
 3. Look for flag dependency issues: flag A depends on flag B being enabled.
 4. Test with flag explicitly ON and OFF in staging.
 5. Kill switch: disable the flag immediately if causing production issues.
-
----
-
-# Quick Facts (Revision)
-
-- Recreate: simplest, has downtime; use for non-critical or dev environments.
-- Rolling update: zero-downtime, gradual; Kubernetes default; requires backward compatibility.
-- Blue-Green: instant switch and rollback; costs 2x infrastructure.
-- Canary: test with real traffic at small scale; expand gradually.
-- Feature flags: decouple deploy from release; must clean up old flags.
-- Always have a tested rollback plan before deploying.
-- Database migrations must be backward-compatible for zero-downtime strategies.
-- Automated rollback triggers: error rate, latency, health check failures.

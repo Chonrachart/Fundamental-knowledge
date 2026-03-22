@@ -271,6 +271,15 @@ ansible-doc ansible.builtin.shell
 ```
 
 
+
+- `command` = no shell, no pipes — safer; `shell` = full `/bin/sh` — flexible but riskier.
+- `raw` = bare SSH, no Python needed — use only for bootstrap tasks.
+- `script` = copies local script to remote and runs it — script lives on control node.
+- `creates` / `removes` = file-based skip guards; `changed_when` = output-based guard.
+- `args:` block is only needed with free-form syntax; structured form puts params under the module key.
+- Always `register:` + `changed_when:` for command/shell tasks — bare execution is never idempotent.
+- `executable: /bin/bash` is needed for bashisms like `source`, `[[`, arrays.
+- `stdin:` passes data to command's stdin — useful for interactive installers.
 # Troubleshooting Guide
 
 ### Command runs but reports changed every time
@@ -299,14 +308,3 @@ ansible-doc ansible.builtin.shell
 3. Both check at task execution time, not at playbook parse time.
 4. Paths are evaluated on the **managed node**, not the control node.
 
-
-# Quick Facts (Revision)
-
-- `command` = no shell, no pipes — safer; `shell` = full `/bin/sh` — flexible but riskier.
-- `raw` = bare SSH, no Python needed — use only for bootstrap tasks.
-- `script` = copies local script to remote and runs it — script lives on control node.
-- `creates` / `removes` = file-based skip guards; `changed_when` = output-based guard.
-- `args:` block is only needed with free-form syntax; structured form puts params under the module key.
-- Always `register:` + `changed_when:` for command/shell tasks — bare execution is never idempotent.
-- `executable: /bin/bash` is needed for bashisms like `source`, `[[`, arrays.
-- `stdin:` passes data to command's stdin — useful for interactive installers.

@@ -78,6 +78,8 @@ Example: CPU alert pipeline
 - **Folder**: Organizes rules; permissions are scoped by folder.
 - **For duration**: How long the condition must be continuously true before the alert fires (avoids flapping on transient spikes).
 - **Annotations**: Summary and description fields; available in the notification message via templates.
+- Alert rule = query + condition + for duration + folder + annotations.
+- "For" duration prevents flapping: condition must hold continuously before firing.
 
 Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [004-promql-deep-dive](./004-promql-deep-dive.md)
 
@@ -87,6 +89,7 @@ Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [004-promq
 - Configure per type: Slack needs a webhook URL and channel; PagerDuty needs a routing key; email needs SMTP settings.
 - Test delivery from the Grafana UI before relying on it in production.
 - **Grafana Contact Points** are built-in; alternatively use an external Alertmanager if running a Prometheus stack.
+- Contact points: email, Slack, PagerDuty, webhook -- configured and tested from UI.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md)
 
@@ -96,7 +99,9 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - **Default policy**: Catch-all route; sends unmatched alerts to a default contact point.
 - **Specific routes**: Match on labels to send to different channels (e.g. severity=warning -> email, severity=critical -> PagerDuty).
 - **Grouping**: Combine related alerts into a single notification (group by alertname, cluster, namespace).
-- **Timing intervals**: group_wait (initial delay), group_interval (batch window), repeat_interval (re-notify throttle).
+- **Timing intervals**: `group_wait` (initial delay), `group_interval` (batch window), `repeat_interval` (re-notify throttle).
+- Notification policies route alerts by label matchers; default policy is the catch-all.
+- Grouping reduces noise: related alerts are batched into a single notification.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md)
 
@@ -106,6 +111,7 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - Set start time, end time, and matchers (alertname, label key/value pairs).
 - The alert still evaluates and fires -- only the notification delivery is silenced.
 - Active silences are visible in the Grafana Alerting UI.
+- Silences suppress notifications (not evaluation) for a time window using matchers.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md)
 
@@ -115,6 +121,8 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - **For**: The pending duration -- condition must be true for this long before the state transitions from Pending to Firing.
 - **No Data handling**: Configurable behavior when the query returns no data -- can be set to Alerting, No Data, OK, or Keep Last State.
 - No Data is useful for detecting instance-down scenarios (e.g. a target stopped reporting metrics).
+- Alert states: Normal -> Pending -> Firing -> Resolved.
+- No Data handling: configurable per rule -- alert, OK, keep last state, or no data state.
 
 Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [../Zabbix/001-zabbix-overview](../Zabbix/001-zabbix-overview.md)
 
@@ -130,14 +138,3 @@ Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [../Zabbix
 4. Is the contact point configured correctly? Test the contact point from Alerting > Contact Points > Test. Test fails means check credentials, URLs, network connectivity.
 5. Is a Silence active for this alert? Alerting > Silences > check matchers and time window. Silence active means wait for expiry or remove the silence.
 6. Check Grafana server logs for delivery errors: `grep "alerting" /var/log/grafana/grafana.log`.
-
-# Quick Facts (Revision)
-
-- Alert rule = query + condition + for duration + folder + annotations.
-- Alert states: Normal -> Pending -> Firing -> Resolved.
-- "For" duration prevents flapping: condition must hold continuously before firing.
-- Contact points: email, Slack, PagerDuty, webhook -- configured and tested from UI.
-- Notification policies route alerts by label matchers; default policy is the catch-all.
-- Silences suppress notifications (not evaluation) for a time window using matchers.
-- No Data handling: configurable per rule -- alert, OK, keep last state, or no data state.
-- Grouping reduces noise: related alerts are batched into a single notification.

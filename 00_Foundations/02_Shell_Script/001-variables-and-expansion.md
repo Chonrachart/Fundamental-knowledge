@@ -75,6 +75,7 @@ cat "$file"
 - `declare -i num=5` -- declare as integer (arithmetic on assignment).
 - `declare -a arr=(a b c)` -- declare indexed array.
 - Naming rules: letters, digits, underscore; must start with letter or underscore.
+- Assignment: `var=value` with no spaces; `$` only on access, never on assignment.
 
 ```bash
 name="alice"
@@ -84,6 +85,7 @@ declare -i total=5+3    # total is 8
 ```
 
 Related notes: [006-strings-and-arrays](./006-strings-and-arrays.md)
+- Unset variables silently expand to empty string unless `set -u` (nounset) is enabled.
 
 ### Expansion
 
@@ -92,6 +94,9 @@ Related notes: [006-strings-and-arrays](./006-strings-and-arrays.md)
 - `$(command)` -- command substitution; output of command replaces the expression.
 - `$((expr))` -- arithmetic expansion; evaluates math expression.
 - Unset or empty variable expands to empty string (no error by default).
+- Always double-quote variable expansions (`"$var"`) to prevent word splitting and globbing.
+- Expansion order: brace, tilde, parameter, command substitution, arithmetic, word splitting, pathname.
+- `${var##*/}` acts like `basename`; `${var%/*}` acts like `dirname`.
 
 ```bash
 echo "$name"              # alice
@@ -106,6 +111,7 @@ Related notes: [004-io-and-redirection](./004-io-and-redirection.md)
 
 - `${var:-default}` -- use default if var is unset or empty.
 - `${var:=default}` -- assign default if var is unset or empty.
+- `${var:-default}` provides a fallback; `${var:=default}` provides and assigns a fallback.
 - `${var:+alternate}` -- use alternate if var IS set and non-empty.
 - `${var:?message}` -- exit with error message if var is unset or empty.
 - `${#var}` -- length of string value.
@@ -134,14 +140,6 @@ echo "${path/user/admin}"     # /home/admin/file.txt
 Related notes: [006-strings-and-arrays](./006-strings-and-arrays.md)
 
 ### Readonly and Export
-
-- `readonly var` -- prevents reassignment or unsetting; error if attempted.
-- `declare -r var=value` -- same effect as readonly.
-- `export var` -- promotes shell variable to environment; child processes inherit it.
-- `export var=value` -- assign and export in one step.
-- Without export, a variable exists only in the current shell.
-- `env` or `printenv` -- list all exported environment variables.
-
 ```bash
 readonly PI=3.14159
 PI=3.14               # error: PI: readonly variable
@@ -154,6 +152,14 @@ declare -p PATH       # declare -x PATH="..."
 ```
 
 Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md), [003-functions](./003-functions.md)
+- `readonly var` -- prevents reassignment or unsetting; error if attempted.
+- `declare -r var=value` -- same effect as readonly.
+- `export var` -- promotes shell variable to environment; child processes inherit it.
+- `export var=value` -- assign and export in one step.
+- Without export, a variable exists only in the current shell.
+- `env` or `printenv` -- list all exported environment variables.
+- `export` makes a variable available to child processes; without it, the variable is shell-local.
+- `readonly` is permanent for the current shell session; cannot be unset.
 
 ---
 
@@ -184,6 +190,7 @@ export -p
 # unset a variable
 unset MY_VAR
 ```
+
 
 # Troubleshooting Guide
 
@@ -220,14 +227,3 @@ Problem: variable not behaving as expected
     |
     +-- pattern does not match suffix --> check pattern, use %% for greedy
 ```
-
-# Quick Facts (Revision)
-
-- Assignment: `var=value` with no spaces; `$` only on access, never on assignment.
-- Always double-quote variable expansions (`"$var"`) to prevent word splitting and globbing.
-- `${var:-default}` provides a fallback; `${var:=default}` provides and assigns a fallback.
-- `export` makes a variable available to child processes; without it, the variable is shell-local.
-- `readonly` is permanent for the current shell session; cannot be unset.
-- Expansion order: brace, tilde, parameter, command substitution, arithmetic, word splitting, pathname.
-- `${var##*/}` acts like `basename`; `${var%/*}` acts like `dirname`.
-- Unset variables silently expand to empty string unless `set -u` (nounset) is enabled.

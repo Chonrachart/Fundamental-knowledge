@@ -29,6 +29,7 @@ GitHub Repository
 
 - Top-level unit; one YAML file per workflow.
 - Contains jobs; jobs run on runners (GitHub-hosted or self-hosted).
+- Workflow files live in `.github/workflows/` and must have `.yml` or `.yaml` extension.
 
 ```yaml
 name: CI
@@ -47,16 +48,20 @@ jobs:
 
 - Set of steps; runs on one runner; steps run in order.
 - Jobs in same workflow can run in parallel or depend on each other (`needs`).
+- Each job runs on its own runner; steps within a job share the runner filesystem.
+- Jobs run in parallel by default; use `needs:` to create dependencies.
 
 ### Step
 
 - Single task: run a script or use an action (`uses`).
 - `run`: shell command. `uses`: reusable action (e.g. `actions/checkout@v4`).
+- `uses:` references a reusable action; `run:` executes a shell command.
 
 ### Trigger
 
 - `on`: defines when workflow runs (push, pull_request, schedule, etc.).
 - Filters: branches, paths, tags.
+- Workflow triggers are defined under `on:` and support branch/path/tag filters.
 
 ### Common Patterns
 
@@ -64,6 +69,8 @@ jobs:
 - Cache: `actions/cache` for npm, pip, etc.
 - Build and push Docker: `docker/build-push-action`, login with `docker/login-action`.
 - Secrets: `secrets.GITHUB_TOKEN`, repo secrets in Settings.
+- `actions/checkout@v4` is required in almost every workflow to clone the repo.
+- `secrets.GITHUB_TOKEN` is auto-injected per run; scoped to the current repo.
 
 Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [004-secrets-cache](./004-secrets-cache.md), [005-real-world-examples](./005-real-world-examples.md)
 
@@ -85,13 +92,3 @@ Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [004-secrets-cac
 1. Check action name and version: `owner/repo@version` (e.g. `actions/checkout@v4`).
 2. Private actions: must be in the same repo or accessible; use `actions/checkout` first.
 3. Check if action was deprecated or renamed.
-
-# Quick Facts (Revision)
-
-- Workflow files live in `.github/workflows/` and must have `.yml` or `.yaml` extension.
-- Each job runs on its own runner; steps within a job share the runner filesystem.
-- Jobs run in parallel by default; use `needs:` to create dependencies.
-- `uses:` references a reusable action; `run:` executes a shell command.
-- `actions/checkout@v4` is required in almost every workflow to clone the repo.
-- `secrets.GITHUB_TOKEN` is auto-injected per run; scoped to the current repo.
-- Workflow triggers are defined under `on:` and support branch/path/tag filters.

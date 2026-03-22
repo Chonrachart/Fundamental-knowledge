@@ -88,6 +88,10 @@ Example: opening https://example.com
 |   2   | Data Link    | Local delivery                    | Uses MAC addressing, framing, and local error detection     |
 |   1   | Physical     | Hardware signals                  | Sends bits as electrical, optical, or radio signals         |
 
+- OSI = 7 layers (conceptual, for learning/design); TCP/IP = 4 layers (practical, used on the internet).
+- Troubleshoot bottom-up: physical first, then link, network, transport, application.
+- A packet traverses every layer twice: once at sender (down), once at receiver (up).
+
 Related notes: [002-transport-layer](./002-transport-layer.md), [003-addressing-and-routing](./003-addressing-and-routing.md)
 
 ### OSI Layers with Protocol Examples
@@ -110,6 +114,7 @@ Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md), [0
 - **Transport** -- end-to-end communication between processes using port numbers. TCP for reliable ordered delivery; UDP for fast connectionless delivery.
 - **Internet** -- logical addressing and routing between networks. IP, ICMP, IPsec. Routers examine destination IP to decide next hop.
 - **Link** -- local network communication using frames and MAC addresses. Includes Ethernet, Wi-Fi, and the physical medium. Switches operate here.
+- TCP/IP Application layer combines OSI layers 7, 6, and 5.
 
 Related notes: [002-transport-layer](./002-transport-layer.md), [003-addressing-and-routing](./003-addressing-and-routing.md)
 
@@ -121,6 +126,8 @@ Related notes: [002-transport-layer](./002-transport-layer.md), [003-addressing-
 | Transport    | 4           | TCP, UDP                        |
 | Internet     | 3           | IP, ICMP, IPsec                 |
 | Link         | 2, 1        | Ethernet, Wi-Fi, physical media |
+
+- Encapsulation: data gets headers added going down; de-encapsulation strips them going up.
 
 Related notes: [000-core](./000-core.md)
 
@@ -136,16 +143,18 @@ Related notes: [000-core](./000-core.md)
 | Data Link                          | Frame                          |
 | Physical                           | Bits                           |
 
+- PDU names: Data, Segment/Datagram, Packet, Frame, Bits (top to bottom).
+
 Related notes: [002-transport-layer](./002-transport-layer.md)
 
 ### Devices by Layer
-
+Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 - Layer 1 (Physical): cable, repeater, hub, transceiver
 - Layer 2 (Data Link): switch, bridge
 - Layer 3 (Network): router, Layer 3 switch
 - Layer 4-7 (Transport-Application): firewall, proxy, load balancer, gateway
+- L2 devices (switches) use MAC addresses; L3 devices (routers) use IP addresses.
 
-Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 
 ---
 
@@ -174,13 +183,3 @@ Start: identify which layer is failing
 [L7] Application -- DNS resolving? correct response? auth working?
     dig <domain> / curl -v <url>
 ```
-
-# Quick Facts (Revision)
-
-- OSI = 7 layers (conceptual, for learning/design); TCP/IP = 4 layers (practical, used on the internet).
-- TCP/IP Application layer combines OSI layers 7, 6, and 5.
-- Encapsulation: data gets headers added going down; de-encapsulation strips them going up.
-- PDU names: Data, Segment/Datagram, Packet, Frame, Bits (top to bottom).
-- L2 devices (switches) use MAC addresses; L3 devices (routers) use IP addresses.
-- Troubleshoot bottom-up: physical first, then link, network, transport, application.
-- A packet traverses every layer twice: once at sender (down), once at receiver (up).

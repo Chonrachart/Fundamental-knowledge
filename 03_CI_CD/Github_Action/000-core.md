@@ -54,6 +54,7 @@ Event → Workflow → Job(s) → Step(s) → Action or shell command
 - **Workflow**: YAML file in `.github/workflows/`; triggered by events.
 - **Triggers** (`on:`): push, pull_request, schedule, workflow_dispatch, workflow_call, repository_dispatch.
 - Filters: branches, tags, paths, paths-ignore.
+- Workflows live in `.github/workflows/` and are YAML files
 
 Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [002-workflow-syntax](./002-workflow-syntax.md)
 
@@ -63,6 +64,8 @@ Related notes: [001-github-actions-overview](./001-github-actions-overview.md), 
 - **Step**: Single task — `run:` (shell command) or `uses:` (reusable action).
 - **Runner**: VM that executes jobs; GitHub-hosted (ubuntu-latest, windows-latest) or self-hosted.
 - **Matrix**: Run job with multiple parameter combinations (e.g. node version, OS).
+- Jobs run in parallel by default; use `needs:` to create dependencies
+- Matrix strategy runs the same job with different parameter combinations
 
 Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [005-real-world-examples](./005-real-world-examples.md)
 
@@ -71,6 +74,8 @@ Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [005-real-world-
 - **Secret**: Encrypted variable stored in repo/org Settings; `${{ secrets.NAME }}`; masked in logs.
 - **GITHUB_TOKEN**: Auto-injected per run; scope with `permissions:` block.
 - **Environment**: Named target (staging, prod) with protection rules and env-specific secrets.
+- GITHUB_TOKEN is auto-injected per run; scope with `permissions:`
+- Secrets are masked in logs; never echo them
 
 Related notes: [004-secrets-cache](./004-secrets-cache.md)
 
@@ -78,6 +83,7 @@ Related notes: [004-secrets-cache](./004-secrets-cache.md)
 
 - **Cache** (`actions/cache`): Save/restore directories by key; use lockfile hash for invalidation.
 - **Artifact**: Files uploaded/downloaded between jobs or runs (`actions/upload-artifact`, `actions/download-artifact`).
+- Cache key should include lockfile hash for deterministic invalidation
 
 Related notes: [004-secrets-cache](./004-secrets-cache.md)
 
@@ -93,6 +99,8 @@ Related notes: [003-expressions-contexts](./003-expressions-contexts.md)
 
 - **Reusable workflows**: Call a workflow from another via `workflow_call`; pass inputs and secrets.
 - **Composite actions**: Bundle multiple steps into one reusable action (`action.yml` with `runs: using: composite`).
+- `act` tool lets you run workflows locally via Docker
+- Reusable workflows use `workflow_call`; composite actions use `action.yml`
 
 Related notes: [006-reusable-workflows-debugging](./006-reusable-workflows-debugging.md)
 
@@ -115,19 +123,6 @@ Related notes: [006-reusable-workflows-debugging](./006-reusable-workflows-debug
 1. Pin actions to major version (`@v4`) or commit SHA for stability.
 2. Check action's changelog for breaking changes between versions.
 3. Use Dependabot to track action updates.
-
----
-
-# Quick Facts (Revision)
-
-- Workflows live in `.github/workflows/` and are YAML files
-- Jobs run in parallel by default; use `needs:` to create dependencies
-- `GITHUB_TOKEN` is auto-injected per run; scope with `permissions:`
-- Matrix strategy runs the same job with different parameter combinations
-- Secrets are masked in logs; never echo them
-- `act` tool lets you run workflows locally via Docker
-- Reusable workflows use `workflow_call`; composite actions use `action.yml`
-- Cache key should include lockfile hash for deterministic invalidation
 
 # Topic Map
 

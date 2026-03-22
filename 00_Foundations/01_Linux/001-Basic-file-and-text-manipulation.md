@@ -100,6 +100,7 @@ rm -r <dir>         # remove directory recursively
 rm -f <file>        # force removal (no error if missing)
 rmdir <dir>         # remove empty directory only
 ```
+- `rm` removes the directory entry; actual data is freed when link count reaches 0.
 
 ### Copying and Moving
 
@@ -112,6 +113,7 @@ mv <src> <dest>         # move or rename
                         # same filesystem: renames inode pointer (no data copy)
                         # different filesystem: copies data + removes source
 ```
+- `mv` on the same filesystem renames the directory entry; no data is copied.
 
 ### Viewing File Content
 
@@ -124,6 +126,7 @@ tail -f <file>      # follow file in real time (for logs)
 wc -l <file>        # count lines  (-w words, -c bytes)
 zcat <file>.gz      # view gzip-compressed file without extracting
 ```
+- `tail -f` follows a growing file in real time — standard tool for watching live logs.
 
 ### grep and Redirection
 
@@ -148,6 +151,11 @@ cmd1 | cmd2          # pipe stdout of cmd1 to stdin of cmd2
 ```
 
 File descriptors: `0` stdin · `1` stdout · `2` stderr
+- File descriptors: `0=stdin`, `1=stdout`, `2=stderr` — redirection rewires these per-process.
+- `>` overwrites; `>>` appends — don't mix them up on important files.
+- `2>&1` redirects stderr to wherever stdout currently points (order matters).
+- `/dev/null` discards everything written to it — use to suppress unwanted output.
+- `grep -r` without a path searches the current directory recursively.
 
 ### Text Processing Utilities
 
@@ -182,7 +190,8 @@ Ctrl + R         # reverse search through history (repeat to go further back)
 !<n>             # repeat command number n
 ```
 
----
+
+
 
 # Troubleshooting Guide
 
@@ -207,14 +216,3 @@ Ctrl + R         # reverse search through history (repeat to go further back)
 
 1. Run each stage individually to isolate where data changes.
 
-
-# Quick Facts (Revision)
-
-- File descriptors: `0=stdin`, `1=stdout`, `2=stderr` — redirection rewires these per-process.
-- `mv` on the same filesystem renames the directory entry; no data is copied.
-- `rm` removes the directory entry; actual data is freed when link count reaches 0.
-- `tail -f` follows a growing file in real time — standard tool for watching live logs.
-- `>` overwrites; `>>` appends — don't mix them up on important files.
-- `2>&1` redirects stderr to wherever stdout currently points (order matters).
-- `/dev/null` discards everything written to it — use to suppress unwanted output.
-- `grep -r` without a path searches the current directory recursively.

@@ -12,6 +12,7 @@
 - Use **actions/checkout**, **actions/setup-node** (with cache), **run: npm ci**, **run: npm test**.
 - **actions/cache** key: `npm-${{ hashFiles('**/package-lock.json') }}`; path: `~/.npm` or `node_modules` (check tool docs).
 - On PR: run same; optionally **codecov** or **upload-artifact** for test results.
+- `npm ci` requires a committed `package-lock.json`; it fails if the lockfile is missing or out of sync.
 
 ```yaml
 jobs:
@@ -32,10 +33,11 @@ jobs:
 
 ### Build and Push Docker Image
 
-- Checkout; **docker/login-action** (ECR, GHCR, or Docker Hub with secrets); **docker/build-push-action** with tags (e.g. sha, latest).
-- Use **docker/metadata-action** to generate tags from ref/sha.
-- Push only on main or on tag; use **if: github.ref == 'refs/heads/main'** or **startsWith(github.ref, 'refs/tags/')**.
-- **docker/setup-buildx-action** for BuildKit; **docker/build-push-action** with **push: true** and **tags**.
+- Checkout; `docker/login-action` (ECR, GHCR, or Docker Hub with secrets); `docker/build-push-action` with tags (e.g. sha, latest).
+- Use `docker/metadata-action` to generate tags from ref/sha.
+- Push only on main or on tag; use `if: github.ref == 'refs/heads/main'` or `startsWith(github.ref, 'refs/tags/')`.
+- `docker/setup-buildx-action` for BuildKit; `docker/build-push-action` with `push: true` and `tags`.
+- `docker/metadata-action` auto-generates image tags from git ref and SHA.
 
 ```yaml
 - uses: docker/login-action@v3
@@ -52,10 +54,11 @@ jobs:
 
 ### Deploy to Kubernetes or Cloud
 
-- **Deploy job** has **needs: [build]** (or test); only runs on main or on workflow_dispatch.
-- **kubectl** or **helm**: Use **azure/k8s-set-context** or **google-github-actions/auth** + **kubectl**; or run **aws eks update-kubeconfig** then **kubectl set image**.
+- Deploy job has `needs: [build]` (or test); only runs on main or on `workflow_dispatch`.
+- `kubectl` or `helm`: Use `azure/k8s-set-context` or `google-github-actions/auth` + `kubectl`; or run `aws eks update-kubeconfig` then `kubectl set image`.
 - **Secrets**: Store kubeconfig or cloud credentials in repo/org secrets; never in workflow file.
-- **Environment**: Set **environment: production** for approval gate; use **environment** secrets for prod-only vars.
+- **Environment**: Set `environment: production` for approval gate; use **environment** secrets for prod-only vars.
+- Deploy jobs should use `needs:` to depend on build/test and `environment:` for approval gates.
 
 ### Matrix and Upload Artifact
 
@@ -68,6 +71,8 @@ jobs:
 - **if: success()** or **if: failure()** to run cleanup or notify only on failure.
 - **concurrency: group: ${{ github.ref }}** so only latest run per branch is active; cancel in progress when new commit pushed.
 - **concurrency: group: deploy-${{ github.ref }}, cancel-in-progress: false** for deploy so two deploys don't overlap.
+- `if: failure()` runs a step only when a previous step failed — useful for notifications.
+- `concurrency` with `cancel-in-progress: false` prevents deploy interruptions.
 
 ### Security in Workflows
 
@@ -75,6 +80,8 @@ jobs:
 - **GITHUB_TOKEN** is per-run and scoped; prefer it over personal/org tokens when possible.
 - **Secrets**: Never echo or log; use **env** to pass to script and avoid printing.
 - Pin **actions** by full ref (e.g. `actions/checkout@v4` or commit SHA) so you control when to upgrade.
+- Pin actions to a specific version or commit SHA to prevent supply-chain attacks.
+- Use `GITHUB_TOKEN` over personal access tokens whenever its permissions are sufficient.
 
 Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [004-secrets-cache](./004-secrets-cache.md), [003-expressions-contexts](./003-expressions-contexts.md)
 
@@ -96,13 +103,3 @@ Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [004-secrets-cac
 1. Ensure `package-lock.json` is committed — `npm ci` requires it.
 2. Check Node version matches: `actions/setup-node` with `node-version:` from matrix.
 3. Cache may be stale: delete cache from Actions tab and re-run.
-
-# Quick Facts (Revision)
-
-- `npm ci` requires a committed `package-lock.json`; it fails if the lockfile is missing or out of sync.
-- `docker/metadata-action` auto-generates image tags from git ref and SHA.
-- Deploy jobs should use `needs:` to depend on build/test and `environment:` for approval gates.
-- Pin actions to a specific version or commit SHA to prevent supply-chain attacks.
-- `if: failure()` runs a step only when a previous step failed — useful for notifications.
-- `concurrency` with `cancel-in-progress: false` prevents deploy interruptions.
-- Use `GITHUB_TOKEN` over personal access tokens whenever its permissions are sufficient.

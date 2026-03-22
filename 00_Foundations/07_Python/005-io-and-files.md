@@ -74,6 +74,8 @@ f.close()
 ```
 
 Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md)
+- `open()` modes: `r` read, `w` write (truncate), `a` append, `x` exclusive create; add `b` for binary, `+` for read+write.
+- Default encoding in Python 3 is platform-dependent; always specify `encoding="utf-8"` explicitly.
 
 ### Reading and Writing
 
@@ -94,6 +96,8 @@ with open("out.txt", "w") as f:
 ```
 
 Related notes: [004-data-structures](./004-data-structures.md)
+- `read()` loads the entire file into memory; avoid on large files.
+- `writelines()` does not add newlines -- you must include `\n` in each string.
 
 ### Context Managers
 
@@ -108,6 +112,8 @@ with open("file.txt", "r") as f:
 ```
 
 Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md), [009-decorators-and-generators](./009-decorators-and-generators.md)
+- Always use `with open(...) as f:` -- guarantees close even on exception.
+- `pathlib.Path` is preferred over `os.path` for path manipulation in modern Python.
 
 ### pathlib
 
@@ -153,7 +159,8 @@ with open("out.json", "w") as f:
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md), [004-data-structures](./004-data-structures.md)
-
+- `for line in f` is the most memory-efficient way to read lines.
+- JSON: `json.load(f)` reads from file object; `json.loads(s)` reads from string.
 ---
 
 # Troubleshooting Guide
@@ -188,14 +195,3 @@ Problem: file operation fails or behaves unexpectedly
 [5] Check file object state
     f.closed, f.mode, f.name
 ```
-
-# Quick Facts (Revision)
-
-- `open()` modes: `r` read, `w` write (truncate), `a` append, `x` exclusive create; add `b` for binary, `+` for read+write.
-- Always use `with open(...) as f:` -- guarantees close even on exception.
-- `for line in f` is the most memory-efficient way to read lines.
-- `pathlib.Path` is preferred over `os.path` for path manipulation in modern Python.
-- `read()` loads the entire file into memory; avoid on large files.
-- `writelines()` does not add newlines -- you must include `\n` in each string.
-- JSON: `json.load(f)` reads from file object; `json.loads(s)` reads from string.
-- Default encoding in Python 3 is platform-dependent; always specify `encoding="utf-8"` explicitly.

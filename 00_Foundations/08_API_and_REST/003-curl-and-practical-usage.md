@@ -284,10 +284,6 @@ echo "Smoke test passed"
 Related notes: [001-rest-concepts](./001-rest-concepts.md)
 
 ### Webhooks
-
-- Webhooks invert the typical API model: instead of your code polling an API, the service pushes events to your URL.
-- Common in CI/CD triggers, alerting, ChatOps, and event-driven automation.
-
 ```text
 Pull model (polling):
   Client --> GET /events?since=... --> Server   (repeated every N seconds)
@@ -321,6 +317,8 @@ curl -s -X POST \
 ```
 
 Related notes: [000-core](./000-core.md)
+- Webhooks invert the typical API model: instead of your code polling an API, the service pushes events to your URL.
+- Common in CI/CD triggers, alerting, ChatOps, and event-driven automation.
 
 ---
 
@@ -356,6 +354,15 @@ echo -e "server1\nserver2\nserver3" | xargs -P3 -I{} \
   curl -s "https://api.example.com/v1/servers/{}" -o "{}.json"
 ```
 
+
+- curl -s silences progress; -v shows full request/response; -o saves to file; -w outputs metadata.
+- Always use -H "Content-Type: application/json" when sending JSON bodies.
+- Pagination: offset/limit is simplest; cursor-based is most scalable for large datasets.
+- 429 status = rate limited; respect the Retry-After header before retrying.
+- Webhooks are push-based (server POSTs to you); polling is pull-based (you GET from server).
+- Use jq to parse JSON responses: curl -s ... | jq '.items[].name'.
+- Health/readiness/liveness endpoints (/health, /readyz, /healthz) are essential for CI/CD and Kubernetes.
+- httpie is a more readable alternative to curl; python requests is best for complex scripting.
 # Troubleshooting Guide
 
 ```text
@@ -393,14 +400,3 @@ Problem: curl command not working as expected
     - Postman/browser dev tools export
     - A colleague's working command
 ```
-
-# Quick Facts (Revision)
-
-- curl -s silences progress; -v shows full request/response; -o saves to file; -w outputs metadata.
-- Always use -H "Content-Type: application/json" when sending JSON bodies.
-- Pagination: offset/limit is simplest; cursor-based is most scalable for large datasets.
-- 429 status = rate limited; respect the Retry-After header before retrying.
-- Webhooks are push-based (server POSTs to you); polling is pull-based (you GET from server).
-- Use jq to parse JSON responses: curl -s ... | jq '.items[].name'.
-- Health/readiness/liveness endpoints (/health, /readyz, /healthz) are essential for CI/CD and Kubernetes.
-- httpie is a more readable alternative to curl; python requests is best for complex scripting.

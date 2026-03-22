@@ -225,6 +225,15 @@ Related notes: [004-services-ingress](./004-services-ingress.md), [005-configmap
 | `cert-manager-webhook` | Validates Certificate/Issuer resources via admission webhook |
 | `cert-manager-cainjector` | Injects CA bundles into webhooks and CRDs |
 
+
+- cert-manager automates TLS certificate lifecycle: issue, store, renew.
+- Issuer (namespace-scoped) vs ClusterIssuer (cluster-wide) define where certs come from.
+- Certificate resource defines what cert to get; result stored in a Kubernetes Secret.
+- Auto-renewal happens based on `renewBefore` — no manual intervention needed.
+- Self-signed for internal/dev; ACME (Let's Encrypt) for public domains.
+- Ingress annotation `cert-manager.io/cluster-issuer` auto-creates certificates.
+- Three components: controller (issues certs), webhook (validates CRDs), cainjector (injects CA bundles).
+- Install via static manifest or Helm; requires CRDs to be installed first.
 ---
 
 # Troubleshooting Guide
@@ -249,16 +258,3 @@ Related notes: [004-services-ingress](./004-services-ingress.md), [005-configmap
 1. Certificate must be `Ready=True` before Secret appears.
 2. Check events: `kubectl describe certificate <name>` — Events section shows progress.
 3. If using Ingress annotation: verify `tls.secretName` matches and annotation is correct.
-
----
-
-# Quick Facts (Revision)
-
-- cert-manager automates TLS certificate lifecycle: issue, store, renew.
-- Issuer (namespace-scoped) vs ClusterIssuer (cluster-wide) define where certs come from.
-- Certificate resource defines what cert to get; result stored in a Kubernetes Secret.
-- Auto-renewal happens based on `renewBefore` — no manual intervention needed.
-- Self-signed for internal/dev; ACME (Let's Encrypt) for public domains.
-- Ingress annotation `cert-manager.io/cluster-issuer` auto-creates certificates.
-- Three components: controller (issues certs), webhook (validates CRDs), cainjector (injects CA bundles).
-- Install via static manifest or Helm; requires CRDs to be installed first.

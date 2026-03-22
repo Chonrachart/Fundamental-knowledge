@@ -283,35 +283,15 @@ dig @127.0.0.1 -p 8600 redis.service.consul SRV
 Related notes: [000-core](./000-core.md)
 
 ### Split-Horizon DNS
-
+Related notes: [003-dns-management-and-operations](./003-dns-management-and-operations.md)
 - Split-horizon (split-brain) DNS returns different answers for the same domain based on the source of the query.
 - Internal clients get private IPs; external clients get public IPs.
 - Common pattern for organizations hosting services accessible both internally and externally.
-
-```text
-External query for app.example.com:
-  Internet client --> public resolver --> authoritative --> 203.0.113.50 (public LB)
-
-Internal query for app.example.com:
-  Corporate client --> internal resolver --> internal zone --> 10.0.1.100 (private IP)
-
-+------------------+          +------------------+
-| External View    |          | Internal View    |
-|                  |          |                  |
-| app  A  203.0.   |          | app  A  10.0.    |
-|        113.50    |          |        1.100     |
-| api  A  203.0.   |          | api  A  10.0.    |
-|        113.51    |          |        1.101     |
-+------------------+          +------------------+
-```
-
 - Implementation methods:
   - BIND views: different zone data served based on source IP ACL.
   - Separate DNS servers: internal DNS server for internal zones, public DNS for external.
   - Cloud DNS: Route53 private hosted zones, GCP Cloud DNS private zones.
 - Risk: misconfiguration can leak internal IPs externally or break internal resolution.
-
-Related notes: [003-dns-management-and-operations](./003-dns-management-and-operations.md)
 
 ---
 
@@ -345,6 +325,15 @@ dig @127.0.0.1 -p 8600 redis.service.consul
 dig @127.0.0.1 -p 8600 redis.service.consul SRV
 ```
 
+
+- /etc/nsswitch.conf `hosts: files dns` means /etc/hosts is checked before DNS.
+- /etc/resolv.conf supports up to 3 nameservers and 6 search domains.
+- `ndots:5` (Kubernetes default) means names with fewer than 5 dots get search domain expansion first.
+- CoreDNS is the default Kubernetes DNS server; config lives in the `coredns` ConfigMap.
+- Kubernetes service DNS: `<service>.<namespace>.svc.cluster.local`.
+- Headless services (clusterIP: None) return individual pod IPs instead of a virtual IP.
+- Consul DNS serves only healthy instances and is queryable on port 8600.
+- Split-horizon DNS returns different answers based on query source -- internal vs external clients.
 # Troubleshooting Guide
 
 ```text
@@ -381,14 +370,3 @@ Problem: service name not resolving inside Kubernetes
     dig my-service.default.svc.cluster.local.
     +-- works with FQDN but not short name --> ndots or search domain issue
 ```
-
-# Quick Facts (Revision)
-
-- /etc/nsswitch.conf `hosts: files dns` means /etc/hosts is checked before DNS.
-- /etc/resolv.conf supports up to 3 nameservers and 6 search domains.
-- `ndots:5` (Kubernetes default) means names with fewer than 5 dots get search domain expansion first.
-- CoreDNS is the default Kubernetes DNS server; config lives in the `coredns` ConfigMap.
-- Kubernetes service DNS: `<service>.<namespace>.svc.cluster.local`.
-- Headless services (clusterIP: None) return individual pod IPs instead of a virtual IP.
-- Consul DNS serves only healthy instances and is queryable on port 8600.
-- Split-horizon DNS returns different answers based on query source -- internal vs external clients.

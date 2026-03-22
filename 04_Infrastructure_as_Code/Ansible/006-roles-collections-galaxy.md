@@ -158,6 +158,14 @@ ansible-galaxy role info geerlingguy.nginx
 ```
 
 
+
+- Use `defaults/main.yml` for role inputs — they are easy for callers to override.
+- Use `vars/main.yml` only for internal constants that should not be changed externally.
+- `include_role` is dynamic (supports `loop`/`when` at runtime); `import_role` is static (better for tags).
+- Always pin collection versions in `requirements.yml` for reproducible installs.
+- Use FQCN (`namespace.collection.module`) to avoid module ambiguity in collections.
+- `meta/main.yml` can declare role dependencies — Ansible installs them automatically.
+- Keep roles small and single-purpose; compose them in playbooks rather than nesting deeply.
 # Troubleshooting Guide
 
 ### Role variable has wrong value
@@ -175,13 +183,3 @@ ansible-galaxy role info geerlingguy.nginx
 1. Run `ansible-galaxy collection install <namespace.collection>`.
 2. Use FQCN: `namespace.collection.module_name`.
 
-
-# Quick Facts (Revision)
-
-- Use `defaults/main.yml` for role inputs — they are easy for callers to override.
-- Use `vars/main.yml` only for internal constants that should not be changed externally.
-- `include_role` is dynamic (supports `loop`/`when` at runtime); `import_role` is static (better for tags).
-- Always pin collection versions in `requirements.yml` for reproducible installs.
-- Use FQCN (`namespace.collection.module`) to avoid module ambiguity in collections.
-- `meta/main.yml` can declare role dependencies — Ansible installs them automatically.
-- Keep roles small and single-purpose; compose them in playbooks rather than nesting deeply.

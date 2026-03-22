@@ -101,6 +101,8 @@ x = y = []   # both refer to same list
 ```
 
 Related notes: [000-core](./000-core.md)
+- Variables are names (references) to objects on the heap -- assignment does not copy.
+- `x = y` makes both names point to the same object; mutating it via one name affects the other.
 
 ### Numeric Types (int, float, bool)
 
@@ -137,6 +139,8 @@ Related notes: [000-core](./000-core.md)
 - `bool(x)` -- truth value of x.
 
 Related notes: [002-control-flow](./002-control-flow.md)
+- Python has arbitrary-precision integers (no overflow) and IEEE 754 floats (precision limits).
+- `bool` is a subclass of `int`: `True == 1`, `False == 0`.
 
 ### Strings (str)
 
@@ -159,6 +163,7 @@ Related notes: [002-control-flow](./002-control-flow.md)
 ```
 
 Related notes: [005-io-and-files](./005-io-and-files.md)
+- Strings are immutable; every string method returns a new string.
 
 ### Collections Overview (list, dict, tuple, set, bytes)
 
@@ -231,6 +236,7 @@ x = [1, 2, 3]
 ```
 
 Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md)
+- From `typing`: `List[int]`, `Dict[str, int]`, `Optional[str]`.
 
 ### None
 
@@ -245,25 +251,14 @@ if result is None:
 ```
 
 Related notes: [003-functions](./003-functions.md)
+- Falsy values: `False`, `None`, `0`, `0.0`, `""`, `[]`, `{}`, `()`, `set()`.
+- `is` checks identity (same object); `==` checks equality (same value). Use `is` for `None`.
 
 ### Type Hints
-
 - Optional annotations; does not enforce at runtime (use `mypy` for checking).
 - `variable: type` or `def f(x: int) -> str:`.
-- From `typing`: `List[int]`, `Dict[str, int]`, `Optional[str]`.
 - Python 3.9+: use `list[int]`, `dict[str, int]` directly (no import needed).
-
-```python
-def greet(name: str) -> str:
-    return f"Hello, {name}"
-
-from typing import List, Optional
-def process(items: List[int], default: Optional[int] = None) -> int:
-    ...
-```
-
-Related notes: [003-functions](./003-functions.md), [008-classes-and-oop](./008-classes-and-oop.md)
-
+- Type hints are optional and not enforced at runtime; use `mypy` for static checking.
 ---
 
 # Troubleshooting Guide
@@ -301,14 +296,3 @@ Problem: unexpected type behavior
     |
     +-- yes --> validate input before converting; use try/except
 ```
-
-# Quick Facts (Revision)
-
-- Variables are names (references) to objects on the heap -- assignment does not copy.
-- `x = y` makes both names point to the same object; mutating it via one name affects the other.
-- Python has arbitrary-precision integers (no overflow) and IEEE 754 floats (precision limits).
-- `bool` is a subclass of `int`: `True == 1`, `False == 0`.
-- Falsy values: `False`, `None`, `0`, `0.0`, `""`, `[]`, `{}`, `()`, `set()`.
-- Strings are immutable; every string method returns a new string.
-- `is` checks identity (same object); `==` checks equality (same value). Use `is` for `None`.
-- Type hints are optional and not enforced at runtime; use `mypy` for static checking.

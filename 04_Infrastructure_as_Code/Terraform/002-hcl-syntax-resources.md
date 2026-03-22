@@ -88,6 +88,14 @@ resource "aws_instance" "web" {
 
 Related notes: [001-terraform-overview](./001-terraform-overview.md), [008-expressions-functions](./008-expressions-functions.md)
 
+
+- HCL blocks: `resource`, `data`, `variable`, `output`, `locals`, `module`, `terraform`, `provider`.
+- `count` creates a list of instances; `for_each` creates a map — `for_each` is more stable.
+- `lifecycle.prevent_destroy` protects critical resources like databases from accidental deletion.
+- `ignore_changes` is useful when external tools (autoscaling, CI) modify attributes.
+- Implicit dependencies (from references) are preferred over explicit `depends_on`.
+- Resource addresses: `type.name` (single), `type.name[0]` (count), `type.name["key"]` (for_each).
+- `create_before_destroy` is essential for resources that must have zero-downtime replacement.
 ---
 
 # Troubleshooting Guide
@@ -106,13 +114,3 @@ Related notes: [001-terraform-overview](./001-terraform-overview.md), [008-expre
 1. Resource A references B and B references A — circular dependency.
 2. Break the cycle: remove one reference and use `depends_on` instead.
 3. Or split into separate `terraform apply` steps.
-
-# Quick Facts (Revision)
-
-- HCL blocks: `resource`, `data`, `variable`, `output`, `locals`, `module`, `terraform`, `provider`.
-- `count` creates a list of instances; `for_each` creates a map — `for_each` is more stable.
-- `lifecycle.prevent_destroy` protects critical resources like databases from accidental deletion.
-- `ignore_changes` is useful when external tools (autoscaling, CI) modify attributes.
-- Implicit dependencies (from references) are preferred over explicit `depends_on`.
-- Resource addresses: `type.name` (single), `type.name[0]` (count), `type.name["key"]` (for_each).
-- `create_before_destroy` is essential for resources that must have zero-downtime replacement.

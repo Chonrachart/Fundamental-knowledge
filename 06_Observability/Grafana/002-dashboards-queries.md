@@ -78,6 +78,7 @@ Example: CPU usage dashboard with host selector
 - **Table** -- rows and columns; from raw query results or after transforms.
 - **Bar chart / Histogram** -- distribution or categorical comparison.
 - **Logs** -- displays log lines from Loki or Elasticsearch data sources.
+- Panel types: time series (primary), stat, gauge, table, bar chart, logs.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md)
 
@@ -89,6 +90,8 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - **Loki** -- LogQL for log aggregation and filtering.
 - Multiple queries in one panel overlay results for comparison.
 - Query options: min interval, max data points, relative time shift.
+- Each panel runs one or more queries in the data source language (PromQL, LogQL, Flux).
+- Use Explore mode to test queries before adding them to a panel.
 
 Related notes: [004-promql-deep-dive](./004-promql-deep-dive.md), [001-grafana-overview](./001-grafana-overview.md)
 
@@ -100,6 +103,7 @@ Related notes: [004-promql-deep-dive](./004-promql-deep-dive.md), [001-grafana-o
 - **Filter** -- include/exclude rows by value or regex.
 - **Organize fields** -- reorder, hide, or override field types.
 - **Add field from calculation** -- compute new fields (e.g. ratio, difference).
+- Transforms reshape query results before rendering: rename, merge, filter, calculate.
 
 Related notes: [002-dashboards-queries](./002-dashboards-queries.md)
 
@@ -111,6 +115,7 @@ Related notes: [002-dashboards-queries](./002-dashboards-queries.md)
 - **sum by (label)** -- aggregate across series, group by one or more labels.
 - **histogram_quantile()** -- compute percentiles from histogram metrics: `histogram_quantile(0.95, sum(rate(http_duration_bucket[5m])) by (le))`.
 - **Error ratio example** -- `sum(rate(http_requests_total{code=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))`.
+- PromQL essentials: rate() for counters, sum by() for aggregation, histogram_quantile() for percentiles.
 
 Related notes: [004-promql-deep-dive](./004-promql-deep-dive.md), [../000-core](../000-core.md)
 
@@ -122,6 +127,8 @@ Related notes: [004-promql-deep-dive](./004-promql-deep-dive.md), [../000-core](
 - **Constant** type -- single hidden value (e.g. datasource name).
 - **Interval** type -- time interval values (1m, 5m, 15m) for `$__interval` overrides.
 - Use variables for host, environment, job, or namespace so one dashboard serves many contexts.
+- Variables (`$host`, `$env`) make dashboards reusable; query type fetches values dynamically.
+- Dashboard JSON can be exported, version-controlled, and provisioned via `/etc/grafana/provisioning/`.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md)
 
@@ -131,6 +138,7 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - **Query-based** -- pull events from a data source (e.g. deployment records from Loki or Prometheus).
 - **Manual** -- click on a graph to add a point-in-time or region annotation.
 - Correlate metric spikes with real-world changes visible on the same timeline.
+- Annotations overlay events (deploys, incidents) on time series for correlation.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md), [../Zabbix/001-zabbix-overview](../Zabbix/001-zabbix-overview.md)
 
@@ -170,14 +178,3 @@ curl -s -H "Authorization: Bearer $GRAFANA_TOKEN" \
 3. Check transforms: disable transforms one by one to isolate the issue. Transform removes data means fix filter condition or field name.
 4. Check variables: switch variable dropdown to a known-good value. Works with specific value means variable regex or query is wrong.
 5. Check visualization settings: field mappings, unit, decimals, thresholds, axis range. Values exist but display wrong means fix override or unit config.
-
-# Quick Facts (Revision)
-
-- Panel types: time series (primary), stat, gauge, table, bar chart, logs.
-- Each panel runs one or more queries in the data source language (PromQL, LogQL, Flux).
-- Transforms reshape query results before rendering: rename, merge, filter, calculate.
-- Variables (`$host`, `$env`) make dashboards reusable; query type fetches values dynamically.
-- PromQL essentials: rate() for counters, sum by() for aggregation, histogram_quantile() for percentiles.
-- Annotations overlay events (deploys, incidents) on time series for correlation.
-- Dashboard JSON can be exported, version-controlled, and provisioned via `/etc/grafana/provisioning/`.
-- Use Explore mode to test queries before adding them to a panel.

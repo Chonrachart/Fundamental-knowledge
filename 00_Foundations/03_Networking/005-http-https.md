@@ -77,6 +77,7 @@ curl -v https://example.com/api/data
 - **URL** -- target resource path and query string (e.g., `/api/data?page=1`)
 - **Headers** -- metadata key-value pairs (Host, Content-Type, Authorization, User-Agent)
 - **Body** -- optional payload (form data, JSON, file upload); used with POST, PUT, PATCH
+- HTTP request = method + URL + headers + optional body.
 
 Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 
@@ -90,6 +91,8 @@ Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
   - `5xx` -- server error (500 Internal Server Error, 502 Bad Gateway, 503 Service Unavailable)
 - **Headers** -- metadata (Content-Type, Content-Length, Set-Cookie, Cache-Control)
 - **Body** -- response payload (HTML, JSON, binary data)
+- HTTP response = status code + headers + body.
+- Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
 
 Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 
@@ -98,14 +101,18 @@ Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 - **Stateless** -- each request is independent; server retains no memory of previous requests
 - **Session handling** -- achieved via cookies, tokens (JWT), or server-side session stores
 - **Connection reuse** -- HTTP/1.1 keep-alive and HTTP/2 multiplexing reduce overhead
+- HTTP is stateless; each request is independent with no built-in session memory.
 
 Related notes: [004-DNS](./004-DNS.md)
+- HTTP/2 adds multiplexing (multiple requests over one connection); HTTP/3 uses QUIC (UDP-based).
 
 ### HTTPS (HTTP Secure)
 
 - HTTPS = HTTP over TLS; same request/response model, encrypted in transit.
 - Requires a valid TLS certificate on the server.
 - Uses port 443 by default.
+- HTTP uses port 80 (plaintext); HTTPS uses port 443 (TLS-encrypted).
+- HTTPS = HTTP + TLS; same protocol, wrapped in encryption.
 
 | HTTP               | HTTPS                        |
 | :------------------ | :--------------------------- |
@@ -132,8 +139,8 @@ Client                           Server
   |                                 |
   |==== Encrypted HTTP traffic ====|
 ```
-
 Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+- TLS handshake happens after TCP handshake, before any HTTP data flows.
 
 ---
 
@@ -163,6 +170,7 @@ curl -o /dev/null -s -w "%{http_code}" https://example.com
 curl -X DELETE https://example.com/api/resource/1
 ```
 
+
 # Troubleshooting Guide
 
 ```text
@@ -187,14 +195,3 @@ Cannot reach HTTPS site?
           +--> 5xx --> server-side issue (check server logs)
           +--> 3xx --> follow redirects with curl -L
 ```
-
-# Quick Facts (Revision)
-
-- HTTP is stateless; each request is independent with no built-in session memory.
-- HTTP uses port 80 (plaintext); HTTPS uses port 443 (TLS-encrypted).
-- HTTPS = HTTP + TLS; same protocol, wrapped in encryption.
-- HTTP request = method + URL + headers + optional body.
-- HTTP response = status code + headers + body.
-- Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
-- TLS handshake happens after TCP handshake, before any HTTP data flows.
-- HTTP/2 adds multiplexing (multiple requests over one connection); HTTP/3 uses QUIC (UDP-based).

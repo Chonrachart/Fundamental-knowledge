@@ -226,6 +226,15 @@ openssl rsa -noout -modulus -in key.pem | openssl md5       # key modulus hash
 
 Note: always use `-nodes` (no DES) in dev/test to skip passphrase; in production, protect private keys with passphrases or HSMs.
 
+
+- A certificate binds a public key to an identity; the CA's signature is the proof of that binding
+- Root CAs are self-signed and kept offline; intermediate CAs handle day-to-day issuance
+- CSR contains the public key + subject info; the private key never leaves the server
+- PEM is Base64-encoded ASCII (most common on Linux); PKCS#12 bundles key + cert in binary (common for import/export)
+- Let's Encrypt certs are valid for 90 days; certbot auto-renews via systemd timer or cron
+- OCSP stapling is preferred over CRL because it is real-time and reduces CA load
+- mTLS requires both client and server to present and verify certificates — used heavily in service meshes (Istio, Linkerd)
+- Certificate Transparency (CT) logs provide public auditability of all issued certificates
 # Troubleshooting Guide
 
 ### Certificate has expired
@@ -262,14 +271,3 @@ Note: always use `-nodes` (no DES) in dev/test to skip passphrase; in production
 2. Confirm the serial number appears in the CRL if OCSP is unavailable.
 3. Request a new certificate from the CA with a new key pair.
 4. Deploy the new certificate and update the service configuration.
-
-# Quick Facts (Revision)
-
-- A certificate binds a public key to an identity; the CA's signature is the proof of that binding
-- Root CAs are self-signed and kept offline; intermediate CAs handle day-to-day issuance
-- CSR contains the public key + subject info; the private key never leaves the server
-- PEM is Base64-encoded ASCII (most common on Linux); PKCS#12 bundles key + cert in binary (common for import/export)
-- Let's Encrypt certs are valid for 90 days; certbot auto-renews via systemd timer or cron
-- OCSP stapling is preferred over CRL because it is real-time and reduces CA load
-- mTLS requires both client and server to present and verify certificates — used heavily in service meshes (Istio, Linkerd)
-- Certificate Transparency (CT) logs provide public auditability of all issued certificates

@@ -99,6 +99,14 @@ resource "aws_instance" "web" {
 
 Related notes: [001-terraform-overview](./001-terraform-overview.md), [002-hcl-syntax-resources](./002-hcl-syntax-resources.md)
 
+
+- Provider source format: `registry/namespace/type` (e.g. `hashicorp/aws`).
+- `~> 5.0` means >= 5.0.0 and < 6.0.0 (pessimistic constraint).
+- `.terraform.lock.hcl` should be committed to Git for reproducibility.
+- `terraform init -upgrade` updates providers to latest within constraints.
+- Provider `alias` enables multi-region or multi-account patterns.
+- Data sources are read-only; they never create, update, or destroy infrastructure.
+- `terraform_remote_state` data source reads outputs from another Terraform project's state.
 ---
 
 # Troubleshooting Guide
@@ -117,13 +125,3 @@ Related notes: [001-terraform-overview](./001-terraform-overview.md), [002-hcl-s
 1. Check filters: `filter` values must match exactly.
 2. Check `owners` for AMI lookups — `["amazon"]`, `["self"]`, or specific account ID.
 3. Check region: data source queries the provider's configured region.
-
-# Quick Facts (Revision)
-
-- Provider source format: `registry/namespace/type` (e.g. `hashicorp/aws`).
-- `~> 5.0` means >= 5.0.0 and < 6.0.0 (pessimistic constraint).
-- `.terraform.lock.hcl` should be committed to Git for reproducibility.
-- `terraform init -upgrade` updates providers to latest within constraints.
-- Provider `alias` enables multi-region or multi-account patterns.
-- Data sources are read-only; they never create, update, or destroy infrastructure.
-- `terraform_remote_state` data source reads outputs from another Terraform project's state.

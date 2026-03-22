@@ -164,6 +164,14 @@ ansible-playbook site.yml --list-tags
 ```
 
 
+
+- `always` tag = runs even when `--tags` filters are applied.
+- `never` tag = only runs when explicitly called with `--tags never`.
+- `serial: 1` = one host at a time (safest rolling deploy; slowest).
+- `--check` does **not** change anything; some modules report inaccurate results in check mode.
+- `--diff` only works for file-manipulating modules (template, copy, lineinfile, blockinfile).
+- `-vvv` is the go-to for SSH and module-level debugging.
+- `assert` is better than `fail` — it shows what was tested and why it failed.
 # Troubleshooting Guide
 
 ### Playbook runs wrong hosts or tasks
@@ -178,13 +186,3 @@ ansible-playbook site.yml --list-tags
 4. Run `--check --diff` to preview changes on a single host.
 5. Use `--start-at-task` to resume after fixing a mid-play failure.
 
-
-# Quick Facts (Revision)
-
-- `always` tag = runs even when `--tags` filters are applied.
-- `never` tag = only runs when explicitly called with `--tags never`.
-- `serial: 1` = one host at a time (safest rolling deploy; slowest).
-- `--check` does **not** change anything; some modules report inaccurate results in check mode.
-- `--diff` only works for file-manipulating modules (template, copy, lineinfile, blockinfile).
-- `-vvv` is the go-to for SSH and module-level debugging.
-- `assert` is better than `fail` — it shows what was tested and why it failed.

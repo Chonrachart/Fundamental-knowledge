@@ -109,6 +109,15 @@ import {
 
 Related notes: [001-terraform-overview](./001-terraform-overview.md), [007-cli-commands](./007-cli-commands.md)
 
+
+- State is Terraform's mapping of config to real infrastructure — source of truth.
+- Remote backend with locking is mandatory for team use (S3 + DynamoDB is the AWS standard).
+- State may contain secrets (passwords, keys) — encrypt and restrict access.
+- `state rm` removes from state without destroying the real resource.
+- `state mv` renames a resource in state — use when refactoring config.
+- `terraform import` brings existing infra under management — requires a matching config block.
+- Enable S3 bucket versioning for state file recovery.
+- `-refresh-only` apply detects and records drift without changing infrastructure.
 ---
 
 # Troubleshooting Guide
@@ -132,14 +141,3 @@ Related notes: [001-terraform-overview](./001-terraform-overview.md), [007-cli-c
 1. Someone changed infra outside Terraform.
 2. Run `terraform apply -refresh-only` to update state.
 3. Then `terraform plan` to see if config needs updating to match.
-
-# Quick Facts (Revision)
-
-- State is Terraform's mapping of config to real infrastructure — source of truth.
-- Remote backend with locking is mandatory for team use (S3 + DynamoDB is the AWS standard).
-- State may contain secrets (passwords, keys) — encrypt and restrict access.
-- `state rm` removes from state without destroying the real resource.
-- `state mv` renames a resource in state — use when refactoring config.
-- `terraform import` brings existing infra under management — requires a matching config block.
-- Enable S3 bucket versioning for state file recovery.
-- `-refresh-only` apply detects and records drift without changing infrastructure.

@@ -138,6 +138,9 @@ spec:
         factor: 2
         maxDuration: 3m
 ```
+- Application CRD = source (Git) + destination (cluster/namespace) + sync policy.
+- Helm, Kustomize, plain YAML, and Jsonnet are all supported manifest sources.
+- Always test ignoreDifferences in staging before applying to production apps.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -246,6 +249,7 @@ spec:
 ```
 
 - `ref` creates a named reference to a source; `$ref` prefix accesses files from it.
+- Multi-source: pull manifests from one repo, values from another.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -284,6 +288,7 @@ spec:
       policies:
         - p, proj:production:deployer, applications, sync, production/*, allow
 ```
+- Projects: access control boundaries (allowed repos, destinations, resource kinds).
 
 Related notes: [005-argocd-admin-operations](./005-argocd-admin-operations.md)
 
@@ -326,6 +331,7 @@ spec:
 
 - Benefits: single entry point, consistent management, easy to add/remove apps.
 - Drawback: deleting root app can cascade-delete all child apps (use finalizers carefully).
+- App-of-apps: root Application manages child Application manifests.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -340,6 +346,8 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
   - **Matrix**: combine two generators (e.g., clusters x apps).
   - **Merge**: merge parameters from multiple generators.
   - **Pull Request**: one Application per open PR (preview environments).
+- ApplicationSet: generate Applications dynamically from templates + generators.
+- PR generator: create ephemeral preview environments per pull request.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -438,16 +446,3 @@ spec:
 1. Use `resources-finalizer.argocd.argoproj.io` finalizer on child apps only if you want cascade delete.
 2. Remove finalizer from child apps if you want them to survive root app deletion.
 3. To safely delete root app without deleting children: remove the finalizer first, then delete.
-
----
-
-# Quick Facts (Revision)
-
-- Application CRD = source (Git) + destination (cluster/namespace) + sync policy.
-- Helm, Kustomize, plain YAML, and Jsonnet are all supported manifest sources.
-- Multi-source: pull manifests from one repo, values from another.
-- Projects: access control boundaries (allowed repos, destinations, resource kinds).
-- App-of-apps: root Application manages child Application manifests.
-- ApplicationSet: generate Applications dynamically from templates + generators.
-- PR generator: create ephemeral preview environments per pull request.
-- Always test ignoreDifferences in staging before applying to production apps.

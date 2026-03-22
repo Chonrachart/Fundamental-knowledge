@@ -80,11 +80,16 @@ docker exec -it web sh
 | Overhead | Minimal | High (CPU/RAM for guest OS) |
 | Use case | App packaging, density, microservices | Strong isolation, different OS/kernel |
 
+- Container shares host kernel; VM has its own guest OS.
+
 ### Image Layers
 
 - Image = stack of read-only layers; each Dockerfile instruction adds a layer.
 - Layers are cached and shared across images by content hash.
 - Copy-on-write: container gets a thin writable layer on top.
+- Image is immutable read-only layers; container adds a writable layer on top.
+- `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
+- Alpine base images are ~5MB; distroless even smaller.
 
 Related notes:
 - [005-images-layers-cache](./Docker/005-images-layers-cache.md)
@@ -103,8 +108,11 @@ Docker CLI / docker compose
   Linux Kernel (namespaces + cgroups)
 ```
 
-- **Namespaces**: PID, network, mount, UTS, IPC, user -- isolate what container can see.
+- **Namespaces**: `PID`, `network`, `mount`, `UTS`, `IPC`, `user` -- isolate what container can see.
 - **cgroups**: Limit CPU, memory, I/O -- isolate what container can use.
+- Namespaces = what you can see; cgroups = what you can use.
+- OCI = Open Container Initiative; standard for container format and runtime.
+- `containerd` manages lifecycle; `runc` creates the actual container process.
 
 ### Orchestration
 
@@ -138,21 +146,8 @@ Related notes:
 ### Image pull fails
 1. Check registry login: `docker login <registry>`.
 2. Check image name/tag: typo or tag does not exist.
-3. Check proxy: `docker info` shows HTTP_PROXY; set in `/etc/systemd/system/docker.service.d/http-proxy.conf`.
+3. Check proxy: `docker info` shows `HTTP_PROXY`; set in `/etc/systemd/system/docker.service.d/http-proxy.conf`.
 4. Check DNS: `nslookup registry-1.docker.io`.
-
----
-
-# Quick Facts (Revision)
-
-- Container shares host kernel; VM has its own guest OS.
-- Image is immutable read-only layers; container adds a writable layer on top.
-- Namespaces = what you can see; cgroups = what you can use.
-- `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
-- OCI = Open Container Initiative; standard for container format and runtime.
-- containerd manages lifecycle; runc creates the actual container process.
-- Alpine base images are ~5MB; distroless even smaller.
-
 # Topic Map
 
 - [Docker/000-core](./Docker/000-core.md) -- Docker overview, key commands, topic map

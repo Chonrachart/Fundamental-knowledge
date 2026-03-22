@@ -138,15 +138,13 @@ Related notes: [authorization](./005-authorization.md)
 Related notes: [authorization](./005-authorization.md)
 
 ### Secrets Management Principles
-
+Related notes: [authentication](./004-authentication.md), [authorization](./005-authorization.md)
 - **Never commit** secrets to git (use `.gitignore`, pre-commit hooks, secret scanning)
 - **Rotate** regularly; have a documented revocation process
 - **Least privilege**: applications get only the secrets they need
 - **Audit**: log all access to secrets (who read what, when)
 - **Encrypt at rest** and in transit (TLS for network, KMS for storage)
 - **Prefer dynamic secrets** over static ones when the secrets manager supports it
-
-Related notes: [authentication](./004-authentication.md), [authorization](./005-authorization.md)
 
 ---
 
@@ -176,6 +174,15 @@ aws secretsmanager rotate-secret --secret-id myapp/db
 
 > Use `vault`, `kubectl`, and `aws` CLIs for quick secret operations; automate rotation in CI/CD pipelines.
 
+
+- Secrets = API keys, passwords, tokens, certificates, private keys -- all must be protected
+- Never commit secrets to version control; use pre-commit hooks and secret scanning
+- Vault provides dynamic secrets with automatic expiry -- eliminates static credential sprawl
+- Kubernetes Secrets are base64-encoded, not encrypted; enable encryption at rest with KMS
+- AWS Secrets Manager supports automatic rotation via Lambda for RDS and other services
+- Least privilege: each app should only access the secrets it needs
+- Audit all secret access; use CloudTrail (AWS), audit logs (Vault), or K8s audit policy
+- Prefer short-lived / dynamic secrets over long-lived static credentials
 # Troubleshooting Guide
 
 ```text
@@ -187,14 +194,3 @@ Secret not accessible
   |-> Base64 issue (K8s)? -> ensure value is properly base64-encoded
   |-> Rotation broken? -> check Lambda logs (AWS) / lease config (Vault)
 ```
-
-# Quick Facts (Revision)
-
-- Secrets = API keys, passwords, tokens, certificates, private keys -- all must be protected
-- Never commit secrets to version control; use pre-commit hooks and secret scanning
-- Vault provides dynamic secrets with automatic expiry -- eliminates static credential sprawl
-- Kubernetes Secrets are base64-encoded, not encrypted; enable encryption at rest with KMS
-- AWS Secrets Manager supports automatic rotation via Lambda for RDS and other services
-- Least privilege: each app should only access the secrets it needs
-- Audit all secret access; use CloudTrail (AWS), audit logs (Vault), or K8s audit policy
-- Prefer short-lived / dynamic secrets over long-lived static credentials

@@ -85,6 +85,9 @@ Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
 - **Always use annotated tags for releases** — they carry provenance information
 
 Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
+- `gh release create v1.0 --prerelease` — mark as pre-release
+- `gh release view v1.0` — view release details
+- `gh release delete v1.0 --yes` — delete a release (does not delete the tag)
 
 ### Listing, inspecting, and deleting tags
 
@@ -123,19 +126,14 @@ Related notes: [004-git-remote-repository](./004-git-remote-repository.md)
 Related notes: [005-git-pull-request](./005-git-pull-request.md)
 
 ### GitHub Releases
-
+Related notes: [005-git-pull-request](./005-git-pull-request.md)
 - Built on top of Git tags — every release references a tag
 - Provide a UI for release notes, changelogs, and downloadable assets (binaries, archives)
 - `gh release create v1.0 --title "v1.0" --notes "Release notes here"` — create release
 - `gh release create v1.0 --generate-notes` — auto-generate notes from merged PRs
 - `gh release create v1.0 ./build/app.tar.gz` — attach binary artifacts
 - `gh release create v1.0 --draft` — create as draft (not visible publicly until published)
-- `gh release create v1.0 --prerelease` — mark as pre-release
 - `gh release list` — list all releases
-- `gh release view v1.0` — view release details
-- `gh release delete v1.0 --yes` — delete a release (does not delete the tag)
-
-Related notes: [005-git-pull-request](./005-git-pull-request.md)
 
 ---
 
@@ -162,6 +160,15 @@ gh release view v1.0.0
 
 > Prefer annotated tags for anything shared with others. Use `--follow-tags` or configure `push.followTags` to avoid forgetting to push tags.
 
+
+- Lightweight tags = just a pointer; annotated tags = full Git object with tagger, date, message
+- Always use annotated tags (`-a`) for releases — they carry author and timestamp
+- Tags are **not** pushed by default — use `git push origin <tag>` or `--tags`
+- SemVer: `MAJOR.MINOR.PATCH` — break.feature.fix
+- `git push origin --delete v1.0` removes a tag from the remote
+- GitHub Releases build on tags — they add release notes and downloadable artifacts
+- `gh release create --generate-notes` auto-generates changelog from merged PRs
+- `--prerelease` and `--draft` flags let you stage releases before going public
 # Troubleshooting Guide
 
 ```text
@@ -187,14 +194,3 @@ Tag name conflicts?
   |
   +-> "fatal: tag 'v1.0' already exists" --> delete old tag first or use a different name
 ```
-
-# Quick Facts (Revision)
-
-- Lightweight tags = just a pointer; annotated tags = full Git object with tagger, date, message
-- Always use annotated tags (`-a`) for releases — they carry author and timestamp
-- Tags are **not** pushed by default — use `git push origin <tag>` or `--tags`
-- SemVer: `MAJOR.MINOR.PATCH` — break.feature.fix
-- `git push origin --delete v1.0` removes a tag from the remote
-- GitHub Releases build on tags — they add release notes and downloadable artifacts
-- `gh release create --generate-notes` auto-generates changelog from merged PRs
-- `--prerelease` and `--draft` flags let you stage releases before going public

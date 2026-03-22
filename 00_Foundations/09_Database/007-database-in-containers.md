@@ -186,6 +186,7 @@ docker volume rm pgdata
 ```
 
 Related notes: [004-backup-and-restore](./004-backup-and-restore.md)
+- **Rule of thumb:** if you would not enjoy being paged at 3 AM to debug a container storage issue, use a managed service.
 
 ### Docker Compose
 
@@ -338,6 +339,11 @@ spec:
 ```
 
 Related notes: [005-replication-and-ha](./005-replication-and-ha.md)
+- **When containers make sense for production:**
+  - Team has strong Kubernetes expertise.
+  - Using a mature operator (CloudNativePG, Percona).
+  - Compliance requires on-premises deployment.
+  - Small, non-critical databases with proper volume and backup setup.
 
 ### Connection Strings
 
@@ -379,21 +385,13 @@ Host Resolution by Environment:
 Related notes: [001-database-concepts](./001-database-concepts.md)
 
 ### When NOT to Containerize
-
+Related notes: [004-backup-and-restore](./004-backup-and-restore.md), [005-replication-and-ha](./005-replication-and-ha.md)
 - **Large production databases** -- managing HA, backups, upgrades, and performance tuning in containers adds complexity with little benefit over managed services.
 - **Managed services are usually better for production:**
   - AWS RDS / Aurora (MySQL, PostgreSQL)
   - Google Cloud SQL (MySQL, PostgreSQL)
   - Azure Database for PostgreSQL / MySQL
   - Automated backups, patching, failover, monitoring included.
-- **When containers make sense for production:**
-  - Team has strong Kubernetes expertise.
-  - Using a mature operator (CloudNativePG, Percona).
-  - Compliance requires on-premises deployment.
-  - Small, non-critical databases with proper volume and backup setup.
-- **Rule of thumb:** if you would not enjoy being paged at 3 AM to debug a container storage issue, use a managed service.
-
-Related notes: [004-backup-and-restore](./004-backup-and-restore.md), [005-replication-and-ha](./005-replication-and-ha.md)
 
 ---
 
@@ -463,6 +461,15 @@ kubectl logs db-0
 kubectl port-forward db-0 5432:5432
 ```
 
+
+- Always use a named volume or bind mount for database containers -- no volume means data loss on container removal.
+- Data directories: PostgreSQL = /var/lib/postgresql/data, MySQL = /var/lib/mysql, MongoDB = /data/db.
+- Init scripts in /docker-entrypoint-initdb.d/ run only on first startup when the data directory is empty.
+- In Docker Compose, containers reach each other by service name (e.g., `db`); in Kubernetes, use `service.namespace.svc.cluster.local`.
+- Use StatefulSet (not Deployment) for databases in Kubernetes -- it provides stable pod identity and per-pod persistent storage.
+- Kubernetes operators (CloudNativePG, Percona) automate HA, backups, and upgrades for production database clusters.
+- For production workloads, prefer managed services (RDS, Cloud SQL) unless you have strong reasons and expertise to self-manage.
+- `docker compose down` keeps volumes; `docker compose down -v` destroys them -- know the difference.
 # Troubleshooting Guide
 
 ```text
@@ -513,14 +520,3 @@ Problem: containerized database is not working
     +-- host bind mount wrong ownership --> chown to container user UID
     +-- SELinux blocking --> add :z or :Z to volume mount
 ```
-
-# Quick Facts (Revision)
-
-- Always use a named volume or bind mount for database containers -- no volume means data loss on container removal.
-- Data directories: PostgreSQL = /var/lib/postgresql/data, MySQL = /var/lib/mysql, MongoDB = /data/db.
-- Init scripts in /docker-entrypoint-initdb.d/ run only on first startup when the data directory is empty.
-- In Docker Compose, containers reach each other by service name (e.g., `db`); in Kubernetes, use `service.namespace.svc.cluster.local`.
-- Use StatefulSet (not Deployment) for databases in Kubernetes -- it provides stable pod identity and per-pod persistent storage.
-- Kubernetes operators (CloudNativePG, Percona) automate HA, backups, and upgrades for production database clusters.
-- For production workloads, prefer managed services (RDS, Cloud SQL) unless you have strong reasons and expertise to self-manage.
-- `docker compose down` keeps volumes; `docker compose down -v` destroys them -- know the difference.

@@ -145,18 +145,6 @@ curl -s 'http://localhost:9090/api/v1/rules' | jq .
 promtool check rules /etc/prometheus/rules/*.yml
 ```
 
-# Troubleshooting Guide
-
-### PromQL query returns no data or unexpected results
-
-1. Does the metric exist? Prometheus UI > search metric name, or: `curl localhost:9090/api/v1/label/__name__/values | grep metric_name`. Not found means target not scraped, or metric name wrong.
-2. Are the labels correct? Run bare selector: `metric_name{job="api"}` in Prometheus UI. No results means label mismatch; check actual labels with `metric_name{}`.
-3. Is the range vector window appropriate? `rate(metric[5m])` needs at least 2 samples in 5m. Too short window for scrape interval means increase window (window should be >= 4x scrape_interval).
-4. Is the aggregation dropping needed labels? Check by/without clause; missing `by (le)` in histogram_quantile. Wrong grouping means add or remove labels in by/without.
-5. Is a recording rule stale or misconfigured? Check `/api/v1/rules` for errors; verify rule file syntax with `promtool`. Rule error means fix expr and reload Prometheus (`kill -HUP` or `/-/reload`).
-6. Check Prometheus targets and scrape health: Prometheus UI > Status > Targets -- look for DOWN targets or scrape errors.
-
-# Quick Facts (Revision)
 
 - Metric = name + labels; sample = (metric, timestamp, value); four types: counter, gauge, histogram, summary.
 - rate() for per-second average over a window; increase() for total over a window; irate() for instant rate -- all for counters only.
@@ -165,4 +153,14 @@ promtool check rules /etc/prometheus/rules/*.yml
 - histogram_quantile(q, sum(rate(bucket[5m])) by (le)) -- the `by (le)` is mandatory for correct percentile calculation.
 - Recording rules pre-compute heavy expressions; naming convention: `level:metric:operations`.
 - absent(metric) returns 1 when no series exist -- use for "is this target alive" alerts.
-- Window should be at least 4x the scrape_interval to guarantee enough data points for rate().
+- Window should be at least 4x the `scrape_interval` to guarantee enough data points for `rate()`.
+# Troubleshooting Guide
+
+### PromQL query returns no data or unexpected results
+
+1. Does the metric exist? Prometheus UI > search metric name, or: `curl localhost:9090/api/v1/label/__name__/values | grep metric_name`. Not found means target not scraped, or metric name wrong.
+2. Are the labels correct? Run bare selector: `metric_name{job="api"}` in Prometheus UI. No results means label mismatch; check actual labels with `metric_name{}`.
+3. Is the range vector window appropriate? `rate(metric[5m])` needs at least 2 samples in 5m. Too short window for scrape interval means increase window (window should be >= 4x `scrape_interval`).
+4. Is the aggregation dropping needed labels? Check by/without clause; missing `by (le)` in histogram_quantile. Wrong grouping means add or remove labels in by/without.
+5. Is a recording rule stale or misconfigured? Check `/api/v1/rules` for errors; verify rule file syntax with `promtool`. Rule error means fix expr and reload Prometheus (`kill -HUP` or `/-/reload`).
+6. Check Prometheus targets and scrape health: Prometheus UI > Status > Targets -- look for DOWN targets or scrape errors.

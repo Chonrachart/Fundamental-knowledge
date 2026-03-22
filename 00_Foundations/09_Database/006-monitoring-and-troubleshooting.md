@@ -83,6 +83,7 @@ Concrete example -- investigating a slow application:
 - **Lock waits / deadlocks** -- queries blocked waiting for locks; deadlocks are auto-resolved but indicate contention.
 
 Related notes: [005-replication-and-ha](./005-replication-and-ha.md)
+- **Cost** -- estimated startup and total cost (arbitrary units); lower is better.
 
 ### MySQL Monitoring
 
@@ -267,15 +268,6 @@ PURGE BINARY LOGS BEFORE NOW() - INTERVAL 3 DAY;
 Related notes: [004-backup-and-restore](./004-backup-and-restore.md)
 
 ### EXPLAIN Output Reading
-
-- EXPLAIN shows the query plan the database will use; EXPLAIN ANALYZE also runs it and shows actual times.
-- **Seq Scan** (sequential scan) -- reads every row in the table; fine for small tables, bad for large ones.
-- **Index Scan** -- uses an index to find rows; much faster on large tables with selective WHERE clauses.
-- **Index Only Scan** -- all needed columns are in the index; fastest read path.
-- **Nested Loop / Hash Join / Merge Join** -- how tables are joined; each suits different data sizes.
-- **Cost** -- estimated startup and total cost (arbitrary units); lower is better.
-- **Rows** -- estimated number of rows; if wildly wrong, run ANALYZE to update statistics.
-
 ```text
 PostgreSQL EXPLAIN output example:
 
@@ -300,6 +292,12 @@ PostgreSQL EXPLAIN output example:
 ```
 
 Related notes: [002-sql-essentials](./002-sql-essentials.md), [001-database-concepts](./001-database-concepts.md)
+- EXPLAIN shows the query plan the database will use; EXPLAIN ANALYZE also runs it and shows actual times.
+- **Seq Scan** (sequential scan) -- reads every row in the table; fine for small tables, bad for large ones.
+- **Index Scan** -- uses an index to find rows; much faster on large tables with selective WHERE clauses.
+- **Index Only Scan** -- all needed columns are in the index; fastest read path.
+- **Nested Loop / Hash Join / Merge Join** -- how tables are joined; each suits different data sizes.
+- **Rows** -- estimated number of rows; if wildly wrong, run ANALYZE to update statistics.
 
 ---
 
@@ -354,6 +352,15 @@ df -h /var/lib/postgresql   # PostgreSQL
 df -h /var/lib/mysql        # MySQL
 ```
 
+
+- Monitor five things: connections, query performance, disk usage, replication lag, and locks.
+- Cache hit ratio should be above 95%; below that means the buffer pool / shared_buffers is too small or workload does not fit in memory.
+- `SHOW PROCESSLIST` (MySQL) and `pg_stat_activity` (PostgreSQL) are the first places to look when something is slow.
+- `EXPLAIN ANALYZE` runs the query and shows actual timing; plain `EXPLAIN` only estimates -- use ANALYZE for real diagnostics.
+- Seq Scan on a large table almost always means a missing index; create one on the WHERE/JOIN column.
+- Prometheus exporters (mysqld_exporter, postgres_exporter) are the standard way to feed database metrics into Grafana dashboards.
+- Set alerts on connection usage (>80%), disk usage (>85%), replication lag (>30s), and any deadlocks.
+- Always check the database error log as a last resort -- it often contains the root cause that status views do not show.
 # Troubleshooting Guide
 
 ```text
@@ -407,14 +414,3 @@ Problem: application reports slow database queries
     PostgreSQL: /var/log/postgresql/postgresql-*.log
     MySQL: /var/log/mysql/error.log
 ```
-
-# Quick Facts (Revision)
-
-- Monitor five things: connections, query performance, disk usage, replication lag, and locks.
-- Cache hit ratio should be above 95%; below that means the buffer pool / shared_buffers is too small or workload does not fit in memory.
-- `SHOW PROCESSLIST` (MySQL) and `pg_stat_activity` (PostgreSQL) are the first places to look when something is slow.
-- `EXPLAIN ANALYZE` runs the query and shows actual timing; plain `EXPLAIN` only estimates -- use ANALYZE for real diagnostics.
-- Seq Scan on a large table almost always means a missing index; create one on the WHERE/JOIN column.
-- Prometheus exporters (mysqld_exporter, postgres_exporter) are the standard way to feed database metrics into Grafana dashboards.
-- Set alerts on connection usage (>80%), disk usage (>85%), replication lag (>30s), and any deadlocks.
-- Always check the database error log as a last resort -- it often contains the root cause that status views do not show.

@@ -65,6 +65,8 @@ top                             # real-time resource view
 ```
 
 `STAT` codes: `R` running · `S` sleeping · `D` disk wait · `Z` zombie · `T` stopped
+- Processes in state `D` (uninterruptible disk wait) cannot be killed — wait for I/O to complete or reboot.
+- Zombie processes (`Z`) hold a PID but use no resources; parent must call `wait()` to reap them.
 
 ### Job Control
 
@@ -98,6 +100,8 @@ kill -l                 # list all signal names and numbers
 | SIGCHLD | 17 | Child process changed state |
 
 Always try SIGTERM first; use SIGKILL only if the process does not respond.
+- SIGKILL cannot be caught, blocked, or ignored — always terminates the process.
+- Default `kill` signal is SIGTERM (15), not SIGKILL (9).
 
 ### Exit Codes
 
@@ -112,6 +116,7 @@ Script safety header:
 ```bash
 set -euo pipefail       # -e: exit on error  -u: error on unset var  -o pipefail: catch pipe failures
 ```
+- `set -euo pipefail` should be the first line of every non-trivial shell script.
 
 ### Resource Monitoring
 
@@ -134,6 +139,9 @@ iostat -x 1                     # extended disk stats, refresh every 1s
 cat /proc/<PID>/status          # memory, state, UID, threads
 cat /proc/<PID>/cmdline         # full command line (null-byte delimited)
 ```
+- Load average > number of CPU cores = system is overloaded.
+- `free -h` `available` field is the real usable memory — not `free` (Linux caches in unused RAM).
+- All process metadata is accessible as virtual files under `/proc/<PID>/`.
 
 ### Resource Limits and OOM
 
@@ -161,6 +169,7 @@ Related notes:
 - [09-service-systemctl-socket](./09-service-systemctl-socket.md) — systemd manages services as cgroup slices
 - [08-log](./08-log.md) — journalctl for process logs
 
+
 ---
 
 # Troubleshooting Guide
@@ -185,14 +194,3 @@ Related notes:
 
 1. Check if OOM killer fired: `dmesg | grep -i "oom\|killed process"`.
 
-
-# Quick Facts (Revision)
-
-- Processes in state `D` (uninterruptible disk wait) cannot be killed — wait for I/O to complete or reboot.
-- Zombie processes (`Z`) hold a PID but use no resources; parent must call `wait()` to reap them.
-- SIGKILL cannot be caught, blocked, or ignored — always terminates the process.
-- Default `kill` signal is SIGTERM (15), not SIGKILL (9).
-- Load average > number of CPU cores = system is overloaded.
-- `free -h` `available` field is the real usable memory — not `free` (Linux caches in unused RAM).
-- `set -euo pipefail` should be the first line of every non-trivial shell script.
-- All process metadata is accessible as virtual files under `/proc/<PID>/`.

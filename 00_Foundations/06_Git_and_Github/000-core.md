@@ -48,6 +48,9 @@ git push -u origin main
 - Maintains an immutable, linked history chain (child points to parent).
 
 Related notes: [001-git-setup](./001-git-setup.md), [002-git-interaction](./002-git-interaction.md)
+- HEAD points to current branch; branch pointer points to latest commit.
+- `.gitignore` prevents tracking of specified patterns; does not delete files.
+- `git revert` is the safe undo (new commit); `git reset` rewrites history (local only).
 
 ### GitHub (the platform)
 
@@ -56,15 +59,16 @@ Related notes: [001-git-setup](./001-git-setup.md), [002-git-interaction](./002-
 - Git is the engine; GitHub is the garage.
 
 Related notes: [004-git-remote-repository](./004-git-remote-repository.md), [005-git-pull-request](./005-git-pull-request.md)
+- GitHub adds PRs, issues, forks, and Actions on top of Git.
 
 ### Three Git Areas
-
 - **Working Tree** (Working Directory) -- editable files on disk.
 - **Staging Area** (Index) -- prepared snapshot of changes to be committed; populated by `git add`.
 - **Repository** (.git/) -- committed snapshots with unique hashes. Commit reads from Index only, not Working Tree.
-
-Related notes: [001-git-setup](./001-git-setup.md), [002-git-interaction](./002-git-interaction.md)
-
+- Git is distributed -- every clone has the full history locally.
+- Commits are immutable snapshots identified by SHA-1 hashes.
+- Three areas: Working Tree, Staging Area (Index), Repository (.git/).
+- `git add` stages; `git commit` records; `git push` shares.
 ---
 
 # Troubleshooting Guide
@@ -84,17 +88,6 @@ Problem unclear?
   |
   +--> Wrong branch?       --> git stash, git switch <branch>, git stash pop
 ```
-
-# Quick Facts (Revision)
-
-- Git is distributed -- every clone has the full history locally.
-- Commits are immutable snapshots identified by SHA-1 hashes.
-- Three areas: Working Tree, Staging Area (Index), Repository (.git/).
-- `git add` stages; `git commit` records; `git push` shares.
-- HEAD points to current branch; branch pointer points to latest commit.
-- `.gitignore` prevents tracking of specified patterns; does not delete files.
-- GitHub adds PRs, issues, forks, and Actions on top of Git.
-- `git revert` is the safe undo (new commit); `git reset` rewrites history (local only).
 
 # Topic Map
 

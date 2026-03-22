@@ -84,6 +84,9 @@ lst.sort()          # in-place sort
 - `in` / `not in` -- membership test.
 
 Related notes: [003-functions](./003-functions.md), [005-io-and-files](./005-io-and-files.md)
+- list: ordered, mutable, allows duplicates, indexed by int.
+- Mutable types (list, dict, set) cannot be dict keys or set members.
+- `lst.sort()` sorts in place and returns None; `sorted(lst)` returns a new list.
 
 ### Dictionaries
 
@@ -104,6 +107,7 @@ d.items()        # view of (k, v) pairs
 ```
 
 Related notes: [002-control-flow](./002-control-flow.md), [003-functions](./003-functions.md)
+- dict: key-value pairs, mutable, insertion-ordered (3.7+), keys must be hashable.
 
 ### Tuples
 
@@ -118,6 +122,7 @@ a, *rest = [1, 2, 3] # rest = [2, 3]
 ```
 
 Related notes: [003-functions](./003-functions.md)
+- tuple: ordered, immutable, allows duplicates, often used for fixed records.
 
 ### Sets
 
@@ -136,6 +141,7 @@ s1 ^ s2          # symmetric difference
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md)
+- set: unordered, mutable, unique elements only, fast O(1) membership test.
 
 ### Slicing
 
@@ -152,29 +158,12 @@ lst[::-1]   # [4, 3, 2, 1, 0]
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md)
+- Slicing `[start:stop:step]` works on list, tuple, and str; stop is exclusive.
 
 ### Comprehensions
-
 - Build list, dict, or set in one expression.
 - Can include `if` filter; nested loops are read left to right.
-
-```python
-# List comprehension
-squares = [x**2 for x in range(5)]           # [0, 1, 4, 9, 16]
-evens = [x for x in lst if x % 2 == 0]
-
-# Dict comprehension
-d = {k: v*2 for k, v in d.items()}
-
-# Set comprehension
-s = {x for x in lst if x > 0}
-
-# Nested
-[(i, j) for i in range(2) for j in range(2)]  # [(0,0),(0,1),(1,0),(1,1)]
-```
-
-Related notes: [002-control-flow](./002-control-flow.md)
-
+- Comprehensions: `[expr for x in iterable if cond]` for list; `{}` for dict/set.
 ---
 
 # Troubleshooting Guide
@@ -210,14 +199,3 @@ Problem: unexpected data structure behavior
     |
     +-- fix --> use lst.copy(), lst[:], or copy.deepcopy() for nested
 ```
-
-# Quick Facts (Revision)
-
-- list: ordered, mutable, allows duplicates, indexed by int.
-- dict: key-value pairs, mutable, insertion-ordered (3.7+), keys must be hashable.
-- tuple: ordered, immutable, allows duplicates, often used for fixed records.
-- set: unordered, mutable, unique elements only, fast O(1) membership test.
-- Slicing `[start:stop:step]` works on list, tuple, and str; stop is exclusive.
-- Comprehensions: `[expr for x in iterable if cond]` for list; `{}` for dict/set.
-- Mutable types (list, dict, set) cannot be dict keys or set members.
-- `lst.sort()` sorts in place and returns None; `sorted(lst)` returns a new list.

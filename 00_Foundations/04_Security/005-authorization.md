@@ -60,6 +60,7 @@ Role: Admin
 ```
 
 Related notes: [authentication](./004-authentication.md)
+- Principle of least privilege: grant only the minimum permissions required
 
 ### ABAC (Attribute-Based Access Control)
 
@@ -75,6 +76,8 @@ Related notes: [authentication](./004-authentication.md)
 - **Environment**: time of day, source IP, device type
 
 Related notes: [authentication](./004-authentication.md)
+- ABAC: decisions based on attributes (user, resource, action, environment); most flexible
+- RBAC scales well for uniform access patterns; ABAC handles complex, context-aware rules
 
 ### ACL (Access Control List)
 
@@ -94,6 +97,7 @@ file.txt: user=rw, group=r, others=
 - Evaluated in order; first match wins (in most implementations)
 
 Related notes: [secrets-management](./006-secrets-management.md)
+- ACL: per-resource permission list; used in file systems and network firewalls
 
 ### Policy and Policy Engines
 
@@ -103,6 +107,7 @@ Related notes: [secrets-management](./006-secrets-management.md)
 - Examples: OPA (Open Policy Agent), AWS IAM policy evaluator, Kubernetes RBAC
 
 Related notes: [authentication](./004-authentication.md), [secrets-management](./006-secrets-management.md)
+- Policy engine (OPA, IAM) evaluates requests and returns allow/deny decisions
 
 ### RBAC vs ABAC vs ACL
 
@@ -111,7 +116,9 @@ Related notes: [authentication](./004-authentication.md), [secrets-management](.
 | RBAC  | Role         | Simple org hierarchy        |
 | ABAC  | Attributes   | Complex, dynamic policies   |
 | ACL   | Per resource | Files, network, objects     |
-
+- Authorization answers "what can you do?" -- always runs after authentication
+- RBAC: users -> roles -> permissions; simple and widely used
+- Always log authorization decisions for audit trails
 ---
 
 # Troubleshooting Guide
@@ -125,14 +132,3 @@ Access denied
   |-> Cached permissions? -> clear session / re-authenticate
   |-> Network ACL? -> check firewall rules, security groups, NACLs
 ```
-
-# Quick Facts (Revision)
-
-- Authorization answers "what can you do?" -- always runs after authentication
-- RBAC: users -> roles -> permissions; simple and widely used
-- ABAC: decisions based on attributes (user, resource, action, environment); most flexible
-- ACL: per-resource permission list; used in file systems and network firewalls
-- Policy engine (OPA, IAM) evaluates requests and returns allow/deny decisions
-- RBAC scales well for uniform access patterns; ABAC handles complex, context-aware rules
-- Principle of least privilege: grant only the minimum permissions required
-- Always log authorization decisions for audit trails

@@ -124,11 +124,13 @@ argocd app get myapp
 
 ### Installation Methods
 
-- **kubectl apply**: apply the install manifest directly (simplest, good for testing).
+- `kubectl apply`: apply the install manifest directly (simplest, good for testing).
 - **Helm chart**: `helm install argocd argo/argo-cd` — more configurable, easier upgrades.
 - **ArgoCD managing itself**: bootstrap ArgoCD, then let it manage its own manifests (app-of-apps).
 - High availability: use the HA manifest (`install.yaml` → `ha/install.yaml`) for production.
 - Namespace: ArgoCD runs in its own namespace (typically `argocd`).
+- ArgoCD is a GitOps operator that runs inside the Kubernetes cluster.
+- Three main components: server (API/UI), repo-server (clone/render), application-controller (sync).
 
 ```bash
 # Helm installation
@@ -150,6 +152,9 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
   - `spec.project`: ArgoCD project for access control.
   - `spec.syncPolicy`: manual or automated sync, self-heal, prune.
 - One Application = one deployment unit (a directory of manifests).
+- Application CRD defines: source (Git), destination (cluster+namespace), sync policy.
+- Supports plain YAML, Helm, Kustomize, and Jsonnet for manifest rendering.
+- Auto-sync + self-heal + prune = fully automated GitOps.
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -185,10 +190,12 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 - **Health Status**: are the deployed resources healthy?
   - `Healthy`: all resources are running and ready.
   - `Progressing`: resources are being updated (e.g., Deployment rolling out).
-  - `Degraded`: resources are unhealthy (e.g., pod CrashLoopBackOff).
+  - `Degraded`: resources are unhealthy (e.g., pod `CrashLoopBackOff`).
   - `Missing`: expected resources don't exist in the cluster.
   - `Suspended`: resource is paused (e.g., suspended CronJob).
 - Dashboard shows both statuses together: Synced+Healthy = green, OutOfSync+Degraded = red.
+- Sync status: Synced (matches Git) or OutOfSync (differences exist).
+- Health status: Healthy, Progressing, Degraded, Missing.
 
 Related notes: [003-argocd-sync-strategies](./003-argocd-sync-strategies.md)
 
@@ -237,6 +244,7 @@ argocd cluster list
 argocd proj create <project>
 argocd proj list
 ```
+- Rollback = sync to a previous Git revision.
 
 Related notes: [005-argocd-admin-operations](./005-argocd-admin-operations.md)
 
@@ -289,16 +297,3 @@ Related notes: [005-argocd-admin-operations](./005-argocd-admin-operations.md)
 3. Reduce sync frequency if too many apps: increase `timeout.reconciliation` in `argocd-cm`.
 4. Check repo-server: large repos or complex Helm charts slow rendering.
 5. Consider HA deployment for production workloads.
-
----
-
-# Quick Facts (Revision)
-
-- ArgoCD is a GitOps operator that runs inside the Kubernetes cluster.
-- Application CRD defines: source (Git), destination (cluster+namespace), sync policy.
-- Sync status: Synced (matches Git) or OutOfSync (differences exist).
-- Health status: Healthy, Progressing, Degraded, Missing.
-- Three main components: server (API/UI), repo-server (clone/render), application-controller (sync).
-- Supports plain YAML, Helm, Kustomize, and Jsonnet for manifest rendering.
-- Auto-sync + self-heal + prune = fully automated GitOps.
-- Rollback = sync to a previous Git revision.

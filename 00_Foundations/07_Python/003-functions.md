@@ -86,6 +86,9 @@ a, b = get_pair()
 ```
 
 Related notes: [002-control-flow](./002-control-flow.md), [009-decorators-and-generators](./009-decorators-and-generators.md)
+- Functions return `None` by default if no `return` statement is reached.
+- `return a, b` returns a tuple; unpack with `x, y = f()`.
+- Functions are first-class objects: assign to variables, pass as arguments, return from other functions.
 
 ### Arguments and Parameters
 
@@ -109,6 +112,7 @@ def f(a, b, *args, c, d=0):
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md)
+- Mutable default arguments are evaluated once -- use `None` sentinel instead.
 
 ### *args and **kwargs
 
@@ -126,6 +130,7 @@ f(*[1, 2], **{"x": 3})    # unpack into call
 ```
 
 Related notes: [004-data-structures](./004-data-structures.md)
+- Argument order in signature: positional, `*args`, keyword-only, `**kwargs`.
 
 ### Lambda
 
@@ -170,35 +175,15 @@ sorted(users, key=lambda u: u["age"])
   - For complex logic, use `def` instead.
 
 Related notes: [009-decorators-and-generators](./009-decorators-and-generators.md)
+- `def` creates a function object; `lambda` creates an anonymous single-expression function.
 
 ### Scope (LEGB Rule)
-
 - **Local**: inside function; created on assignment.
 - **Enclosing**: outer function scope in nested functions; use `nonlocal` to modify.
 - **Global**: module level; use `global name` to assign (not just read).
 - **Built-in**: names pre-defined by Python (`len`, `print`, `range`, etc.).
-
-```python
-x = 1  # global
-
-def f():
-    x = 2    # local; shadows global
-    print(x) # 2
-
-def g():
-    global x
-    x = 3    # modifies global
-
-def outer():
-    n = 0
-    def inner():
-        nonlocal n
-        n += 1   # modifies outer's n
-    return inner
-```
-
-Related notes: [008-classes-and-oop](./008-classes-and-oop.md), [007-modules-and-imports](./007-modules-and-imports.md)
-
+- LEGB: Local -> Enclosing -> Global -> Built-in; Python searches in this order.
+- `global` and `nonlocal` keywords let you write to outer scopes; without them, assignment creates a local.
 ---
 
 # Troubleshooting Guide
@@ -232,14 +217,3 @@ Problem: function not behaving as expected
     +-- UnboundLocalError --> assignment in function makes it local;
         use global/nonlocal if you need the outer variable
 ```
-
-# Quick Facts (Revision)
-
-- `def` creates a function object; `lambda` creates an anonymous single-expression function.
-- Functions return `None` by default if no `return` statement is reached.
-- `return a, b` returns a tuple; unpack with `x, y = f()`.
-- Argument order in signature: positional, `*args`, keyword-only, `**kwargs`.
-- Mutable default arguments are evaluated once -- use `None` sentinel instead.
-- LEGB: Local -> Enclosing -> Global -> Built-in; Python searches in this order.
-- `global` and `nonlocal` keywords let you write to outer scopes; without them, assignment creates a local.
-- Functions are first-class objects: assign to variables, pass as arguments, return from other functions.

@@ -77,6 +77,7 @@ curl -s 'http://prometheus:9090/api/v1/query?query=rate(http_requests_total{stat
 - Metrics provide aggregated numeric data over time -- best for alerting and trend analysis.
 - Logs capture discrete events with context -- best for debugging specific failures.
 - Traces follow a single request across service boundaries -- best for understanding latency and dependencies.
+- Three pillars of observability: metrics (aggregated numbers), logs (discrete events), traces (request flows).
 
 Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md), [Zabbix/001-zabbix-overview](./Zabbix/001-zabbix-overview.md)
 
@@ -85,6 +86,7 @@ Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md)
 - Time-series data points (timestamp + value + labels); types include counters, gauges, histograms, and summaries.
 - Collection modes: pull/scrape (Prometheus scrapes /metrics endpoint) or push (application pushes to Pushgateway or StatsD).
 - Stored in time-series databases (Prometheus, InfluxDB, VictoriaMetrics); queried with PromQL or similar.
+- Prometheus uses a pull/scrape model; applications expose /metrics endpoints; PromQL is the query language.
 
 Related notes: [Grafana/004-promql-deep-dive](./Grafana/004-promql-deep-dive.md)
 
@@ -93,6 +95,7 @@ Related notes: [Grafana/004-promql-deep-dive](./Grafana/004-promql-deep-dive.md)
 - Structured logs (JSON key-value) are easier to parse and query; unstructured logs (plain text) require pattern matching.
 - Log aggregation pipelines collect, parse, and ship logs to central storage (Loki, Elasticsearch, Splunk).
 - Search by timestamp, severity, service name, and keywords; correlate with trace IDs for cross-service debugging.
+- Structured logs (JSON) are preferred over unstructured (plain text) for automated parsing and correlation.
 
 Related notes: [Grafana/002-dashboards-queries](./Grafana/002-dashboards-queries.md)
 
@@ -101,6 +104,7 @@ Related notes: [Grafana/002-dashboards-queries](./Grafana/002-dashboards-queries
 - Distributed tracing follows a request across microservices; each unit of work is a span with start time, duration, and metadata.
 - A trace ID propagated in headers (e.g. W3C Trace Context) links all spans belonging to one request.
 - Instrumentation via OpenTelemetry SDK or auto-instrumentation; backends include Jaeger, Tempo, and Zipkin.
+- A trace is a tree of spans linked by a trace ID; each span represents one unit of work in a service.
 
 Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md)
 
@@ -109,6 +113,8 @@ Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md)
 - SLI (Service Level Indicator): a measurable metric reflecting service health (e.g. request latency p99, error rate, availability).
 - SLO (Service Level Objective): an internal target for an SLI (e.g. 99.9% availability over 30 days); triggers alerts when error budget is at risk.
 - SLA (Service Level Agreement): a contractual commitment to users with consequences for violations; SLOs are stricter than SLAs to provide buffer.
+- SLI = what you measure, SLO = what you target, SLA = what you promise to users.
+- Error budget = 1 - SLO; when consumed, prioritize reliability over features.
 
 Related notes: [Grafana/003-alerting](./Grafana/003-alerting.md)
 
@@ -125,6 +131,7 @@ Related notes: [Grafana/003-alerting](./Grafana/003-alerting.md), [Zabbix/003-ac
 - Open-source visualization platform that connects to multiple data sources (Prometheus, Loki, Elasticsearch, Zabbix).
 - Dashboards built from panels; each panel runs a query (PromQL, LogQL) and renders graphs, tables, or stat displays.
 - Built-in alerting with contact points, notification policies, and silence/mute controls.
+- Grafana connects to multiple backends (Prometheus, Loki, Elasticsearch, Zabbix) through data source plugins.
 
 Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md)
 
@@ -133,6 +140,7 @@ Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md)
 - Enterprise monitoring platform with agent-based and agentless collection (SNMP, IPMI, JMX, HTTP checks).
 - Data model: hosts hold items (data collectors), items feed triggers (threshold expressions), triggers fire actions (notifications/scripts).
 - Supports low-level discovery (LLD), templates for reusable configurations, and distributed monitoring with proxies.
+- Zabbix uses items to collect data, triggers to evaluate conditions, and actions to send notifications or run scripts.
 
 Related notes: [Zabbix/001-zabbix-overview](./Zabbix/001-zabbix-overview.md)
 
@@ -180,19 +188,8 @@ curl -s -X POST http://zabbix:8080/api_jsonrpc.php \
 3. Drill into metrics: error rate, latency, saturation? PromQL: `rate(http_requests_total{status=~"5.."}[5m])`.
 4. Correlate with logs: errors around the same timestamp? Loki/Elasticsearch: filter by service + time range.
 5. Trace the request: where does latency or failure occur? Jaeger/Tempo: search by trace ID from logs.
-6. Infrastructure check: host resources, network, dependencies? Zabbix: CPU/memory/disk items, Prometheus: node_exporter.
+6. Infrastructure check: host resources, network, dependencies? Zabbix: CPU/memory/disk items, Prometheus: `node_exporter`.
 7. Root cause identified, apply fix, verify SLO recovery.
-
-# Quick Facts (Revision)
-
-- Three pillars of observability: metrics (aggregated numbers), logs (discrete events), traces (request flows).
-- Prometheus uses a pull/scrape model; applications expose /metrics endpoints; PromQL is the query language.
-- Structured logs (JSON) are preferred over unstructured (plain text) for automated parsing and correlation.
-- A trace is a tree of spans linked by a trace ID; each span represents one unit of work in a service.
-- SLI = what you measure, SLO = what you target, SLA = what you promise to users.
-- Error budget = 1 - SLO; when consumed, prioritize reliability over features.
-- Grafana connects to multiple backends (Prometheus, Loki, Elasticsearch, Zabbix) through data source plugins.
-- Zabbix uses items to collect data, triggers to evaluate conditions, and actions to send notifications or run scripts.
 
 # Topic Map
 

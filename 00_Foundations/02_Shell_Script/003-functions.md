@@ -70,6 +70,7 @@ echo "Host: $result"      # use the captured value
 ### Defining Functions
 
 - Two equivalent syntaxes; the POSIX form (`name()`) is more portable.
+- Two syntaxes: `name() { ... }` (POSIX) and `function name { ... }` (Bash-only).
 
 ```bash
 # POSIX syntax (preferred)
@@ -84,6 +85,7 @@ function greet {
 ```
 
 - The body runs in the current shell (not a subshell) -- it can modify global state.
+- Functions run in the current shell, not a subshell -- they can modify global variables.
 - Functions must be defined before they are called (top of script or sourced file).
 
 Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
@@ -111,6 +113,10 @@ log_msg "INFO" "Service started on port" "8080"
 ```
 
 - Always quote `"$@"` when passing arguments through to another command.
+- `$@` (quoted) preserves word splitting of arguments; `$*` merges into one string.
+- `$#` gives the argument count; `shift` removes `$1` and shifts the rest down.
+- A function's `$1..$N` are independent of the script's positional parameters.
+- Always quote `"$@"` when forwarding arguments to prevent word splitting.
 
 Related notes: [002-control-flow](./002-control-flow.md)
 
@@ -119,6 +125,7 @@ Related notes: [002-control-flow](./002-control-flow.md)
 - `return N` sets the exit code (0-255); 0 = success, non-zero = failure.
 - If `return` is omitted, the exit code of the last command in the body is used.
 - To return arbitrary data, use `echo` and capture with command substitution.
+- `return N` sets exit code (0-255); use `echo` + `$()` to return arbitrary data.
 
 ```bash
 # return exit code for boolean check
@@ -146,30 +153,12 @@ lines=$(get_count "/etc/passwd")
 Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md)
 
 ### Local Variables and Scope
-
+Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md), [006-strings-and-arrays](./006-strings-and-arrays.md)
 - Without `local`, variables set inside a function leak into the caller's scope.
 - `local var=value` restricts the variable to the function (and its children).
 - Always declare loop counters and temporary variables as `local`.
-
-```bash
-bad_func() {
-    count=10          # GLOBAL -- leaks to caller
-}
-
-good_func() {
-    local count=10    # LOCAL -- stays inside function
-}
-
-bad_func
-echo "$count"         # prints 10 (leaked)
-
-good_func
-echo "$count"         # still prints 10 from bad_func (good_func did not leak)
-```
-
+- `local` keeps variables scoped to the function; without it, they leak to the caller.
 - `local` is a Bash/Zsh feature; pure POSIX sh does not support it (use subshell instead).
-
-Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md), [006-strings-and-arrays](./006-strings-and-arrays.md)
 
 ---
 
@@ -203,6 +192,7 @@ parse_flags() {
 }
 ```
 
+
 # Troubleshooting Guide
 
 ```text
@@ -234,14 +224,3 @@ Problem: function not behaving as expected
     +-- wrong count --> caller forgot quotes; use my_func "$var" not my_func $var
     +-- $1 empty --> called without arguments; add argument validation
 ```
-
-# Quick Facts (Revision)
-
-- Two syntaxes: `name() { ... }` (POSIX) and `function name { ... }` (Bash-only).
-- Functions run in the current shell, not a subshell -- they can modify global variables.
-- `return N` sets exit code (0-255); use `echo` + `$()` to return arbitrary data.
-- `local` keeps variables scoped to the function; without it, they leak to the caller.
-- `$@` (quoted) preserves word splitting of arguments; `$*` merges into one string.
-- `$#` gives the argument count; `shift` removes `$1` and shifts the rest down.
-- A function's `$1..$N` are independent of the script's positional parameters.
-- Always quote `"$@"` when forwarding arguments to prevent word splitting.

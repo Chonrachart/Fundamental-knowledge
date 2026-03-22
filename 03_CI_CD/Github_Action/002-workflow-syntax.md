@@ -27,6 +27,9 @@ on:
         required: true
         default: staging
 ```
+- `on.push.paths-ignore` skips workflows when only matching files change (e.g. docs-only commits).
+- `workflow_dispatch` allows manual triggers with typed inputs from the Actions tab.
+- Schedule cron triggers only fire on the default branch.
 
 ### jobs
 
@@ -51,16 +54,21 @@ steps:
   with:
     node-version: ${{ matrix.node }}
 ```
+- `strategy.matrix` generates a job instance for each combination of values.
+- `strategy.fail-fast: false` lets all matrix jobs finish even if one fails.
 
 ### needs
 
 - Job runs only after needed jobs succeed; defines DAG.
 - **needs: [build]** — run test only after build; use outputs with `job_id.outputs.output_name`.
+- `needs:` creates explicit job ordering; without it, jobs run in parallel.
 
 ### Defaults and Concurrency
 
 - **defaults.run**: Default shell, working-directory for all run steps.
 - **concurrency**: Cancel in-progress runs for same concurrency group (e.g. branch); avoid duplicate deploys.
+- `concurrency.group` should be scoped per branch or per environment to avoid unintended cancellations.
+- `defaults.run.shell: bash` normalizes shell behavior across Linux and Windows runners.
 
 Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [003-expressions-contexts](./003-expressions-contexts.md)
 
@@ -82,14 +90,3 @@ Related notes: [001-github-actions-overview](./001-github-actions-overview.md), 
 1. Review `concurrency.group` — too broad groups cancel unrelated runs.
 2. Set `cancel-in-progress: false` for deploy jobs (avoid interrupted deployments).
 3. Use branch-specific groups: `concurrency: group: ${{ github.ref }}`.
-
-# Quick Facts (Revision)
-
-- `on.push.paths-ignore` skips workflows when only matching files change (e.g. docs-only commits).
-- `workflow_dispatch` allows manual triggers with typed inputs from the Actions tab.
-- Schedule cron triggers only fire on the default branch.
-- `strategy.matrix` generates a job instance for each combination of values.
-- `strategy.fail-fast: false` lets all matrix jobs finish even if one fails.
-- `needs:` creates explicit job ordering; without it, jobs run in parallel.
-- `concurrency.group` should be scoped per branch or per environment to avoid unintended cancellations.
-- `defaults.run.shell: bash` normalizes shell behavior across Linux and Windows runners.

@@ -44,6 +44,8 @@ kubectl describe pvc my-data -n dev          # check binding status
 - Cluster-scoped resource representing a piece of storage (disk, NFS share, cloud volume).
 - Defined by capacity, access modes, reclaim policy, and storage class.
 - Can be statically provisioned (admin creates PV manually) or dynamically provisioned via StorageClass.
+- PV is cluster-scoped; PVC is namespaced — PVC binds to PV across the cluster.
+- `hostPath` is for dev/testing only; it ties data to one specific node.
 
 ```yaml
 apiVersion: v1
@@ -90,12 +92,15 @@ spec:
 
 - Cloud block storage (EBS, Persistent Disk) typically supports only RWO.
 - NFS and CephFS support RWX.
+- RWO means one node, not one pod — multiple pods on the same node can mount it.
 
 ### StorageClass and Dynamic Provisioning
 
 - StorageClass defines a provisioner (e.g. `kubernetes.io/aws-ebs`, `pd.csi.storage.gke.io`) and parameters.
 - PVC with `storageClassName` triggers dynamic provisioning — no manual PV creation needed.
 - `storageclass.kubernetes.io/is-default-class: "true"` annotation sets the default class.
+- Dynamic provisioning (StorageClass) is preferred over static PV creation in production.
+- `WaitForFirstConsumer` delays volume binding until a pod is scheduled — avoids zone mismatch.
 
 ```yaml
 apiVersion: storage.k8s.io/v1
@@ -117,6 +122,8 @@ volumeBindingMode: WaitForFirstConsumer
 | Delete | PV and underlying storage deleted when PVC is deleted |
 | Recycle | (Deprecated) Basic `rm -rf` on the volume |
 
+- Reclaim policy `Retain` is safest for important data; requires manual PV cleanup.
+
 ### Mounting in Pods
 
 ```yaml
@@ -136,6 +143,7 @@ spec:
 
 - StatefulSet uses `volumeClaimTemplates` to create a unique PVC per pod.
 - PVCs persist across pod restarts and rescheduling — each pod gets its own stable storage.
+- StatefulSet `volumeClaimTemplates` create per-pod PVCs that survive rescheduling.
 
 Related notes: [007-statefulset-daemonset](./007-statefulset-daemonset.md), [002-pods-labels](./002-pods-labels.md)
 
@@ -158,13 +166,3 @@ Related notes: [007-statefulset-daemonset](./007-statefulset-daemonset.md), [002
 1. Check if pod uses `emptyDir` (ephemeral) instead of PVC — `emptyDir` is lost on pod delete.
 2. Check reclaim policy: if `Delete`, PV is destroyed when PVC is deleted.
 3. For StatefulSet: PVCs persist across restarts; data should survive unless PVC was manually deleted.
-
-# Quick Facts (Revision)
-
-- PV is cluster-scoped; PVC is namespaced — PVC binds to PV across the cluster.
-- Dynamic provisioning (StorageClass) is preferred over static PV creation in production.
-- `WaitForFirstConsumer` delays volume binding until a pod is scheduled — avoids zone mismatch.
-- RWO means one node, not one pod — multiple pods on the same node can mount it.
-- `hostPath` is for dev/testing only; it ties data to one specific node.
-- Reclaim policy `Retain` is safest for important data; requires manual PV cleanup.
-- StatefulSet `volumeClaimTemplates` create per-pod PVCs that survive rescheduling.

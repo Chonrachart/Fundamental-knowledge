@@ -103,6 +103,7 @@ Choosing a sync strategy:
   - Detection: polling every 3 min (default) or via webhook.
   - Best for: staging/dev environments where fast iteration is needed.
   - Requires `syncPolicy.automated` in Application spec.
+- Auto-sync: ArgoCD applies Git changes automatically; manual: user triggers sync.
 
 ```yaml
 # Manual sync (no syncPolicy.automated)
@@ -127,6 +128,8 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
 - Enable: `syncPolicy.automated.selfHeal: true`.
 - Important: must be combined with `automated` — self-heal only works with auto-sync.
 - Exception: use `ignoreDifferences` to exclude fields managed by other controllers (e.g., HPA replicas).
+- Self-heal: reverts manual cluster changes back to Git state.
+- ignoreDifferences: exclude fields managed by other controllers from sync comparison.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -138,6 +141,7 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
 - `PruneLast`: prune after all other resources are synced (prevents deleting before replacement is ready).
 - **Danger**: accidentally removing a file from Git with prune enabled deletes it from the cluster.
 - Safety: ArgoCD shows what will be pruned before sync; review in UI or `argocd app diff`.
+- Prune: deletes resources removed from Git; PruneLast prunes after sync completes.
 
 Related notes: [002-argocd-applications](./002-argocd-applications.md)
 
@@ -148,6 +152,7 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 - Lower wave numbers are applied first; resources in the same wave are applied together.
 - Default wave: 0. Negative waves run before default; positive after.
 - ArgoCD waits for resources in a wave to be healthy before proceeding to the next wave.
+- Sync waves: control resource ordering with wave annotations (-N first, +N last).
 
 ```yaml
 # Wave -1: Create namespace and config first
@@ -200,6 +205,7 @@ Related notes: [004-argocd-advanced-patterns](./004-argocd-advanced-patterns.md)
   - `HookSucceeded`: delete hook resource after it succeeds.
   - `HookFailed`: delete hook resource after it fails.
   - `BeforeHookCreation`: delete previous hook before creating new one.
+- Sync hooks: PreSync (migrations), PostSync (tests), SyncFail (alerts).
 
 ```yaml
 # PreSync hook: database migration
@@ -273,6 +279,7 @@ spec:
       applications: ['hotfix-*']
       manualSync: true
 ```
+- Sync windows: cron-based allow/deny windows for change management.
 
 Related notes: [005-argocd-admin-operations](./005-argocd-admin-operations.md)
 
@@ -294,6 +301,7 @@ spec:
 
 - Retry sequence: 5s, 10s, 20s, 40s, 80s (capped at 3m).
 - Do not rely on retry for persistent failures — investigate root cause.
+- Retry: exponential backoff for transient failures; don't mask persistent issues.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -337,7 +345,7 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 3. Check resource limits: Job may be OOMKilled.
 4. Check `restartPolicy`: should be `Never` or `OnFailure` for hooks.
 5. Set `activeDeadlineSeconds` on the Job to prevent infinite hangs.
-6. Check hook-delete-policy: `BeforeHookCreation` ensures old hooks are cleaned up.
+6. Check `hook-delete-policy`: `BeforeHookCreation` ensures old hooks are cleaned up.
 
 ### Self-heal keeps reverting desired changes
 
@@ -346,16 +354,3 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 3. Check sync interval: frequent self-heal checks may conflict with gradual changes.
 4. Temporarily disable self-heal for debugging: remove from syncPolicy.
 5. Use `argocd app diff myapp` to see exactly what ArgoCD considers out-of-sync.
-
----
-
-# Quick Facts (Revision)
-
-- Auto-sync: ArgoCD applies Git changes automatically; manual: user triggers sync.
-- Self-heal: reverts manual cluster changes back to Git state.
-- Prune: deletes resources removed from Git; PruneLast prunes after sync completes.
-- Sync waves: control resource ordering with wave annotations (-N first, +N last).
-- Sync hooks: PreSync (migrations), PostSync (tests), SyncFail (alerts).
-- Sync windows: cron-based allow/deny windows for change management.
-- Retry: exponential backoff for transient failures; don't mask persistent issues.
-- ignoreDifferences: exclude fields managed by other controllers from sync comparison.

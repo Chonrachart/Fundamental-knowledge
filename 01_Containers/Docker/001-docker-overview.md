@@ -11,6 +11,9 @@
 - Read-only template for a container; built from Dockerfile or pulled from registry.
 - Layered: each Dockerfile instruction adds a layer; layers are cached and shared.
 - Immutable; tag for version (e.g. `nginx:1.24`), digest for exact content.
+- Image = read-only template; Container = running instance of an image.
+- `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
+- Tags label image versions; digests pin exact content by hash.
 
 ```bash
 docker build -t myapp:1.0 .
@@ -26,6 +29,7 @@ Related notes:
 - Running instance of an image; has its own filesystem, network, process tree.
 - Ephemeral by default -- data is lost when removed unless stored in volumes or bind mounts.
 - Lightweight: shares host kernel, starts in milliseconds.
+- Containers are ephemeral; use volumes for persistent data.
 
 ```bash
 docker run -d --name web -p 8080:80 nginx:alpine
@@ -41,6 +45,7 @@ Related notes:
 
 - Text file with instructions to build an image, layer by layer.
 - Common instructions: `FROM`, `RUN`, `COPY`, `ADD`, `WORKDIR`, `EXPOSE`, `CMD`, `ENTRYPOINT`.
+- Dockerfile defines how to build an image layer by layer.
 
 ```dockerfile
 FROM nginx:alpine
@@ -57,6 +62,7 @@ Related notes:
 - Server that stores and distributes images (Docker Hub, GHCR, ECR, private).
 - `docker push` uploads; `docker pull` downloads.
 - Default registry is Docker Hub (`docker.io`).
+- Registry stores images; Docker Hub is the default public registry.
 
 Related notes:
 - [006-registry-tagging-push-pull](./006-registry-tagging-push-pull.md)
@@ -80,14 +86,3 @@ Related notes:
 1. Check syntax: each instruction must be on its own line.
 2. Check build context: files referenced by COPY must exist relative to context.
 3. Check `.dockerignore` is not excluding needed files.
-
----
-
-# Quick Facts (Revision)
-
-- Image = read-only template; Container = running instance of an image.
-- Dockerfile defines how to build an image layer by layer.
-- Registry stores images; Docker Hub is the default public registry.
-- `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
-- Tags label image versions; digests pin exact content by hash.
-- Containers are ephemeral; use volumes for persistent data.

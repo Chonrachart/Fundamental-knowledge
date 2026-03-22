@@ -29,6 +29,7 @@ Response to caller (API Gateway → HTTP response)
 - **Memory**: 128 MB – 10,240 MB; CPU scales proportionally with memory.
 - **Timeout**: Max 15 minutes; default 3 seconds.
 - **Concurrency**: 1,000 concurrent executions per account (soft limit); reserved concurrency per function.
+- Lambda max timeout is 15 minutes; max memory is 10 GB; CPU scales with memory.
 
 ```python
 # Python Lambda handler
@@ -57,6 +58,7 @@ def handler(event, context):
 - **REST API**: Full-featured; resources, methods, stages, usage plans.
 - **HTTP API**: Simpler, cheaper, faster; recommended for most new APIs.
 - **Lambda proxy integration**: Passes entire request to Lambda; Lambda returns status + headers + body.
+- API Gateway HTTP API is simpler and cheaper than REST API — use for new projects.
 
 ```yaml
 # API Gateway → Lambda flow
@@ -71,6 +73,7 @@ Client → API Gateway (api.example.com/users)
 - **Execution role**: IAM role Lambda assumes; grants access to AWS services (S3, DynamoDB, logs).
 - **Resource policy**: Controls who can invoke the function (API Gateway, S3, other accounts).
 - Always follow least privilege for execution role.
+- Lambda execution role determines what AWS services the function can access.
 
 ### Environment and Configuration
 
@@ -78,6 +81,9 @@ Client → API Gateway (api.example.com/users)
 - **Layers**: Shared dependencies (libraries, runtimes); up to 5 layers per function.
 - **VPC**: Lambda can run inside VPC to access private resources (RDS, ElastiCache); adds cold start latency.
 - **Provisioned concurrency**: Pre-warm instances; eliminates cold starts (costs more).
+- Environment variables are the standard way to pass config; use KMS for sensitive values.
+- Layers share common dependencies across functions — useful for large libraries.
+- Lambda in VPC needs NAT Gateway for internet access — adds cost and cold start latency.
 
 ### Cold Start
 
@@ -93,6 +99,8 @@ Warm invocation: reuse existing container
 
 - Cold starts happen on first invocation and after scaling up.
 - Minimize: use smaller packages, avoid VPC unless needed, use provisioned concurrency.
+- Cold starts are worst for Java/C# and VPC-attached functions; best for Python/Node.js.
+- Provisioned concurrency eliminates cold starts but costs per pre-warmed instance.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [002-iam](./002-iam.md), [006-rds-databases](./006-rds-databases.md)
 
@@ -116,14 +124,3 @@ Related notes: [001-aws-overview](./001-aws-overview.md), [002-iam](./002-iam.md
 2. Lambda security group must allow outbound to RDS port.
 3. RDS security group must allow inbound from Lambda security group.
 4. Lambda execution role needs `ec2:CreateNetworkInterface` for VPC access.
-
-# Quick Facts (Revision)
-
-- Lambda max timeout is 15 minutes; max memory is 10 GB; CPU scales with memory.
-- Cold starts are worst for Java/C# and VPC-attached functions; best for Python/Node.js.
-- API Gateway HTTP API is simpler and cheaper than REST API — use for new projects.
-- Lambda execution role determines what AWS services the function can access.
-- Environment variables are the standard way to pass config; use KMS for sensitive values.
-- Layers share common dependencies across functions — useful for large libraries.
-- Provisioned concurrency eliminates cold starts but costs per pre-warmed instance.
-- Lambda in VPC needs NAT Gateway for internet access — adds cost and cold start latency.

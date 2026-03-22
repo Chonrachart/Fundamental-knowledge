@@ -71,6 +71,8 @@ Example: server listening on port 80, client connects
 | :---------- | :------- | :--------------------------- |
 | SOCK_STREAM | TCP      | Reliable, connection-oriented, ordered |
 | SOCK_DGRAM  | UDP      | Connectionless, best-effort, unordered |
+- Socket = IP + Port + Protocol; it is the application-to-kernel network interface
+- SOCK_STREAM = TCP (reliable); SOCK_DGRAM = UDP (best-effort)
 
 Related notes: [000-core](./000-core.md)
 
@@ -85,6 +87,7 @@ Related notes: [000-core](./000-core.md)
 | 0-1023       | Well-known   | 22 (SSH), 53 (DNS), 80 (HTTP), 443 (HTTPS) |
 | 1024-49151   | Registered   | 3306 (MySQL), 5432 (PostgreSQL) |
 | 49152-65535  | Ephemeral    | Auto-assigned to clients    |
+- Ports 0-1023 are well-known (require root to bind); 49152-65535 are ephemeral
 
 Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md)
 
@@ -117,6 +120,8 @@ LISTEN  0       128     0.0.0.0:80          0.0.0.0:*          users:(("nginx",p
 
 - `0.0.0.0:22` -- listening on all interfaces, port 22
 - `127.0.0.1:3306` -- listening only on loopback (local access only)
+- `ss -tlnp` is the single most useful command for checking listening services
+- `0.0.0.0` means listening on all interfaces; `127.0.0.1` means loopback only
 
 Related notes: [002-ip-command](./002-ip-command.md)
 
@@ -143,21 +148,17 @@ ls -l /proc/1234/fd
 # TCP connections (raw kernel data)
 cat /proc/net/tcp
 ```
+- Socket info is exposed in `/proc/net/tcp` and `/proc/<pid>/fd`
 
 Related notes: [000-core](./000-core.md)
 
 ### Port Binding and Conflicts
-
+Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md)
 - Only one process can bind to a given IP:port for a given protocol
 - "Address already in use" error means another process holds the port
 - Find the conflicting process:
-
-```bash
-ss -tlnp | grep :80
-lsof -i :80
-```
-
-Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md)
+- Only one process per IP:port:protocol; conflicts give "Address already in use"
+- `lsof -i :<port>` and `ss -tlnp | grep :<port>` both identify port holders
 
 ---
 
@@ -184,6 +185,7 @@ cat /proc/net/tcp
 
 `ss` is the go-to tool for socket inspection on modern Linux.
 
+
 # Troubleshooting Guide
 
 ```text
@@ -202,14 +204,3 @@ Service not reachable?
   │
   └─ Client connecting to correct IP:port? ──── verify with curl / telnet / nc
 ```
-
-# Quick Facts (Revision)
-
-- Socket = IP + Port + Protocol; it is the application-to-kernel network interface
-- SOCK_STREAM = TCP (reliable); SOCK_DGRAM = UDP (best-effort)
-- Ports 0-1023 are well-known (require root to bind); 49152-65535 are ephemeral
-- `ss -tlnp` is the single most useful command for checking listening services
-- `0.0.0.0` means listening on all interfaces; `127.0.0.1` means loopback only
-- Only one process per IP:port:protocol; conflicts give "Address already in use"
-- `lsof -i :<port>` and `ss -tlnp | grep :<port>` both identify port holders
-- Socket info is exposed in `/proc/net/tcp` and `/proc/<pid>/fd`

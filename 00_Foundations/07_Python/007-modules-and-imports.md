@@ -95,6 +95,8 @@ lm.func()
 ```
 
 Related notes: [003-functions](./003-functions.md)
+- `import` loads once and caches in `sys.modules`; re-importing returns the cached version.
+- Bytecode is cached in `__pycache__/` as `.pyc` files for faster subsequent imports.
 
 ### from import
 
@@ -109,6 +111,7 @@ from mymodule import func1, func2
 ```
 
 Related notes: [001-variables-and-types](./001-variables-and-types.md)
+- `from module import *` is discouraged; it pollutes the namespace and makes code harder to trace.
 
 ### Modules
 
@@ -154,6 +157,8 @@ from ..other_subpkg import tool    # sibling package
 ```
 
 Related notes: [008-classes-and-oop](./008-classes-and-oop.md)
+- Relative imports (`from . import x`) only work inside packages, not top-level scripts.
+- Use `python -m package.module` to run a module inside a package correctly.
 
 ### __name__ and __main__
 
@@ -170,20 +175,14 @@ if __name__ == "__main__":
 ```
 
 Related notes: [003-functions](./003-functions.md)
+- `if __name__ == "__main__":` runs only when the file is executed directly, not when imported.
 
 ### Search Path
-
 - `sys.path` -- list of directories searched for imports, in order.
 - First: script directory (or cwd), then `PYTHONPATH` env var, then installation defaults (site-packages).
 - Add dynamically: `sys.path.insert(0, "/my/dir")` (avoid if possible; prefer proper packaging).
-
-```python
-import sys
-print(sys.path)  # see where Python looks for modules
-```
-
-Related notes: [006-errors-and-exceptions](./006-errors-and-exceptions.md)
-
+- A module is a `.py` file; a package is a directory with `__init__.py`.
+- `sys.path` search order: script dir, PYTHONPATH, site-packages.
 ---
 
 # Troubleshooting Guide
@@ -222,14 +221,3 @@ Problem: ModuleNotFoundError or ImportError
     +-- running script directly? --> use python -m package.module
     +-- missing __init__.py? --> add it to the package directory
 ```
-
-# Quick Facts (Revision)
-
-- A module is a `.py` file; a package is a directory with `__init__.py`.
-- `import` loads once and caches in `sys.modules`; re-importing returns the cached version.
-- `from module import *` is discouraged; it pollutes the namespace and makes code harder to trace.
-- `sys.path` search order: script dir, PYTHONPATH, site-packages.
-- `if __name__ == "__main__":` runs only when the file is executed directly, not when imported.
-- Relative imports (`from . import x`) only work inside packages, not top-level scripts.
-- Bytecode is cached in `__pycache__/` as `.pyc` files for faster subsequent imports.
-- Use `python -m package.module` to run a module inside a package correctly.

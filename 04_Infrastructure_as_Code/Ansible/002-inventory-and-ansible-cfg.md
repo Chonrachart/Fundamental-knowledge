@@ -170,6 +170,14 @@ ansible web -m ping -u deploy --private-key ~/.ssh/id_ed25519
 ```
 
 
+
+- `group_vars/<group>.yml` applies to **all hosts in the group**; `host_vars/<host>.yml` applies to **one host**.
+- `host_vars` beats `group_vars`; `-e` (extra vars) beats everything.
+- YAML inventory is preferred over INI for complex nested group structures.
+- `[prod:children]` (INI) = `prod: children:` (YAML) — groups can contain other groups.
+- `ansible-inventory --graph` is the fastest way to verify inventory structure.
+- `pipelining = true` can significantly speed up playbook runs.
+- Never commit `ansible.cfg` with `host_key_checking = false` to shared repos without a comment warning.
 # Troubleshooting Guide
 
 ### Host unreachable
@@ -184,13 +192,3 @@ ansible web -m ping -u deploy --private-key ~/.ssh/id_ed25519
 1. Run `ansible-inventory --graph` to confirm the host is in the correct group.
 2. Check `group_vars`/`host_vars` precedence if the variable value is wrong.
 
-
-# Quick Facts (Revision)
-
-- `group_vars/<group>.yml` applies to **all hosts in the group**; `host_vars/<host>.yml` applies to **one host**.
-- `host_vars` beats `group_vars`; `-e` (extra vars) beats everything.
-- YAML inventory is preferred over INI for complex nested group structures.
-- `[prod:children]` (INI) = `prod: children:` (YAML) — groups can contain other groups.
-- `ansible-inventory --graph` is the fastest way to verify inventory structure.
-- `pipelining = true` can significantly speed up playbook runs.
-- Never commit `ansible.cfg` with `host_key_checking = false` to shared repos without a comment warning.

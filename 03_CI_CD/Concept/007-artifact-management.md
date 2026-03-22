@@ -104,6 +104,7 @@ Example — build and push in GitHub Actions:
 - **Helm charts**: Kubernetes deployment packages; stored in Helm/OCI registries.
 - **Config bundles**: deployment configs, Lambda ZIP packages, Terraform modules.
 - Choose artifact type based on deployment target and runtime environment.
+- Build once, deploy many: same artifact through all environments.
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
@@ -143,8 +144,9 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
   - **PATCH**: bug fixes (backward-compatible).
 - Pre-release: `1.0.0-beta.1`, `2.0.0-rc.1`.
 - Build metadata: `1.0.0+build.123`.
-- Auto-versioning tools: semantic-release, conventional commits.
+- Auto-versioning tools: `semantic-release`, conventional commits.
 - Convention: commit messages drive version bumps (`feat:` = minor, `fix:` = patch, `BREAKING CHANGE:` = major).
+- Semantic versioning: MAJOR (breaking), MINOR (feature), PATCH (fix).
 
 Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
@@ -153,9 +155,11 @@ Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 - **Git SHA**: `myapp:abc123f` — exact commit traceability; always unique.
 - **Semantic version**: `myapp:1.2.3` — human-readable release version.
 - **Branch name**: `myapp:main` — mutable, points to latest on branch.
-- **latest**: mutable, points to most recent push; avoid in production (ambiguous).
+- **`latest`**: mutable, points to most recent push; avoid in production (ambiguous).
 - Best practice: always tag with git SHA; additionally tag with semver for releases.
 - Never use `latest` or branch tags in production deployments — use immutable tags.
+- Tag with git SHA for traceability; add semver for releases.
+- Never use `latest` tag in production — it is mutable and ambiguous.
 
 Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
@@ -163,11 +167,12 @@ Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
 - Signing proves: who built the artifact and that it hasn't been tampered with.
 - Tools:
-  - **cosign** (Sigstore): keyless signing using OIDC identity; most common for containers.
+  - **`cosign`** (Sigstore): keyless signing using OIDC identity; most common for containers.
   - **Notary / Docker Content Trust**: Docker-native signing.
-  - **GPG**: traditional signing for packages and binaries.
-- Verification: admission controllers (Kyverno, OPA) verify signatures before allowing deployment.
+  - **`GPG`**: traditional signing for packages and binaries.
+- Verification: admission controllers (`Kyverno`, `OPA`) verify signatures before allowing deployment.
 - Keyless signing: uses short-lived certificates tied to CI identity (no key management).
+- Sign artifacts with cosign/Sigstore; verify with admission controllers.
 
 ```bash
 # Sign with cosign (keyless, in CI)
@@ -187,6 +192,7 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 - Delete: untagged manifests, old branch images, expired pre-release versions.
 - ECR lifecycle policy example: keep last 10 tagged images, delete untagged after 7 days.
 - Garbage collection: reclaim storage after deleting image manifests (registry-specific).
+- Retention policies prevent registry bloat; keep releases, delete old branches.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -194,13 +200,15 @@ Related notes: [003-best-practices](./003-best-practices.md)
 
 - Same source + same dependencies should produce the same artifact.
 - Requirements:
-  - Pin all dependency versions (lockfiles: package-lock.json, go.sum, poetry.lock).
+  - Pin all dependency versions (lockfiles: `package-lock.json`, `go.sum`, `poetry.lock`).
   - Pin base images by digest (`FROM node:20@sha256:abc...` not `FROM node:20`).
   - Avoid non-deterministic steps (timestamps in builds, random ordering).
 - **SBOM** (Software Bill of Materials): machine-readable list of all components in the artifact.
-  - Tools: syft, trivy, docker sbom.
-  - Formats: SPDX, CycloneDX.
+  - Tools: `syft`, `trivy`, `docker sbom`.
+  - Formats: `SPDX`, `CycloneDX`.
   - Use: vulnerability auditing, license compliance, supply chain transparency.
+- SBOM: machine-readable inventory of all components in the artifact.
+- Pin base images by digest for reproducible builds.
 
 Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 
@@ -220,7 +228,7 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 
 1. Use multi-stage Docker builds: build in large image, copy only output to slim image.
 2. Use distroless or alpine base images.
-3. Add `.dockerignore` to exclude unnecessary files (node_modules, .git, tests).
+3. Add `.dockerignore` to exclude unnecessary files (`node_modules`, `.git`, tests).
 4. Check for debug symbols, development dependencies included in production image.
 5. Compress binaries; strip debug information.
 
@@ -231,16 +239,3 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 3. Check for environment-specific build steps (there should be none — build once).
 4. Audit promotion process: was the artifact rebuilt instead of promoted?
 5. Use immutable tags (SHA) not mutable tags (latest, branch).
-
----
-
-# Quick Facts (Revision)
-
-- Build once, deploy many: same artifact through all environments.
-- Tag with git SHA for traceability; add semver for releases.
-- Never use `latest` tag in production — it is mutable and ambiguous.
-- Sign artifacts with cosign/Sigstore; verify with admission controllers.
-- SBOM: machine-readable inventory of all components in the artifact.
-- Retention policies prevent registry bloat; keep releases, delete old branches.
-- Pin base images by digest for reproducible builds.
-- Semantic versioning: MAJOR (breaking), MINOR (feature), PATCH (fix).

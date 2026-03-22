@@ -73,6 +73,7 @@ echo "$HOME"        # user home directory
 echo "$USER"        # current username
 echo "$PWD"         # current working directory
 ```
+- `command -v` is a shell builtin and more reliable than `which` (works for functions and builtins too).
 
 ### Setting Variables
 
@@ -84,6 +85,9 @@ export PATH="$HOME/bin:$PATH"       # prepend directory to PATH (higher priority
 
 - Exported variables exist only for the current session — lost when terminal closes.
 - Child processes cannot modify the parent's environment.
+- `PATH` is searched left to right — put priority directories at the front.
+- `export` marks a variable for inheritance by child processes; without it, children cannot see it.
+- Child processes get a **copy** of the parent environment — changes in the child do not affect the parent.
 
 ### Persisting Variables
 
@@ -97,6 +101,7 @@ source ~/.bashrc
 # or
 . ~/.bashrc
 ```
+- `source` (or `.`) runs a script in the current shell — the only way a script can modify the parent's environment.
 
 ### Shell Startup Files (bash)
 
@@ -116,9 +121,12 @@ if [ -f ~/.bashrc ]; then . ~/.bashrc; fi
 
 - Put `export` variables in `~/.profile` (or `~/.bash_profile`).
 - Put aliases and functions in `~/.bashrc`.
+- Cron runs with a minimal environment — always use absolute paths in cron scripts or set `PATH=` in crontab.
+- Login shell reads `~/.profile`; interactive non-login reads `~/.bashrc` — put persistent exports in `~/.profile`.
 
 Related notes:
 - [01-Basic-file-and-text-manipulation](./01-Basic-file-and-text-manipulation.md) — shell basics
+
 
 ---
 
@@ -142,13 +150,3 @@ Related notes:
 
 1. Use `source ./script.sh` (not `./script.sh`) to run in current shell context.
 
-
-# Quick Facts (Revision)
-
-- `PATH` is searched left to right — put priority directories at the front.
-- `export` marks a variable for inheritance by child processes; without it, children cannot see it.
-- Child processes get a **copy** of the parent environment — changes in the child do not affect the parent.
-- `source` (or `.`) runs a script in the current shell — the only way a script can modify the parent's environment.
-- Cron runs with a minimal environment — always use absolute paths in cron scripts or set `PATH=` in crontab.
-- `command -v` is a shell builtin and more reliable than `which` (works for functions and builtins too).
-- Login shell reads `~/.profile`; interactive non-login reads `~/.bashrc` — put persistent exports in `~/.profile`.

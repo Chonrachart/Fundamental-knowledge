@@ -134,11 +134,9 @@ Related notes: [003-git-branch](./003-git-branch.md)
 ```bash
 git revert <hash_commit>
 ```
-
+Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository](./004-git-remote-repository.md)
 - Creates a new commit that cancels (inverts) the specified commit.
 - Keeps history consistent without deleting commits -- safe for shared branches.
-
-Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository](./004-git-remote-repository.md)
 
 ---
 
@@ -176,6 +174,15 @@ git revert <hash>
 
 All `git reset <hash>` modes are local-only operations; use `git revert` for pushed history.
 
+
+- `git commit -am` stages and commits tracked files only; new files need explicit `git add`.
+- `git commit --amend` rewrites the last commit with a new hash -- local only.
+- `git diff` compares Working Tree vs Index; `git diff --staged` compares Index vs last commit.
+- `git restore <file>` discards unstaged changes from Index; add `--source=HEAD` to restore from commit.
+- `git reset <file>` unstages; `git reset <hash>` moves the branch pointer.
+- Reset modes: `--soft` (pointer only), `--mixed` (pointer + Index), `--hard` (everything).
+- `git revert` is the safe undo -- creates a new inverting commit, preserves history.
+- `git rm` deletes and stages; `git mv` renames and stages.
 # Troubleshooting Guide
 
 ```text
@@ -194,14 +201,3 @@ Need to go back several commits?
   +--> Local only? --> git reset <hash> (choose --soft/--mixed/--hard)
   +--> Shared branch? --> git revert <hash> for each bad commit
 ```
-
-# Quick Facts (Revision)
-
-- `git commit -am` stages and commits tracked files only; new files need explicit `git add`.
-- `git commit --amend` rewrites the last commit with a new hash -- local only.
-- `git diff` compares Working Tree vs Index; `git diff --staged` compares Index vs last commit.
-- `git restore <file>` discards unstaged changes from Index; add `--source=HEAD` to restore from commit.
-- `git reset <file>` unstages; `git reset <hash>` moves the branch pointer.
-- Reset modes: `--soft` (pointer only), `--mixed` (pointer + Index), `--hard` (everything).
-- `git revert` is the safe undo -- creates a new inverting commit, preserves history.
-- `git rm` deletes and stages; `git mv` renames and stages.

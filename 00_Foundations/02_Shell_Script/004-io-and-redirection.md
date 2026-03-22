@@ -62,6 +62,7 @@ du -ah /var/log | sort -rh | head -5
 - A file descriptor (fd) is an integer handle the kernel assigns to every open file/pipe/socket.
 - Every process starts with three: stdin (0), stdout (1), stderr (2).
 - Additional fds (3, 4, ...) can be opened with `exec`.
+- Three default fds: stdin (0), stdout (1), stderr (2).
 
 ```bash
 # open fd 3 for writing to a log file
@@ -95,6 +96,9 @@ command &> all.log               # both to same file (Bash shorthand)
 ```
 
 - Redirection order matters: `> file 2>&1` works; `2>&1 > file` does not merge.
+- `>` overwrites, `>>` appends, `<` reads from file.
+- `2>&1` redirects stderr to stdout's current target -- order matters.
+- `&>` is Bash shorthand for `> file 2>&1` (redirect both).
 
 Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
 
@@ -104,6 +108,7 @@ Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
 - `<<DELIM` -- heredoc: inline multi-line input (variables are expanded).
 - `<<'DELIM'` -- heredoc with quoting: no variable expansion (literal).
 - `<<<` -- herestring: pass a single string as stdin.
+- Heredoc (`<< EOF`) expands variables; quoted heredoc (`<< 'EOF'`) does not.
 
 ```bash
 # input from file
@@ -149,14 +154,12 @@ curl -s "$url" | jq '.data' || echo "pipeline failed"
 ```
 
 - Variables set inside a pipeline are lost (subshell); use process substitution or `lastpipe` to avoid this.
+- Pipes run each command in a subshell; variables set inside are lost.
+- `set -o pipefail` makes a pipeline fail if any command fails (not just the last).
 
 Related notes: [002-control-flow](./002-control-flow.md), [005-errors-and-exit-codes](./005-errors-and-exit-codes.md)
 
 ### Discarding Output
-
-- `/dev/null` is a special file that discards all data written to it.
-- Use it to suppress unwanted output without losing the exit code.
-
 ```bash
 # discard stdout only
 command > /dev/null
@@ -174,6 +177,10 @@ fi
 ```
 
 Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md)
+- `/dev/null` is a special file that discards all data written to it.
+- Use it to suppress unwanted output without losing the exit code.
+- `/dev/null` discards output; useful for silent existence checks.
+
 
 ---
 
@@ -213,14 +220,3 @@ Problem: output not going where expected
     +-- need variable from pipe --> use process substitution:
         while read line; do ... done < <(command)
 ```
-
-# Quick Facts (Revision)
-
-- Three default fds: stdin (0), stdout (1), stderr (2).
-- `>` overwrites, `>>` appends, `<` reads from file.
-- `2>&1` redirects stderr to stdout's current target -- order matters.
-- `&>` is Bash shorthand for `> file 2>&1` (redirect both).
-- Pipes run each command in a subshell; variables set inside are lost.
-- `set -o pipefail` makes a pipeline fail if any command fails (not just the last).
-- Heredoc (`<< EOF`) expands variables; quoted heredoc (`<< 'EOF'`) does not.
-- `/dev/null` discards output; useful for silent existence checks.

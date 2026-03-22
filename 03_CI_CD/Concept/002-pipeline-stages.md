@@ -117,10 +117,12 @@ jobs:
 ### Checkout
 
 - First stage: fetch repository source code into the runner workspace.
-- Options: full clone, shallow clone (fetch-depth: 1), sparse checkout.
+- Options: full clone, shallow clone (`fetch-depth: 1`), sparse checkout.
 - Specify ref (branch, tag, commit SHA) when building specific versions.
 - Shallow clone speeds up checkout significantly for large repos.
 - In GitHub Actions: `actions/checkout@v4` handles auth, submodules, LFS.
+- Standard stage order: checkout, build, test, scan, deploy.
+- Shallow clone (`fetch-depth: 1`) speeds up checkout for large repos.
 
 Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 
@@ -128,11 +130,12 @@ Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 
 - Transform source into deployable artifacts: compile code, bundle assets, build container images.
 - Caching strategies:
-  - Dependency cache: key on lockfile hash (package-lock.json, go.sum).
-  - Docker layer cache: reuse unchanged layers, cache-from previous builds.
-  - Build tool cache: .gradle, .m2, __pycache__.
-- Artifact output: upload to workflow storage (upload-artifact) or push to registry.
+  - Dependency cache: key on lockfile hash (`package-lock.json`, `go.sum`).
+  - Docker layer cache: reuse unchanged layers, `cache-from` previous builds.
+  - Build tool cache: `.gradle`, `.m2`, `__pycache__`.
+- Artifact output: upload to workflow storage (`upload-artifact`) or push to registry.
 - Build should be deterministic: same source + same deps = same artifact.
+- Build once, deploy the same artifact to every environment.
 
 Related notes: [007-artifact-management](./007-artifact-management.md)
 
@@ -142,13 +145,14 @@ Related notes: [007-artifact-management](./007-artifact-management.md)
 - Target: 80%+ code coverage for critical paths.
 - Mock external dependencies (database, APIs) for speed and isolation.
 - Fail the pipeline immediately if unit tests fail.
+- Unit tests first (fast, cheap), e2e last (slow, expensive).
 
 Related notes: [006-testing-strategies](./006-testing-strategies.md)
 
 ### Test — Integration
 
 - Test interactions between components: app + database, app + external API.
-- Slower than unit tests; may require service containers (PostgreSQL, Redis).
+- Slower than unit tests; may require service containers (`PostgreSQL`, `Redis`).
 - In CI: use Docker Compose or service containers to spin up dependencies.
 - Run after unit tests pass to avoid wasting resources.
 
@@ -158,7 +162,7 @@ Related notes: [006-testing-strategies](./006-testing-strategies.md)
 
 - Full user flow tests against a deployed environment (or local stack).
 - Slowest and most brittle; run less frequently (on merge, nightly, pre-release).
-- Tools: Cypress, Playwright, Selenium.
+- Tools: `Cypress`, `Playwright`, `Selenium`.
 - Keep e2e suite small and focused on critical paths.
 
 Related notes: [006-testing-strategies](./006-testing-strategies.md)
@@ -167,7 +171,7 @@ Related notes: [006-testing-strategies](./006-testing-strategies.md)
 
 - Push artifacts to target environment; update running services.
 - Staging deploy: automatic on merge to main; production: gated.
-- Methods: kubectl apply, helm upgrade, docker compose up, rsync, cloud CLI.
+- Methods: `kubectl apply`, `helm upgrade`, `docker compose up`, `rsync`, cloud CLI.
 - Always use the same artifact built in the build stage — never rebuild for production.
 - Secrets injected at deploy time from secret store (not baked into image).
 
@@ -176,10 +180,11 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [008
 ### Artifacts
 
 - Build outputs passed between stages or stored for external consumption.
-- Workflow artifacts: temporary storage within a pipeline run (GHA upload/download-artifact).
+- Workflow artifacts: temporary storage within a pipeline run (GHA `upload-artifact`/`download-artifact`).
 - Registry artifacts: permanent storage (Docker images in GHCR/ECR, npm packages).
 - Tag artifacts with git SHA or semantic version for traceability.
 - Retention policies: clean up old workflow artifacts; keep tagged releases.
+- Artifacts pass data between stages; use consistent naming.
 
 Related notes: [007-artifact-management](./007-artifact-management.md)
 
@@ -192,6 +197,8 @@ Related notes: [007-artifact-management](./007-artifact-management.md)
   - **Security gate**: block if critical or high-severity findings detected.
   - **Deploy gate**: manual approval required for production deployment.
 - Configure in pipeline (job conditions) and repository settings (branch protection).
+- Quality gates block progression on failure — configure in pipeline and repo settings.
+- Manual approval gates protect production from unreviewed changes.
 
 Related notes: [003-best-practices](./003-best-practices.md), [009-ci-cd-security](./009-ci-cd-security.md)
 
@@ -202,6 +209,7 @@ Related notes: [003-best-practices](./003-best-practices.md), [009-ci-cd-securit
 - Notify on: failure (always), success (optional), manual approval needed.
 - Include: pipeline link, commit info, failure details, responsible author.
 - Avoid notification fatigue: only notify on state change (success after failure).
+- Notifications on failure are essential; on success are optional.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -211,7 +219,7 @@ Related notes: [003-best-practices](./003-best-practices.md)
 
 ### Artifact not found between jobs
 
-1. Verify upload-artifact and download-artifact use the same artifact `name`.
+1. Verify `upload-artifact` and `download-artifact` use the same artifact `name`.
 2. Check that the upload step actually ran (not skipped by a condition).
 3. Confirm the `path` in upload matches the actual build output directory.
 4. For cross-workflow artifacts, use the workflow run ID to download.
@@ -232,16 +240,3 @@ Related notes: [003-best-practices](./003-best-practices.md)
 3. Stale checks: re-run the pipeline if checks are from an old commit.
 4. Coverage gate: check if new code lowered overall coverage below threshold.
 5. For manual approval gates: check who has approval permission in the environment.
-
----
-
-# Quick Facts (Revision)
-
-- Standard stage order: checkout, build, test, scan, deploy.
-- Artifacts pass data between stages; use consistent naming.
-- Quality gates block progression on failure — configure in pipeline and repo settings.
-- Unit tests first (fast, cheap), e2e last (slow, expensive).
-- Build once, deploy the same artifact to every environment.
-- Shallow clone (fetch-depth: 1) speeds up checkout for large repos.
-- Notifications on failure are essential; on success are optional.
-- Manual approval gates protect production from unreviewed changes.

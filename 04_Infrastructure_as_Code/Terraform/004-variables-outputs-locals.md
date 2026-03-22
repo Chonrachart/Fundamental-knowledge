@@ -114,6 +114,14 @@ resource "aws_instance" "web" {
 
 Related notes: [001-terraform-overview](./001-terraform-overview.md), [006-modules-workspaces](./006-modules-workspaces.md), [008-expressions-functions](./008-expressions-functions.md)
 
+
+- Variables use `var.name`; locals use `local.name`; outputs use `module.<name>.<output>`.
+- `terraform.tfvars` and `*.auto.tfvars` are auto-loaded; other files need `-var-file`.
+- Variable types: `string`, `number`, `bool`, `list()`, `map()`, `object({})`, `tuple([])`.
+- `sensitive = true` hides values in plan/apply output but NOT in state file.
+- Locals are great for computed values like name prefixes and common tag maps.
+- Variable validation with `condition` catches invalid input early at plan time.
+- `TF_VAR_<name>` env vars are useful in CI pipelines.
 ---
 
 # Troubleshooting Guide
@@ -132,13 +140,3 @@ Related notes: [001-terraform-overview](./001-terraform-overview.md), [006-modul
 1. Mark variable and output as `sensitive = true`.
 2. State file still contains the value — protect state access.
 3. Don't reference sensitive values in non-sensitive outputs or `tags`.
-
-# Quick Facts (Revision)
-
-- Variables use `var.name`; locals use `local.name`; outputs use `module.<name>.<output>`.
-- `terraform.tfvars` and `*.auto.tfvars` are auto-loaded; other files need `-var-file`.
-- Variable types: `string`, `number`, `bool`, `list()`, `map()`, `object({})`, `tuple([])`.
-- `sensitive = true` hides values in plan/apply output but NOT in state file.
-- Locals are great for computed values like name prefixes and common tag maps.
-- Variable validation with `condition` catches invalid input early at plan time.
-- `TF_VAR_<name>` env vars are useful in CI pipelines.

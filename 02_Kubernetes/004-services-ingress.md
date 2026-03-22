@@ -45,6 +45,9 @@ Client → Ingress Controller (nginx/traefik pod)
 - **ClusterIP**: Default; virtual IP only inside cluster; pods reach each other by service name.
 - **NodePort**: Exposes service on each node's IP at a static port (30000-32767); good for dev or simple access.
 - **LoadBalancer**: Cloud provider creates external load balancer; points to nodes (or to NodePort); typical for cloud.
+- `ClusterIP` is the default Service type; it is only reachable from within the cluster.
+- `NodePort` builds on `ClusterIP`; `LoadBalancer` builds on `NodePort` — each type is a superset.
+- `targetPort` is the port the container listens on; `port` is what the Service exposes.
 
 ```yaml
 spec:
@@ -59,12 +62,14 @@ spec:
 ### Headless Service
 
 - **clusterIP: None**; no virtual IP; DNS returns all pod IPs (A records); used with StatefulSet.
+- Headless service (`clusterIP: None`) returns pod IPs directly via DNS, not a virtual IP.
 
 ### Ingress
 
 - HTTP/HTTPS routing into the cluster; one load balancer for many services.
 - **Ingress resource**: Rules (host, path → backend service); TLS.
 - **Ingress controller**: Watches Ingress; configures LB or reverse proxy (e.g. nginx, traefik).
+- Ingress requires a running Ingress controller; the Ingress resource alone does nothing.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -89,11 +94,13 @@ spec:
 
 - CoreDNS provides cluster DNS; services get `<svc>.<ns>.svc.cluster.local`; pods get `<pod-ip>.<ns>.pod.cluster.local` (for headless).
 - Short names: `<svc>.<ns>` or `<svc>` in same namespace.
+- Service DNS format: `<svc>.<namespace>.svc.cluster.local`.
 
 ### Endpoints
 
 - Service has Endpoints (or EndpointSlice); list of pod IPs that match selector.
 - Readiness probe failures remove pod from endpoints so traffic stops.
+- Endpoints are updated automatically when pods match/unmatch the selector or fail readiness probes.
 
 Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md), [002-pods-labels](./002-pods-labels.md), [006-kubectl-debugging](./006-kubectl-debugging.md)
 
@@ -116,14 +123,4 @@ Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md), [002-pod
 1. Check NodePort range: must be 30000-32767.
 2. Check firewall on node: `iptables -L -n` or cloud security group.
 3. Verify with: `curl <node-ip>:<nodeport>`.
-4. Check kube-proxy is running: `kubectl get pods -n kube-system -l k8s-app=kube-proxy`.
-
-# Quick Facts (Revision)
-
-- ClusterIP is the default Service type; it is only reachable from within the cluster.
-- NodePort builds on ClusterIP; LoadBalancer builds on NodePort — each type is a superset.
-- Headless service (`clusterIP: None`) returns pod IPs directly via DNS, not a virtual IP.
-- Ingress requires a running Ingress controller; the Ingress resource alone does nothing.
-- Service DNS format: `<svc>.<namespace>.svc.cluster.local`.
-- Endpoints are updated automatically when pods match/unmatch the selector or fail readiness probes.
-- `targetPort` is the port the container listens on; `port` is what the Service exposes.
+4. Check `kube-proxy` is running: `kubectl get pods -n kube-system -l k8s-app=kube-proxy`.

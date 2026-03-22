@@ -108,6 +108,8 @@ Securing the software supply chain:
   - Pin GitHub Actions by commit SHA, not tag (tags can be moved).
   - Use minimal, trusted base images (distroless, Chainguard).
 - SLSA framework (Supply-chain Levels for Software Artifacts): levels 1-4 for build integrity.
+- Pin actions and base images by SHA digest, not mutable tags.
+- Supply chain security is defense in depth — no single layer is sufficient.
 
 ```yaml
 # Pin action by SHA, not tag
@@ -120,18 +122,19 @@ Related notes: [007-artifact-management](./007-artifact-management.md)
 
 - Analyze source code for vulnerabilities without executing it.
 - Finds: SQL injection patterns, XSS, hardcoded secrets, insecure crypto usage.
-- Tools: Semgrep, CodeQL, SonarQube, Bandit (Python), ESLint security plugin.
+- Tools: `Semgrep`, `CodeQL`, `SonarQube`, `Bandit` (Python), `ESLint` security plugin.
 - Run on every PR; gate on critical/high severity findings.
 - False positives: tune rules, suppress with comments (document why), review regularly.
+- SAST scans code; DAST scans running applications; SCA scans dependencies.
 
 Related notes: [006-testing-strategies](./006-testing-strategies.md)
 
 ### SCA (Software Composition Analysis)
 
 - Scan third-party dependencies for known vulnerabilities and license issues.
-- Tools: Dependabot, Snyk, Trivy, Grype, OWASP Dependency-Check.
+- Tools: `Dependabot`, `Snyk`, `Trivy`, `Grype`, `OWASP Dependency-Check`.
 - Vulnerability databases: NVD, GitHub Advisory Database, OSV.
-- Automated PR creation for dependency updates (Dependabot, Renovate).
+- Automated PR creation for dependency updates (`Dependabot`, `Renovate`).
 - License compliance: detect copyleft licenses that may conflict with your project's license.
 
 Related notes: [007-artifact-management](./007-artifact-management.md)
@@ -140,7 +143,7 @@ Related notes: [007-artifact-management](./007-artifact-management.md)
 
 - Test a running application by sending crafted requests and analyzing responses.
 - Finds: XSS, SQL injection, auth bypass, CORS misconfiguration, open redirects.
-- Tools: OWASP ZAP, Nuclei, Burp Suite (automated scan mode).
+- Tools: `OWASP ZAP`, `Nuclei`, `Burp Suite` (automated scan mode).
 - Requires a deployed instance (staging or ephemeral environment).
 - Run weekly or before release; too slow for every PR.
 - Complement SAST (code-level) with DAST (runtime-level).
@@ -150,39 +153,42 @@ Related notes: [006-testing-strategies](./006-testing-strategies.md)
 ### Secret Management
 
 - Secrets: API keys, database passwords, tokens, certificates, private keys.
-- Storage: platform secret store (GitHub Secrets, GitLab CI variables) or external vault (HashiCorp Vault, AWS Secrets Manager).
+- Storage: platform secret store (`GitHub Secrets`, `GitLab CI variables`) or external vault (`HashiCorp Vault`, `AWS Secrets Manager`).
 - Rules:
-  - Never commit secrets to Git (use pre-commit hooks: gitleaks, detect-secrets).
+  - Never commit secrets to Git (use pre-commit hooks: `gitleaks`, `detect-secrets`).
   - Never echo/print secrets in CI logs.
   - Scope secrets to specific environments (staging secrets != production secrets).
   - Rotate regularly; prefer short-lived tokens (OIDC).
   - Audit access: who can read/modify secrets.
 - If a secret is leaked: rotate immediately, audit impact, review how it happened.
+- Secrets: scoped per environment, rotated regularly, never logged.
 
 Related notes: [003-best-practices](./003-best-practices.md), [008-environment-management](./008-environment-management.md)
 
 ### SBOM (Software Bill of Materials)
 
 - Machine-readable inventory of all components, libraries, and dependencies in an artifact.
-- Formats: SPDX, CycloneDX.
-- Generation tools: syft, trivy, docker sbom, cyclonedx-cli.
+- Formats: `SPDX`, `CycloneDX`.
+- Generation tools: `syft`, `trivy`, `docker sbom`, `cyclonedx-cli`.
 - Use cases:
   - Vulnerability response: when a new CVE is published, quickly check if you're affected.
   - License compliance: audit all licenses in your supply chain.
   - Regulatory compliance: some industries require SBOM for deployed software.
 - Generate SBOM in CI; attach to release artifacts; store for audit.
+- SBOM: generate on build, store with artifact, use for vulnerability response.
 
 Related notes: [007-artifact-management](./007-artifact-management.md)
 
 ### Image Signing and Verification
 
 - Sign container images to prove integrity and provenance.
-- **cosign** (Sigstore): keyless signing using OIDC identity from CI provider.
+- **`cosign`** (Sigstore): keyless signing using OIDC identity from CI provider.
   - No key management needed; uses short-lived certificates.
   - Transparency log (Rekor) records all signing events.
 - **Verification**: admission controllers enforce that only signed images can be deployed.
-  - Kyverno, OPA Gatekeeper, Connaisseur.
+  - `Kyverno`, `OPA Gatekeeper`, `Connaisseur`.
 - Sign in CI, verify at deploy time; reject unsigned images.
+- Sign images with cosign; verify with admission controllers before deployment.
 
 ```bash
 # Sign in CI (keyless with GitHub OIDC)
@@ -201,10 +207,11 @@ Related notes: [007-artifact-management](./007-artifact-management.md)
 - Grant CI/CD service accounts the minimum permissions needed.
 - GitHub Actions: set `permissions:` block in workflow to restrict token scope.
 - OIDC federation: exchange CI identity for short-lived cloud credentials (no stored secrets).
-  - AWS: `aws-actions/configure-aws-credentials` with OIDC.
+  - AWS: `aws-actions/configure-aws-credentials` with `OIDC`.
   - GCP: `google-github-actions/auth` with workload identity.
 - Runner isolation: use ephemeral runners that are destroyed after each job.
 - Self-hosted runners: harden, isolate, regularly update.
+- OIDC federation eliminates stored cloud credentials in CI.
 
 ```yaml
 # Restrict GitHub Actions token permissions
@@ -226,6 +233,7 @@ Related notes: [003-best-practices](./003-best-practices.md)
   - Restrict who can push directly to protected branches.
   - CODEOWNERS: require specific team review for specific paths.
 - Workflow files (`.github/workflows/`) should also require review (prevent malicious pipeline changes).
+- Branch protection: require reviews, status checks, and restricted push access.
 
 Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
@@ -238,9 +246,9 @@ Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 1. Immediately rotate the exposed secret.
 2. Check if the secret was registered in the platform secret store (auto-masking).
 3. Find the source: `echo $SECRET`, debug logging, error messages including credentials.
-4. Add pre-commit hooks to prevent future secret commits (gitleaks).
+4. Add pre-commit hooks to prevent future secret commits (`gitleaks`).
 5. Audit git history: `git log -p | grep -i password` — secrets in history persist in all clones.
-6. If committed to git: use git filter-branch or BFG Repo-Cleaner to remove from history.
+6. If committed to git: use `git filter-branch` or `BFG Repo-Cleaner` to remove from history.
 
 ### Dependency vulnerability alert blocking merge
 
@@ -257,16 +265,3 @@ Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 3. Verify OIDC provider URL matches (GitHub: `https://token.actions.githubusercontent.com`).
 4. Check audience claim: some providers require explicit audience configuration.
 5. Check if the workflow is running from a fork (OIDC tokens not available for fork PRs).
-
----
-
-# Quick Facts (Revision)
-
-- Pin actions and base images by SHA digest, not mutable tags.
-- OIDC federation eliminates stored cloud credentials in CI.
-- SAST scans code; DAST scans running applications; SCA scans dependencies.
-- SBOM: generate on build, store with artifact, use for vulnerability response.
-- Sign images with cosign; verify with admission controllers before deployment.
-- Secrets: scoped per environment, rotated regularly, never logged.
-- Branch protection: require reviews, status checks, and restricted push access.
-- Supply chain security is defense in depth — no single layer is sufficient.

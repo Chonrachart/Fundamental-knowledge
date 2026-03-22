@@ -322,6 +322,15 @@ dig example.com CAA
 dig _http._tcp.example.com SRV
 ```
 
+
+- A = IPv4, AAAA = IPv6; multiple A records = DNS round-robin (no health checks).
+- CNAME cannot coexist with other records at the same name and cannot be at zone apex.
+- MX priority: lower number = higher priority; targets must be A/AAAA, never CNAME.
+- TXT records store SPF, DKIM, DMARC, domain verification, and arbitrary metadata.
+- SOA serial must be incremented on every zone change or secondaries will not update.
+- PTR records (reverse DNS) are managed by the IP owner, critical for email deliverability.
+- CAA records restrict which CAs can issue certificates; no CAA = any CA allowed.
+- SRV records use `_service._proto.name` format; used by Kubernetes for service discovery.
 # Troubleshooting Guide
 
 ```text
@@ -357,14 +366,3 @@ Problem: email not being delivered
     |
     +-- p=reject with failing checks --> align SPF/DKIM or relax policy
 ```
-
-# Quick Facts (Revision)
-
-- A = IPv4, AAAA = IPv6; multiple A records = DNS round-robin (no health checks).
-- CNAME cannot coexist with other records at the same name and cannot be at zone apex.
-- MX priority: lower number = higher priority; targets must be A/AAAA, never CNAME.
-- TXT records store SPF, DKIM, DMARC, domain verification, and arbitrary metadata.
-- SOA serial must be incremented on every zone change or secondaries will not update.
-- PTR records (reverse DNS) are managed by the IP owner, critical for email deliverability.
-- CAA records restrict which CAs can issue certificates; no CAA = any CA allowed.
-- SRV records use `_service._proto.name` format; used by Kubernetes for service discovery.

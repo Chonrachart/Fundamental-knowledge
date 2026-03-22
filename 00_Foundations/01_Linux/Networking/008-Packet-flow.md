@@ -119,6 +119,9 @@ Network interface (add Ethernet header)
     |
 NIC -> Wire
 ```
+- Outgoing: App -> Socket -> TCP/UDP -> IP -> OUTPUT -> Routing -> POSTROUTING -> NIC
+- Netfilter hooks allow filtering and NAT at five defined points in the path
+- POSTROUTING is the last Netfilter hook before a packet leaves the host
 
 Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md), [004-Socket-and-Port](./004-Socket-and-Port.md)
 
@@ -149,25 +152,20 @@ TCP/UDP demux              POSTROUTING
     |                          |
 Socket -> Application      Out via NIC
 ```
+- Incoming: NIC -> PREROUTING -> Routing -> INPUT -> TCP/UDP -> Socket -> App
+- Routing decision determines local delivery (INPUT) vs forwarding (FORWARD)
+- Sockets are the endpoint; transport layer demuxes to the correct socket by IP:port
 
 Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md), [003-Route-table](./003-Route-table.md)
+- Flow: PREROUTING -> Routing -> FORWARD -> POSTROUTING -> out
 
 ### Forwarded Packets
-
-- When Linux acts as a router, packets not destined for the local host are forwarded
-- Flow: PREROUTING -> Routing -> FORWARD -> POSTROUTING -> out
-- Requires `net.ipv4.ip_forward=1` (disabled by default)
-
-```bash
-# Enable IPv4 forwarding (runtime)
-sysctl -w net.ipv4.ip_forward=1
-
-# Enable permanently
-echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-sysctl -p
-```
-
 Related notes: [003-Route-table](./003-Route-table.md), [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md), [007-Network-namespace](./007-Network-namespace.md)
+- When Linux acts as a router, packets not destined for the local host are forwarded
+- Requires `net.ipv4.ip_forward=1` (disabled by default)
+- Forwarded: NIC -> PREROUTING -> Routing -> FORWARD -> POSTROUTING -> NIC
+- `net.ipv4.ip_forward=1` must be set for Linux to forward packets between interfaces
+
 
 ---
 
@@ -195,14 +193,3 @@ Packet not reaching destination?
         tcpdump -i eth0 host <ip>        (NIC level)
         tcpdump -i any host <ip>         (all interfaces)
 ```
-
-# Quick Facts (Revision)
-
-- Outgoing: App -> Socket -> TCP/UDP -> IP -> OUTPUT -> Routing -> POSTROUTING -> NIC
-- Incoming: NIC -> PREROUTING -> Routing -> INPUT -> TCP/UDP -> Socket -> App
-- Forwarded: NIC -> PREROUTING -> Routing -> FORWARD -> POSTROUTING -> NIC
-- Routing decision determines local delivery (INPUT) vs forwarding (FORWARD)
-- Netfilter hooks allow filtering and NAT at five defined points in the path
-- `net.ipv4.ip_forward=1` must be set for Linux to forward packets between interfaces
-- Sockets are the endpoint; transport layer demuxes to the correct socket by IP:port
-- POSTROUTING is the last Netfilter hook before a packet leaves the host

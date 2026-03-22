@@ -188,6 +188,14 @@ ansible-playbook site.yml --check --diff
 ```
 
 
+
+- Multiple `when` list items = **AND**; use `or` keyword inside a string for OR.
+- Default loop variable is `item`; rename with `loop_control.loop_var` for nested loops.
+- `block` + `rescue` is the correct pattern for error recovery — not `ignore_errors`.
+- `changed_when: false` is the right call for any read-only command/shell task.
+- `until` retries until condition is true; combine with `retries` and `delay`.
+- `when` evaluates Jinja2 — wrap string comparisons: `when: ansible_os_family == "Debian"`.
+- A `when` on a `block` applies to every task inside the block.
 # Troubleshooting Guide
 
 ### Task unexpectedly skipped
@@ -198,13 +206,3 @@ ansible-playbook site.yml --check --diff
 4. Verify the list variable is defined and non-empty before the loop.
 5. Check for a `loop_var` conflict if using nested `include_tasks` with loop.
 
-
-# Quick Facts (Revision)
-
-- Multiple `when` list items = **AND**; use `or` keyword inside a string for OR.
-- Default loop variable is `item`; rename with `loop_control.loop_var` for nested loops.
-- `block` + `rescue` is the correct pattern for error recovery — not `ignore_errors`.
-- `changed_when: false` is the right call for any read-only command/shell task.
-- `until` retries until condition is true; combine with `retries` and `delay`.
-- `when` evaluates Jinja2 — wrap string comparisons: `when: ansible_os_family == "Debian"`.
-- A `when` on a `block` applies to every task inside the block.

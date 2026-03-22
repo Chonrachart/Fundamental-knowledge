@@ -69,6 +69,8 @@ traceroute 8.8.8.8
 - OSI (7 layers) is a conceptual reference; TCP/IP (4 layers) is the practical model used by the internet.
 - Each layer has a defined responsibility and communicates only with its adjacent layers.
 - Encapsulation wraps data with headers going down; de-encapsulation strips them going up.
+- OSI has 7 layers (conceptual); TCP/IP has 4 layers (practical, used by the internet).
+- Encapsulation adds headers going down the stack; de-encapsulation removes them going up.
 
 Related notes: [001-network-models](./001-network-models.md)
 
@@ -77,6 +79,9 @@ Related notes: [001-network-models](./001-network-models.md)
 - TCP provides reliable, ordered, connection-oriented delivery (3-way handshake).
 - UDP provides fast, connectionless, best-effort delivery with lower overhead.
 - Ports (0-65535) identify services; sockets (IP + Port + Protocol) are communication endpoints.
+- TCP = reliable, ordered, connection-oriented; UDP = fast, connectionless, best-effort.
+- Ports: 0-1023 well-known, 1024-49151 registered, 49152-65535 ephemeral.
+- A socket is IP + Port + Protocol -- it uniquely identifies a communication endpoint.
 
 Related notes: [002-transport-layer](./002-transport-layer.md)
 
@@ -85,6 +90,8 @@ Related notes: [002-transport-layer](./002-transport-layer.md)
 - IP addresses (IPv4 32-bit, IPv6 128-bit) identify hosts on a network.
 - Subnets and CIDR notation partition address space; routing tables determine packet forwarding.
 - NAT translates private IPs to public IPs, allowing many devices to share one public address.
+- IPv4 = 32-bit (4.3 billion addresses); IPv6 = 128-bit (virtually unlimited).
+- NAT lets multiple private IPs share one public IP (SNAT outbound, DNAT inbound).
 
 Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
 
@@ -93,6 +100,7 @@ Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
 - DNS resolves human-readable domain names to IP addresses.
 - Hierarchical system: root servers, TLD servers, authoritative servers, resolvers.
 - Record types include A, AAAA, CNAME, MX, NS, TXT, SOA.
+- DNS resolves names to IPs; TLS encrypts the connection; HTTPS = HTTP + TLS.
 
 Related notes: [004-DNS](./004-DNS.md)
 
@@ -121,12 +129,10 @@ Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
 Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 
 ### IPsec and VPN
-
+Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
 - VPN creates an encrypted tunnel over a public network for secure communication.
 - IPsec operates at the network layer, providing encryption and authentication for IP packets.
 - Two modes: transport (host-to-host) and tunnel (gateway-to-gateway).
-
-Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
 
 ---
 
@@ -155,6 +161,7 @@ ss -tulnp
 # capture packets (requires root)
 tcpdump -i eth0 -n port 443
 ```
+
 
 # Troubleshooting Guide
 
@@ -185,17 +192,6 @@ Problem: cannot reach a service
 [6] Application: is the service responding correctly?
     curl -v https://<host>
 ```
-
-# Quick Facts (Revision)
-
-- OSI has 7 layers (conceptual); TCP/IP has 4 layers (practical, used by the internet).
-- Encapsulation adds headers going down the stack; de-encapsulation removes them going up.
-- TCP = reliable, ordered, connection-oriented; UDP = fast, connectionless, best-effort.
-- Ports: 0-1023 well-known, 1024-49151 registered, 49152-65535 ephemeral.
-- A socket is IP + Port + Protocol -- it uniquely identifies a communication endpoint.
-- IPv4 = 32-bit (4.3 billion addresses); IPv6 = 128-bit (virtually unlimited).
-- NAT lets multiple private IPs share one public IP (SNAT outbound, DNAT inbound).
-- DNS resolves names to IPs; TLS encrypts the connection; HTTPS = HTTP + TLS.
 
 # Topic Map
 

@@ -32,6 +32,7 @@ docker-compose.yml
 
 - One container definition; can specify image, build, ports, env, volumes, etc.
 - Service name becomes hostname for other services on same network.
+- Service names become DNS hostnames on the project network.
 
 ```yaml
 services:
@@ -65,6 +66,7 @@ volumes:
 - By default Compose creates one network per project; all services join it and resolve each other by service name.
 - **networks**: Define custom networks; attach services with `networks: [front]`.
 - **ports**: Publish host:container; only publish what you need.
+- Compose creates one bridge network per project automatically.
 
 Related notes:
 - [004-docker-network-volume](./004-docker-network-volume.md)
@@ -74,6 +76,8 @@ Related notes:
 - **volumes**: Named or anonymous; persist data; list under top-level `volumes:` to name them.
 - **bind mount**: Host path:container path; e.g. `.:/app` for live code.
 - **tmpfs**: In-memory; no persistence.
+- Top-level `volumes:` declares named volumes that persist across `docker compose down`.
+- `docker compose down -v` removes volumes too -- use with caution.
 
 ```yaml
 volumes:
@@ -85,6 +89,7 @@ volumes:
 
 - Start order only; does not wait for service to be "ready" (e.g. DB accepting connections).
 - For health-based ordering use condition: `depends_on: db: condition: service_healthy` with healthcheck on db.
+- `depends_on` controls start order only; use `condition: service_healthy` for readiness.
 
 Related notes:
 - [010-compose-production-patterns](./010-compose-production-patterns.md)
@@ -98,6 +103,9 @@ docker compose ps
 docker compose logs -f web
 docker compose exec web sh
 ```
+
+- `docker compose up -d` starts all services in background; `docker compose down` stops and removes them.
+- `docker compose exec <service> sh` opens a shell in a running service container.
 
 ---
 
@@ -121,15 +129,3 @@ docker compose exec web sh
 1. `down` removes containers and networks but NOT named volumes.
 2. `down -v` removes volumes too -- avoid unless intended.
 3. Use named volumes (declared in top-level `volumes:`) for persistence.
-
----
-
-# Quick Facts (Revision)
-
-- `docker compose up -d` starts all services in background; `docker compose down` stops and removes them.
-- Service names become DNS hostnames on the project network.
-- Compose creates one bridge network per project automatically.
-- `depends_on` controls start order only; use `condition: service_healthy` for readiness.
-- Top-level `volumes:` declares named volumes that persist across `docker compose down`.
-- `docker compose down -v` removes volumes too -- use with caution.
-- `docker compose exec <service> sh` opens a shell in a running service container.

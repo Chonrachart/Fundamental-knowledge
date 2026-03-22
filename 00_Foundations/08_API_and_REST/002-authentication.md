@@ -95,6 +95,7 @@ Pros:                        Cons:
 ```
 
 Related notes: [001-rest-concepts](./001-rest-concepts.md)
+- **Audit and monitor** API key usage; revoke unused credentials.
 
 ### Bearer Tokens and JWT
 
@@ -240,15 +241,6 @@ gcloud auth activate-service-account --key-file=sa-key.json
 Related notes: [000-core](./000-core.md)
 
 ### Best Practices
-
-- **Never hardcode credentials** in source code, config files, or container images.
-- **Use environment variables** or secret management tools (HashiCorp Vault, AWS Secrets Manager, Azure Key Vault).
-- **Rotate keys regularly** -- automate rotation where possible.
-- **Use short-lived tokens** over long-lived API keys when available.
-- **Apply least privilege** -- request only the scopes/permissions needed.
-- **Use managed identities** (AWS IAM roles, Azure Managed Identity, GCP Workload Identity) to avoid keys entirely.
-- **Audit and monitor** API key usage; revoke unused credentials.
-
 ```text
 Credential hierarchy (most to least preferred):
 
@@ -260,6 +252,12 @@ Credential hierarchy (most to least preferred):
 ```
 
 Related notes: [000-core](./000-core.md)
+- **Never hardcode credentials** in source code, config files, or container images.
+- **Use environment variables** or secret management tools (HashiCorp Vault, AWS Secrets Manager, Azure Key Vault).
+- **Rotate keys regularly** -- automate rotation where possible.
+- **Use short-lived tokens** over long-lived API keys when available.
+- **Apply least privilege** -- request only the scopes/permissions needed.
+- **Use managed identities** (AWS IAM roles, Azure Managed Identity, GCP Workload Identity) to avoid keys entirely.
 
 ---
 
@@ -296,6 +294,15 @@ az account show
 gcloud auth list
 ```
 
+
+- API keys are simplest but lack expiry, scoping, and are hard to rotate safely.
+- Bearer tokens (especially JWTs) are self-contained and can carry claims like expiry and scope.
+- OAuth 2.0 client credentials grant is the standard for service-to-service auth in DevOps.
+- Basic auth is base64 encoding (NOT encryption); only safe over HTTPS.
+- 401 = not authenticated (who are you?); 403 = not authorized (you cannot do that).
+- Managed identities eliminate secrets entirely -- always prefer them in cloud environments.
+- Never hardcode credentials; use env vars, secret managers, or managed identities.
+- Rotate long-lived credentials regularly; prefer short-lived tokens where possible.
 # Troubleshooting Guide
 
 ```text
@@ -331,14 +338,3 @@ Problem: API returns 401 Unauthorized or 403 Forbidden
 [5] Check API documentation for required auth method
     Some endpoints require specific auth (e.g., OAuth only, no API keys)
 ```
-
-# Quick Facts (Revision)
-
-- API keys are simplest but lack expiry, scoping, and are hard to rotate safely.
-- Bearer tokens (especially JWTs) are self-contained and can carry claims like expiry and scope.
-- OAuth 2.0 client credentials grant is the standard for service-to-service auth in DevOps.
-- Basic auth is base64 encoding (NOT encryption); only safe over HTTPS.
-- 401 = not authenticated (who are you?); 403 = not authorized (you cannot do that).
-- Managed identities eliminate secrets entirely -- always prefer them in cloud environments.
-- Never hardcode credentials; use env vars, secret managers, or managed identities.
-- Rotate long-lived credentials regularly; prefer short-lived tokens where possible.

@@ -111,6 +111,7 @@ Python:
 - Runs as a service and exposes /metrics at default port 9100.
 - Metric names follow pattern: `node_<metric>_<unit>` e.g. `node_cpu_seconds_total`, `node_memory_MemAvailable_bytes`.
 - Installation: download binary or `apt install prometheus-node-exporter`.
+- Node Exporter scrapes infrastructure (CPU, memory, disk, network); runs on port 9100 by default.
 
 ```bash
 # start node exporter
@@ -387,13 +388,23 @@ curl -I -s -o /dev/null -w '%{http_code}\n' http://localhost:9100/metrics
 ps aux | grep -E 'exporter|node_exporter' | grep -v grep
 ```
 
+
+- Exporters expose system metrics in Prometheus format; applications instrument with client libraries or use exporters for legacy systems.
+- Node Exporter scrapes infrastructure (CPU, memory, disk, network); runs on port 9100 by default.
+- Metric types: counter (cumulative), gauge (instantaneous), histogram (distribution), summary (quantiles, deprecated).
+- Metric naming: `exporter_name_unit` with help text (e.g. `mysql_connections_total`, `redis_memory_bytes`).
+- Avoid high cardinality labels: don't use user ID, request ID, or unbounded dimensions as labels.
+- Pushgateway for ephemeral jobs: batch/cron jobs push metrics instead of being scraped; Prometheus scrapes Pushgateway.
+- Client libraries (Go, Python, Java, Node.js) record metrics in-memory and expose /metrics HTTP endpoint.
+- Custom exporters query external systems and translate to Prometheus format; useful for proprietary or legacy applications.
+- Exporter best practices: one per system, descriptive names, unit suffixes, low cardinality, error handling, fast response time.
 # Troubleshooting Guide
 
 ### Exporter endpoint returns no metrics or errors
 
 1. Is the exporter service running? `curl http://localhost:9100/metrics` -- connection refused --> start exporter; 500 error --> check exporter logs.
 2. Check exporter logs for errors: `systemctl status node_exporter -l` / `journalctl -u node_exporter -f` -- permission denied --> run with correct user/privileges; config error --> validate exporter config file.
-3. Does the exporter have access to system resources? node_exporter needs /proc, /sys readable: `ls -la /proc /sys` -- permission denied --> check sudo, capabilities, or container mounts.
+3. Does the exporter have access to system resources? `node_exporter` needs `/proc`, `/sys` readable: `ls -la /proc /sys` -- permission denied --> check sudo, capabilities, or container mounts.
 4. Check exporter response time: `curl -w '%{time_total}s\n' http://localhost:9100/metrics` -- > 10 seconds --> exporter is slow, investigate target system.
 5. Validate metrics format: `curl http://localhost:9100/metrics | head -10` -- should see: # HELP, # TYPE, metric_name{labels} value.
 
@@ -410,18 +421,6 @@ ps aux | grep -E 'exporter|node_exporter' | grep -v grep
 
 1. Did the job finish and timeout? Pushgateway default TTL is metric retention (check settings).
 2. Are you pushing with the same job and instance labels? `curl -X POST http://pushgateway:9091/metrics/job/X/instance/Y` -- different labels each push --> creates new series, old ones expire.
-3. Is Prometheus configured to scrape Pushgateway? Check prometheus.yml: scrape_configs for pushgateway job -- not configured --> add it.
+3. Is Prometheus configured to scrape Pushgateway? Check `prometheus.yml`: `scrape_configs` for pushgateway job -- not configured --> add it.
 4. Check Pushgateway UI for metrics: `http://pushgateway:9091` -- empty --> nothing was pushed.
 5. Review Pushgateway persistence settings. If not persistent, metrics lost after restart.
-
-# Quick Facts (Revision)
-
-- Exporters expose system metrics in Prometheus format; applications instrument with client libraries or use exporters for legacy systems.
-- Node Exporter scrapes infrastructure (CPU, memory, disk, network); runs on port 9100 by default.
-- Metric types: counter (cumulative), gauge (instantaneous), histogram (distribution), summary (quantiles, deprecated).
-- Metric naming: `exporter_name_unit` with help text (e.g. `mysql_connections_total`, `redis_memory_bytes`).
-- Avoid high cardinality labels: don't use user ID, request ID, or unbounded dimensions as labels.
-- Pushgateway for ephemeral jobs: batch/cron jobs push metrics instead of being scraped; Prometheus scrapes Pushgateway.
-- Client libraries (Go, Python, Java, Node.js) record metrics in-memory and expose /metrics HTTP endpoint.
-- Custom exporters query external systems and translate to Prometheus format; useful for proprietary or legacy applications.
-- Exporter best practices: one per system, descriptive names, unit suffixes, low cardinality, error handling, fast response time.

@@ -89,13 +89,6 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md), [006-secrets-management](./006-secrets-management.md)
 
 ### Modes of Operation (Block Ciphers)
-
-- Block ciphers (e.g. AES) encrypt fixed-size blocks
-- Modes define how multiple blocks are processed:
-  - **ECB** (Electronic Codebook): each block independently -- weak; identical plaintext blocks produce identical ciphertext; avoid
-  - **CBC** (Cipher Block Chaining): each block depends on previous; needs initialization vector (IV)
-  - **GCM** (Galois/Counter Mode): authenticated encryption; provides confidentiality + integrity; preferred for modern use
-
 ```text
 ECB (avoid):  P1──▶E──▶C1    P2──▶E──▶C2    (identical blocks = identical output)
 
@@ -105,6 +98,11 @@ GCM:          Counter──▶E──▶⊕P──▶C + Auth Tag    (encrypt + 
 ```
 
 Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
+- Block ciphers (e.g. AES) encrypt fixed-size blocks
+- Modes define how multiple blocks are processed:
+  - **ECB** (Electronic Codebook): each block independently -- weak; identical plaintext blocks produce identical ciphertext; avoid
+  - **CBC** (Cipher Block Chaining): each block depends on previous; needs initialization vector (IV)
+  - **GCM** (Galois/Counter Mode): authenticated encryption; provides confidentiality + integrity; preferred for modern use
 
 ---
 
@@ -130,6 +128,14 @@ openssl rsautl -encrypt -pubin -inkey public.pem -in msg.txt -out msg.enc
 
 Note: RSA can only encrypt data smaller than the key size; use hybrid encryption for larger payloads.
 
+
+- Plaintext = readable; ciphertext = encrypted; key = secret for the algorithm
+- Symmetric: one key, fast, for bulk data (AES, ChaCha20)
+- Asymmetric: key pair, slower, for key exchange and signatures (RSA, ECDSA)
+- AES-128 is strong; AES-256 is stronger; both are considered secure today
+- ECB mode is insecure (identical blocks); prefer GCM (authenticated encryption)
+- Key management (generation, rotation, storage) is often the weakest link
+- Hybrid encryption (asymmetric for key exchange + symmetric for data) is standard in TLS
 # Troubleshooting Guide
 
 ```text
@@ -145,13 +151,3 @@ Encryption not working?
   │
   └─ Performance issue? ──▶ Use symmetric for bulk data; asymmetric only for key exchange
 ```
-
-# Quick Facts (Revision)
-
-- Plaintext = readable; ciphertext = encrypted; key = secret for the algorithm
-- Symmetric: one key, fast, for bulk data (AES, ChaCha20)
-- Asymmetric: key pair, slower, for key exchange and signatures (RSA, ECDSA)
-- AES-128 is strong; AES-256 is stronger; both are considered secure today
-- ECB mode is insecure (identical blocks); prefer GCM (authenticated encryption)
-- Key management (generation, rotation, storage) is often the weakest link
-- Hybrid encryption (asymmetric for key exchange + symmetric for data) is standard in TLS

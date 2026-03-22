@@ -75,6 +75,9 @@ hosts: files mdns4_minimal [NOTFOUND=return] resolve dns
 | `dns`            | Traditional DNS via `/etc/resolv.conf`   |
 | `mdns4_minimal`  | mDNS for `.local` domains               |
 | `resolve`        | systemd-resolved (via D-Bus)             |
+- `nsswitch.conf` `hosts:` line controls resolution order -- typically `files dns`
+- `/etc/hosts` is checked first when `files` precedes `dns`
+- `getent hosts` follows the full nsswitch chain; `dig`/`nslookup` query DNS directly
 
 Related notes: [005-dns-resolution-linux](./005-dns-resolution-linux.md), [004-DNS](../../Networking/004-DNS.md)
 
@@ -104,33 +107,21 @@ search example.com
 
 - `nameserver` -- IP of upstream DNS resolver (max 3)
 - `search` -- domain appended to short/unqualified names (e.g., `web` becomes `web.example.com`)
+- `/etc/resolv.conf` supports up to 3 `nameserver` entries
+- `search` domain auto-appends to unqualified hostnames
 
 Related notes: [004-DNS](../../Networking/004-DNS.md)
+- When systemd-resolved manages resolv.conf, edit DNS via `resolvectl` not the file
 
 ### systemd-resolved — Caching Stub Resolver
-
+Related notes: [001-Network-interface](./001-Network-interface.md)
 - Systemd's built-in DNS resolver; caches results, supports per-link upstream servers
 - Listens on `127.0.0.53` as a local stub; manages `/etc/resolv.conf` via symlink
 - Configuration files:
   - Main: `/etc/systemd/resolved.conf`
   - Per-link: `/etc/systemd/network/*.network` or via `resolvectl dns <iface> <server>`
-
-```bash
-# Check resolver status
-systemctl status systemd-resolved
-resolvectl status
-
-# Query a domain
-resolvectl query example.com
-
-# Flush DNS cache
-resolvectl flush-caches
-
-# Set DNS for a specific interface
-resolvectl dns eth0 8.8.8.8
-```
-
-Related notes: [001-Network-interface](./001-Network-interface.md)
+- `systemd-resolved` listens on `127.0.0.53` and caches DNS responses
+- `resolvectl flush-caches` clears the local DNS cache
 
 ---
 
@@ -154,6 +145,7 @@ resolvectl flush-caches
 # systemd-resolved status (shows per-link DNS servers)
 resolvectl status
 ```
+
 
 # Troubleshooting Guide
 
@@ -180,14 +172,3 @@ Name not resolving?
         - resolvectl flush-caches
         - systemctl restart systemd-resolved
 ```
-
-# Quick Facts (Revision)
-
-- `nsswitch.conf` `hosts:` line controls resolution order -- typically `files dns`
-- `/etc/hosts` is checked first when `files` precedes `dns`
-- `/etc/resolv.conf` supports up to 3 `nameserver` entries
-- `search` domain auto-appends to unqualified hostnames
-- `systemd-resolved` listens on `127.0.0.53` and caches DNS responses
-- `getent hosts` follows the full nsswitch chain; `dig`/`nslookup` query DNS directly
-- When systemd-resolved manages resolv.conf, edit DNS via `resolvectl` not the file
-- `resolvectl flush-caches` clears the local DNS cache

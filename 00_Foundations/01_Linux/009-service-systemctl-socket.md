@@ -75,6 +75,7 @@ systemctl status  <service>         # show state + last log lines
 systemctl enable  <service>         # start on boot (creates symlink in target.wants/)
 systemctl disable <service>         # don't start on boot
 systemctl is-enabled <service>      # check if enabled
+# note: systemctl enable creates a symlink; it does NOT start the service immediately — combine with start
 
 # unit file management
 systemctl daemon-reload             # reload unit files after create or edit
@@ -121,6 +122,10 @@ After creating or editing a unit file:
 systemctl daemon-reload
 systemctl restart <service>
 ```
+- `systemctl daemon-reload` is required after any unit file change — without it changes are ignored.
+- `Type=simple` (default): service is considered started when ExecStart process begins (not when ready).
+- `Restart=on-failure` restarts only on non-zero exit; `Restart=always` restarts even on clean exit.
+- `systemctl edit` creates a drop-in override — safer than modifying the package-provided unit file directly.
 
 ### Unit Dependencies
 
@@ -131,6 +136,7 @@ systemctl restart <service>
 | `Wants=` | Weak — best effort; this unit starts regardless |
 | `Before=` | This unit starts before listed units |
 | `BindsTo=` | Very strong — if bound unit stops, this unit stops too |
+- `After=` is ordering only; use `Requires=` or `Wants=` for actual dependency declarations.
 
 ### AppArmor (security profiles)
 
@@ -157,12 +163,14 @@ Socket types:
 - **Unix domain socket** — file path (e.g. `/run/nginx.sock`); used for local IPC; faster than TCP loopback.
 
 `ss` option reference: `-t` TCP · `-u` UDP · `-l` listening · `-n` numeric · `-p` show process
+- Unix domain sockets are faster than TCP loopback for local IPC (no TCP/IP stack overhead).
 
 Related notes:
 - [07-process-stat](./07-process-stat.md) — processes and signals
 - [08-log](./08-log.md) — journalctl for service logs
 
----
+
+
 
 # Troubleshooting Guide
 
@@ -185,13 +193,3 @@ Related notes:
 1. Find root cause errors: `journalctl -u <service> -p err`.
 2. Check restart config: `systemctl show <service> -p Restart -p RestartSec`.
 
-
-# Quick Facts (Revision)
-
-- `systemctl daemon-reload` is required after any unit file change — without it changes are ignored.
-- `systemctl enable` creates a symlink; it does NOT start the service immediately — combine with `start`.
-- `After=` is ordering only; use `Requires=` or `Wants=` for actual dependency declarations.
-- `Type=simple` (default): service is considered started when ExecStart process begins (not when ready).
-- `Restart=on-failure` restarts only on non-zero exit; `Restart=always` restarts even on clean exit.
-- Unix domain sockets are faster than TCP loopback for local IPC (no TCP/IP stack overhead).
-- `systemctl edit` creates a drop-in override — safer than modifying the package-provided unit file directly.

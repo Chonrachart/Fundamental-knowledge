@@ -89,6 +89,7 @@ cat /etc/hostname
   - `/home` user data
   - `/proc` process and kernel runtime info
   - `/dev` device files
+- After editing `/etc/fstab`, run `mount -a` before reboot.
 
 Related notes:
 - [05-file-system-mount](./05-file-system-mount.md)
@@ -100,6 +101,9 @@ Related notes:
 - Parent/child relation is created by `fork()` and `execve()`.
 - Foreground/background jobs are shell-level control.
 - `systemd` is usually PID 1 and manages system services.
+- PID 1 is usually `systemd`.
+- Exit code `0` means success; non-zero means failure.
+- Use `SIGTERM` first, `SIGKILL` only when needed.
 
 Related notes:
 - [07-process-stat](./07-process-stat.md)
@@ -181,13 +185,6 @@ journalctl -u <service> -n 100 --no-pager
 3. Check process and resources: `ps aux`, `top`, `free -h`, `df -h`.
 4. Check network and listening ports: `ip a`, `ss -tulnp`, `ip r`, DNS resolution.
 5. Apply fix and verify.
-
-# Quick Facts (Revision)
-
-- PID 1 is usually `systemd`.
-- Exit code `0` means success; non-zero means failure.
-- Use `SIGTERM` first, `SIGKILL` only when needed.
-- After editing `/etc/fstab`, run `mount -a` before reboot.
 
 # Topic Map
 

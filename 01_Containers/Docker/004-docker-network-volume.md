@@ -40,8 +40,10 @@ User-defined                     │  ┌─────┐             │
 - **host**: Container shares host network; no isolation.
 - **none**: No network.
 - **user-defined**: Create with `docker network create`; attach containers; DNS by container name.
+- Default bridge network has no DNS; user-defined bridge provides name resolution between containers.
+- Host network shares the host's network stack directly; no port mapping needed.
 
-**Default bridge network** -- containers get IPs on docker0 bridge, communicate via IP (no DNS):
+**Default bridge network** -- containers get IPs on `docker0` bridge, communicate via IP (no DNS):
 
 ![Docker bridge network](../pic/docker-bridge-network.png)
 
@@ -69,12 +71,15 @@ docker run -d --network mynet --name app myapp
 - `-p 8080:80` -- host port 8080 maps to container port 80.
 - `-P` -- publish all EXPOSE'd ports to random host ports.
 - Without publish, container is only reachable from same network (other containers).
+- `-p host:container` publishes ports; `-P` publishes all EXPOSE'd ports to random host ports.
 
 ### Volume Types
 
 - **Named volume**: Managed by Docker; `docker volume create` or declare in compose; good for DB data.
 - **Bind mount**: Host path mounted in container; `-v /host/path:/container/path`; good for config or dev source.
 - **tmpfs**: In-memory; `--tmpfs /tmp`; no disk.
+- Named volumes persist across container lifecycle; bind mounts map host paths directly.
+- tmpfs mounts are in-memory only; data is lost when container stops.
 
 ```text
 Named Volume                    Bind Mount                 tmpfs
@@ -98,11 +103,13 @@ docker run -v $(pwd)/config:/app/config:ro myimg
 
 - Default local driver stores data in Docker area (e.g. `/var/lib/docker/volumes/`).
 - Other drivers: NFS, cloud (e.g. AWS EBS), plugins; specify in `docker volume create --driver`.
+- Volume drivers support NFS, cloud storage, and plugins beyond local filesystem.
 
 ### Read-Only and Permissions
 
 - Bind mount: `:ro` for read-only in container.
 - File ownership in container follows container user; host path permissions apply on host.
+- `:ro` flag makes a mount read-only inside the container.
 
 Related notes:
 - [007-docker-run-advanced](./007-docker-run-advanced.md)
@@ -130,15 +137,3 @@ Related notes:
 1. Check host directory permissions: `ls -la /host/path`.
 2. Container user UID must match host file ownership or have read access.
 3. Use `--user $(id -u):$(id -g)` or fix permissions on host.
-
----
-
-# Quick Facts (Revision)
-
-- Default bridge network has no DNS; user-defined bridge provides name resolution between containers.
-- Host network shares the host's network stack directly; no port mapping needed.
-- `-p host:container` publishes ports; `-P` publishes all EXPOSE'd ports to random host ports.
-- Named volumes persist across container lifecycle; bind mounts map host paths directly.
-- tmpfs mounts are in-memory only; data is lost when container stops.
-- `:ro` flag makes a mount read-only inside the container.
-- Volume drivers support NFS, cloud storage, and plugins beyond local filesystem.

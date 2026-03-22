@@ -77,6 +77,10 @@ Destination: 8.8.8.8
 - `ip route show` displays the main routing table
 - `route -n` is the legacy equivalent
 - Key fields: destination prefix, `via` (next hop), `dev` (interface), `proto`, `scope`, `src`
+- Routing table maps destination prefixes to next-hop + output interface
+- Longest prefix match: /32 beats /24 beats /16 beats default (/0)
+- `ip route get <ip>` shows exactly which route the kernel would use
+- Routing happens after transport layer; kernel needs destination IP to look up route
 
 ```bash
 ip route show
@@ -95,6 +99,8 @@ Related notes: [002-ip-command](./002-ip-command.md)
 - `proto kernel` -- route added automatically by the kernel
 - `scope link` -- destination is directly reachable on attached network
 - `src <ip>` -- preferred source address for outgoing packets
+- `proto kernel` routes are auto-added when an IP is assigned to an interface
+- `scope link` means the destination is directly attached (no gateway needed)
 
 Related notes: [008-Packet-flow](./008-Packet-flow.md)
 
@@ -108,6 +114,7 @@ Related notes: [008-Packet-flow](./008-Packet-flow.md)
 | local   | 255    | Local addresses            |
 | main    | 254    | Default table              |
 | default | 253    | Fallback                   |
+- Linux has three built-in tables: local (255), main (254), default (253)
 
 ```bash
 # List routing tables
@@ -136,6 +143,7 @@ ip rule add from 10.0.0.0/24 table 100
 # Add rule: use table 200 for packets with fwmark 1
 ip rule add fwmark 1 table 200
 ```
+- `ip rule` controls which table is consulted (policy routing)
 
 Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md)
 
@@ -158,6 +166,7 @@ ip route del 172.16.0.0/16
 
 Related notes: [002-ip-command](./002-ip-command.md)
 
+
 ---
 
 # Troubleshooting Guide
@@ -175,14 +184,3 @@ Packet not reaching destination?
   │
   └─ "No route to host"? ──── no matching entry in any consulted table → add route
 ```
-
-# Quick Facts (Revision)
-
-- Routing table maps destination prefixes to next-hop + output interface
-- Longest prefix match: /32 beats /24 beats /16 beats default (/0)
-- `ip route get <ip>` shows exactly which route the kernel would use
-- Linux has three built-in tables: local (255), main (254), default (253)
-- `ip rule` controls which table is consulted (policy routing)
-- `proto kernel` routes are auto-added when an IP is assigned to an interface
-- `scope link` means the destination is directly attached (no gateway needed)
-- Routing happens after transport layer; kernel needs destination IP to look up route

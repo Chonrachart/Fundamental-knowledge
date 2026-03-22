@@ -148,6 +148,14 @@ ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml --limit env_prod
 ```
 
 
+
+- Dynamic inventory requires the collection installed: `ansible-galaxy collection install <collection>`.
+- Cloud credentials must be available at runtime (env vars, `~/.aws`, IAM role, etc.).
+- `keyed_groups` builds groups from tags; consistent tagging strategy is critical.
+- `compose` creates hostvars from instance metadata (e.g. set `ansible_host`).
+- Enable `cache: true` to avoid hammering the cloud API on every run.
+- Playbooks should target group names (e.g. `env_prod`) — not IPs — so they work with any inventory.
+- `ansible.builtin.constructed` can layer additional groups on top of existing inventory.
 # Troubleshooting Guide
 
 ### "No hosts matched" with dynamic inventory
@@ -160,13 +168,3 @@ ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml --limit env_prod
 6. Clear cache and retry: `rm /tmp/ansible_aws_cache/*`.
 7. Run with `-vvv` for plugin debug output.
 
-
-# Quick Facts (Revision)
-
-- Dynamic inventory requires the collection installed: `ansible-galaxy collection install <collection>`.
-- Cloud credentials must be available at runtime (env vars, `~/.aws`, IAM role, etc.).
-- `keyed_groups` builds groups from tags; consistent tagging strategy is critical.
-- `compose` creates hostvars from instance metadata (e.g. set `ansible_host`).
-- Enable `cache: true` to avoid hammering the cloud API on every run.
-- Playbooks should target group names (e.g. `env_prod`) — not IPs — so they work with any inventory.
-- `ansible.builtin.constructed` can layer additional groups on top of existing inventory.

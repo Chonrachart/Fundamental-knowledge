@@ -125,6 +125,15 @@ resource "aws_subnet" "private" {
 
 Related notes: [002-hcl-syntax-resources](./002-hcl-syntax-resources.md), [004-variables-outputs-locals](./004-variables-outputs-locals.md)
 
+
+- `condition ? true : false` is the only conditional expression — no if/else blocks.
+- `for` expressions can transform, filter, and reshape lists and maps.
+- Splat `[*].attr` is shorthand for `[for x in list : x.attr]`.
+- `merge()` combines maps; later keys override earlier ones.
+- `cidrsubnet()` is essential for VPC/subnet design — test in `terraform console`.
+- `dynamic` blocks replace repeated nested blocks but should be used sparingly for readability.
+- `templatefile()` renders external template files with variable substitution.
+- `terraform console` is an interactive REPL for testing expressions and functions.
 ---
 
 # Troubleshooting Guide
@@ -143,14 +152,3 @@ Related notes: [002-hcl-syntax-resources](./002-hcl-syntax-resources.md), [004-v
 1. Check `for_each` value — must be a collection (list, map, set).
 2. Inside `content {}`, use `<block_name>.value` (not `each.value`).
 3. Empty collection produces no blocks — verify input is not empty.
-
-# Quick Facts (Revision)
-
-- `condition ? true : false` is the only conditional expression — no if/else blocks.
-- `for` expressions can transform, filter, and reshape lists and maps.
-- Splat `[*].attr` is shorthand for `[for x in list : x.attr]`.
-- `merge()` combines maps; later keys override earlier ones.
-- `cidrsubnet()` is essential for VPC/subnet design — test in `terraform console`.
-- `dynamic` blocks replace repeated nested blocks but should be used sparingly for readability.
-- `templatefile()` renders external template files with variable substitution.
-- `terraform console` is an interactive REPL for testing expressions and functions.

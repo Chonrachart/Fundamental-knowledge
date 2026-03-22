@@ -88,6 +88,8 @@ echo "${path/local/share}" # /usr/share/bin/deploy.sh
 - Concatenation: `"$a$b"` or `result="${first}_${second}"`.
 - `${#var}` -- length of the string in characters.
 - Always double-quote string variables to prevent word splitting: `"$var"`, not `$var`.
+- All Bash variables are strings; arrays are ordered lists of strings.
+- Always quote: `"$var"` for strings, `"${arr[@]}"` for arrays -- prevents word splitting.
 
 ```bash
 first="hello"
@@ -101,6 +103,7 @@ echo "${#combined}"    # 11
 - `$'...'` supports escape sequences: `$'\n'` = newline, `$'\t'` = tab.
 
 Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
+- `${var/old/new}` replaces first; `${var//old/new}` replaces all.
 
 ### Arrays
 
@@ -111,6 +114,7 @@ Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
 - Append: `arr+=("new")`.
 - Delete element: `unset 'arr[2]'` -- leaves a gap (does not reindex).
 - Associative array: `declare -A map; map[key]="value"` -- requires explicit declaration.
+- Associative arrays require `declare -A`; indexed arrays do not need `declare -a`.
 
 ```bash
 files=(*.txt)
@@ -138,6 +142,8 @@ Related notes: [002-control-flow](./002-control-flow.md)
 - `${var:offset:length}` -- extract length characters starting at offset.
 - Negative offset: `${var: -3}` -- last 3 characters (space before `-` is required).
 - Array slice: `${arr[@]:offset:length}` -- extract a range of elements.
+- `${#var}` = string length; `${#arr[@]}` = array element count.
+- `${var:offset:length}` works for both strings (characters) and arrays (elements).
 
 ```bash
 s="hello world"
@@ -152,13 +158,6 @@ echo "${arr[@]:1:3}"  # b c d
 Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
 
 ### Pattern-Based Manipulation
-
-- Prefix removal: `${var#pattern}` (shortest), `${var##pattern}` (longest / greedy).
-- Suffix removal: `${var%pattern}` (shortest), `${var%%pattern}` (longest / greedy).
-- Replacement: `${var/pattern/replacement}` (first), `${var//pattern/replacement}` (all).
-- Case conversion (Bash 4+): `${var^^}` (uppercase), `${var,,}` (lowercase), `${var^}` (first char upper).
-- Patterns use glob syntax (`*`, `?`, `[...]`), not regex.
-
 ```bash
 file="archive.tar.gz"
 
@@ -181,6 +180,14 @@ echo "${name^}"         # Hello
 ```
 
 Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md), [005-errors-and-exit-codes](./005-errors-and-exit-codes.md)
+- Prefix removal: `${var#pattern}` (shortest), `${var##pattern}` (longest / greedy).
+- Suffix removal: `${var%pattern}` (shortest), `${var%%pattern}` (longest / greedy).
+- Replacement: `${var/pattern/replacement}` (first), `${var//pattern/replacement}` (all).
+- Case conversion (Bash 4+): `${var^^}` (uppercase), `${var,,}` (lowercase), `${var^}` (first char upper).
+- Patterns use glob syntax (`*`, `?`, `[...]`), not regex.
+- `#` removes prefixes, `%` removes suffixes -- mnemonic: `#` is before `%` on a keyboard.
+- Single `#`/`%` = shortest match (non-greedy); double `##`/`%%` = longest match (greedy).
+
 
 ---
 
@@ -216,14 +223,3 @@ Problem: unexpected behavior with strings or arrays
     +-- missing declare -A --> associative arrays require explicit declaration
     +-- key has spaces      --> quote the key: ${map["my key"]}
 ```
-
-# Quick Facts (Revision)
-
-- All Bash variables are strings; arrays are ordered lists of strings.
-- `${#var}` = string length; `${#arr[@]}` = array element count.
-- `${var:offset:length}` works for both strings (characters) and arrays (elements).
-- `#` removes prefixes, `%` removes suffixes -- mnemonic: `#` is before `%` on a keyboard.
-- Single `#`/`%` = shortest match (non-greedy); double `##`/`%%` = longest match (greedy).
-- `${var/old/new}` replaces first; `${var//old/new}` replaces all.
-- Always quote: `"$var"` for strings, `"${arr[@]}"` for arrays -- prevents word splitting.
-- Associative arrays require `declare -A`; indexed arrays do not need `declare -a`.

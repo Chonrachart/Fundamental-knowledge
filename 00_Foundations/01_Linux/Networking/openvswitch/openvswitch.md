@@ -39,9 +39,6 @@
 ```
 
 ### this set where system initial should start
-
-- at /etc/systemd/system/[script_name].service
-
 ```bash
 [Unit]
 Description=OpenVSwitch vnet-trust Service
@@ -58,3 +55,4 @@ ExecStop=/usr/bin/ovs-vsctl del-br [bridge_name]
 [Install]
 WantedBy=multi-user.target
 ```
+- at /etc/systemd/system/[script_name].service

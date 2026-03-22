@@ -126,6 +126,15 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md), 
 
 Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
 
+
+- CIA Triad = Confidentiality + Integrity + Availability
+- Authentication = who you are; Authorization = what you can do
+- Symmetric encryption uses one shared key; asymmetric uses a key pair
+- Hashing is one-way and fixed-size; encryption is reversible with the key
+- Digital signatures = hash the message + sign the hash with private key
+- Certificates bind a public key to an identity via a CA trust chain
+- Non-repudiation ensures actions cannot be denied after the fact
+- TLS combines asymmetric (handshake) + symmetric (session) encryption
 ---
 
 # Troubleshooting Guide
@@ -157,17 +166,6 @@ Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS a
 2. Review resource utilization: `top`, `free -h`, `df -h` for CPU, memory, and disk.
 3. If DDoS is suspected, check traffic patterns: `ss -s` and firewall logs.
 4. Apply rate limiting, enable CDN caching, or deploy WAF rules to mitigate.
-
-# Quick Facts (Revision)
-
-- CIA Triad = Confidentiality + Integrity + Availability
-- Authentication = who you are; Authorization = what you can do
-- Symmetric encryption uses one shared key; asymmetric uses a key pair
-- Hashing is one-way and fixed-size; encryption is reversible with the key
-- Digital signatures = hash the message + sign the hash with private key
-- Certificates bind a public key to an identity via a CA trust chain
-- Non-repudiation ensures actions cannot be denied after the fact
-- TLS combines asymmetric (handshake) + symmetric (session) encryption
 
 # Topic Map
 

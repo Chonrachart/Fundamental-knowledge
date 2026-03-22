@@ -82,6 +82,7 @@ git remote set-url --delete --push <remote> <url>   # remove a push URL
 ```
 
 Related notes: [005-git-pull-request](./005-git-pull-request.md)
+- Use `git remote set-url --add --push` to push to multiple repositories at once
 
 ### Tracking (Upstream) Branches
 
@@ -93,6 +94,7 @@ git branch -u <remote>/<branch>
 - Defines where `git pull` and `git push` operate by default
 
 Related notes: [003-git-branch](./003-git-branch.md)
+- `git branch -u` sets the upstream tracking branch
 
 ### Fetch, Push, Pull
 
@@ -113,6 +115,8 @@ git merge <upstream-branch>
 ```
 
 Related notes: [003-git-branch](./003-git-branch.md)
+- `git pull` = `git fetch` + `git merge`
+- `git push` uploads local commits to the configured upstream
 
 ### Git Rebase
 
@@ -147,6 +151,7 @@ Result
 - After fixing: `git add <file>` then `git rebase --continue`
 
 Related notes: [003-git-branch](./003-git-branch.md), [005-git-pull-request](./005-git-pull-request.md)
+- `git rebase` replays commits for linear history — never rebase shared branches
 
 ### Cleaning After Merge
 
@@ -156,7 +161,9 @@ git branch -d <branch>                 # delete local branch
 ```
 
 Related notes: [003-git-branch](./003-git-branch.md)
-
+- `git clone` gives you a full repo copy with `origin` remote pre-configured
+- Remote-tracking branches (`origin/*`) are read-only locally
+- `git fetch` updates remote pointers without touching your working directory
 ---
 
 # Troubleshooting Guide
@@ -174,14 +181,3 @@ Related notes: [003-git-branch](./003-git-branch.md)
            fix file --> git add --> git rebase --continue
            want to abort? --> git rebase --abort
 ```
-
-# Quick Facts (Revision)
-
-- `git clone` gives you a full repo copy with `origin` remote pre-configured
-- Remote-tracking branches (`origin/*`) are read-only locally
-- `git fetch` updates remote pointers without touching your working directory
-- `git pull` = `git fetch` + `git merge`
-- `git push` uploads local commits to the configured upstream
-- `git rebase` replays commits for linear history — never rebase shared branches
-- `git branch -u` sets the upstream tracking branch
-- Use `git remote set-url --add --push` to push to multiple repositories at once

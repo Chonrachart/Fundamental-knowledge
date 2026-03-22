@@ -144,9 +144,8 @@ Related notes: [001-cryptography](./001-cryptography.md)
 
 1. **Asymmetric phase**: authenticate server (certificate), exchange shared secret (ECDH)
 2. **Symmetric phase**: encrypt actual application data with the derived symmetric key
-- This combines the security of asymmetric (no pre-shared secret needed) with the speed of symmetric
-
 Related notes: [001-cryptography](./001-cryptography.md), [000-core](./000-core.md)
+- This combines the security of asymmetric (no pre-shared secret needed) with the speed of symmetric
 
 ---
 
@@ -173,6 +172,15 @@ openssl enc -aes-256-cbc -salt -in data.txt -out data.enc -pass pass:secret
 
 Note: in production, use proper key management; never pass passwords on the command line.
 
+
+- Symmetric = 1 key, fast, bulk data; Asymmetric = key pair, slower, key exchange + signatures
+- AES-256 and ChaCha20 are the standard symmetric ciphers today
+- RSA security relies on factoring large primes; minimum 2048-bit keys
+- ECDSA 256-bit provides equivalent security to RSA 3072-bit with smaller keys
+- Diffie-Hellman enables shared secret over insecure channel without pre-sharing keys
+- TLS uses hybrid: ECDH key exchange (asymmetric) then AES-GCM (symmetric) for session
+- Never use RSA to encrypt bulk data directly; wrap a symmetric key instead
+- Key distribution is the fundamental problem that asymmetric crypto solves
 # Troubleshooting Guide
 
 ```text
@@ -192,14 +200,3 @@ Encryption/signing issue?
   └─ Performance slow? ──▶ Switch to ECDSA/ECDH (smaller keys, faster math)
                            └─ Use symmetric for bulk data, asymmetric only for handshake
 ```
-
-# Quick Facts (Revision)
-
-- Symmetric = 1 key, fast, bulk data; Asymmetric = key pair, slower, key exchange + signatures
-- AES-256 and ChaCha20 are the standard symmetric ciphers today
-- RSA security relies on factoring large primes; minimum 2048-bit keys
-- ECDSA 256-bit provides equivalent security to RSA 3072-bit with smaller keys
-- Diffie-Hellman enables shared secret over insecure channel without pre-sharing keys
-- TLS uses hybrid: ECDH key exchange (asymmetric) then AES-GCM (symmetric) for session
-- Never use RSA to encrypt bulk data directly; wrap a symmetric key instead
-- Key distribution is the fundamental problem that asymmetric crypto solves

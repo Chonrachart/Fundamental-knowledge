@@ -247,6 +247,15 @@ Related notes: [firewall-iptables-nftable](../01_Linux/Networking/006-firewall-i
 
 Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md)
 
+
+- Defense in depth layers: perimeter, network, host, application, data — each operates independently
+- Zero trust: never trust, always verify; three pillars are verify explicitly, least privilege, assume breach
+- North-south traffic crosses the perimeter; east-west traffic moves laterally inside the network
+- IDS monitors and alerts; IPS monitors and blocks — both can be network-based or host-based
+- WAF operates at Layer 7 and inspects HTTP content; protects against OWASP Top 10 attacks
+- DDoS attacks target three layers: volumetric (L3/L4), protocol (L3/L4), application (L7)
+- SIEM correlates logs from multiple sources to detect attack patterns that single-source monitoring misses
+- Microsegmentation enforces security policy per-workload, not per-network-segment — essential for zero trust
 ---
 
 # Troubleshooting Guide
@@ -286,14 +295,3 @@ Related notes: [008-linux-security-hardening](./008-linux-security-hardening.md)
 2. Determine whether it is a true positive or false positive by correlating timestamps, IPs, and user accounts.
 3. For true positives, follow the incident response plan: contain, eradicate, recover, and document.
 4. For false positives, tune the correlation rule thresholds or conditions to reduce noise.
-
-# Quick Facts (Revision)
-
-- Defense in depth layers: perimeter, network, host, application, data — each operates independently
-- Zero trust: never trust, always verify; three pillars are verify explicitly, least privilege, assume breach
-- North-south traffic crosses the perimeter; east-west traffic moves laterally inside the network
-- IDS monitors and alerts; IPS monitors and blocks — both can be network-based or host-based
-- WAF operates at Layer 7 and inspects HTTP content; protects against OWASP Top 10 attacks
-- DDoS attacks target three layers: volumetric (L3/L4), protocol (L3/L4), application (L7)
-- SIEM correlates logs from multiple sources to detect attack patterns that single-source monitoring misses
-- Microsegmentation enforces security policy per-workload, not per-network-segment — essential for zero trust

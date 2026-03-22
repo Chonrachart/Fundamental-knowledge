@@ -207,10 +207,6 @@ Related notes: [000-core](./000-core.md)
 Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
 
 ### jq Basics for DevOps
-
-- `jq` is a command-line JSON processor -- essential for scripting with APIs and tool output.
-- Key operations:
-
 ```bash
 # identity: pretty-print JSON
 echo '{"a":1}' | jq '.'
@@ -238,6 +234,8 @@ cat pods.json | jq '.items[] | {name: .metadata.name, status: .status.phase}'
 ```
 
 Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
+- `jq` is a command-line JSON processor -- essential for scripting with APIs and tool output.
+- Key operations:
 
 ---
 
@@ -273,6 +271,15 @@ yq -P input.json
 kubectl get pods -o json | jq -r '.items[].metadata.name'
 ```
 
+
+- JSON has 6 types: string, number, boolean (`true`/`false`), null, object, array.
+- All keys must be double-quoted strings -- single quotes are invalid.
+- No comments allowed in standard JSON; use JSONC or `_comment` keys as workarounds.
+- No trailing commas -- the most common hand-editing mistake.
+- YAML is a superset of JSON -- valid JSON is valid YAML.
+- Use JSON for APIs and machine interchange; use YAML for human-authored config.
+- `jq -r` gives raw output (no quotes); `jq '.'` pretty-prints.
+- JSON Schema provides IDE autocomplete and validation for structured config files.
 # Troubleshooting Guide
 
 ```text
@@ -302,14 +309,3 @@ Problem: JSON file has syntax errors or jq query returns unexpected results
     jq '.items[]' to iterate, then add | select(...) to filter
     verify field values with: jq '.items[0]'
 ```
-
-# Quick Facts (Revision)
-
-- JSON has 6 types: string, number, boolean (`true`/`false`), null, object, array.
-- All keys must be double-quoted strings -- single quotes are invalid.
-- No comments allowed in standard JSON; use JSONC or `_comment` keys as workarounds.
-- No trailing commas -- the most common hand-editing mistake.
-- YAML is a superset of JSON -- valid JSON is valid YAML.
-- Use JSON for APIs and machine interchange; use YAML for human-authored config.
-- `jq -r` gives raw output (no quotes); `jq '.'` pretty-prints.
-- JSON Schema provides IDE autocomplete and validation for structured config files.

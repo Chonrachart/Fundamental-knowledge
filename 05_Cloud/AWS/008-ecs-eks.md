@@ -39,6 +39,7 @@ EKS Architecture:
 | Task | Pod | Running instance of a task definition |
 | Service | Deployment | Maintains desired count of tasks |
 | Container | Container | Single container in a task |
+- Task definition is to ECS what a Pod spec is to Kubernetes.
 
 ### ECS Launch Types
 
@@ -46,6 +47,8 @@ EKS Architecture:
 |------|--------|------|----------|
 | Fargate | No EC2 | Per vCPU + memory/second | Simplicity, variable workloads |
 | EC2 | Your instances | Instance cost | GPU, custom AMI, cost optimization |
+- Fargate eliminates EC2 management for both ECS and EKS — pay per task resources.
+- Fargate tasks in private subnets need NAT Gateway for internet access (pull images, etc.).
 
 ### ECS Service with ALB
 
@@ -59,12 +62,14 @@ ALB → Target Group → ECS Service (desired: 3 tasks)
 - ECS service auto-registers tasks with ALB target group.
 - Health checks: ALB health check + ECS container health check.
 - Service auto-scaling: target tracking on CPU, memory, or ALB request count.
+- ECS service auto-scaling uses Application Auto Scaling (not EC2 ASG).
 
 ### ECR (Elastic Container Registry)
 
 - Private Docker registry on AWS; stores container images.
 - Integrates with ECS, EKS, and Lambda for pulling images.
 - Image scanning for vulnerabilities; lifecycle policies for cleanup.
+- ECR is the standard private registry for AWS container workloads.
 
 ```bash
 # Login, build, push
@@ -79,6 +84,8 @@ docker push <account>.dkr.ecr.<region>.amazonaws.com/my-app:latest
 - AWS manages the Kubernetes control plane (API server, etcd, scheduler, controller-manager).
 - You interact with standard `kubectl`; use `aws eks update-kubeconfig` to configure.
 - Node options: Managed Node Groups (recommended), self-managed, or Fargate profiles.
+- EKS control plane is managed by AWS; you manage worker nodes (or use Fargate).
+- `aws eks update-kubeconfig` configures kubectl for EKS cluster access.
 
 ```bash
 # Configure kubectl for EKS
@@ -96,6 +103,7 @@ kubectl get pods -A
 | Ecosystem | AWS tools only | Helm, Argo, Istio, etc. |
 | Learning curve | Lower | Higher (K8s knowledge required) |
 | Best for | AWS-only shops, simpler apps | K8s expertise, multi-cloud, complex apps |
+- ECS is AWS-native and simpler; EKS is standard Kubernetes — choose based on team expertise.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [004-ec2](./004-ec2.md), [007-elb-auto-scaling](./007-elb-auto-scaling.md)
 
@@ -118,14 +126,3 @@ Related notes: [001-aws-overview](./001-aws-overview.md), [004-ec2](./004-ec2.md
 1. Update kubeconfig: `aws eks update-kubeconfig --name <cluster>`.
 2. Check IAM identity: `aws sts get-caller-identity` — must match cluster creator or aws-auth ConfigMap.
 3. Check cluster endpoint access: public, private, or both.
-
-# Quick Facts (Revision)
-
-- ECS is AWS-native and simpler; EKS is standard Kubernetes — choose based on team expertise.
-- Fargate eliminates EC2 management for both ECS and EKS — pay per task resources.
-- Task definition is to ECS what a Pod spec is to Kubernetes.
-- ECR is the standard private registry for AWS container workloads.
-- EKS control plane is managed by AWS; you manage worker nodes (or use Fargate).
-- ECS service auto-scaling uses Application Auto Scaling (not EC2 ASG).
-- `aws eks update-kubeconfig` configures kubectl for EKS cluster access.
-- Fargate tasks in private subnets need NAT Gateway for internet access (pull images, etc.).

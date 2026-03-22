@@ -1,7 +1,7 @@
 # kubectl Debugging and Resource Inspection
 
-- kubectl talks to the cluster API server; uses kubeconfig (default ~/.kube/config) for cluster, user, context.
-- Most commands are namespaced; use `-n namespace` or `--all-namespaces` (`-A`).
+- `kubectl` talks to the cluster API server; uses `kubeconfig` (default `~/.kube/config`) for cluster, user, context.
+- Most commands are namespaced; use `-n <namespace>` or `--all-namespaces` (`-A`).
 - Core debugging loop: get (status) -> describe (events) -> logs (app output) -> exec (inspect inside container).
 
 # Debugging Workflow
@@ -65,12 +65,16 @@ kubectl get all                                 # common resources
 ```
 
 - `-o jsonpath`, `-o custom-columns`: custom output formats.
+- `kubectl get pods -o wide` shows node placement and pod IP -- first step in most debugging.
 
 ### describe -- Detailed Info and Events
 
 - `kubectl describe pod <name>`: shows spec, status, events; why a pod is Pending, CrashLoopBackOff, etc.
 - `kubectl describe node <name>`: node capacity, allocatable, conditions, pods.
 - Events at bottom: scheduler decisions, pull errors, probe failures, OOMKilled.
+- `kubectl describe` Events section is the most useful place to find scheduling and image pull failures.
+- `kubectl get events --sort-by=.lastTimestamp` shows recent cluster events in order.
+- Always check pod status (get), then events (describe), then app output (logs) -- in that order.
 
 ### logs -- Container Logs
 
@@ -82,6 +86,8 @@ kubectl logs --previous <pod>                   # previous container instance (a
 kubectl logs deployment/myapp                   # logs from one pod of deployment
 ```
 
+- `kubectl logs --previous` retrieves logs from the last crashed container instance.
+
 ### exec -- Run Command in Container
 
 ```bash
@@ -92,6 +98,7 @@ kubectl exec -it <pod> -c <container> -- sh     # specific container
 
 - `--` separates kubectl args from the command passed to the container.
 - Use for debug; avoid in production; prefer ephemeral debug containers.
+- `--` in `kubectl exec` separates kubectl flags from the command to run inside the container.
 
 ### port-forward -- Access Service or Pod Locally
 
@@ -102,6 +109,7 @@ kubectl port-forward deployment/myapp 8080:80   # picks a pod of deployment
 ```
 
 - Useful for local testing; not for production traffic.
+- `kubectl port-forward` is for local dev/debug only; it ties up a terminal and is not production-grade.
 
 Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md), [002-pods-labels](./002-pods-labels.md)
 
@@ -117,7 +125,7 @@ Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md), [002-pod
 
 ### ImagePullBackOff
 1. Check image name/tag: `kubectl describe pod <name>` -- look for "Failed to pull image".
-2. Private registry: add `imagePullSecrets` to pod spec or default ServiceAccount.
+2. Private registry: add `imagePullSecrets` to pod spec or default `ServiceAccount`.
 3. Network: node can't reach registry; check DNS and proxy on the node.
 
 ### CrashLoopBackOff
@@ -128,20 +136,10 @@ Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md), [002-pod
 
 ### Node NotReady
 1. Check conditions: `kubectl describe node <name>` -- look at Conditions table.
-2. SSH to node, check kubelet: `systemctl status kubelet` and `journalctl -u kubelet -n 50`.
-3. Common: kubelet stopped, container runtime down, disk/memory pressure, network.
+2. SSH to node, check `kubelet`: `systemctl status kubelet` and `journalctl -u kubelet -n 50`.
+3. Common: `kubelet` stopped, container runtime down, disk/memory pressure, network.
 
 ### Cannot connect to pod via port-forward
 1. Verify pod is Running: `kubectl get pod <name>`.
 2. Check port matches: `kubectl port-forward pod/<name> 8080:<container-port>`.
 3. Check app is actually listening: `kubectl exec <pod> -- ss -tlnp`.
-
-# Quick Facts (Revision)
-
-- `kubectl get pods -o wide` shows node placement and pod IP -- first step in most debugging.
-- `kubectl describe` Events section is the most useful place to find scheduling and image pull failures.
-- `kubectl logs --previous` retrieves logs from the last crashed container instance.
-- `--` in `kubectl exec` separates kubectl flags from the command to run inside the container.
-- `kubectl port-forward` is for local dev/debug only; it ties up a terminal and is not production-grade.
-- `kubectl get events --sort-by=.lastTimestamp` shows recent cluster events in order.
-- Always check pod status (get), then events (describe), then app output (logs) -- in that order.

@@ -108,6 +108,15 @@ Related notes: [006-modules-workspaces](./006-modules-workspaces.md)
 
 Related notes: [007-cli-commands](./007-cli-commands.md)
 
+
+- Terraform is declarative: you describe desired state, not steps to get there.
+- `terraform plan` is safe and read-only; always review before `apply`.
+- State file is the source of truth for what Terraform manages — never edit manually.
+- Remote backend (S3 + DynamoDB) enables team collaboration with locking.
+- Provider versions are pinned in `.terraform.lock.hcl` for reproducibility.
+- `count` and `for_each` create multiple instances of a resource.
+- Modules are the primary mechanism for code reuse and organization.
+- `terraform destroy` removes all managed resources — use with caution.
 ---
 
 # Troubleshooting Guide
@@ -125,19 +134,6 @@ Related notes: [007-cli-commands](./007-cli-commands.md)
 ### State lock — "Error acquiring the state lock"
 1. Another `terraform apply` may be running; wait for it to finish.
 2. If stuck: `terraform force-unlock <LOCK_ID>` — only if certain no other process is running.
-
----
-
-# Quick Facts (Revision)
-
-- Terraform is declarative: you describe desired state, not steps to get there.
-- `terraform plan` is safe and read-only; always review before `apply`.
-- State file is the source of truth for what Terraform manages — never edit manually.
-- Remote backend (S3 + DynamoDB) enables team collaboration with locking.
-- Provider versions are pinned in `.terraform.lock.hcl` for reproducibility.
-- `count` and `for_each` create multiple instances of a resource.
-- Modules are the primary mechanism for code reuse and organization.
-- `terraform destroy` removes all managed resources — use with caution.
 
 # Topic Map (basic → advanced)
 

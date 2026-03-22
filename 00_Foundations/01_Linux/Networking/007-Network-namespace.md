@@ -73,6 +73,7 @@ ip netns exec red ping 10.0.0.2
   - `/proc/net` entries
   - Socket tables
 - Processes in one namespace cannot see interfaces or sockets in another
+- Each namespace has its own interfaces, routes, firewall rules, and socket tables
 
 Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md), [003-Route-table](./003-Route-table.md)
 
@@ -93,6 +94,8 @@ ip netns exec red ping 8.8.8.8
 # Delete namespace (must have no running processes)
 ip netns del red
 ```
+- `ip netns add <name>` creates a namespace; `ip netns exec <name> <cmd>` runs commands inside it
+- Deleting a namespace requires no processes running inside it
 
 Related notes: [002-ip-command](./002-ip-command.md)
 
@@ -118,6 +121,7 @@ ip netns exec blue ip link set veth-blue up
 # Test
 ip netns exec blue ping 10.0.0.1
 ```
+- veth pairs are the standard way to connect namespaces -- traffic in one end exits the other
 
 Related notes: [001-Network-interface](./001-Network-interface.md)
 
@@ -143,6 +147,7 @@ ip netns exec red ip addr add 10.0.0.2/24 dev veth-red
 ip netns exec red ip link set veth-red up
 ip netns exec red ip route add default via 10.0.0.1
 ```
+- To reach external networks, attach the veth host-end to a bridge or use NAT
 
 Related notes: [003-Route-table](./003-Route-table.md), [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md)
 
@@ -155,6 +160,7 @@ Related notes: [003-Route-table](./003-Route-table.md), [006-firewall-iptables-n
 ```text
 Container (namespace)  <-->  veth  <-->  docker0 (bridge)  <-->  eth0  <-->  Internet
 ```
+- Docker creates one network namespace per container, connected via veth to `docker0` bridge
 
 Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md)
 
@@ -170,8 +176,10 @@ nsenter -t <pid> -n ip addr show
 # List all interfaces in a namespace
 ip netns exec red ip link show
 ```
-
 Related notes: [002-ip-command](./002-ip-command.md)
+- `nsenter -t <pid> -n` enters the network namespace of a running process
+- `/proc/<pid>/ns/net` identifies which namespace a process belongs to
+
 
 ---
 
@@ -202,14 +210,3 @@ Cannot reach from namespace?
   +-> Is ip_forward enabled?
         sysctl net.ipv4.ip_forward
 ```
-
-# Quick Facts (Revision)
-
-- `ip netns add <name>` creates a namespace; `ip netns exec <name> <cmd>` runs commands inside it
-- Each namespace has its own interfaces, routes, firewall rules, and socket tables
-- veth pairs are the standard way to connect namespaces -- traffic in one end exits the other
-- To reach external networks, attach the veth host-end to a bridge or use NAT
-- Docker creates one network namespace per container, connected via veth to `docker0` bridge
-- `nsenter -t <pid> -n` enters the network namespace of a running process
-- `/proc/<pid>/ns/net` identifies which namespace a process belongs to
-- Deleting a namespace requires no processes running inside it

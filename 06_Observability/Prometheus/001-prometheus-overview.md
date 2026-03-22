@@ -136,13 +136,16 @@ curl -s 'http://localhost:9090/api/v1/query_range?query=rate(http_requests_total
 - Scrape config defines how to reach targets (static_configs, service discovery), scrape interval, timeout, and metric relabeling.
 - Prometheus uses pull/scrape model: periodically HTTP GET /metrics and parse the response.
 - Targets must expose an HTTP endpoint on `/metrics` (or custom path via `metrics_path` param).
+- Prometheus uses pull (scrape) model: HTTP GET /metrics on targets; targets push model uses Pushgateway.
+- Scrape interval (default 15s), evaluation interval (default 15s), retention (default 15d) are configurable.
 
 Related notes: [002-exporters-and-instrumentation](./002-exporters-and-instrumentation.md), [../000-core](../000-core.md)
 
 ### Static Configs vs Service Discovery
 
-- Static configs list targets explicitly by hostname or IP in prometheus.yml; simple but requires manual updates.
+- Static configs list targets explicitly by hostname or IP in `prometheus.yml`; simple but requires manual updates.
 - Service discovery integrates with infrastructure platforms (Kubernetes, Consul, DNS, EC2, Azure, GCP, file_sd) to dynamically discover targets.
+- Service discovery resolves targets dynamically from Kubernetes, Consul, DNS, files, cloud providers, etc.
 - Common SD mechanisms:
   - `kubernetes_sd_configs`: discover pods/services from Kubernetes API
   - `consul_sd_configs`: query Consul catalog for registered services
@@ -158,6 +161,7 @@ Related notes: [../000-core](../000-core.md), [002-exporters-and-instrumentation
 - **Gauge**: instantaneous value that can go up and down (CPU usage, memory, disk, temperature).
 - **Histogram**: buckets of observations (request latency, response size); outputs _bucket, _count, _sum series.
 - **Summary**: quantile observations (p50, p95, p99 of latency); outputs _count and _sum; deprecated in favor of histograms.
+- Metric types: counter (increasing), gauge (up/down), histogram (distribution), summary (quantiles).
 
 Related notes: [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive.md)
 
@@ -168,6 +172,7 @@ Related notes: [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive
 - WAL (Write-Ahead Log) in `./data/wal/` ensures crash recovery; data is persisted before acknowledged.
 - Retention policy: `--storage.tsdb.retention.time` (default 15 days) controls how long data is kept.
 - Disk usage: ~1-2 bytes per sample at high compression; 1 million samples/s with 300 targets consumes ~50 GB/month.
+- TSDB compaction: data written to WAL, then into 2-hour blocks, auto-compacted into larger blocks.
 
 Related notes: [../000-core](../000-core.md), [003-alertmanager](./003-alertmanager.md)
 
@@ -176,6 +181,7 @@ Related notes: [../000-core](../000-core.md), [003-alertmanager](./003-alertmana
 - Remote write: Prometheus can send metrics to a remote TSDB (VictoriaMetrics, Cortex, Thanos, InfluxDB) for long-term storage, scale, or multi-region setup.
 - Remote read: query remote TSDB transparently when local data is unavailable (retention has expired).
 - Use cases: long-term retention (>15 days), federated monitoring, high-availability Prometheus clusters, cross-datacenter aggregation.
+- Remote write/read enables long-term storage (Thanos, VictoriaMetrics) and high-availability setups; federation aggregates multiple Prometheus instances.
 
 ```text
 Prometheus <--write--> Remote TSDB (e.g. Thanos, VictoriaMetrics)
@@ -214,6 +220,7 @@ Related notes: [../000-core](../000-core.md), [003-alertmanager](./003-alertmana
 - Alert rule defined in YAML: a PromQL query with a threshold, for duration, and labels/annotations.
 - Prometheus evaluates rules at `evaluation_interval` (default 15s); when a condition is true for `for` duration, alert fires and sends to Alertmanager.
 - Rules can be organized into multiple files (e.g. per job or service) and loaded via `rule_files` config.
+- Alert rules written in YAML; evaluated at `evaluation_interval`; fire to Alertmanager after `for` duration is met.
 
 ```yaml
 groups:
@@ -241,6 +248,7 @@ Related notes: [003-alertmanager](./003-alertmanager.md), [../Grafana/003-alerti
 - Range vector: time series values over a time window (e.g. `http_requests_total[5m]`).
 - Functions: `rate()`, `sum()`, `avg()`, `max()`, `histogram_quantile()`, etc.
 - Common patterns: rate of change (`rate(counter[5m])`), error rate (`sum(rate(...[5m])) / sum(rate(...[5m]))`), quantiles (`histogram_quantile(0.99, ...)`).
+- PromQL queries instant vectors (now) or range vectors (time window); functions like rate(), sum(), histogram_quantile().
 
 Related notes: [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive.md)
 
@@ -328,12 +336,12 @@ promtool check rules /etc/prometheus/rules.yml
 1. Can Prometheus reach the target host? `ping <target>` / `curl http://<target>/metrics` -- network unreachable --> check firewall, routing, DNS.
 2. Is the service running and listening on the expected port? `ss -tulnp | grep <port>` -- port not listening --> start service or check config.
 3. Does the endpoint exist? `curl -v http://<target>:<port>/metrics` -- 404 or wrong path --> check metrics_path in scrape_config.
-4. Check Prometheus scrape logs: `systemctl status prometheus` / `docker logs prometheus` -- connection timeout --> increase scrape_timeout; TLS error --> verify ca_file, cert_file, key_file.
+4. Check Prometheus scrape logs: `systemctl status prometheus` / `docker logs prometheus` -- connection timeout --> increase `scrape_timeout`; TLS error --> verify `ca_file`, `cert_file`, `key_file`.
 5. Check target's application logs. Does the app have metrics enabled? Check instrumentation library.
 
 ### Alert not firing even though metric threshold is breached
 
-1. Is the alert rule being evaluated? `curl http://localhost:9090/api/v1/rules | grep <alert_name>` -- rule not present --> check rule_files path in prometheus.yml; rule has syntax error --> `promtool check rules`.
+1. Is the alert rule being evaluated? `curl http://localhost:9090/api/v1/rules | grep <alert_name>` -- rule not present --> check `rule_files` path in `prometheus.yml`; rule has syntax error --> `promtool check rules`.
 2. Is the PromQL expression correct? `curl 'http://localhost:9090/api/v1/query?query=<expr>'` -- query returns no data --> wrong metric name or label filter.
 3. Is the Alertmanager configured and reachable? `curl http://localhost:9093/-/healthy` -- Alertmanager not running --> start it or update alerting: config.
 4. Check alert state transitions: `curl http://localhost:9090/api/v1/alerts | grep <alert_name>` -- state: Alerting --> check Alertmanager logs; state: Pending --> wait for 'for' duration to pass.
@@ -346,14 +354,3 @@ promtool check rules /etc/prometheus/rules.yml
 3. Is retention period too long? Check config: `--storage.tsdb.retention.time` -- reduce retention or implement remote write.
 4. Check for memory/CPU saturation: `ps aux | grep prometheus` / `top` / `htop` -- memory high --> increase heap or enable WAL compression.
 5. Consider remote write or splitting into multiple instances.
-
-# Quick Facts (Revision)
-
-- Prometheus uses pull (scrape) model: HTTP GET /metrics on targets; targets push model uses Pushgateway.
-- Scrape interval (default 15s), evaluation interval (default 15s), retention (default 15d) are configurable.
-- Service discovery resolves targets dynamically from Kubernetes, Consul, DNS, files, cloud providers, etc.
-- TSDB compaction: data written to WAL, then into 2-hour blocks, auto-compacted into larger blocks.
-- Metric types: counter (increasing), gauge (up/down), histogram (distribution), summary (quantiles).
-- PromQL queries instant vectors (now) or range vectors (time window); functions like rate(), sum(), histogram_quantile().
-- Alert rules written in YAML; evaluated at evaluation_interval; fire to Alertmanager after 'for' duration is met.
-- Remote write/read enables long-term storage (Thanos, VictoriaMetrics) and high-availability setups; federation aggregates multiple Prometheus instances.

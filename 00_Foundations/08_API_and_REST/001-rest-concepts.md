@@ -178,11 +178,6 @@ Workarounds for non-idempotent POST:
 Related notes: [000-core](./000-core.md)
 
 ### Content Negotiation
-
-- APIs can support multiple formats; Content-Type and Accept headers negotiate the format.
-- JSON (application/json) is the standard for nearly all modern REST APIs.
-- Some APIs also support XML, YAML, or plain text.
-
 ```text
 Client sends:     Accept: application/json
 Server responds:  Content-Type: application/json
@@ -192,6 +187,9 @@ Server validates: body must be valid JSON
 ```
 
 Related notes: [003-curl-and-practical-usage](./003-curl-and-practical-usage.md)
+- APIs can support multiple formats; Content-Type and Accept headers negotiate the format.
+- JSON (application/json) is the standard for nearly all modern REST APIs.
+- Some APIs also support XML, YAML, or plain text.
 
 ---
 
@@ -226,6 +224,15 @@ curl -s -X DELETE https://api.example.com/v1/servers/42
 curl -s -o /dev/null -w "%{http_code}" https://api.example.com/v1/servers/42
 ```
 
+
+- REST is an architectural style, not a protocol; it uses HTTP as its transport.
+- Resources are identified by URLs; operations are expressed through HTTP methods.
+- Stateless: each request is independent; server stores no session between calls.
+- GET/PUT/DELETE are idempotent (safe to retry); POST is not.
+- JSON is the standard data format; Content-Type and Accept headers negotiate format.
+- Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
+- 429 Too Many Requests means you are rate limited; respect Retry-After header.
+- URL convention: plural nouns for collections (/servers), IDs for individuals (/servers/42).
 # Troubleshooting Guide
 
 ```text
@@ -258,14 +265,3 @@ Problem: unexpected API response
 [5] Inspect full exchange with curl -v
     Look at request headers sent and response headers received
 ```
-
-# Quick Facts (Revision)
-
-- REST is an architectural style, not a protocol; it uses HTTP as its transport.
-- Resources are identified by URLs; operations are expressed through HTTP methods.
-- Stateless: each request is independent; server stores no session between calls.
-- GET/PUT/DELETE are idempotent (safe to retry); POST is not.
-- JSON is the standard data format; Content-Type and Accept headers negotiate format.
-- Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
-- 429 Too Many Requests means you are rate limited; respect Retry-After header.
-- URL convention: plural nouns for collections (/servers), IDs for individuals (/servers/42).

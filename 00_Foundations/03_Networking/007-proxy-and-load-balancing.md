@@ -124,6 +124,9 @@ Client --> Reverse Proxy --> Backend Server(s)
 ```
 
 Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+- Reverse proxy: server-side, hides backend servers, client is unaware.
+- SSL termination at the reverse proxy offloads encryption from backends.
+- nginx, HAProxy, Envoy, and Traefik are common reverse proxy / load balancer tools.
 
 ### Forward vs Reverse Proxy
 
@@ -136,6 +139,7 @@ Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chai
 | Client aware of proxy      | Client unaware of backends   |
 
 Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
+- Forward proxy: client-side, hides client identity, client is aware.
 
 ### Load Balancing Algorithms
 
@@ -145,6 +149,8 @@ Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
 - **Weighted Round Robin / Weighted Least Connections** -- assigns more traffic to more powerful servers based on configured weights
 
 Related notes: [005-http-https](./005-http-https.md)
+- Load balancing distributes traffic to improve availability, scalability, and performance.
+- Common algorithms: round robin, least connections, IP hash, weighted variants.
 
 ### Health Checks
 
@@ -156,16 +162,14 @@ Related notes: [005-http-https](./005-http-https.md)
   - **Custom script** -- run application-specific checks
 
 Related notes: [005-http-https](./005-http-https.md)
+- Health checks remove unhealthy backends from the pool automatically.
 
 ### Load Balancer Components
-
 - **Load balancer** -- reverse proxy that distributes traffic
 - **Backend pool** -- group of servers receiving traffic
 - **Health check configuration** -- probe interval, timeout, thresholds
 - **Algorithm selection** -- determines how requests are distributed
-
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
-
+- A load balancer is typically implemented as a reverse proxy.
 ---
 
 # Troubleshooting Guide
@@ -195,14 +199,3 @@ Traffic not reaching backends?
           +--> Using round robin? --> switch to IP hash or sticky sessions
           +--> Cookie-based affinity configured? --> check cookie settings
 ```
-
-# Quick Facts (Revision)
-
-- Forward proxy: client-side, hides client identity, client is aware.
-- Reverse proxy: server-side, hides backend servers, client is unaware.
-- Load balancing distributes traffic to improve availability, scalability, and performance.
-- Common algorithms: round robin, least connections, IP hash, weighted variants.
-- Health checks remove unhealthy backends from the pool automatically.
-- SSL termination at the reverse proxy offloads encryption from backends.
-- nginx, HAProxy, Envoy, and Traefik are common reverse proxy / load balancer tools.
-- A load balancer is typically implemented as a reverse proxy.

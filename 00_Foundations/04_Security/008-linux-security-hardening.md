@@ -342,6 +342,15 @@ sudo mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 
 Related notes: [004-authentication](./004-authentication.md)
 
+
+- SSH hardening minimum: `PermitRootLogin no`, `PasswordAuthentication no`, key-based auth only
+- Fail2ban reads auth logs and creates firewall rules to ban IPs after repeated failures
+- SELinux uses labels (contexts) on every object; AppArmor uses filesystem paths — choose based on distro
+- `setenforce 0` sets permissive at runtime; to persist, edit `/etc/selinux/config`
+- `kernel.randomize_va_space=2` enables full ASLR — randomizes stack, heap, mmap, and VDSO
+- SUID binaries execute with the file owner's privileges — audit regularly with `find / -perm -4000`
+- AIDE baseline must be updated after every legitimate system change, or future checks produce false positives
+- Sysctl changes are non-persistent unless written to `/etc/sysctl.d/`; apply with `sysctl --system`
 ---
 
 # Troubleshooting Guide
@@ -381,14 +390,3 @@ Related notes: [004-authentication](./004-authentication.md)
 2. Check if it belongs to a known package: `rpm -qf /path/to/binary` (RHEL) or `dpkg -S /path/to/binary` (Debian).
 3. If from a known package, verify package integrity: `rpm -V <package>` or `debsums <package>`.
 4. If unknown, quarantine the binary, remove the SUID bit (`sudo chmod u-s /path/to/binary`), and investigate further.
-
-# Quick Facts (Revision)
-
-- SSH hardening minimum: `PermitRootLogin no`, `PasswordAuthentication no`, key-based auth only
-- Fail2ban reads auth logs and creates firewall rules to ban IPs after repeated failures
-- SELinux uses labels (contexts) on every object; AppArmor uses filesystem paths — choose based on distro
-- `setenforce 0` sets permissive at runtime; to persist, edit `/etc/selinux/config`
-- `kernel.randomize_va_space=2` enables full ASLR — randomizes stack, heap, mmap, and VDSO
-- SUID binaries execute with the file owner's privileges — audit regularly with `find / -perm -4000`
-- AIDE baseline must be updated after every legitimate system change, or future checks produce false positives
-- Sysctl changes are non-persistent unless written to `/etc/sysctl.d/`; apply with `sysctl --system`

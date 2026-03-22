@@ -52,6 +52,7 @@ ssh -i ~/.ssh/id_rsa user@server
 - Mitigated with MFA (multi-factor authentication) -- combines something you know + something you have/are
 
 Related notes: [hashing](./002-hashing.md), [secrets-management](./006-secrets-management.md)
+- Passwords must be hashed + salted; never stored in plaintext
 
 ### Public Key Authentication
 
@@ -61,6 +62,9 @@ Related notes: [hashing](./002-hashing.md), [secrets-management](./006-secrets-m
 - Stronger than password; no shared secret transmitted over network
 
 Related notes: [symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
+- Cross-service identity propagation (e.g. microservices)
+- Public key auth transmits no secret -- client proves possession of private key
+- MFA adds a second factor (TOTP, hardware key, biometric) on top of passwords
 
 ### Token-Based Authentication
 
@@ -70,6 +74,8 @@ Related notes: [symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 - Commonly sent via `Authorization: Bearer <token>` header
 
 Related notes: [secrets-management](./006-secrets-management.md)
+- Authentication = identity ("who"); authorization = permissions ("what") -- authn always first
+- Short-lived tokens + refresh tokens balance security and usability
 
 ### OAuth 2.0
 
@@ -95,33 +101,22 @@ Client -> API call (Bearer token) -> Resource server
 ```
 
 Related notes: [authorization](./005-authorization.md)
+- Short expiry (`exp`); use refresh tokens for long-lived access
+- OAuth 2.0 separates resource owner, client, auth server, and resource server
 
 ### JWT (JSON Web Token)
-
 - Compact token format: `header.payload.signature`
 - Payload contains claims (e.g. user ID, roles, expiry)
 - Signed (HMAC or RSA) so recipient can verify integrity without calling the issuer
-
-**Structure:**
-
 - **Header**: algorithm (`alg`), type (`typ: JWT`)
 - **Payload**: claims (`sub`, `exp`, `iat`, custom claims like roles)
 - **Signature**: ensures payload has not been tampered with
-
-**Use cases:**
-
 - Stateless sessions; server does not store session state
 - API authentication; client sends JWT in `Authorization: Bearer <token>`
-- Cross-service identity propagation (e.g. microservices)
-
-**Security rules:**
-
 - Validate signature on every request; use HTTPS
 - Keep payload small; do not store secrets in claims
-- Short expiry (`exp`); use refresh tokens for long-lived access
-
-Related notes: [cryptography](./001-cryptography.md), [hashing](./002-hashing.md)
-
+- JWT is stateless: `header.payload.signature`, signed with HMAC or RSA
+- Always validate JWT signatures server-side; never trust claims without verification
 ---
 
 # Troubleshooting Guide
@@ -134,14 +129,3 @@ Login fails
   |-> MFA failure? -> verify TOTP clock sync / backup codes
   |-> OAuth error? -> check redirect_uri, client_id, scopes, grant_type
 ```
-
-# Quick Facts (Revision)
-
-- Authentication = identity ("who"); authorization = permissions ("what") -- authn always first
-- Passwords must be hashed + salted; never stored in plaintext
-- Public key auth transmits no secret -- client proves possession of private key
-- OAuth 2.0 separates resource owner, client, auth server, and resource server
-- JWT is stateless: `header.payload.signature`, signed with HMAC or RSA
-- Short-lived tokens + refresh tokens balance security and usability
-- MFA adds a second factor (TOTP, hardware key, biometric) on top of passwords
-- Always validate JWT signatures server-side; never trust claims without verification

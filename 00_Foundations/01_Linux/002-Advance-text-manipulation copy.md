@@ -103,6 +103,8 @@ sed '/pattern/s/^/#/' file
 # replace string in all .conf files under /etc
 find /etc -name "*.conf" | xargs sed -i 's/old/new/g'
 ```
+- `sed` default: prints every line; `-n` suppresses all output (pair with `p` flag to print selectively).
+- `sed -i` edits in-place — always test without `-i` first; use `-i.bkp` as a safety net.
 
 ### awk
 
@@ -143,9 +145,15 @@ awk '{ count[$1]++ } END { for (k in count) print k, count[k] }' file
 # BEGIN and END blocks
 awk 'BEGIN { print "Start" } { print $0 } END { print "Done" }' file
 ```
+- `awk` splits each line into fields by whitespace by default; use `-F` to change the delimiter.
+- `$NF` is always the last field regardless of how many fields a line has.
+- `NR` = current line number; `NF` = field count on the current line.
+- `awk END {}` runs after all lines — use for totals, summaries, or cleanup output.
+- Combine in a pipeline: `sed` for substitution/cleanup first, then `awk` for field logic.
 
 Related notes:
 - [01-Basic-file-and-text-manipulation](./01-Basic-file-and-text-manipulation.md)
+
 
 ---
 
@@ -166,13 +174,3 @@ Related notes:
 1. Check for `.bkp` backup if `-i.bkp` was used.
 2. Restore from git: `git checkout -- <file>`.
 
-
-# Quick Facts (Revision)
-
-- `sed` default: prints every line; `-n` suppresses all output (pair with `p` flag to print selectively).
-- `sed -i` edits in-place — always test without `-i` first; use `-i.bkp` as a safety net.
-- `awk` splits each line into fields by whitespace by default; use `-F` to change the delimiter.
-- `$NF` is always the last field regardless of how many fields a line has.
-- `NR` = current line number; `NF` = field count on the current line.
-- `awk END {}` runs after all lines — use for totals, summaries, or cleanup output.
-- Combine in a pipeline: `sed` for substitution/cleanup first, then `awk` for field logic.

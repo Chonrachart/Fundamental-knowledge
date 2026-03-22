@@ -13,12 +13,16 @@
 - **Engine**: MySQL, PostgreSQL, MariaDB, Oracle, SQL Server; each with version choices.
 - **Parameter group**: Database engine configuration (like `my.cnf` for MySQL).
 - **Security**: Runs in VPC; accessed via Security Group; encryption at rest (KMS); SSL for connections.
+- RDS handles OS patching, backups, and failover; you manage schema, queries, and engine tuning.
+- Enable encryption at rest when creating the instance — can't enable later.
+- RDS instances should always be in private subnets.
 
 ### Multi-AZ
 
 - Synchronous standby replica in another AZ; automatic failover on primary failure.
 - DNS endpoint stays the same; failover takes 1-2 minutes.
 - Not for read scaling — standby is passive.
+- Multi-AZ is for HA (automatic failover); read replicas are for read scaling.
 
 ### Read Replicas
 
@@ -35,12 +39,15 @@
 | Retention | 1-35 days (configurable) | Until deleted |
 | Point-in-time | Yes (transaction logs) | No |
 | Restore | Creates new instance | Creates new instance |
+- Restoring a backup or snapshot always creates a NEW RDS instance.
+- Point-in-time recovery lets you restore to any second within the retention period.
 
 ### Aurora
 
 - AWS-proprietary; MySQL and PostgreSQL compatible; up to 5x MySQL / 3x PostgreSQL performance.
 - Storage auto-scales (10 GB to 128 TB); 6 copies across 3 AZs.
 - Serverless mode: auto-scales compute; pay per ACU-second.
+- Aurora stores 6 copies of data across 3 AZs automatically.
 
 ### DynamoDB (Overview)
 
@@ -48,6 +55,7 @@
 - Single-digit millisecond performance at any scale.
 - **Modes**: On-demand (pay per request) or provisioned (set read/write capacity).
 - **Partition key** + optional **sort key**; no joins, no SQL.
+- DynamoDB is serverless NoSQL; no maintenance, no patching.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [003-vpc-networking](./003-vpc-networking.md)
 
@@ -70,14 +78,3 @@ Related notes: [001-aws-overview](./001-aws-overview.md), [003-vpc-networking](.
 1. Restores create a new instance — copy time depends on size.
 2. Use point-in-time restore for most recent data (up to 5 minutes ago).
 3. Snapshots of large databases take longer; plan restore testing.
-
-# Quick Facts (Revision)
-
-- RDS handles OS patching, backups, and failover; you manage schema, queries, and engine tuning.
-- Multi-AZ is for HA (automatic failover); read replicas are for read scaling.
-- Restoring a backup or snapshot always creates a NEW RDS instance.
-- Aurora stores 6 copies of data across 3 AZs automatically.
-- DynamoDB is serverless NoSQL; no maintenance, no patching.
-- Enable encryption at rest when creating the instance — can't enable later.
-- Point-in-time recovery lets you restore to any second within the retention period.
-- RDS instances should always be in private subnets.

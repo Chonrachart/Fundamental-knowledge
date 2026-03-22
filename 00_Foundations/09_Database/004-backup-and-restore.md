@@ -210,12 +210,6 @@ find "$BACKUP_DIR" -name "${DB}_*.dump" -mtime +7 -delete
 Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-troubleshooting.md)
 
 ### Testing Restores
-
-- A backup you have never restored is a backup you hope works -- hope is not a strategy.
-- Schedule periodic restore tests to a staging server (weekly or monthly).
-- Verify row counts, application functionality, and data integrity after restore.
-- Document restore time so you know your RTO (Recovery Time Objective).
-
 ```text
 Restore test checklist:
   [1] Copy backup file to staging server
@@ -227,6 +221,10 @@ Restore test checklist:
 ```
 
 Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-troubleshooting.md)
+- A backup you have never restored is a backup you hope works -- hope is not a strategy.
+- Schedule periodic restore tests to a staging server (weekly or monthly).
+- Verify row counts, application functionality, and data integrity after restore.
+- Document restore time so you know your RTO (Recovery Time Objective).
 
 ---
 
@@ -274,6 +272,15 @@ head -20 mydb.sql
 tail -5 mydb.sql
 ```
 
+
+- Logical backups (mysqldump, pg_dump) export SQL -- portable but slow for large DBs.
+- Physical backups (xtrabackup, pg_basebackup) copy raw files -- fast but version-specific.
+- Always use `--single-transaction` with mysqldump on InnoDB to avoid locking.
+- `pg_dump -Fc` (custom format) is the most flexible PostgreSQL backup format -- supports selective restore and compression.
+- `pg_dumpall` is the only tool that backs up PostgreSQL roles and global objects.
+- Point-in-time recovery requires binary logs (MySQL) or WAL archiving (PostgreSQL) on top of a base backup.
+- A backup without a tested restore procedure is not a backup -- test regularly.
+- Retention policy: automate deletion of old backups; keep enough to cover your RPO (Recovery Point Objective).
 # Troubleshooting Guide
 
 ```text
@@ -314,14 +321,3 @@ Problem: backup job failed or restore does not work
     +-- pg_restore -j 4 (parallel restore for directory/custom format)
     +-- disable indexes/triggers during restore, rebuild after
 ```
-
-# Quick Facts (Revision)
-
-- Logical backups (mysqldump, pg_dump) export SQL -- portable but slow for large DBs.
-- Physical backups (xtrabackup, pg_basebackup) copy raw files -- fast but version-specific.
-- Always use `--single-transaction` with mysqldump on InnoDB to avoid locking.
-- `pg_dump -Fc` (custom format) is the most flexible PostgreSQL backup format -- supports selective restore and compression.
-- `pg_dumpall` is the only tool that backs up PostgreSQL roles and global objects.
-- Point-in-time recovery requires binary logs (MySQL) or WAL archiving (PostgreSQL) on top of a base backup.
-- A backup without a tested restore procedure is not a backup -- test regularly.
-- Retention policy: automate deletion of old backups; keep enough to cover your RPO (Recovery Point Objective).

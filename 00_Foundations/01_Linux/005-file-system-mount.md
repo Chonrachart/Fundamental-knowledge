@@ -63,6 +63,8 @@ Root mounts read-only first to allow fsck to check and repair before writes begi
 | zfs | Data integrity, backups | Built-in RAID + checksums + snapshots; high RAM usage |
 | tmpfs | Temp data in RAM | Fast; data lost on reboot; used for `/tmp`, `/run` |
 | nfs | Network-shared storage | Remote filesystem over network |
+- `tmpfs` mounts live in RAM — data is lost on reboot (correct for `/tmp`).
+- Root mounts read-only at boot first to allow fsck to check for corruption.
 
 ### Disk Partitions
 
@@ -100,6 +102,7 @@ df -h                           # show mounted filesystem usage
 
 - Mount point directory must exist before mounting.
 - `umount` fails if the mount point is busy — find the process with `lsof +D /mnt`.
+- `df -h` shows space usage; `df -i` shows inode usage — both can hit 100%.
 
 ### Permanent Mounting (/etc/fstab)
 
@@ -128,6 +131,10 @@ Common mount options:
 | `noexec` | prevent execution of binaries |
 | `noatime` | don't update access time (performance) |
 | `nofail` | don't fail boot if device is missing |
+- Use UUID in fstab, not `/dev/sdX` — device names are not stable across reboots.
+- After editing fstab, always run `mount -a` to validate before rebooting.
+- A wrong fstab entry can drop the system into emergency mode at boot.
+- `nofail` in fstab options prevents boot failure if a non-critical device is missing.
 
 **After editing fstab — always test before reboot:**
 
@@ -139,6 +146,7 @@ findmnt --verify
 Related notes:
 - [06-disk](./06-disk.md) — LVM, RAID, swap
 - [09-service-systemctl-socket](./09-service-systemctl-socket.md) — systemd mounts as units
+
 
 ---
 
@@ -162,13 +170,3 @@ Related notes:
 1. Find large directories: `du -sh /* | sort -rh | head`.
 2. Check if inode exhaustion (not disk space) is the real issue: `df -i`.
 
-
-# Quick Facts (Revision)
-
-- Use UUID in fstab, not `/dev/sdX` — device names are not stable across reboots.
-- After editing fstab, always run `mount -a` to validate before rebooting.
-- A wrong fstab entry can drop the system into emergency mode at boot.
-- `tmpfs` mounts live in RAM — data is lost on reboot (correct for `/tmp`).
-- `df -h` shows space usage; `df -i` shows inode usage — both can hit 100%.
-- Root mounts read-only at boot first to allow fsck to check for corruption.
-- `nofail` in fstab options prevents boot failure if a non-critical device is missing.

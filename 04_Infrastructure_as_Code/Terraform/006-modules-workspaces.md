@@ -117,6 +117,15 @@ moved {
 
 Related notes: [001-terraform-overview](./001-terraform-overview.md), [004-variables-outputs-locals](./004-variables-outputs-locals.md), [009-best-practices](./009-best-practices.md)
 
+
+- Every Terraform project is a root module; called modules are child modules.
+- Module inputs are variables; module outputs are outputs — explicit interface.
+- Registry modules use version constraints: `version = "~> 5.0"`.
+- `terraform init` must be re-run after adding or changing module sources.
+- Workspaces share the same config but have separate state files.
+- `terraform.workspace` returns the current workspace name as a string.
+- `moved` blocks let you refactor resource addresses without destroy/recreate.
+- Prefer separate directories over workspaces when environments need different resource sets.
 ---
 
 # Troubleshooting Guide
@@ -136,14 +145,3 @@ Related notes: [001-terraform-overview](./001-terraform-overview.md), [004-varia
 1. Check current workspace: `terraform workspace show`.
 2. Accidentally modified wrong environment: check state with `terraform state list`.
 3. Resources have wrong names/tags: verify `terraform.workspace` is used correctly in config.
-
-# Quick Facts (Revision)
-
-- Every Terraform project is a root module; called modules are child modules.
-- Module inputs are variables; module outputs are outputs — explicit interface.
-- Registry modules use version constraints: `version = "~> 5.0"`.
-- `terraform init` must be re-run after adding or changing module sources.
-- Workspaces share the same config but have separate state files.
-- `terraform.workspace` returns the current workspace name as a string.
-- `moved` blocks let you refactor resource addresses without destroy/recreate.
-- Prefer separate directories over workspaces when environments need different resource sets.

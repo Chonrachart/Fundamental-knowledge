@@ -78,6 +78,8 @@ nfs-server.example.com:/export/data  /mnt/nfs  nfs  defaults,vers=4,rsize=104857
   - `showmount -e <nfs-server>` — list exports.
   - `mount | grep nfs` — show active NFS mounts.
   - `/etc/fstab` entry example: `server:/path /mnt nfs vers=4,rsize=1048576,wsize=1048576,_netdev 0 0`.
+- NFS: stateless file protocol; NFSv4 preferred; `root_squash` prevents client root from being server root.
+- fstab mount options: `_netdev` tells kernel to mount after networking is ready (critical for network storage).
 
 Related notes: [005-file-system-mount](./005-file-system-mount.md), [006-disk](./006-disk.md)
 
@@ -90,6 +92,7 @@ Related notes: [005-file-system-mount](./005-file-system-mount.md), [006-disk](.
 - Credentials file: store in `~/.cifs_credentials` (mode 600): `username=user\npassword=pass`.
 - `/etc/fstab` entry: `//server/share /mnt cifs credentials=~/.cifs_credentials,uid=1000,gid=1000,file_mode=0755,dir_mode=0755 0 0`.
 - Permissions: SMB uses ACLs; Linux client maps to Unix ownership via `uid=` and `gid=` options.
+- SMB/CIFS: Windows file-sharing protocol; needs credentials (username/password); common on Linux-Windows networks.
 
 Related notes: [005-file-system-mount](./005-file-system-mount.md), [009-service-systemctl-socket](./009-service-systemctl-socket.md)
 
@@ -140,6 +143,7 @@ Your server (initiator)                    Storage server (target)
 - NFS gives you a **folder** (file-level access); iSCSI gives you a **raw disk** (block-level access).
 - Databases (MySQL, PostgreSQL) perform better on block devices because they control the filesystem directly.
 - You can run LVM, create partitions, or even run a VM disk image on iSCSI -- things you cannot do on an NFS mount.
+- iSCSI: block storage over TCP/IP; LUN = numbered export; IQN = unique name; requires initiator login.
 
 **Persistent login** (survives reboot):
 ```bash
@@ -185,6 +189,7 @@ Related notes: [006-disk](./006-disk.md), [005-file-system-mount](./005-file-sys
 | Redundancy      | Multipath I/O aggregates paths  | NFS/SMB handles failover; may need VRRP |
 | Use case        | Databases, high-performance IO  | General file sharing, VM storage   |
 | Complexity      | Higher (must understand LVM)    | Lower (mount and use)              |
+- SAN (iSCSI) = block storage; NAS (NFS/SMB) = file storage; SAN more complex, NAS easier.
 
 Related notes: [006-disk](./006-disk.md)
 
@@ -200,6 +205,7 @@ Related notes: [006-disk](./006-disk.md)
   - `multipathd status` — check daemon.
   - `multipathd reconfigure` — reload config.
 - Device naming: `/dev/mapper/mpath*` (logical), `/dev/sd*` (underlying paths hidden).
+- Multipath aggregates multiple paths to same iSCSI LUN; provides redundancy and load-balance.
 
 Related notes: [006-disk](./006-disk.md)
 
@@ -217,6 +223,7 @@ Related notes: [006-disk](./006-disk.md)
 - Wildcard map example: `*  -fstype=nfs,vers=4  nfs-server:/exports/&` (mounts `/mnt/auto/nfs/<dirname>` to `/exports/<dirname>`).
 - Reload: `systemctl reload autofs`.
 - Logs: `journalctl -u autofs -n 50`.
+- autofs mounts on-demand with timeout; more efficient than static fstab if mounts rarely used.
 
 Related notes: [005-file-system-mount](./005-file-system-mount.md)
 
@@ -232,6 +239,7 @@ Related notes: [005-file-system-mount](./005-file-system-mount.md)
 - Thin provisioning: allocated space is virtual; actual disk space grows on-demand (saving space, but risk overrun).
 - Extend volume: `lvextend -L +50G /dev/vg_network/lv_data` (grow LV), then `resize2fs /dev/vg_network/lv_data` (grow filesystem).
 - Snapshots: useful for backups without downtime (read-only or read-write copy).
+- LVM on iSCSI works like local LVM; can extend LUN and resize LV/filesystem online.
 
 Related notes: [006-disk](./006-disk.md)
 
@@ -280,6 +288,7 @@ resize2fs /dev/vg/<lv-name>                                # grow ext4 filesyste
 lvs / vgs / pvs                                            # list volumes / groups / physical
 ```
 
+
 # Troubleshooting Guide
 
 ### NFS mount fails with "mount.nfs: Permission denied"
@@ -325,14 +334,3 @@ lvs / vgs / pvs                                            # list volumes / grou
 3. Rescan iSCSI device for new size: `echo 1 > /sys/class/scsi_device/<device:bus:target:lun>/device/rescan`.
 4. Extend logical volume: `lvextend -L +50G /dev/vg/<lv-name>`.
 5. Grow filesystem: `resize2fs /dev/vg/<lv-name>`, then verify with `df -h /mnt`. If size unchanged, check filesystem (may need fsck).
-
-# Quick Facts (Revision)
-
-- NFS: stateless file protocol; NFSv4 preferred; `root_squash` prevents client root from being server root.
-- SMB/CIFS: Windows file-sharing protocol; needs credentials (username/password); common on Linux-Windows networks.
-- iSCSI: block storage over TCP/IP; LUN = numbered export; IQN = unique name; requires initiator login.
-- SAN (iSCSI) = block storage; NAS (NFS/SMB) = file storage; SAN more complex, NAS easier.
-- Multipath aggregates multiple paths to same iSCSI LUN; provides redundancy and load-balance.
-- autofs mounts on-demand with timeout; more efficient than static fstab if mounts rarely used.
-- LVM on iSCSI works like local LVM; can extend LUN and resize LV/filesystem online.
-- fstab mount options: `_netdev` tells kernel to mount after networking is ready (critical for network storage).

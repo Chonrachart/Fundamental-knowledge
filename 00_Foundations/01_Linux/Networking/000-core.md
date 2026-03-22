@@ -102,6 +102,8 @@ Example: `curl http://example.com`
 - Interface between application and kernel
 - Creates file descriptors for network I/O (send, recv, bind, connect)
 - Supports TCP (SOCK_STREAM) and UDP (SOCK_DGRAM)
+- Linux networking runs entirely in-kernel; applications only interact via socket API
+- `ss` replaces netstat for socket inspection
 
 Related notes: [004-Socket-and-Port](./004-Socket-and-Port.md)
 
@@ -116,6 +118,9 @@ Related notes: [004-Socket-and-Port](./004-Socket-and-Port.md)
 
 - Addressing, fragmentation, routing decisions
 - Kernel selects output interface and next hop via routing table (longest prefix match)
+- Packet path (outgoing): socket → transport → IP/routing → netfilter → interface → wire
+- Packet path (incoming): NIC → netfilter (prerouting) → routing → transport → socket
+- Routing uses longest prefix match: /24 beats /16 beats default
 
 Related notes: [003-Route-table](./003-Route-table.md), [008-Packet-flow](./008-Packet-flow.md)
 
@@ -123,6 +128,7 @@ Related notes: [003-Route-table](./003-Route-table.md), [008-Packet-flow](./008-
 
 - Packet filtering, NAT, packet mangling via iptables or nftables
 - Hook points: prerouting, input, forward, output, postrouting
+- Netfilter hooks: prerouting → input/forward → output → postrouting
 
 Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.md)
 
@@ -130,6 +136,7 @@ Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.m
 
 - Physical (NIC): eth0, enp0s3, wlan0
 - Virtual: lo (loopback), bridge (virtual switch), veth (paired interfaces for namespaces)
+- `ip` (iproute2) replaces ifconfig, route, arp, and netstat
 
 Related notes: [001-Network-interface](./001-Network-interface.md)
 
@@ -141,11 +148,10 @@ Related notes: [001-Network-interface](./001-Network-interface.md)
 Related notes: [005-dns-resolution-linux](./005-dns-resolution-linux.md)
 
 ### Network Namespaces
-
+Related notes: [007-Network-namespace](./007-Network-namespace.md)
 - Isolated network stacks on one host: own interfaces, routing tables, firewall rules
 - Used by containers (Docker, Podman), VMs, VPNs, complex network topologies
-
-Related notes: [007-Network-namespace](./007-Network-namespace.md)
+- Network namespaces give full stack isolation (interfaces, routes, firewall)
 
 ---
 
@@ -176,6 +182,7 @@ dig example.com
 
 One tool per layer: `ip` for interfaces/routes, `ss` for sockets, `iptables`/`nft` for firewall.
 
+
 # Troubleshooting Guide
 
 ```text
@@ -193,17 +200,6 @@ Network issue?
   │
   └─ Port open? ──── ss -tlnp | grep :<port> ──── Not listening? → check service
 ```
-
-# Quick Facts (Revision)
-
-- Linux networking runs entirely in-kernel; applications only interact via socket API
-- Packet path (outgoing): socket → transport → IP/routing → netfilter → interface → wire
-- Packet path (incoming): NIC → netfilter (prerouting) → routing → transport → socket
-- Routing uses longest prefix match: /24 beats /16 beats default
-- `ip` (iproute2) replaces ifconfig, route, arp, and netstat
-- `ss` replaces netstat for socket inspection
-- Network namespaces give full stack isolation (interfaces, routes, firewall)
-- Netfilter hooks: prerouting → input/forward → output → postrouting
 
 # Topic Map
 

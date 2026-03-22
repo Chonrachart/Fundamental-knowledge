@@ -109,19 +109,21 @@ jobs:
 - **Performance / Load**: production-like scale for performance testing; often ephemeral.
 - **Production**: live environment serving real users; highest stability and security requirements.
 - Rule: minimize the number of persistent environments to reduce maintenance overhead.
+- Minimum environments: staging + production; add dev, QA, performance as needed.
 
 Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 
 ### Environment Parity
 
 - Staging should match production in: OS, runtime version, service versions, network topology.
-- Use infrastructure-as-code (Terraform, Helm) to define both environments from the same templates.
+- Use infrastructure-as-code (`Terraform`, `Helm`) to define both environments from the same templates.
 - Differences to accept: scale (fewer replicas in staging), data (synthetic vs real), domains.
 - Common parity failures:
   - Different database version in staging vs prod.
   - Missing network policies in staging.
   - Different secret configuration or IAM roles.
 - Test in staging what you deploy to prod — same artifact, same deploy process.
+- Environment parity: staging should mirror production infrastructure.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -131,12 +133,13 @@ Related notes: [003-best-practices](./003-best-practices.md)
 - Methods:
   - **Environment variables**: injected at runtime; most common for containers.
   - **Config maps / config files**: mounted into containers or read at startup.
-  - **Secret stores**: Vault, AWS Secrets Manager, Azure Key Vault — for sensitive values.
-  - **ConfigMap + Secrets in Kubernetes**: native config injection.
+  - **Secret stores**: `Vault`, `AWS Secrets Manager`, `Azure Key Vault` — for sensitive values.
+  - **`ConfigMap` + `Secrets` in Kubernetes**: native config injection.
 - Rules:
   - Never bake config into the artifact (image, binary).
   - Store defaults in code; override per environment.
   - Secrets are always separate from general config.
+- Configuration injected at deploy time, never baked into artifacts.
 
 ```bash
 # Kubernetes ConfigMap and Secret injection
@@ -155,6 +158,7 @@ Related notes: [003-best-practices](./003-best-practices.md), [009-ci-cd-securit
 - Promote to production: same artifact, production config injected.
 - Never rebuild for a different environment.
 - Promotion can be automatic (after staging tests pass) or gated (manual approval).
+- Build once, promote the same artifact through all environments.
 
 ```text
 Promotion flow:
@@ -169,10 +173,11 @@ Related notes: [007-artifact-management](./007-artifact-management.md), [004-pip
 
 - Per-PR environments: automatically created when a PR is opened, destroyed when merged/closed.
 - Purpose: test feature branches in a realistic environment before merging.
-- Implementation: namespace-per-PR in Kubernetes, or platform-specific (Vercel, Netlify).
+- Implementation: namespace-per-PR in Kubernetes, or platform-specific (`Vercel`, `Netlify`).
 - Requirements: automated provisioning, DNS/routing, database seeding, cleanup.
 - Cost control: auto-destroy after PR close; TTL for abandoned environments.
 - Benefits: faster review cycles, catch environment-specific issues early.
+- Ephemeral environments: per-PR, auto-created, auto-destroyed.
 
 Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
@@ -185,6 +190,7 @@ Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
   - **Deployment branches**: only specific branches can deploy to this environment.
 - Kubernetes: RBAC, namespace-level permissions, admission controllers.
 - Production protection: require at least one approval, restrict to main branch or tags.
+- Protection rules: required reviewers, deployment branch restrictions, wait timers.
 
 Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 
@@ -199,6 +205,7 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
   3. **Contract**: remove old column/table (after all code uses new schema).
 - Run migrations as a separate pipeline step before deploying new code.
 - Always test migrations against a copy of production data (in staging).
+- Database migrations: forward-only, backward-compatible, expand-and-contract.
 
 Related notes: [005-deployment-strategies](./005-deployment-strategies.md)
 
@@ -209,6 +216,7 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md)
 - IAM/RBAC: environment-scoped permissions (staging deployer cannot touch production).
 - Shared services: carefully manage shared databases, message queues, caches between environments.
 - Cost optimization: share infrastructure where safe (dev namespaces on one cluster), isolate for production.
+- Isolate environments: namespaces, network policies, scoped IAM roles.
 
 Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 
@@ -239,16 +247,3 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
 3. Test migration on a production data copy (data-dependent edge cases).
 4. Check migration timeout: large data migrations may exceed deploy timeout.
 5. Check lock contention: migration may need exclusive table lock on large tables.
-
----
-
-# Quick Facts (Revision)
-
-- Minimum environments: staging + production; add dev, QA, performance as needed.
-- Environment parity: staging should mirror production infrastructure.
-- Configuration injected at deploy time, never baked into artifacts.
-- Build once, promote the same artifact through all environments.
-- Ephemeral environments: per-PR, auto-created, auto-destroyed.
-- Database migrations: forward-only, backward-compatible, expand-and-contract.
-- Protection rules: required reviewers, deployment branch restrictions, wait timers.
-- Isolate environments: namespaces, network policies, scoped IAM roles.

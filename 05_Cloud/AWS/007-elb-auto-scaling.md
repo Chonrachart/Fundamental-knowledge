@@ -35,6 +35,7 @@ Auto Scaling Group
 | ALB | L7 (HTTP/HTTPS) | Web apps, path/host routing, gRPC |
 | NLB | L4 (TCP/UDP) | High performance, static IP, non-HTTP |
 | CLB | L4/L7 (legacy) | Avoid for new deployments |
+- ALB operates at Layer 7 (HTTP); NLB at Layer 4 (TCP); avoid CLB (legacy).
 
 ### ALB (Application Load Balancer)
 
@@ -42,12 +43,15 @@ Auto Scaling Group
 - **Target Group**: Set of targets (instances, IPs, Lambda); health check configurable.
 - **Routing rules**: Path-based (`/api/*`), host-based (`api.example.com`), headers, query strings.
 - **SSL termination**: Attach ACM certificate; offload TLS at the ALB.
+- ALB supports path-based and host-based routing with multiple target groups.
+- Cross-zone load balancing distributes traffic evenly across all targets in all AZs.
 
 ### NLB (Network Load Balancer)
 
 - Layer 4; ultra-low latency; millions of requests/sec.
 - Static IP per AZ (or Elastic IP); preserves source IP.
 - Use for: TCP services, gRPC, non-HTTP protocols.
+- NLB preserves client source IP; ALB sets `X-Forwarded-For` header.
 
 ### Target Groups and Health Checks
 
@@ -61,6 +65,9 @@ Auto Scaling Group
 - **Capacity**: Min, Desired, Max instance count.
 - **Scaling policies**: Target tracking (e.g. CPU 60%), step scaling, scheduled.
 - **Health checks**: EC2 status checks + optional ELB health checks.
+- ASG automatically replaces unhealthy instances and scales based on policies.
+- Launch Templates replace Launch Configurations (deprecated) — always use templates.
+- Target tracking scaling is the simplest policy — set target CPU and let ASG manage.
 
 ```text
 Scaling Policy: Target Tracking
@@ -77,6 +84,7 @@ Scaling Policy: Target Tracking
 - ASG registers/deregisters instances with ALB target group automatically.
 - ALB health check failures trigger instance replacement by ASG.
 - Connection draining: ALB waits for in-flight requests before deregistering.
+- Connection draining (deregistration delay) prevents dropped requests during scale-in.
 
 Related notes: [003-vpc-networking](./003-vpc-networking.md), [004-ec2](./004-ec2.md)
 
@@ -101,14 +109,3 @@ Related notes: [003-vpc-networking](./003-vpc-networking.md), [004-ec2](./004-ec
 2. Check target health and logs.
 3. Increase ALB idle timeout (default 60s) if backend needs more time.
 4. Check Security Group allows ALB → target communication.
-
-# Quick Facts (Revision)
-
-- ALB operates at Layer 7 (HTTP); NLB at Layer 4 (TCP); avoid CLB (legacy).
-- ALB supports path-based and host-based routing with multiple target groups.
-- ASG automatically replaces unhealthy instances and scales based on policies.
-- Launch Templates replace Launch Configurations (deprecated) — always use templates.
-- Connection draining (deregistration delay) prevents dropped requests during scale-in.
-- NLB preserves client source IP; ALB sets `X-Forwarded-For` header.
-- Target tracking scaling is the simplest policy — set target CPU and let ASG manage.
-- Cross-zone load balancing distributes traffic evenly across all targets in all AZs.

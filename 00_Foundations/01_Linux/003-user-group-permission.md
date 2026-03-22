@@ -91,6 +91,8 @@ usermod -g <group> <user>           # change primary group
 ```
 
 Every user has exactly **one primary group** (used for new file ownership) and zero or more supplementary groups.
+- `usermod -aG` — **always use `-a`** (append); omitting it replaces all supplementary groups.
+- Group membership changes only take effect after the user logs out and back in.
 
 ### Modifying Users and Groups
 
@@ -122,6 +124,8 @@ chown -R <user>:<group> <dir>       # apply recursively
 
 - Without `x` on a directory, you cannot `cd` into it.
 - Only root can change file ownership (`chown`).
+- Permission check order: owner → group → others; **first match wins**, not most permissive.
+- Root (UID=0) bypasses all DAC permission checks.
 
 Related notes:
 - [01-Basic-file-and-text-manipulation](./01-Basic-file-and-text-manipulation.md) — file type characters in `ls -l`
@@ -136,6 +140,7 @@ umask 027               # files → 640, directories → 750
 
 - `umask` subtracts bits from default permissions (666 for files, 777 for directories).
 - Set persistently in `~/.bashrc` or `/etc/profile`.
+- `umask 022` → new files get `644`; `umask 027` → new files get `640`.
 
 ### Special Permissions
 
@@ -152,6 +157,8 @@ chmod 1777 <dir>    # sticky  (1) — only owner/root can delete own files in di
 | sticky (1) | (ignored) | only owner can delete their files |
 
 `/tmp` is typically `1777` (sticky + world-writable).
+- `setuid` on a script has no effect on Linux — only works on compiled binaries.
+- `sticky bit` on `/tmp` prevents users from deleting each other's files.
 
 ### ACL (Access Control List)
 
@@ -165,6 +172,8 @@ setfacl -b <path>                   # remove all ACL entries
 
 - ACL extends permissions beyond owner/group/others — use when multiple users need different access on the same path.
 - If `ls -l` shows `+` at end of permission string, an ACL is set.
+- ACL entry presence is shown by `+` at the end of `ls -l` permission string.
+
 
 ---
 
@@ -182,14 +191,3 @@ setfacl -b <path>                   # remove all ACL entries
 
 1. Log out and log back in (group membership is set at login time).
 
-
-# Quick Facts (Revision)
-
-- Permission check order: owner → group → others; **first match wins**, not most permissive.
-- Root (UID=0) bypasses all DAC permission checks.
-- `usermod -aG` — **always use `-a`** (append); omitting it replaces all supplementary groups.
-- Group membership changes only take effect after the user logs out and back in.
-- `setuid` on a script has no effect on Linux — only works on compiled binaries.
-- `sticky bit` on `/tmp` prevents users from deleting each other's files.
-- ACL entry presence is shown by `+` at the end of `ls -l` permission string.
-- `umask 022` → new files get `644`; `umask 027` → new files get `640`.

@@ -69,6 +69,8 @@ fi
 - `elif` chains additional conditions; `else` is the fallback.
 - Any command can be a condition -- not just `test` or `[ ]`.
 - Combine conditions with `&&` (and) and `||` (or).
+- Bash conditions are exit codes: 0 = true, non-zero = false.
+- Any command can serve as a condition -- `if grep -q`, `while read`, `until ping`.
 
 ```bash
 if [ "$x" -eq 5 ]; then
@@ -91,6 +93,8 @@ Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md)
 
 - `[ condition ]` -- POSIX `test` builtin; spaces required around brackets.
 - `[[ condition ]]` -- bash keyword; safer, no word splitting, no pathname expansion.
+- `[ ]` is POSIX `test`; `[[ ]]` is bash-specific, safer, and more powerful.
+- Always quote variables inside `[ ]` to prevent word splitting; `[[ ]]` handles this automatically.
 - Numeric operators: `-eq`, `-ne`, `-lt`, `-le`, `-gt`, `-ge`.
 - String operators: `=`, `!=`, `-z` (empty), `-n` (non-empty).
 - File operators: `-f` (regular file), `-d` (directory), `-e` (exists), `-r` (readable), `-w` (writable), `-x` (executable).
@@ -125,6 +129,8 @@ Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md)
 - `|` separates multiple patterns for the same block.
 - `*)` is the default / catch-all (like `else`).
 - `;;` ends a branch; `;&` falls through to next branch (bash 4+).
+- `case` uses glob patterns, not regex; use `|` to combine patterns.
+- `shopt -s nullglob` makes unmatched globs expand to nothing instead of the literal pattern.
 
 ```bash
 case "$1" in
@@ -147,14 +153,6 @@ esac
 Related notes: [003-functions](./003-functions.md)
 
 ### Loops (for / while / until)
-
-- `for var in list; do ... done` -- iterate over a list of items.
-- `for ((i=0; i<n; i++)); do ... done` -- C-style for loop.
-- `while command; do ... done` -- loop while command exits 0.
-- `until command; do ... done` -- loop until command exits 0 (inverse of while).
-- `break` exits the loop; `continue` skips to next iteration.
-- `while read` is the standard pattern for processing lines from a file or pipe.
-
 ```bash
 # iterate over a list
 for f in *.log; do
@@ -179,6 +177,15 @@ echo "host is up"
 ```
 
 Related notes: [004-io-and-redirection](./004-io-and-redirection.md), [001-variables-and-expansion](./001-variables-and-expansion.md)
+- `for var in list; do ... done` -- iterate over a list of items.
+- `for ((i=0; i<n; i++)); do ... done` -- C-style for loop.
+- `while command; do ... done` -- loop while command exits 0.
+- `until command; do ... done` -- loop until command exits 0 (inverse of while).
+- `break` exits the loop; `continue` skips to next iteration.
+- `while read` is the standard pattern for processing lines from a file or pipe.
+- `while IFS= read -r line` is the safe idiom for reading lines (preserves whitespace, no backslash interpretation).
+- `break` exits a loop; `continue` skips to the next iteration; both accept a numeric depth argument.
+
 
 ---
 
@@ -219,14 +226,3 @@ Problem: condition not evaluating as expected
     +-- check that loop body modifies the condition variable
     +-- add a counter with break as safety net
 ```
-
-# Quick Facts (Revision)
-
-- Bash conditions are exit codes: 0 = true, non-zero = false.
-- `[ ]` is POSIX `test`; `[[ ]]` is bash-specific, safer, and more powerful.
-- Always quote variables inside `[ ]` to prevent word splitting; `[[ ]]` handles this automatically.
-- `case` uses glob patterns, not regex; use `|` to combine patterns.
-- `while IFS= read -r line` is the safe idiom for reading lines (preserves whitespace, no backslash interpretation).
-- `break` exits a loop; `continue` skips to the next iteration; both accept a numeric depth argument.
-- Any command can serve as a condition -- `if grep -q`, `while read`, `until ping`.
-- `shopt -s nullglob` makes unmatched globs expand to nothing instead of the literal pattern.

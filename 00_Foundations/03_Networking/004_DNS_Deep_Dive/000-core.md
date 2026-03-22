@@ -86,12 +86,10 @@ Related notes: [001-record-types-in-depth](./001-record-types-in-depth.md)
 Related notes: [002-internal-dns-and-service-discovery](./002-internal-dns-and-service-discovery.md)
 
 ### DNS Management and Operations
-
+Related notes: [003-dns-management-and-operations](./003-dns-management-and-operations.md)
 - Zone management, TTL strategy, and migration planning are day-to-day DNS operations tasks.
 - Cloud DNS services (Route53, Cloud DNS, Azure DNS) provide managed zones with routing policies.
 - DNSSEC, DNS-01 challenges for certificates, and troubleshooting complete the operational toolkit.
-
-Related notes: [003-dns-management-and-operations](./003-dns-management-and-operations.md)
 
 ---
 
@@ -132,6 +130,15 @@ drill -T example.com    # trace
 drill -S example.com    # DNSSEC chain
 ```
 
+
+- DNS uses UDP port 53 for queries (switches to TCP for responses > 512 bytes or zone transfers).
+- There are 13 root server groups (a.root-servers.net through m.root-servers.net), distributed via anycast.
+- TTL (Time To Live) controls how long a resolver caches a record -- lower TTL = faster propagation, more queries.
+- Recursive resolvers do the heavy lifting; stub resolvers just forward to them.
+- dig +trace shows the full resolution chain; dig +short gives just the answer.
+- NXDOMAIN means the domain does not exist; SERVFAIL means the server failed to process the query.
+- Negative caching: NXDOMAIN responses are also cached (SOA minimum TTL).
+- DNS is eventually consistent -- changes propagate as caches expire, not instantly.
 # Troubleshooting Guide
 
 ```text
@@ -172,17 +179,6 @@ Problem: DNS resolution not working
     dig example.com | grep TTL
     +-- high TTL + wrong answer --> wait for TTL expiry or flush cache
 ```
-
-# Quick Facts (Revision)
-
-- DNS uses UDP port 53 for queries (switches to TCP for responses > 512 bytes or zone transfers).
-- There are 13 root server groups (a.root-servers.net through m.root-servers.net), distributed via anycast.
-- TTL (Time To Live) controls how long a resolver caches a record -- lower TTL = faster propagation, more queries.
-- Recursive resolvers do the heavy lifting; stub resolvers just forward to them.
-- dig +trace shows the full resolution chain; dig +short gives just the answer.
-- NXDOMAIN means the domain does not exist; SERVFAIL means the server failed to process the query.
-- Negative caching: NXDOMAIN responses are also cached (SOA minimum TTL).
-- DNS is eventually consistent -- changes propagate as caches expire, not instantly.
 
 # Topic Map
 

@@ -126,16 +126,6 @@ tail -f /var/log/zabbix/zabbix_agent2.log
 grep -v '^#\|^$' /etc/zabbix/zabbix_server.conf
 ```
 
-# Troubleshooting Guide
-
-### Host shows "Unavailable" in Zabbix frontend
-
-1. Is Zabbix agent running on the host? `systemctl status zabbix-agent2` -- not running --> start agent, check config (Server= directive).
-2. Can the server reach the agent port? `nc -zv <host-ip> 10050` -- timeout --> firewall blocking; check iptables / security group; refused --> agent not listening; check ListenPort config.
-3. Does zabbix_get return data? `zabbix_get -s <host-ip> -k agent.ping` -- error --> check Server= in agent config (must include server IP).
-4. Check server and agent logs for detailed errors: `/var/log/zabbix/zabbix_server.log` and `/var/log/zabbix/zabbix_agent2.log`.
-
-# Quick Facts (Revision)
 
 - Zabbix server listens on port 10051 (trapper); agent listens on port 10050 (passive checks).
 - Host = monitored entity; must have at least one interface and belong to a host group.
@@ -147,3 +137,11 @@ grep -v '^#\|^$' /etc/zabbix/zabbix_server.conf
 - Frontend connects to the database, not directly to the server process.
 
 Related notes: [../000-core](../000-core.md), [002-items-triggers](./002-items-triggers.md), [003-actions-templates](./003-actions-templates.md), [004-monitoring-patterns](./004-monitoring-patterns.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
+# Troubleshooting Guide
+
+### Host shows "Unavailable" in Zabbix frontend
+
+1. Is Zabbix agent running on the host? `systemctl status zabbix-agent2` -- not running --> start agent, check config (`Server=` directive).
+2. Can the server reach the agent port? `nc -zv <host-ip> 10050` -- timeout --> firewall blocking; check iptables / security group; refused --> agent not listening; check `ListenPort` config.
+3. Does `zabbix_get` return data? `zabbix_get -s <host-ip> -k agent.ping` -- error --> check `Server=` in agent config (must include server IP).
+4. Check server and agent logs for detailed errors: `/var/log/zabbix/zabbix_server.log` and `/var/log/zabbix/zabbix_agent2.log`.

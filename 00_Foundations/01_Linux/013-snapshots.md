@@ -90,6 +90,9 @@ Snapshot lifecycle:
 - Trade-off: writes are slightly slower during active snapshot (extra copy operation).
 - Space: snapshot starts at 0 size; grows as the live volume diverges from the snapshot.
 - Multiple snapshots: each snapshot only stores the delta from the previous state.
+- Snapshot = point-in-time state capture; uses CoW for space efficiency.
+- Snapshots are NOT backups — they depend on the original storage.
+- CoW trade-off: writes are slower during active snapshot but reads are unaffected.
 
 ```text
 CoW write path:
@@ -142,6 +145,7 @@ LVM snapshot sizing:
   - Monitor usage: lvs shows snap_percent (% of snapshot used)
   - If snap_percent reaches 100%: snapshot is INVALID and must be removed
 ```
+- LVM snapshots: must pre-allocate size; if full, snapshot is invalid.
 
 Related notes: [006-disk](./006-disk.md)
 
@@ -170,6 +174,7 @@ btrfs send /snapshots/home-readonly | btrfs receive /mnt/backup/
 ```
 
 - Advantages over LVM snapshots: no size pre-allocation, no performance degradation, incremental send/receive for backups.
+- Btrfs/ZFS snapshots: no size limit, instant, support send/receive for backup.
 
 Related notes: [005-file-system-mount](./005-file-system-mount.md)
 
@@ -234,6 +239,7 @@ qemu-img snapshot -c snap1 /var/lib/libvirt/images/myvm.qcow2
 qemu-img snapshot -a snap1 /var/lib/libvirt/images/myvm.qcow2   # revert
 qemu-img snapshot -d snap1 /var/lib/libvirt/images/myvm.qcow2   # delete
 ```
+- VM snapshots: capture disk + memory; delete within 72 hours (performance impact).
 
 Related notes: [012-network-storage](./012-network-storage.md)
 
@@ -264,6 +270,7 @@ aws ec2 create-volume --snapshot-id snap-456def --availability-zone us-east-1a
 aws rds create-db-snapshot --db-instance-identifier mydb --db-snapshot-identifier mydb-snap
 aws rds restore-db-instance-from-db-snapshot --db-instance-identifier mydb-new --db-snapshot-identifier mydb-snap
 ```
+- EBS snapshots: incremental, stored in S3, can create volumes across AZs.
 
 Related notes: [005-file-system-mount](./005-file-system-mount.md)
 
@@ -310,6 +317,7 @@ Related notes: [006-disk](./006-disk.md)
   - **Database-native**: PostgreSQL `pg_basebackup`, MySQL `mysqldump --single-transaction`, MongoDB `mongodump`.
   - **Cloud-managed**: RDS automated snapshots, Azure SQL backup.
 - Consistency is critical: a filesystem snapshot during active writes may capture a corrupted database state.
+- Database snapshots: must quiesce/freeze writes for consistency.
 
 ```bash
 # PostgreSQL: consistent snapshot via filesystem
@@ -327,8 +335,6 @@ db.fsyncUnlock()
 ```
 
 Related notes: [006-disk](./006-disk.md)
-
----
 
 # Troubleshooting Guide
 
@@ -363,16 +369,3 @@ Related notes: [006-disk](./006-disk.md)
 3. For filesystem snapshots: call freeze/lock before, unfreeze/unlock after.
 4. Test restores regularly — don't assume snapshots are valid.
 5. For cloud databases: use managed snapshot features (RDS, Azure SQL) which handle consistency.
-
----
-
-# Quick Facts (Revision)
-
-- Snapshot = point-in-time state capture; uses CoW for space efficiency.
-- Snapshots are NOT backups — they depend on the original storage.
-- LVM snapshots: must pre-allocate size; if full, snapshot is invalid.
-- Btrfs/ZFS snapshots: no size limit, instant, support send/receive for backup.
-- VM snapshots: capture disk + memory; delete within 72 hours (performance impact).
-- EBS snapshots: incremental, stored in S3, can create volumes across AZs.
-- Database snapshots: must quiesce/freeze writes for consistency.
-- CoW trade-off: writes are slower during active snapshot but reads are unaffected.

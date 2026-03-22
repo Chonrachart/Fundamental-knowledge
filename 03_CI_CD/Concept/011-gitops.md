@@ -127,6 +127,8 @@ spec:
   - Audit trail: every change is a Git commit.
   - Self-healing: manual changes are reverted.
   - Rollback: `git revert` the commit.
+- GitOps: Git is the single source of truth; operator reconciles cluster to match.
+- Rollback = `git revert` the commit; operator syncs automatically.
 
 Related notes: [001-ci-cd-concept](./001-ci-cd-concept.md)
 
@@ -148,6 +150,7 @@ Pull model (GitOps):
 
 - Push is simpler to set up; pull is more secure and self-healing.
 - Many teams use hybrid: CI builds and pushes images, GitOps operator deploys manifests.
+- Pull model: operator in cluster pulls from Git; no cluster creds in CI.
 
 Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
 
@@ -165,6 +168,7 @@ Related notes: [004-pipeline-design-patterns](./004-pipeline-design-patterns.md)
   - **Self-heal**: revert manual cluster changes to match Git.
   - **Prune**: delete resources removed from Git.
 - Health checks: built-in health assessment for Kubernetes resources (Deployment, Service, etc.).
+- ArgoCD: most popular, web UI, Application CRD, auto-sync + self-heal.
 
 ```bash
 # ArgoCD CLI operations
@@ -196,6 +200,7 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md)
   - No built-in web UI (use Weave GitOps dashboard or Flux UI).
   - More composable (each controller is independent).
   - Better Helm integration (native HelmRelease CRD).
+- FluxCD: CNCF graduated, composable controllers, native Helm/SOPS support.
 
 ```yaml
 # FluxCD GitRepository + Kustomization
@@ -229,7 +234,7 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md)
 ### Drift Detection and Reconciliation
 
 - **Drift**: actual cluster state differs from desired state in Git.
-- Causes: manual kubectl changes, external controllers, operator conflicts.
+- Causes: manual `kubectl` changes, external controllers, operator conflicts.
 - Detection: GitOps operator periodically compares Git manifests with cluster resources.
 - Response options:
   - **Auto-heal**: automatically revert to Git state (recommended for production).
@@ -237,6 +242,7 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md)
   - **Ignore**: exclude specific fields from drift detection (e.g., HPA-managed replicas).
 - ArgoCD: `selfHeal: true` in sync policy.
 - FluxCD: `prune: true` and force apply.
+- Self-healing: manual cluster changes are automatically reverted.
 
 Related notes: [003-best-practices](./003-best-practices.md)
 
@@ -246,7 +252,7 @@ Related notes: [003-best-practices](./003-best-practices.md)
   - Root app points to a directory of Application YAMLs.
   - Adding a new service = adding a new Application YAML + manifests.
 - **Monorepo**: all environment manifests in one repo.
-  - Structure: `apps/<app-name>/overlays/<env>/` (Kustomize).
+  - Structure: `apps/<app-name>/overlays/<env>/` (`Kustomize`).
   - Pros: single place for all config; easy to see full state.
   - Cons: large repos; access control is harder.
 - **Multi-repo**: separate repos per application or per environment.
@@ -283,15 +289,16 @@ Related notes: [008-environment-management](./008-environment-management.md)
 
 - Challenge: secrets cannot be stored in plain text in Git.
 - Solutions:
-  - **Sealed Secrets**: encrypt secrets with a cluster-side key; only the cluster can decrypt.
-    - `kubeseal` CLI encrypts; SealedSecret controller decrypts in-cluster.
-  - **SOPS** (Mozilla): encrypt secret values in YAML files; decrypt at apply time.
-    - Supports AWS KMS, GCP KMS, Azure Key Vault, age, PGP.
+  - **`Sealed Secrets`**: encrypt secrets with a cluster-side key; only the cluster can decrypt.
+    - `kubeseal` CLI encrypts; `SealedSecret` controller decrypts in-cluster.
+  - **`SOPS`** (Mozilla): encrypt secret values in YAML files; decrypt at apply time.
+    - Supports `AWS KMS`, `GCP KMS`, `Azure Key Vault`, `age`, `PGP`.
     - FluxCD has native SOPS integration.
-  - **External Secrets Operator (ESO)**: sync secrets from external stores (Vault, AWS Secrets Manager) into Kubernetes Secrets.
-    - ExternalSecret CRD defines what to fetch and where to store.
+  - **External Secrets Operator (`ESO`)**: sync secrets from external stores (`Vault`, `AWS Secrets Manager`) into Kubernetes Secrets.
+    - `ExternalSecret` CRD defines what to fetch and where to store.
     - Secrets never stored in Git; only references in Git.
 - Recommendation: ESO for production (secrets in vault, not in Git); Sealed Secrets for simpler setups.
+- Secrets in GitOps: use Sealed Secrets, SOPS, or External Secrets Operator.
 
 ```yaml
 # External Secrets Operator
@@ -326,6 +333,7 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md), [003-best-practice
   - Automated canary analysis with metrics (Prometheus, Datadog).
   - Automatic promotion or rollback based on metrics thresholds.
 - Both are managed via Git manifests — GitOps controls the rollout strategy.
+- Progressive delivery: `Argo Rollouts` (canary/blue-green) managed via Git.
 
 ```yaml
 # Argo Rollouts - Canary strategy
@@ -371,9 +379,9 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [010
 
 ### Sealed Secret cannot be decrypted
 
-1. Check if the SealedSecret was encrypted with the correct cluster's public key.
+1. Check if the `SealedSecret` was encrypted with the correct cluster's public key.
 2. If the sealing key was rotated, re-encrypt with the new key.
-3. Check namespace: SealedSecrets are namespace-scoped by default.
+3. Check namespace: `SealedSecrets` are namespace-scoped by default.
 4. Verify the sealed-secrets controller is running: `kubectl get pods -n kube-system`.
 5. Check controller logs for decryption errors.
 
@@ -384,16 +392,3 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [010
 3. Check repo server performance: large repos or complex Helm charts slow rendering.
 4. Check cluster API server load: many resources to sync can be slow.
 5. Split large applications into smaller ones for parallel sync.
-
----
-
-# Quick Facts (Revision)
-
-- GitOps: Git is the single source of truth; operator reconciles cluster to match.
-- Pull model: operator in cluster pulls from Git; no cluster creds in CI.
-- Self-healing: manual cluster changes are automatically reverted.
-- ArgoCD: most popular, web UI, Application CRD, auto-sync + self-heal.
-- FluxCD: CNCF graduated, composable controllers, native Helm/SOPS support.
-- Secrets in GitOps: use Sealed Secrets, SOPS, or External Secrets Operator.
-- Rollback = `git revert` the commit; operator syncs automatically.
-- Progressive delivery: Argo Rollouts (canary/blue-green) managed via Git.

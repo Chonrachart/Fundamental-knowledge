@@ -93,6 +93,7 @@ echo '{"timestamp":"2026-03-17T10:15:30Z","level":"ERROR","service":"api","msg":
 - **Structured logs** (JSON, key-value) have explicit fields that are parsed and indexed; easier to query and correlate.
 - **Unstructured logs** (plain text) require regex or grok patterns for extraction; slower to search, higher cardinality risk.
 - Best practice: emit structured logs (JSON) from applications; legacy unstructured logs can be parsed by agents.
+- Structured logs (JSON) are faster to search and parse than unstructured (plain text); prefer JSON from applications.
 
 ```text
 Unstructured:
@@ -111,6 +112,7 @@ Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-bas
 - **WARN** -- unusual conditions that may need attention but are recoverable.
 - **ERROR** -- serious problem that failed; service still running.
 - **FATAL** -- unrecoverable error; service is shutting down immediately.
+- Log levels: DEBUG, INFO, WARN, ERROR, FATAL; use appropriate level to control verbosity.
 
 Related notes: [../000-core](../000-core.md)
 
@@ -120,6 +122,7 @@ Related notes: [../000-core](../000-core.md)
 - **Central repository** provides unified search across all services, time windows, and severity levels.
 - **Incident response** accelerated: search by error message, trace ID, or service name to correlate events.
 - **Compliance** and **audit trails** require persistent, tamper-proof log storage.
+- Centralized logging accelerates incident response: search all services by timestamp, error message, or trace ID.
 
 Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-basics](./003-elk-basics.md)
 
@@ -131,6 +134,7 @@ Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-bas
 - **Shipping** -- batch logs and send to backend; retry and queue on failure.
 - **Storage** -- log database stores compressed logs with configurable retention (24h to years).
 - **Querying** -- search via full-text (Elasticsearch) or label filters (Loki); correlate with metrics/traces.
+- Log aggregation pipeline: collection (agent scrapes logs) -> parsing (extract fields) -> shipping (batch to backend) -> storage (Loki/Elasticsearch).
 
 Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-basics](./003-elk-basics.md)
 
@@ -141,6 +145,7 @@ Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-bas
 - **Grafana** -- unified visualization; panels query Loki with LogQL for logs and metrics (rate, count) from same timestamp.
 - **Advantage** -- simple, low cost, integrates seamlessly with Prometheus metrics.
 - **Trade-off** -- LogQL is more limited than full-text search; requires good label design.
+- Promtail is a lightweight agent for Loki; Filebeat is lightweight for Elasticsearch; Logstash is more powerful but heavier.
 
 Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
 
@@ -152,6 +157,7 @@ Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [../Grafana/
 - **Filebeat** -- lightweight shipper (alternative to Logstash) that reads files and forwards to Elasticsearch or Logstash.
 - **Advantage** -- powerful full-text search, flexible data model, extensive plugins and ecosystem.
 - **Trade-off** -- higher resource use, more complex configuration, steeper learning curve.
+- Loki indexes labels only (low cardinality); Elasticsearch indexes all fields (full-text search, higher resource use).
 
 Related notes: [003-elk-basics](./003-elk-basics.md), [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
 
@@ -164,6 +170,7 @@ Related notes: [003-elk-basics](./003-elk-basics.md), [../Grafana/002-dashboards
 - **Journald** -- systemd journal service that captures kernel messages, service logs, and container output.
   - Binary format with structured fields; query with `journalctl`.
   - Persistent storage in `/var/log/journal` or volatile in `/run/log/journal`.
+- Journald is the systemd journal; query with `journalctl`. Syslog is a protocol for sending logs to a remote server.
 
 Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md)
 
@@ -173,6 +180,7 @@ Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md)
 - **Configuration** -- `/etc/logrotate.d/*` defines rotation policy per log file (daily, weekly, monthly, by size).
 - **Options** -- rotate N old copies, compress, delete after X days, run scripts on rotation (e.g., reload service).
 - **Manual trigger** -- `logrotate -f /etc/logrotate.d/nginx` forces rotation.
+- Log rotation prevents disk space exhaustion; configure with `/etc/logrotate.d/` and rotate daily/weekly or by size.
 
 ```bash
 # Example: /etc/logrotate.d/app
@@ -256,14 +264,3 @@ du -sh /var/log/* | sort -rh | head -10
 5. Is the backend receiving logs? Loki: `curl http://loki:3100/loki/api/v1/label`. Elasticsearch: `curl http://elasticsearch:9200/_cat/indices`. No indices/labels means agent not shipping.
 6. Check agent logs for errors: `journalctl -u promtail -f` or `docker logs <agent-container>`. Debug errors in agent config or backend connectivity.
 7. Query backend to verify logs are indexed. Grafana Explore: query `{job="app"}`. Kibana: search `service:app`.
-
-# Quick Facts (Revision)
-
-- Structured logs (JSON) are faster to search and parse than unstructured (plain text); prefer JSON from applications.
-- Log levels: DEBUG, INFO, WARN, ERROR, FATAL; use appropriate level to control verbosity.
-- Centralized logging accelerates incident response: search all services by timestamp, error message, or trace ID.
-- Log aggregation pipeline: collection (agent scrapes logs) -> parsing (extract fields) -> shipping (batch to backend) -> storage (Loki/Elasticsearch).
-- Loki indexes labels only (low cardinality); Elasticsearch indexes all fields (full-text search, higher resource use).
-- Promtail is a lightweight agent for Loki; Filebeat is lightweight for Elasticsearch; Logstash is more powerful but heavier.
-- Journald is the systemd journal; query with `journalctl`. Syslog is a protocol for sending logs to a remote server.
-- Log rotation prevents disk space exhaustion; configure with `/etc/logrotate.d/` and rotate daily/weekly or by size.

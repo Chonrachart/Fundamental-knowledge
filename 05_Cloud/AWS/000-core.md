@@ -57,6 +57,10 @@ Related notes: [004-ec2](./004-ec2.md), [008-ecs-eks](./008-ecs-eks.md), [009-la
 - **Security Group**: Stateful firewall at instance level.
 - **ALB/NLB**: Load balancing across targets.
 - **Route 53**: DNS service.
+- Region = geographic area; AZ = isolated data center within a region (typically 3 AZs per region).
+- Security Groups are stateful (allow return traffic); NACLs are stateless (must allow both directions).
+- Default VPC exists in every region; custom VPCs are recommended for production.
+- Multi-AZ deployments provide high availability within a region.
 
 Related notes: [003-vpc-networking](./003-vpc-networking.md), [007-elb-auto-scaling](./007-elb-auto-scaling.md)
 
@@ -64,6 +68,7 @@ Related notes: [003-vpc-networking](./003-vpc-networking.md), [007-elb-auto-scal
 
 - **S3**: Object storage; durability 11 nines; lifecycle policies.
 - **EBS**: Block storage attached to EC2; snapshots for backup.
+- S3 bucket names are globally unique; objects are region-specific.
 
 Related notes: [005-s3](./005-s3.md), [004-ec2](./004-ec2.md)
 
@@ -78,6 +83,9 @@ Related notes: [006-rds-databases](./006-rds-databases.md)
 
 - **IAM**: Users, groups, roles, policies; global service.
 - **Shared responsibility**: AWS secures hardware/network; you secure config, data, access.
+- IAM is global; most other services are regional.
+- Shared responsibility: AWS secures "of" the cloud; you secure "in" the cloud.
+- Always use IAM roles (temporary credentials) over IAM users (long-lived keys).
 
 Related notes: [002-iam](./002-iam.md)
 
@@ -100,19 +108,6 @@ Related notes: [002-iam](./002-iam.md)
 1. Check `AWS_DEFAULT_REGION` env var or `--region` flag.
 2. AWS Console: check region selector in top-right corner.
 3. Some services are global (IAM, Route 53, CloudFront); most are regional.
-
----
-
-# Quick Facts (Revision)
-
-- Region = geographic area; AZ = isolated data center within a region (typically 3 AZs per region).
-- IAM is global; most other services are regional.
-- S3 bucket names are globally unique; objects are region-specific.
-- Security Groups are stateful (allow return traffic); NACLs are stateless (must allow both directions).
-- Shared responsibility: AWS secures "of" the cloud; you secure "in" the cloud.
-- Default VPC exists in every region; custom VPCs are recommended for production.
-- Always use IAM roles (temporary credentials) over IAM users (long-lived keys).
-- Multi-AZ deployments provide high availability within a region.
 
 # Topic Map (basic → advanced)
 

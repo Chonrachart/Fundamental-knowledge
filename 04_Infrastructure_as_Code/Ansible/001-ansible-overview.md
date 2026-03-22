@@ -121,6 +121,14 @@ ansible-inventory -i inventory/hosts.ini --graph
 - Add `-v`, `-vv`, `-vvv` to any command for increasing verbosity.
 
 
+
+- Ansible is **push-based**: control node initiates, managed node does not call home.
+- Only Python is required on managed nodes (no Ansible install needed there).
+- Task result states: `ok` (no change), `changed` (modified), `failed`, `skipped`.
+- Handlers run **once at end of play**, not once per notify call.
+- `become: true` = sudo; `become_user` controls which user (default: root).
+- `--check` never changes anything on remote hosts.
+- Use `ansible.builtin.<module>` FQCN to avoid collection ambiguity.
 # Troubleshooting Guide
 
 ### Something is wrong
@@ -133,13 +141,3 @@ ansible-inventory -i inventory/hosts.ini --graph
 6. Run a single task with `--start-at-task` or `--tags`.
 7. Fix, re-run, and verify the second run is all ok (idempotency check).
 
-
-# Quick Facts (Revision)
-
-- Ansible is **push-based**: control node initiates, managed node does not call home.
-- Only Python is required on managed nodes (no Ansible install needed there).
-- Task result states: `ok` (no change), `changed` (modified), `failed`, `skipped`.
-- Handlers run **once at end of play**, not once per notify call.
-- `become: true` = sudo; `become_user` controls which user (default: root).
-- `--check` never changes anything on remote hosts.
-- Use `ansible.builtin.<module>` FQCN to avoid collection ambiguity.

@@ -12,6 +12,9 @@
 - **workflow_call** in `on:`; **inputs** and **secrets** can be passed; **outputs** from jobs can be returned.
 - Use for shared "build and test" or "deploy" logic; one workflow file defines steps, many workflows call it.
 - **Permissions**: Callee can inherit or define; **secrets** must be passed explicitly (no automatic inheritance).
+- Reusable workflows require `on: workflow_call` in the callee; without it, `uses:` will fail.
+- `secrets: inherit` passes all caller secrets to the reusable workflow automatically.
+- Cross-repo reusable workflows must reference a specific branch/tag: `org/repo/.github/workflows/file.yml@main`.
 
 ```yaml
 # .github/workflows/build.yml
@@ -48,9 +51,10 @@ jobs:
 
 ### Composite Actions
 
-- **Action** in same repo: **uses: ./.github/actions/my-action**; directory has **action.yml** with **inputs**, **runs** (steps or composite).
-- **Composite** action: **runs: using: composite**; **steps:** list; reuse a sequence of steps without a full workflow.
+- Action in same repo: `uses: ./.github/actions/my-action`; directory has `action.yml` with `inputs`, `runs` (steps or composite).
+- Composite action: `runs: using: composite`; `steps:` list; reuse a sequence of steps without a full workflow.
 - Good for "setup Node + cache + install" or "configure AWS CLI" used in multiple jobs.
+- Composite actions use `runs: using: composite` in `action.yml` and define steps inline.
 
 ### Debugging — Enable Debug Logging
 
@@ -66,12 +70,21 @@ jobs:
 
 ### act — Run Locally
 
-- **act** (tool): Run workflows locally using Docker; **act -l** list jobs; **act -j build** run one job.
+- `act` (tool): Run workflows locally using Docker; `act -l` list jobs; `act -j build` run one job.
 - Useful to test workflow without pushing; not 100% identical to GitHub (different runner env).
-- **act -s GITHUB_TOKEN=xxx** pass secrets; **act -P ubuntu-latest=...** custom image.
+- `act -s GITHUB_TOKEN=xxx` pass secrets; `act -P ubuntu-latest=...` custom image.
 
 Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [003-expressions-contexts](./003-expressions-contexts.md)
 
+
+- Reusable workflows require `on: workflow_call` in the callee; without it, `uses:` will fail.
+- `secrets: inherit` passes all caller secrets to the reusable workflow automatically.
+- Composite actions use `runs: using: composite` in `action.yml` and define steps inline.
+- `ACTIONS_STEP_DEBUG` must be set as a **secret** (not a variable) to enable debug logs.
+- `$GITHUB_OUTPUT` replaces the deprecated `::set-output` command for passing step outputs.
+- `$GITHUB_ENV` sets environment variables available to all subsequent steps in the job.
+- `act` is useful for local testing but does not perfectly replicate GitHub-hosted runner environments.
+- Cross-repo reusable workflows must reference a specific branch/tag: `org/repo/.github/workflows/file.yml@main`.
 ---
 
 # Troubleshooting Guide
@@ -96,14 +109,3 @@ Related notes: [001-github-actions-overview](./001-github-actions-overview.md), 
 2. Secrets must be passed explicitly: `act -s SECRET_NAME=value`.
 3. Some contexts (e.g. `github.event`) may differ; use `.actrc` for defaults.
 4. Network-dependent steps may fail in local Docker environment.
-
-# Quick Facts (Revision)
-
-- Reusable workflows require `on: workflow_call` in the callee; without it, `uses:` will fail.
-- `secrets: inherit` passes all caller secrets to the reusable workflow automatically.
-- Composite actions use `runs: using: composite` in `action.yml` and define steps inline.
-- `ACTIONS_STEP_DEBUG` must be set as a **secret** (not a variable) to enable debug logs.
-- `$GITHUB_OUTPUT` replaces the deprecated `::set-output` command for passing step outputs.
-- `$GITHUB_ENV` sets environment variables available to all subsequent steps in the job.
-- `act` is useful for local testing but does not perfectly replicate GitHub-hosted runner environments.
-- Cross-repo reusable workflows must reference a specific branch/tag: `org/repo/.github/workflows/file.yml@main`.

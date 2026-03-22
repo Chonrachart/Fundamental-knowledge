@@ -57,6 +57,9 @@ apt list --installed            # list all installed packages
 
 - Always run `apt update` before `apt install` on a fresh system.
 - `apt purge` + `apt autoremove` for a clean removal.
+- `apt update` refreshes the package index; `apt upgrade` installs newer versions — they are different steps.
+- `apt purge` removes config files; `apt remove` keeps them.
+- `apt autoremove` cleans up orphaned dependency packages after removal.
 
 ### dpkg (low-level, Debian / Ubuntu)
 
@@ -71,6 +74,8 @@ dpkg -l | grep <name>           # search installed packages
 
 - Use `dpkg -i` when you have a local `.deb` file not in any repo.
 - `dpkg` does NOT resolve dependencies — use `apt install -f` after to fix broken deps.
+- `dpkg` installs but does NOT resolve dependencies; `apt` wraps `dpkg` and handles deps.
+- After `dpkg -i` with dep errors, run `apt install -f` to automatically fix missing dependencies.
 
 ### tar (archive extraction)
 
@@ -84,6 +89,7 @@ tar -tf   <file.tar>            # list contents without extracting
 ```
 
 Option reference: `-c` create · `-x` extract · `-v` verbose · `-f` file · `-z` gzip · `-J` xz
+- Always use absolute paths in `tar -f` when creating archives from scripts.
 
 ### wget (download)
 
@@ -95,10 +101,12 @@ wget -c <url>                          # resume interrupted download
 wget -q <url>                          # quiet mode (no progress output)
 wget --no-check-certificate <url>      # skip TLS verification (use carefully)
 ```
+- `wget -c` resumes partial downloads — useful for large files on slow connections.
 
 Related notes:
 - [05-file-system-mount](./05-file-system-mount.md) — filesystem needed before installing to custom paths
 - [09-service-systemctl-socket](./09-service-systemctl-socket.md) — managing services installed by packages
+
 
 ---
 
@@ -126,13 +134,3 @@ Related notes:
 2. Has execute permission? `chmod +x <binary>`.
 3. "command not found"? Binary not in PATH — move to `/usr/local/bin` or add its directory to PATH.
 
-
-# Quick Facts (Revision)
-
-- `apt update` refreshes the package index; `apt upgrade` installs newer versions — they are different steps.
-- `dpkg` installs but does NOT resolve dependencies; `apt` wraps `dpkg` and handles deps.
-- After `dpkg -i` with dep errors, run `apt install -f` to automatically fix missing dependencies.
-- `apt purge` removes config files; `apt remove` keeps them.
-- `apt autoremove` cleans up orphaned dependency packages after removal.
-- Always use absolute paths in `tar -f` when creating archives from scripts.
-- `wget -c` resumes partial downloads — useful for large files on slow connections.

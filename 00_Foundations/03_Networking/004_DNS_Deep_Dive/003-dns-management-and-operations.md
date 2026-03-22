@@ -331,45 +331,14 @@ Migration Checklist:
 Related notes: [000-core](./000-core.md)
 
 ### Troubleshooting DNS
-
+Related notes: [002-internal-dns-and-service-discovery](./002-internal-dns-and-service-discovery.md)
 - DNS issues manifest as resolution failures, slow lookups, stale records, or SERVFAIL responses.
 - `dig +trace` is the single most useful command for DNS debugging.
-
-```bash
-# trace full resolution path
-dig +trace example.com
-
-# query specific nameserver
-dig @ns1.example.com example.com
-
-# check if answer is from cache (look at TTL decrementing)
-dig example.com    # note TTL
-# wait 10 seconds
-dig example.com    # TTL should be ~10 less if cached
-
-# check for DNSSEC issues
-dig +dnssec +cd example.com    # +cd = disable DNSSEC validation
-# if +cd works but without +cd fails --> DNSSEC misconfiguration
-
-# check all authoritative servers agree
-dig +short example.com NS
-dig @ns1.example.com example.com +short
-dig @ns2.example.com example.com +short
-
-# flush local DNS cache
-# systemd-resolved
-resolvectl flush-caches
-# macOS
-sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
-```
-
 - Common issues:
   - **NXDOMAIN**: record does not exist (check spelling, zone, delegation).
   - **SERVFAIL**: server failed to answer (DNSSEC failure, upstream unreachable, misconfigured zone).
   - **Stale records**: old TTL has not expired yet (wait or flush cache).
   - **Split-horizon mismatch**: querying from wrong network gets wrong answer.
-
-Related notes: [002-internal-dns-and-service-discovery](./002-internal-dns-and-service-discovery.md)
 
 ---
 
@@ -410,6 +379,15 @@ for ns in 8.8.8.8 1.1.1.1 9.9.9.9; do
 done
 ```
 
+
+- SOA serial must increment on every zone change; convention is YYYYMMDDnn.
+- AXFR = full zone transfer; IXFR = incremental; restrict both by source IP.
+- Lower TTL before migration, wait for old TTL to expire, then make the change.
+- Route53 Alias records work at zone apex and do not charge per query for AWS resources.
+- DNS-01 challenge is required for wildcard certificates; needs DNS API access for automation.
+- DNSSEC adds authentication but not encryption; misconfigured DNSSEC is worse than no DNSSEC.
+- `dig +trace` is the most important DNS troubleshooting command.
+- DNS propagation is not instant -- it is bounded by TTL values across all caching layers.
 # Troubleshooting Guide
 
 ```text
@@ -449,14 +427,3 @@ Problem: DNS record change not taking effect
     |
     +-- delegation still points to old NS --> update NS at registrar
 ```
-
-# Quick Facts (Revision)
-
-- SOA serial must increment on every zone change; convention is YYYYMMDDnn.
-- AXFR = full zone transfer; IXFR = incremental; restrict both by source IP.
-- Lower TTL before migration, wait for old TTL to expire, then make the change.
-- Route53 Alias records work at zone apex and do not charge per query for AWS resources.
-- DNS-01 challenge is required for wildcard certificates; needs DNS API access for automation.
-- DNSSEC adds authentication but not encryption; misconfigured DNSSEC is worse than no DNSSEC.
-- `dig +trace` is the most important DNS troubleshooting command.
-- DNS propagation is not instant -- it is bounded by TTL values across all caching layers.

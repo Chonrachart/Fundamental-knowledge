@@ -115,6 +115,7 @@ data:
     g, dev-team, role:developer
     g, stakeholders, role:viewer
 ```
+- RBAC: policy.csv in argocd-rbac-cm; format: `p, role, resource, action, scope, allow/deny`.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -157,6 +158,7 @@ data:
     clientSecret: $oidc-okta-client-secret
     requestedScopes: ["openid", "profile", "email", "groups"]
 ```
+- SSO: Dex (bundled) or direct OIDC; map SSO groups to RBAC roles.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -193,6 +195,8 @@ argocd admin import < argocd-backup.yaml
   2. Restore CRDs and ConfigMaps from backup.
   3. ArgoCD will re-sync all applications from Git (Git is the source of truth).
   4. Verify all applications are synced and healthy.
+- Backup: export Application CRDs, ConfigMaps, Secrets; Git has the manifests.
+- DR: reinstall ArgoCD + restore CRDs; applications re-sync from Git automatically.
 
 Related notes: [002-argocd-applications](./002-argocd-applications.md)
 
@@ -202,13 +206,14 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 - Upgrade path: minor versions (2.8 --> 2.9 --> 2.10), not skipping majors.
 - Methods:
   - **Helm**: `helm upgrade argocd argo/argo-cd --version <new-version>`.
-  - **kubectl**: apply the new version's install manifest.
+  - `kubectl`: apply the new version's install manifest.
   - **ArgoCD managing itself**: update the target revision in the self-managing Application.
 - Pre-upgrade checklist:
   1. Backup all CRDs and ConfigMaps.
   2. Read release notes and migration guide.
   3. Test upgrade in a non-production ArgoCD instance.
   4. Plan for brief downtime of ArgoCD UI/API during rollout (apps continue running).
+- Upgrade: follow release notes, backup first, test in non-prod, don't skip versions.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -234,6 +239,7 @@ data:
   controller.operation.processors: "25"        # parallel operation processors
   timeout.reconciliation: "300"                # 5 min reconciliation (default 180s)
 ```
+- Performance: scale repo-server replicas, tune controller processors, increase Redis memory.
 
 Related notes: [001-argocd-overview](./001-argocd-overview.md)
 
@@ -252,6 +258,7 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
   - Application unhealthy (any app in Degraded state for >5 min).
   - Repo-server high latency (manifest rendering too slow).
   - Redis memory usage >80%.
+- Monitor: Prometheus metrics, Grafana dashboards, alert on sync failures and degraded apps.
 
 ```yaml
 # ServiceMonitor for Prometheus Operator
@@ -280,6 +287,7 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
 - Audit logging: ArgoCD logs all sync operations; forward to centralized logging.
 - Restrict repository access per Project (only allowed repos).
 - Regularly rotate credentials and review access policies.
+- Security: disable admin after SSO, TLS, network policies, read-only deploy keys.
 
 ```bash
 # Disable admin account
@@ -308,7 +316,7 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
 1. Check argocd-server pods: `kubectl get pods -n argocd`.
 2. Check Ingress: is the backend healthy?
 3. Check TLS: certificate mismatch between Ingress and argocd-server.
-4. Check resource limits: argocd-server may be OOMKilled.
+4. Check resource limits: `argocd-server` may be `OOMKilled`.
 5. Check logs: `kubectl logs -n argocd deploy/argocd-server`.
 
 ### Repo-server high latency (slow sync)
@@ -327,16 +335,3 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
 4. Applications will auto-sync from Git (cluster workloads are unaffected).
 5. Verify all apps: `argocd app list` — check sync and health status.
 6. Lesson: protect ArgoCD namespace with RBAC and resource policies.
-
----
-
-# Quick Facts (Revision)
-
-- RBAC: policy.csv in argocd-rbac-cm; format: `p, role, resource, action, scope, allow/deny`.
-- SSO: Dex (bundled) or direct OIDC; map SSO groups to RBAC roles.
-- Backup: export Application CRDs, ConfigMaps, Secrets; Git has the manifests.
-- Upgrade: follow release notes, backup first, test in non-prod, don't skip versions.
-- Performance: scale repo-server replicas, tune controller processors, increase Redis memory.
-- Monitor: Prometheus metrics, Grafana dashboards, alert on sync failures and degraded apps.
-- Security: disable admin after SSO, TLS, network policies, read-only deploy keys.
-- DR: reinstall ArgoCD + restore CRDs; applications re-sync from Git automatically.
