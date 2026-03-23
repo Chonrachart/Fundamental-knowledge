@@ -7,44 +7,52 @@
 # Architecture
 
 ```text
-+---------------------+     +---------------------+     +---------------------+
-|    Applications     |     |    Applications     |     |    Infrastructure   |
-|  (instrumented)     |     |  (log output)       |     |  (hosts, network)   |
-+--------+------------+     +--------+------------+     +--------+------------+
-         |                           |                           |
-         | metrics                   | logs                      | SNMP / agent
-         v                           v                           v
-+------------------+       +------------------+       +------------------+
-|  Exporters /     |       |  Log Agents      |       |  Zabbix Agent /  |
-|  OpenTelemetry   |       |  (Promtail,      |       |  SNMP Exporter   |
-|  Collector       |       |   Fluentd)       |       |                  |
-+--------+---------+       +--------+---------+       +--------+---------+
-         |                           |                           |
-         v                           v                           v
-+------------------+       +------------------+       +------------------+
-|   Prometheus     |       |   Loki /         |       |   Zabbix Server  |
-|   (metrics)      |       |   Elasticsearch  |       |   (metrics/traps)|
-+--------+---------+       +--------+---------+       +--------+---------+
-         |                           |                           |
-         +-------------+-------------+-------------+-------------+
-                       |                           |
-                       v                           v
-              +------------------+       +------------------+
-              |    Grafana       |       |  Alertmanager /  |
-              |  (visualization) |       |  Zabbix Actions  |
-              +------------------+       +--------+---------+
-                                                  |
-                                                  v
-                                         +------------------+
-                                         |  Notifications   |
-                                         |  (Slack, Email,  |
-                                         |   PagerDuty)     |
-                                         +------------------+
+                    +---------------------------+
+                    |   Applications /          |
+                    |   Infrastructure          |
+                    +-----+------+------+-------+
+                          |      |      |
+                   metrics|  logs|  traces|
+                          v      v      v
+                    +---------------------------+
+                    |  Collection Layer          |
+                    |  (OTel Collector, Promtail,|
+                    |   exporters, agents)       |
+                    +-----+------+------+-------+
+                          |      |      |
+                          v      v      v
+                    +---------------------------+
+                    |  Kafka (optional buffer)   |
+                    |  absorbs spikes, decouples |
+                    |  producers from consumers  |
+                    +-----+------+------+-------+
+                          |      |      |
+                          v      v      v
+              +-----------+------+------+-----------+
+              |           |             |            |
+              v           v             v            v
+        +---------+  +---------+  +---------+  +---------+
+        |Prometheus|  |  Loki  |  |  Tempo  |  | Zabbix  |
+        |(metrics) |  | (logs) |  |(traces) |  |(legacy) |
+        +----+-----+  +----+---+  +----+----+  +----+----+
+             |              |           |            |
+             +---------+----+-----------+----+-------+
+                       |                     |
+                       v                     v
+              +------------------+  +------------------+
+              |    Grafana       |  |  Alertmanager /  |
+              |  (visualization) |  |  notifications   |
+              +------------------+  +------------------+
 ```
+
+- Collection layer gathers telemetry from apps and infrastructure via pull (scrape) or push (OTLP, syslog).
+- Storage backends are specialized per signal type: Prometheus for metrics, Loki for logs, Tempo for traces.
+- Zabbix is a standalone platform (agent-based, SNMP) used in traditional/legacy infrastructure monitoring.
+- Grafana unifies all backends into a single UI for dashboards, queries, and alerting.
 
 # Modern Observability Stack (Grafana + Prometheus + Loki + Tempo + Kafka)
 
-The tools above can be combined into a unified stack. This section shows how they connect as a system.
+This is the recommended stack for Kubernetes environments. This section shows how they connect as a system.
 
 ### Stack Overview
 
