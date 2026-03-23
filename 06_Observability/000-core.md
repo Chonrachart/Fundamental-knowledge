@@ -42,6 +42,98 @@
                                          +------------------+
 ```
 
+# Modern Observability Stack (Grafana + Prometheus + Loki + Tempo + Kafka)
+
+The tools above can be combined into a unified stack. This section shows how they connect as a system.
+
+### Stack Overview
+
+- **Grafana** = UI — dashboards, alerts, search. Displays everything, stores nothing.
+- **Prometheus** = metrics storage — collects numeric time-series (CPU %, request count, latency) by scraping `/metrics` endpoints every 15s.
+- **Loki** = log storage — collects text log lines from apps via agents (Promtail/OTel). Indexes by labels, not full-text.
+- **Tempo** = trace storage — collects distributed traces (a single request's journey across microservices). Stores spans linked by trace ID.
+- **OpenTelemetry (OTel)** = collection layer — vendor-neutral SDK + collector that sends metrics, logs, and traces to the backends above.
+- **Kafka** = data pipeline (optional) — message bus that buffers telemetry between producers (apps/agents) and consumers (Loki/Tempo) at high volume.
+
+### How the Stack Connects
+
+```text
+Your Apps / K8s Cluster
+        |
+        |  OTel SDK or auto-instrumentation
+        v
++---------------------+
+| OpenTelemetry       |
+| Collector           |
+| (receive, process,  |
+|  batch, export)     |
++--+-------+-------+--+
+   |       |       |
+   |       |       |         (optional, for high volume)
+   |       |       |         +----------+
+   |       |       +-------->|  Kafka   |---+
+   |       |                 | (buffer) |   |
+   |       |                 +----------+   |
+   |       |                                |
+   v       v                                v
++------+ +------+                      +--------+
+|Prom  | |Tempo |                      | Loki   |
+|(met) | |(trc) |                      | (logs) |
++--+---+ +--+---+                      +---+----+
+   |        |                              |
+   +--------+----------+-------------------+
+                        |
+                        v
+                  +-----------+
+                  |  Grafana  |
+                  |  (query + |
+                  |   display)|
+                  +-----------+
+```
+
+### Data Types and Query Languages
+
+| Signal  | Backend    | Query Language | Example                                            |
+|---------|------------|----------------|----------------------------------------------------|
+| Metrics | Prometheus | PromQL         | `rate(http_requests_total{status=~"5.."}[5m])`     |
+| Logs    | Loki       | LogQL          | `{job="api"} \| json \| level="ERROR"`             |
+| Traces  | Tempo      | TraceQL        | `{resource.service.name="api" && duration > 500ms}` |
+
+### Correlation: The Real Power
+
+- A **metric spike** in Grafana (Prometheus) tells you something is wrong.
+- Click through to **logs** (Loki) filtered by the same service and time window to see error messages.
+- From a log line with a **trace ID**, jump to **Tempo** to see the full request path across services.
+- This metrics -> logs -> traces flow is the standard debugging workflow.
+
+```text
+Debugging flow:
+
+[1] Dashboard alert fires (Prometheus metric breached)
+     |
+     v
+[2] Grafana shows error rate spike on service "api"
+     |
+     v
+[3] Switch to Explore -> Loki: {job="api"} | level="ERROR"
+     |  -- find error message with trace_id=abc123
+     v
+[4] Switch to Explore -> Tempo: search trace_id=abc123
+     |  -- see request flow: api -> auth -> db (db span = 5s timeout)
+     v
+[5] Root cause: database connection pool exhausted
+```
+
+### Suggested Learning and Deployment Order
+
+1. **Prometheus + Grafana** — start here; see your cluster's CPU, memory, pods immediately
+2. **Loki + Grafana** — add log search; replaces `kubectl logs` across all pods
+3. **Tempo + Grafana** — add tracing; useful when you have multi-service apps
+4. **OpenTelemetry** — unify collection; replace individual agents with one collector
+5. **Kafka** — add last; only when direct ingestion becomes a bottleneck at scale
+
+Related notes: [Prometheus/001-prometheus-overview](./Prometheus/001-prometheus-overview.md), [Logging/002-loki-and-promtail](./Logging/002-loki-and-promtail.md), [Tracing/001-tempo-overview](./Tracing/001-tempo-overview.md), [OpenTelemetry/001-opentelemetry-overview](./OpenTelemetry/001-opentelemetry-overview.md), [Kafka/001-kafka-overview](./Kafka/001-kafka-overview.md)
+
 # Mental Model
 
 ```text
@@ -199,6 +291,9 @@ curl -s -X POST http://zabbix:8080/api_jsonrpc.php \
 - [Logging/001-logging-overview](./Logging/001-logging-overview.md) -- Structured vs unstructured logs, log levels, log aggregation pipeline, Loki, ELK
 - [Logging/002-loki-and-promtail](./Logging/002-loki-and-promtail.md) -- Loki architecture, label-based indexing, Promtail agent, LogQL, retention
 - [Logging/003-elk-basics](./Logging/003-elk-basics.md) -- Elasticsearch, Logstash, Kibana, Filebeat, ILM, Loki vs ELK comparison
+- [Tracing/001-tempo-overview](./Tracing/001-tempo-overview.md) -- Tempo architecture, trace storage, TraceQL, span discovery, Grafana integration
+- [OpenTelemetry/001-opentelemetry-overview](./OpenTelemetry/001-opentelemetry-overview.md) -- OTel Collector, receivers/processors/exporters, SDK, auto-instrumentation, OTLP
+- [Kafka/001-kafka-overview](./Kafka/001-kafka-overview.md) -- Kafka in observability, broker/topic/partition, telemetry buffering, when to use vs skip
 - [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md) -- Dashboard, data source, panel, alert
 - [Grafana/002-dashboards-queries](./Grafana/002-dashboards-queries.md) -- Panels, PromQL, variables
 - [Grafana/003-alerting](./Grafana/003-alerting.md) -- Alert rule, contact point, notification
