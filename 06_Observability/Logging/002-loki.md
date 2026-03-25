@@ -1,7 +1,7 @@
-# Loki and Promtail
+# Loki
 
 - Loki is a log storage backend that indexes on **labels only**, not on log content; this reduces storage and indexing cost but requires good label design.
-- Promtail is a lightweight agent that scrapes log files or systemd-journald, applies parsing/relabeling pipeline stages, and ships logs to Loki.
+- Promtail is the legacy Loki agent for log collection, replaced by Grafana Alloy in this stack. See [../Alloy/001-alloy-overview](../Alloy/001-alloy-overview.md).
 - LogQL is Loki's query language; stream selectors filter by labels, while metric queries (rate, count_over_time) aggregate logs over time.
 
 # Architecture
@@ -13,12 +13,12 @@
 +--------+---------+     +--------+---------+     +--------+---------+
          |                        |                        |
          |                        v                        |
-         |                  +----------+                   |
-         |                  | Promtail |<------------------+
-         |                  | Agent    |
-         |                  +---+------+
-         |                      |
-         |   [1] tail file      |
+         |                +-------------+                  |
+         |                | Log Agent   |<-----------------+
+         |                | (Alloy)     |
+         |                +------+------+
+         |                       |
+         |   [1] tail file       |
          |   [2] read journald   |
          +---+   [3] parse       |
              v   [4] relabel     |
@@ -60,79 +60,28 @@
 # Mental Model
 
 ```text
-Promtail scrape and pipeline flow:
+Loki log ingestion and query flow:
 
-[1] Promtail reads config: which logs to tail, which parsing stages to apply
+[1] Log agent (Alloy) collects logs from files, journald, or syslog
+    --> applies pipeline stages: parse, relabel, filter
+    --> batches and compresses logs
     |
     v
-[2] Scrape config: glob patterns for log files or journald query
-    --> /var/log/app/*.log
-    --> systemd service=nginx
-    --> syslog listening on localhost:1514
+[2] Loki Distributor receives log streams
+    --> validates labels and timestamps
+    --> routes to appropriate Ingester by hash ring
     |
     v
-[3] For each log line discovered:
-    [a] Add initial labels (job=app, instance=hostname)
-    [b] Apply pipeline stages:
-        - json: parse as JSON, add fields as labels
-        - regex: extract fields with regex capture groups
-        - timestamp: parse the timestamp field
-        - labels: add or drop labels
-        - drop: exclude lines matching condition
-    [c] Final labels: job, instance, level, service, etc.
-    |
-    v
-[4] Batch logs (e.g., 10s or 1000 lines) and send to Loki
-    --> compress with snappy
-    --> retry with backoff on failure
-    --> queue on disk if backend unavailable
-    |
-    v
-[5] Loki ingester receives logs
+[3] Ingester buffers logs in memory
     --> index by labels (job, instance, level, service, ...)
     --> store raw log text in chunks
     --> keep 1-5 minutes of uncompressed data, then flush to storage (S3/GCS/filesystem)
     |
     v
-[6] User queries Loki via Grafana LogQL
+[4] User queries Loki via Grafana LogQL
     --> {job="app"} - select all logs with label job=app
     --> {job="app"} | level="ERROR" - filter further by content
     --> rate({job="app"} | level="ERROR" [5m]) - count ERROR logs per second
-```
-
-```bash
-# Example: Promtail config
-cat /etc/promtail/config.yml
-
-# scrape log files + apply parsing
-scrape_configs:
-  - job_name: app
-    static_configs:
-      - targets: [localhost]
-        labels:
-          job: app
-          env: prod
-    pipeline_stages:
-      - json:
-          expressions:
-            timestamp: timestamp
-            level: level
-            message: message
-            trace_id: trace_id
-      - timestamp:
-          source: timestamp
-          format: "2006-01-02T15:04:05Z07:00"
-      - labels:
-          level:
-          trace_id:
-      - match:
-          selector: '{level!="DEBUG"}'
-          stages:
-            - drop: {}
-
-# tail logs in Grafana
-# Query: {job="app", env="prod"} | json | level="ERROR"
-# shows last 1000 ERROR logs from production app
 ```
 
 # Core Building Blocks
@@ -168,91 +117,11 @@ Query:       {job="api", env="prod"} | level="ERROR" | json | error="timeout"
 
 Related notes: [001-logging-overview](./001-logging-overview.md)
 
-### Promtail Scrape Configs
+### Log Collection Agent
 
-- **Scrape config** -- defines what logs to collect and which pipeline stages to apply.
-- **Targets** -- log files (glob pattern), systemd services, syslog listening port.
-- **Labels** -- static labels added to all logs from this config; can be overridden by pipeline stages.
-- **Pipeline stages** -- ordered steps to parse, transform, and filter logs before shipping.
-- Promtail is a log agent that scrapes files and journald, applies pipeline stages (parse, relabel, filter), ships to Loki.
+- Promtail is the legacy Loki agent for log collection, replaced by Grafana Alloy in this stack. See [../Alloy/001-alloy-overview](../Alloy/001-alloy-overview.md).
 
-```text
-Scrape config sections:
-
-job_name: app                          # job name (used in label)
-static_configs:                        # define log sources
-  - targets: [localhost]
-    labels:
-      job: app
-      env: prod
-pipeline_stages:                       # processing steps
-  - json: {}                           # parse as JSON
-  - regex: {}                          # extract with regex
-  - timestamp: {}                      # set timestamp
-  - labels: {}                         # set labels from parsed fields
-  - drop: {}                           # drop lines matching condition
-```
-
-Related notes: [001-logging-overview](./001-logging-overview.md)
-
-### Pipeline Stages
-
-- **json** -- parse log line as JSON; extract fields as key-value pairs.
-- **regex** -- extract fields using named capture groups (e.g., `(?P<level>\w+)`).
-- **multiline** -- merge multi-line log entries into a single entry (e.g., Java stack traces).
-- **timestamp** -- parse the timestamp field and set it as the entry timestamp.
-- **labels** -- create labels from parsed fields; these become queryable dimensions.
-- **drop** -- filter out logs matching a condition (reduce noise, save storage).
-- **keep** -- keep only logs matching a condition.
-- **metrics** -- create metrics (counts, histograms) from logs on the fly.
-- Pipeline stages: json, regex, timestamp, labels, drop, keep, metrics; order matters.
-
-```bash
-# Example: parse JSON, set labels, drop DEBUG
-pipeline_stages:
-  - json:
-      expressions:
-        level: level
-        service: service
-        message: msg
-        duration: duration_ms
-  - timestamp:
-      source: timestamp
-      format: "2006-01-02T15:04:05Z07:00"
-  - labels:
-      level:
-      service:
-  - match:
-      selector: '{level="DEBUG"}'
-      stages:
-        - drop: {}
-```
-
-Related notes: [001-logging-overview](./001-logging-overview.md)
-
-### Relabeling and Label Manipulation
-
-- **relabel_configs** -- Prometheus-style relabeling to rename, drop, or keep labels before shipping.
-- **Common uses** -- extract hostname from filepath, drop PII labels, standardize label names.
-- **Order matters** -- each relabel rule processes labels sequentially.
-- Relabel rules rename, drop, or keep labels before shipping; use for hostname extraction, PII removal.
-
-```bash
-# Example: extract instance from file path
-relabel_configs:
-  - source_labels: [__path__]
-    regex: '/var/log/(?P<instance>[^/]+)/app.log'
-    target_label: instance
-  - source_labels: [__hostname__]
-    target_label: node
-
-# Example: drop PII (user_id, api_key)
-relabel_configs:
-  - source_labels: [user_id]
-    action: drop
-```
-
-Related notes: [001-logging-overview](./001-logging-overview.md)
+Related notes: [001-logging-overview](./001-logging-overview.md), [../Alloy/001-alloy-overview](../Alloy/001-alloy-overview.md)
 
 ### LogQL Query Language
 
@@ -288,7 +157,7 @@ sum(count_over_time({job="app"} [5m])) by (service)
 histogram_quantile(0.95, sum(rate({job="api"} | json | latency_ms=`\d+` [5m])) by (le))
 ```
 
-Related notes: [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive.md)
+Related notes: [../Prometheus/001-prometheus-overview](../Prometheus/001-prometheus-overview.md), [003-logql-deep-dive](./003-logql-deep-dive.md)
 
 ### Label Best Practices (Low Cardinality)
 
@@ -349,72 +218,37 @@ s3: s3://my-bucket/loki/chunks   # S3 storage
 
 Related notes: [001-logging-overview](./001-logging-overview.md)
 
+### Loki vs ELK Comparison
+
+| Aspect              | Loki                        | ELK (Elasticsearch)              |
+| :------------------ | :-------------------------- | :------------------------------- |
+| **Indexing**        | Labels only (low cost)      | Full-text (all fields)           |
+| **Storage cost**    | Low (simple, label-indexed) | High (inverted index, replicas) |
+| **Full-text search**| Slow (must grep content)    | Fast and powerful               |
+| **Complexity**      | Simple (Loki + Alloy)       | Complex (Logstash, config)      |
+| **Memory per node** | Low (1-2GB baseline)        | High (8-16GB+ typical)           |
+| **Use case**        | Modern apps, structured     | Legacy apps, unstructured text  |
+
+- Choose Loki for Kubernetes/structured logs and simplicity
+- Choose ELK for complex analysis and unstructured logs
+
+Related notes: [001-logging-overview](./001-logging-overview.md)
+
 ---
-
-# Practical Command Set (Core)
-
-```bash
-# -- Promtail --
-
-# check Promtail is running
-systemctl status promtail
-docker ps | grep promtail
-
-# reload Promtail config (zero downtime)
-systemctl reload promtail
-docker exec <promtail> kill -HUP 1
-
-# check Promtail config syntax
-promtail -config.file=/etc/promtail/config.yml -dry-run
-
-# tail Promtail logs for errors
-journalctl -u promtail -f
-docker logs <promtail> -f
-
-# -- Loki --
-
-# check Loki API is healthy
-curl -s http://loki:3100/ready
-curl -s http://loki:3100/loki/api/v1/label
-
-# check Loki ingester status
-curl -s http://loki:3100/loki/api/v1/status
-
-# query logs from Loki API directly (LogQL)
-curl -s 'http://loki:3100/loki/api/v1/query_range?query={job="app"}&start=<unix-ts>&end=<unix-ts>&limit=1000' | jq '.data.result'
-
-# list labels in Loki
-curl -s http://loki:3100/loki/api/v1/label | jq '.data[]'
-
-# list label values
-curl -s 'http://loki:3100/loki/api/v1/label/job/values' | jq '.data[]'
-
-# -- Grafana integration --
-
-# check Loki data source connectivity in Grafana
-curl -s -u admin:admin http://grafana:3000/api/datasources | jq '.[] | select(.name=="Loki") | {name, type, url}'
-
-# test Loki data source
-curl -s -u admin:admin -X POST http://grafana:3000/api/datasources/1/query \
-  -H 'Content-Type: application/json' \
-  -d '{"queries":[{"refId":"A","expr":"{job=\"app\"}"}]}'
-```
 
 # Troubleshooting Guide
 
-### Promtail not shipping logs to Loki
+### Logs not arriving in Loki
 
-1. Is Promtail running? `systemctl status promtail` / `docker ps | grep promtail`. Not running means start it.
-2. Is Promtail config valid? `promtail -config.file=config.yml -dry-run` and `journalctl -u promtail -f`. Config error means fix and reload.
-3. Are log files being tailed? `tail -f /var/log/app.log` or `journalctl -u app -f`. No new logs means app not logging.
-4. Can Promtail reach Loki? `curl -v http://loki:3100/ready` and `journalctl -u promtail | grep "error\|failed"`. Connection refused means check firewall, Loki address, port.
-5. Are logs arriving at Loki? `curl http://loki:3100/loki/api/v1/label` or Grafana Explore: query `{job="app"}`. Empty result means check label names in Promtail config.
-6. Check Promtail agent logs for errors: `journalctl -u promtail -f --all` or `docker logs <promtail> -f`. Debug invalid JSON parsing, label cardinality, network errors.
-7. Check Loki resource usage: `systemctl status loki` and `curl http://loki:3100/loki/api/v1/status`. Disk full or memory exhausted means increase limits or reduce retention.
+1. Is the log agent running? `kubectl get pods -n monitoring -l app=alloy` or check agent status. Not running means start it.
+2. Can the agent reach Loki? `curl -v http://loki:3100/ready`. Connection refused means check firewall, Loki address, port.
+3. Are logs arriving at Loki? `curl http://loki:3100/loki/api/v1/label` or Grafana Explore: query `{job="app"}`. Empty result means check label config in agent.
+4. Check agent logs for errors: `kubectl logs -n monitoring <agent-pod> -f`. Debug invalid JSON parsing, label cardinality, network errors.
+5. Check Loki resource usage: `kubectl top pod -n monitoring -l app=loki` and `curl http://loki:3100/loki/api/v1/status`. Disk full or memory exhausted means increase limits or reduce retention.
 
 ### LogQL query returns no results
 
-1. Does the label exist in Loki? `curl http://loki:3100/loki/api/v1/label | jq '.data[]'`. Missing label means check Promtail pipeline stages.
+1. Does the label exist in Loki? `curl http://loki:3100/loki/api/v1/label | jq '.data[]'`. Missing label means check agent pipeline stages.
 2. Check label values: `curl 'http://loki:3100/loki/api/v1/label/job/values' | jq '.data[]'`. Value not present means logs not shipped yet or different value.
 3. Try simpler query first: `{job="app"}` (stream selector only). No results means no logs from that job; results means add filters one by one.
 4. Check time range. Grafana: change time picker to "Last 24 hours". API: verify start/end unix timestamps are correct.

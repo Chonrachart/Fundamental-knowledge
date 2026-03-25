@@ -93,7 +93,7 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - Each panel runs one or more queries in the data source language (PromQL, LogQL, Flux).
 - Use Explore mode to test queries before adding them to a panel.
 
-Related notes: [004-promql-deep-dive](./004-promql-deep-dive.md), [001-grafana-overview](./001-grafana-overview.md)
+Related notes: [../Prometheus/001-prometheus-overview](../Prometheus/001-prometheus-overview.md), [001-grafana-overview](./001-grafana-overview.md)
 
 ### Transforms
 
@@ -117,7 +117,7 @@ Related notes: [002-dashboards-queries](./002-dashboards-queries.md)
 - **Error ratio example** -- `sum(rate(http_requests_total{code=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))`.
 - PromQL essentials: rate() for counters, sum by() for aggregation, histogram_quantile() for percentiles.
 
-Related notes: [004-promql-deep-dive](./004-promql-deep-dive.md), [../000-core](../000-core.md)
+Related notes: [../Prometheus/001-prometheus-overview](../Prometheus/001-prometheus-overview.md), [../000-core](../000-core.md)
 
 ### Variables
 
@@ -143,31 +143,6 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 Related notes: [001-grafana-overview](./001-grafana-overview.md), [../Zabbix/001-zabbix-overview](../Zabbix/001-zabbix-overview.md)
 
 ---
-
-# Practical Command Set (Core)
-
-```bash
-# provision a data source via config file (restart Grafana to apply)
-cat /etc/grafana/provisioning/datasources/prometheus.yaml
-# type: prometheus, url: http://prometheus:9090, access: proxy
-
-# export a dashboard as JSON via API
-curl -s -H "Authorization: Bearer $GRAFANA_TOKEN" \
-  http://localhost:3000/api/dashboards/uid/DASHBOARD_UID | jq .
-
-# import a dashboard JSON via API
-curl -s -X POST -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $GRAFANA_TOKEN" \
-  -d @dashboard.json http://localhost:3000/api/dashboards/db
-
-# list all dashboards
-curl -s -H "Authorization: Bearer $GRAFANA_TOKEN" \
-  http://localhost:3000/api/search?type=dash-db | jq '.[].title'
-
-# test a data source connection via API
-curl -s -H "Authorization: Bearer $GRAFANA_TOKEN" \
-  http://localhost:3000/api/datasources/proxy/1/api/v1/query?query=up
-```
 
 # Troubleshooting Guide
 

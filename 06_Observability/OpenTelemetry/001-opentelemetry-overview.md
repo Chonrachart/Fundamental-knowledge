@@ -97,7 +97,7 @@ service:
 - Decouples telemetry generation from telemetry storage -- the collector handles routing and transformation
 - Eliminates vendor lock-in; OTLP is the universal wire protocol
 
-Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), [Loki and Promtail](../Logging/002-loki-and-promtail.md)
+Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), [Loki](../Logging/002-loki.md)
 
 ### OTel Collector
 
@@ -107,7 +107,7 @@ Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), 
 - The collector runs as a standalone binary (`otelcol`) or as a Kubernetes pod; use `otelcol-contrib` for the full set of community components
 - Pipeline definition lives in `service.pipelines` -- each pipeline binds receivers, processors, and exporters for one signal type
 
-Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), [Tempo overview](../Tracing/001-tempo-overview.md)
+Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), [Tempo overview](../Tracing/001-tempo-overview.md), [Alloy overview](../Alloy/001-alloy-overview.md)
 
 ### Instrumentation
 
@@ -127,7 +127,7 @@ Related notes: [../000-core](../000-core.md)
 - Each signal type has its own pipeline in the collector, allowing independent processing and routing
 - Trace context propagation (W3C TraceContext headers) links logs and metrics to their originating trace
 
-Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), [Loki and Promtail](../Logging/002-loki-and-promtail.md), [Tempo overview](../Tempo/001-tempo-overview.md)
+Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), [Loki](../Logging/002-loki.md), [Tempo overview](../Tracing/001-tempo-overview.md)
 
 ### Deployment Patterns
 
@@ -137,7 +137,7 @@ Related notes: [Prometheus overview](../Prometheus/001-prometheus-overview.md), 
 - Common pattern: DaemonSet collectors forward to a Gateway collector for cross-cluster export and advanced processing
 - Start with DaemonSet for simplicity; add Gateway when you need centralized processing or multi-cluster aggregation
 
-Related notes: [../000-core](../000-core.md)
+Related notes: [../000-core](../000-core.md), [Alloy overview](../Alloy/001-alloy-overview.md)
 
 ### Kubernetes Integration
 
@@ -145,71 +145,10 @@ Related notes: [../000-core](../000-core.md)
 - Auto-instrumentation injection adds the SDK agent to pods via annotation: `instrumentation.opentelemetry.io/inject-python: "true"`
 - The operator creates an `Instrumentation` CR that defines which languages to instrument and where to send telemetry
 - Collector deployed as DaemonSet receives telemetry from all pods on the node via OTLP
-- Helm chart: `open-telemetry/opentelemetry-collector` for the collector, `open-telemetry/opentelemetry-operator` for the operator
+- For Grafana Alloy as an OTel-compatible collector in K8s, see [../Alloy/001-alloy-overview](../Alloy/001-alloy-overview.md)
 
 Related notes: [../000-core](../000-core.md)
 
-# Practical Command Set (Core)
-
-```bash
-# -- Deploy OTel Collector via Helm --
-helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-helm repo update
-helm install otel-collector open-telemetry/opentelemetry-collector \
-  --namespace observability --create-namespace \
-  -f otel-collector-values.yaml
-
-# -- Deploy OTel Operator --
-helm install otel-operator open-telemetry/opentelemetry-operator \
-  --namespace observability --set admissionWebhooks.certManager.enabled=false
-
-# -- Check collector pod status --
-kubectl get pods -n observability -l app.kubernetes.io/name=opentelemetry-collector
-
-# -- View collector logs --
-kubectl logs -n observability -l app.kubernetes.io/name=opentelemetry-collector --tail=50
-
-# -- Test OTLP gRPC endpoint with grpcurl --
-grpcurl -plaintext localhost:4317 list
-
-# -- Test OTLP HTTP endpoint --
-curl -v http://localhost:4318/v1/traces -H "Content-Type: application/json" -d '{"resourceSpans":[]}'
-
-# -- View collector internal metrics (self-monitoring) --
-curl -s http://localhost:8888/metrics | head -30
-
-# -- Port-forward collector for local testing --
-kubectl port-forward -n observability svc/otel-collector-opentelemetry-collector 4317:4317 4318:4318
-
-# -- Check OTel Operator CRDs --
-kubectl get crd | grep opentelemetry
-
-# -- List auto-instrumentation configs --
-kubectl get instrumentation -A
-```
-
 # Troubleshooting Guide
 
-### Collector Not Receiving Data
-
-1. Verify the collector pod is running: `kubectl get pods -n observability -l app.kubernetes.io/name=opentelemetry-collector`
-2. Check that receiver ports are exposed: `kubectl get svc -n observability` -- confirm ports 4317 (gRPC) and 4318 (HTTP) are listed
-3. Confirm the application's `OTEL_EXPORTER_OTLP_ENDPOINT` points to the correct collector service DNS (e.g., `http://otel-collector.observability.svc.cluster.local:4317`)
-4. Check collector logs for receiver errors: `kubectl logs -n observability -l app.kubernetes.io/name=opentelemetry-collector | grep -i error`
-5. Test connectivity from the app pod: `kubectl exec -it <app-pod> -- curl -v http://otel-collector.observability:4318/v1/traces`
-
-### Exporter Connection Failures
-
-1. Check collector logs for exporter errors: look for `exporting failed` or `connection refused` messages
-2. Verify the backend endpoint is reachable from the collector: `kubectl exec -it <collector-pod> -- wget -qO- http://prometheus:9090/-/healthy`
-3. Confirm TLS settings match -- if the backend uses plain HTTP, set `tls.insecure: true` in the exporter config
-4. Check for network policies blocking traffic between the collector namespace and the backend namespace
-5. Validate exporter config syntax: run `otelcol validate --config=/etc/otelcol/config.yaml` inside the collector pod
-
-### High Memory Usage / OOMKilled
-
-1. Check if `memory_limiter` processor is configured -- it must be the first processor in every pipeline
-2. Review `memory_limiter` settings: `limit_mib` should be ~80% of the pod's memory limit (e.g., 400 MiB limit for 512 MiB pod)
-3. Check batch processor settings: reduce `send_batch_size` or `timeout` if batches grow too large
-4. Look for high cardinality metrics: `curl -s http://localhost:8888/metrics | grep otelcol_exporter_sent` -- unexpected volume indicates cardinality explosion
-5. Scale horizontally (add replicas for Gateway pattern) or switch from Gateway to DaemonSet to distribute load across nodes
+For Alloy-specific troubleshooting, see [../Alloy/001-alloy-overview](../Alloy/001-alloy-overview.md).

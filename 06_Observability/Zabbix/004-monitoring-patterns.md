@@ -102,12 +102,9 @@ Related notes: [001-zabbix-overview](./001-zabbix-overview.md)
 ### Low-Level Discovery (LLD)
 
 - Discovery rule runs a key (e.g. `vfs.fs.discovery`) that returns JSON with macros: `{#FSNAME}`, `{#FSTYPE}`.
-- **Item prototypes** use discovery macros in the key: `vfs.fs.size[{#FSNAME},pfree]` -- one real item created per filesystem.
-- **Trigger prototypes** use discovery macros in the expression: fire per discovered entity.
-- **Lifetime**: Controls how long discovered objects persist after the entity disappears (default 30d).
 - Common use cases: filesystems, network interfaces, Docker containers, database tables, Kubernetes pods.
 
-Related notes: [003-actions-templates](./003-actions-templates.md)
+Related notes: [003-actions-templates](./003-actions-templates.md) for LLD details
 
 ### Dependent Items
 
@@ -130,48 +127,13 @@ Related notes: [002-items-triggers](./002-items-triggers.md)
 
 ### Trigger Dependencies
 
-- Trigger A depends on Trigger B: if B is in PROBLEM state, A is suppressed (not evaluated).
 - Prevents alert floods: when "Host unreachable" fires, all other triggers on that host are suppressed.
 - Cascade pattern: Host down -> Service down -> Application error; only the root cause fires.
-- Dependency is configured on the trigger object; a trigger can have multiple dependencies.
 
-Related notes: [002-items-triggers](./002-items-triggers.md), [003-actions-templates](./003-actions-templates.md)
+Related notes: [002-items-triggers](./002-items-triggers.md) for trigger expressions and dependencies
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# test passive agent key
-zabbix_get -s 10.0.1.10 -k system.cpu.util
-
-# send a value via trapper (external push)
-zabbix_sender -z zabbix-server -s "web-server-01" -k custom.metric -o 42
-
-# test SNMP connectivity
-snmpwalk -v2c -c public 10.0.1.1 .1.3.6.1.2.1.2.2.1.2
-
-# check agent configuration (active vs passive)
-grep -E '^Server=|^ServerActive=' /etc/zabbix/zabbix_agent2.conf
-
-# list agent supported keys
-zabbix_agent2 -p
-
-# test a UserParameter on the agent
-zabbix_agent2 -t custom.script.key
-```
-
-
-- Agent = install on host, rich OS metrics; Agentless = SNMP, HTTP, SSH, IPMI, JMX for devices and services.
-- Passive agent: server asks on port 10050; Active agent: agent pushes to server on port 10051.
-- Use active mode for hosts behind NAT, large-scale deployments, and log monitoring.
-- LLD auto-discovers entities and creates items/triggers from prototypes; lifetime controls cleanup.
-- Dependent items reduce polling: one master item, many derived metrics via preprocessing.
-- Preprocessing chain: JSONPath, regex, JavaScript, discard unchanged; steps execute in order.
-- Trigger dependencies suppress child triggers when a parent is in PROBLEM state; prevents alert storms.
-- Hybrid approach is common: agent for servers, SNMP for network, HTTP for APIs.
-
-Related notes: [../000-core](../000-core.md), [001-zabbix-overview](./001-zabbix-overview.md), [002-items-triggers](./002-items-triggers.md), [003-actions-templates](./003-actions-templates.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
 # Troubleshooting Guide
 
 ### Data collection not working for a specific pattern

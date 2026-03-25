@@ -50,6 +50,8 @@
 - Zabbix is a standalone platform (agent-based, SNMP) used in traditional/legacy infrastructure monitoring.
 - Grafana unifies all backends into a single UI for dashboards, queries, and alerting.
 
+Related notes: [Alloy/001-alloy-overview](./Alloy/001-alloy-overview.md)
+
 # Modern Observability Stack (Grafana + Prometheus + Loki + Tempo + Kafka)
 
 This is the recommended stack for Kubernetes environments. This section shows how they connect as a system.
@@ -140,7 +142,7 @@ Debugging flow:
 4. **OpenTelemetry** — unify collection; replace individual agents with one collector
 5. **Kafka** — add last; only when direct ingestion becomes a bottleneck at scale
 
-Related notes: [Prometheus/001-prometheus-overview](./Prometheus/001-prometheus-overview.md), [Logging/002-loki-and-promtail](./Logging/002-loki-and-promtail.md), [Tracing/001-tempo-overview](./Tracing/001-tempo-overview.md), [OpenTelemetry/001-opentelemetry-overview](./OpenTelemetry/001-opentelemetry-overview.md), [Kafka/001-kafka-overview](./Kafka/001-kafka-overview.md)
+Related notes: [Prometheus/001-prometheus-overview](./Prometheus/001-prometheus-overview.md), [Logging/002-loki](./Logging/002-loki.md), [Tracing/001-tempo-overview](./Tracing/001-tempo-overview.md), [OpenTelemetry/001-opentelemetry-overview](./OpenTelemetry/001-opentelemetry-overview.md), [Kafka/001-kafka-overview](./Kafka/001-kafka-overview.md)
 
 # Mental Model
 
@@ -173,6 +175,7 @@ curl -s 'http://prometheus:9090/api/v1/query?query=rate(http_requests_total{stat
 # Core Building Blocks
 
 ### Three Pillars (Metrics, Logs, Traces)
+![Three Pillars of Observability](./Pic/three-pillars.png)
 
 - Metrics provide aggregated numeric data over time -- best for alerting and trend analysis.
 - Logs capture discrete events with context -- best for debugging specific failures.
@@ -182,15 +185,17 @@ curl -s 'http://prometheus:9090/api/v1/query?query=rate(http_requests_total{stat
 Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md), [Zabbix/001-zabbix-overview](./Zabbix/001-zabbix-overview.md)
 
 ### Metrics
+![Metrics](./Pic/Metrics.png)
 
 - Time-series data points (timestamp + value + labels); types include counters, gauges, histograms, and summaries.
 - Collection modes: pull/scrape (Prometheus scrapes /metrics endpoint) or push (application pushes to Pushgateway or StatsD).
 - Stored in time-series databases (Prometheus, InfluxDB, VictoriaMetrics); queried with PromQL or similar.
 - Prometheus uses a pull/scrape model; applications expose /metrics endpoints; PromQL is the query language.
 
-Related notes: [Grafana/004-promql-deep-dive](./Grafana/004-promql-deep-dive.md)
+Related notes: [Prometheus/001-prometheus-overview](./Prometheus/001-prometheus-overview.md)
 
 ### Logs
+![Logs](./Pic/log.png)
 
 - Structured logs (JSON key-value) are easier to parse and query; unstructured logs (plain text) require pattern matching.
 - Log aggregation pipelines collect, parse, and ship logs to central storage (Loki, Elasticsearch, Splunk).
@@ -200,6 +205,7 @@ Related notes: [Grafana/004-promql-deep-dive](./Grafana/004-promql-deep-dive.md)
 Related notes: [Grafana/002-dashboards-queries](./Grafana/002-dashboards-queries.md)
 
 ### Traces
+![Traces](./Pic/traces.png)
 
 - Distributed tracing follows a request across microservices; each unit of work is a span with start time, duration, and metadata.
 - A trace ID propagated in headers (e.g. W3C Trace Context) links all spans belonging to one request.
@@ -246,39 +252,6 @@ Related notes: [Zabbix/001-zabbix-overview](./Zabbix/001-zabbix-overview.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# -- Prometheus --
-# check Prometheus is running and healthy
-curl -s http://prometheus:9090/-/healthy
-
-# query instant metric value
-curl -s 'http://prometheus:9090/api/v1/query?query=up' | jq '.data.result'
-
-# check targets and their scrape status
-curl -s http://prometheus:9090/api/v1/targets | jq '.data.activeTargets[] | {instance: .labels.instance, health: .health}'
-
-# -- Grafana --
-# check Grafana health
-curl -s http://grafana:3000/api/health
-
-# list configured data sources
-curl -s -u admin:admin http://grafana:3000/api/datasources | jq '.[].name'
-
-# -- Zabbix --
-# check Zabbix server is running
-systemctl status zabbix-server
-
-# check Zabbix agent connectivity from server
-zabbix_get -s <agent-host> -k agent.ping
-
-# list recent triggers via Zabbix API
-curl -s -X POST http://zabbix:8080/api_jsonrpc.php \
-  -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","method":"trigger.get","params":{"output":["description","priority"],"filter":{"value":1},"sortfield":"lastchange","limit":5},"auth":"<auth-token>","id":1}' | jq '.result'
-```
-
 # Troubleshooting Guide
 
 ### Service degradation or outage detected
@@ -293,20 +266,21 @@ curl -s -X POST http://zabbix:8080/api_jsonrpc.php \
 
 # Topic Map
 
-- [Prometheus/001-prometheus-overview](./Prometheus/001-prometheus-overview.md) -- TSDB, scrape config, targets, service discovery, TSDB, federation
-- [Prometheus/002-exporters-and-instrumentation](./Prometheus/002-exporters-and-instrumentation.md) -- Node exporter, application instrumentation, custom exporters, Pushgateway
-- [Prometheus/003-alertmanager](./Prometheus/003-alertmanager.md) -- Alert routing, grouping, inhibition, silences, receivers
-- [Logging/001-logging-overview](./Logging/001-logging-overview.md) -- Structured vs unstructured logs, log levels, log aggregation pipeline, Loki, ELK
-- [Logging/002-loki-and-promtail](./Logging/002-loki-and-promtail.md) -- Loki architecture, label-based indexing, Promtail agent, LogQL, retention
-- [Logging/003-elk-basics](./Logging/003-elk-basics.md) -- Elasticsearch, Logstash, Kibana, Filebeat, ILM, Loki vs ELK comparison
-- [Tracing/001-tempo-overview](./Tracing/001-tempo-overview.md) -- Tempo architecture, trace storage, TraceQL, span discovery, Grafana integration
-- [OpenTelemetry/001-opentelemetry-overview](./OpenTelemetry/001-opentelemetry-overview.md) -- OTel Collector, receivers/processors/exporters, SDK, auto-instrumentation, OTLP
-- [Kafka/001-kafka-overview](./Kafka/001-kafka-overview.md) -- Kafka in observability, broker/topic/partition, telemetry buffering, when to use vs skip
-- [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md) -- Dashboard, data source, panel, alert
-- [Grafana/002-dashboards-queries](./Grafana/002-dashboards-queries.md) -- Panels, PromQL, variables
-- [Grafana/003-alerting](./Grafana/003-alerting.md) -- Alert rule, contact point, notification
-- [Grafana/004-promql-deep-dive](./Grafana/004-promql-deep-dive.md) -- PromQL, rate, aggregation, histogram
-- [Zabbix/001-zabbix-overview](./Zabbix/001-zabbix-overview.md) -- Host, item, trigger, action
-- [Zabbix/002-items-triggers](./Zabbix/002-items-triggers.md) -- Item types, key, trigger expression
-- [Zabbix/003-actions-templates](./Zabbix/003-actions-templates.md) -- Action, escalation, templates
-- [Zabbix/004-monitoring-patterns](./Zabbix/004-monitoring-patterns.md) -- Agent/agentless, LLD, dependent items
+- [Prometheus/001-prometheus-overview](./Prometheus/001-prometheus-overview.md) — TSDB, scrape config, targets, service discovery, federation, PromQL
+- [Prometheus/002-exporters-and-instrumentation](./Prometheus/002-exporters-and-instrumentation.md) — Node exporter, application instrumentation, custom exporters, Pushgateway
+- [Prometheus/003-alertmanager](./Prometheus/003-alertmanager.md) — Alert routing, grouping, inhibition, silences, receivers
+- [Logging/001-logging-overview](./Logging/001-logging-overview.md) — Structured vs unstructured logs, log levels, log aggregation pipeline
+- [Logging/002-loki](./Logging/002-loki.md) — Loki architecture, label-based indexing, LogQL, retention, Loki vs ELK
+- [Logging/003-logql-deep-dive](./Logging/003-logql-deep-dive.md) — LogQL pipeline stages, label filters, metric queries from logs
+- [Tracing/001-tempo-overview](./Tracing/001-tempo-overview.md) — Tempo architecture, trace storage, span discovery, Grafana integration
+- [Tracing/002-traceql-deep-dive](./Tracing/002-traceql-deep-dive.md) — TraceQL structural queries, span filtering, resource/span attributes
+- [OpenTelemetry/001-opentelemetry-overview](./OpenTelemetry/001-opentelemetry-overview.md) — OTel standard, OTLP, SDK, auto-instrumentation, collector concepts
+- [Alloy/001-alloy-overview](./Alloy/001-alloy-overview.md) — Grafana Alloy collector, River syntax, component model, K8s deployment
+- [Kafka/001-kafka-overview](./Kafka/001-kafka-overview.md) — Kafka in observability, broker/topic/partition, telemetry buffering
+- [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md) — Dashboard, data source, panel, alert
+- [Grafana/002-dashboards-queries](./Grafana/002-dashboards-queries.md) — Panels, queries, variables, transforms
+- [Grafana/003-alerting](./Grafana/003-alerting.md) — Grafana alert rule, contact point, notification policy
+- [Zabbix/001-zabbix-overview](./Zabbix/001-zabbix-overview.md) — Host, item, trigger, action
+- [Zabbix/002-items-triggers](./Zabbix/002-items-triggers.md) — Item types, key, trigger expression
+- [Zabbix/003-actions-templates](./Zabbix/003-actions-templates.md) — Action, escalation, templates, LLD
+- [Zabbix/004-monitoring-patterns](./Zabbix/004-monitoring-patterns.md) — Agent/agentless, dependent items, preprocessing

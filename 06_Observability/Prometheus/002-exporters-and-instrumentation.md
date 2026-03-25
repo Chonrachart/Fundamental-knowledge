@@ -169,13 +169,10 @@ Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [../000-
 
 ### Metric Types Exposed by Exporters
 
-- **Counter**: always increases or resets (http_requests_total, errors_total, bytes_transmitted).
-- **Gauge**: current value up or down (memory_bytes, cpu_percent, active_connections).
-- **Histogram**: distribution of observations in buckets (request_duration_seconds_bucket, response_size_bytes_bucket).
-- **Summary**: quantile observations (p50, p95, p99 of latency); deprecated in favor of histograms for Prometheus 1.0+.
+- Exporters expose four metric types: counter, gauge, histogram, and summary — see [../000-core](../000-core.md) for definitions
 - Exporters emit metrics in Prometheus text format: `metric_name{label1="value1", label2="value2"} value timestamp`.
 
-Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive.md)
+Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [001-prometheus-overview](./001-prometheus-overview.md)
 
 ### Custom Exporters and Collectors
 
@@ -344,60 +341,6 @@ Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [../000-
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# -- Node Exporter --
-# start node exporter on port 9100
-node_exporter
-
-# check node metrics
-curl -s http://localhost:9100/metrics | head -20
-
-# test a specific metric
-curl -s http://localhost:9100/metrics | grep 'node_cpu_seconds_total'
-
-# -- Custom Exporter / Instrumentation --
-# start a simple exporter (if built as server)
-./my_custom_exporter --port=9999
-
-# push metrics to Pushgateway
-echo "my_metric 42" | curl -X POST --data-binary @- http://pushgateway:9091/metrics/job/test
-
-# check Pushgateway contents
-curl http://pushgateway:9091/metrics | grep my_metric
-
-# -- Testing Metrics --
-# validate Prometheus text format
-curl -s http://localhost:8080/metrics | promtool query instant
-
-# check metric syntax for exporter endpoint
-curl -s http://exporter:9100/metrics | grep -E '^[a-zA-Z_:][a-zA-Z0-9_:]*\{' | head -5
-
-# count number of unique metrics
-curl -s http://localhost:9100/metrics | grep -v '^#' | cut -d'{' -f1 | sort -u | wc -l
-
-# -- Debugging Exporters --
-# verbose curl to check headers and response time
-curl -w '\nTime: %{time_total}s\n' -v http://localhost:9100/metrics 2>&1 | head -30
-
-# test exporter health (HTTP 200)
-curl -I -s -o /dev/null -w '%{http_code}\n' http://localhost:9100/metrics
-
-# check if exporter is consuming high memory
-ps aux | grep -E 'exporter|node_exporter' | grep -v grep
-```
-
-
-- Exporters expose system metrics in Prometheus format; applications instrument with client libraries or use exporters for legacy systems.
-- Node Exporter scrapes infrastructure (CPU, memory, disk, network); runs on port 9100 by default.
-- Metric types: counter (cumulative), gauge (instantaneous), histogram (distribution), summary (quantiles, deprecated).
-- Metric naming: `exporter_name_unit` with help text (e.g. `mysql_connections_total`, `redis_memory_bytes`).
-- Avoid high cardinality labels: don't use user ID, request ID, or unbounded dimensions as labels.
-- Pushgateway for ephemeral jobs: batch/cron jobs push metrics instead of being scraped; Prometheus scrapes Pushgateway.
-- Client libraries (Go, Python, Java, Node.js) record metrics in-memory and expose /metrics HTTP endpoint.
-- Custom exporters query external systems and translate to Prometheus format; useful for proprietary or legacy applications.
-- Exporter best practices: one per system, descriptive names, unit suffixes, low cardinality, error handling, fast response time.
 # Troubleshooting Guide
 
 ### Exporter endpoint returns no metrics or errors

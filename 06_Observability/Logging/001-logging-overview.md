@@ -103,8 +103,7 @@ Structured (JSON):
   {"timestamp":"2026-03-17T10:15:30Z","level":"ERROR","service":"api","error":"Connection timeout","duration_ms":5000,"retries":5}
 ```
 
-Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-basics](./003-elk-basics.md)
-
+Related notes: [002-loki](./002-loki.md)
 ### Log Levels
 
 - **DEBUG** -- verbose output for development; typically disabled in production.
@@ -124,8 +123,7 @@ Related notes: [../000-core](../000-core.md)
 - **Compliance** and **audit trails** require persistent, tamper-proof log storage.
 - Centralized logging accelerates incident response: search all services by timestamp, error message, or trace ID.
 
-Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-basics](./003-elk-basics.md)
-
+Related notes: [002-loki](./002-loki.md)
 ### Log Aggregation Pipeline
 
 - **Collection** -- agents scrape logs from files, sockets, or event streams (Promtail, Filebeat, Logstash, Fluentd).
@@ -136,18 +134,17 @@ Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-bas
 - **Querying** -- search via full-text (Elasticsearch) or label filters (Loki); correlate with metrics/traces.
 - Log aggregation pipeline: collection (agent scrapes logs) -> parsing (extract fields) -> shipping (batch to backend) -> storage (Loki/Elasticsearch).
 
-Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [003-elk-basics](./003-elk-basics.md)
-
+Related notes: [002-loki](./002-loki.md)
 ### Loki + Promtail + Grafana Stack
 
 - **Loki** -- log database that indexes on **labels only** (not full-text); uses label-based filtering and metric aggregation (counts, rates).
-- **Promtail** -- log agent that scrapes files or journald, applies pipeline stages (parse, relabel, drop), ships to Loki.
+- **Promtail** (legacy, replaced by **Grafana Alloy**) -- log agent that scrapes files or journald, applies pipeline stages (parse, relabel, drop), ships to Loki.
 - **Grafana** -- unified visualization; panels query Loki with LogQL for logs and metrics (rate, count) from same timestamp.
 - **Advantage** -- simple, low cost, integrates seamlessly with Prometheus metrics.
 - **Trade-off** -- LogQL is more limited than full-text search; requires good label design.
-- Promtail is a lightweight agent for Loki; Filebeat is lightweight for Elasticsearch; Logstash is more powerful but heavier.
+- Promtail (now replaced by Grafana Alloy) is a lightweight agent for Loki; Filebeat is lightweight for Elasticsearch; Logstash is more powerful but heavier.
 
-Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
+Related notes: [002-loki](./002-loki.md), [003-logql-deep-dive](./003-logql-deep-dive.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
 
 ### ELK Stack (Elasticsearch, Logstash, Kibana)
 
@@ -159,7 +156,7 @@ Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md), [../Grafana/
 - **Trade-off** -- higher resource use, more complex configuration, steeper learning curve.
 - Loki indexes labels only (low cardinality); Elasticsearch indexes all fields (full-text search, higher resource use).
 
-Related notes: [003-elk-basics](./003-elk-basics.md), [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
+Related notes: [002-loki](./002-loki.md), [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
 
 ### Syslog and Journald
 
@@ -172,7 +169,7 @@ Related notes: [003-elk-basics](./003-elk-basics.md), [../Grafana/002-dashboards
   - Persistent storage in `/var/log/journal` or volatile in `/run/log/journal`.
 - Journald is the systemd journal; query with `journalctl`. Syslog is a protocol for sending logs to a remote server.
 
-Related notes: [002-loki-and-promtail](./002-loki-and-promtail.md)
+Related notes: [002-loki](./002-loki.md)
 
 ### Log Rotation (logrotate)
 
@@ -209,49 +206,6 @@ Related notes: [../000-core](../000-core.md)
 Related notes: [../000-core](../000-core.md), [../Grafana/003-alerting](../Grafana/003-alerting.md)
 
 ---
-
-# Practical Command Set (Core)
-
-```bash
-# -- View and tail logs --
-
-# tail syslog in real-time
-tail -f /var/log/syslog
-
-# tail journald for a specific service
-journalctl -u nginx -f
-
-# tail journald with JSON output (structured)
-journalctl -u app -o json | jq '.MESSAGE, .PRIORITY'
-
-# search journald logs from the last hour
-journalctl --since "1 hour ago" -n 100
-
-# filter journald by priority (err, warning, etc.)
-journalctl PRIORITY=3
-
-# -- Logrotate --
-
-# test logrotate config without rotating
-logrotate -d /etc/logrotate.conf
-
-# force rotate a specific file
-logrotate -f /etc/logrotate.d/app
-
-# -- Log file inspection --
-
-# search for ERROR in a log file
-grep ERROR /var/log/app.log | wc -l
-
-# count logs by level
-grep -o '\[ERROR\]\|\[WARN\]\|\[INFO\]' /var/log/app.log | sort | uniq -c
-
-# extract JSON fields from structured logs
-cat /var/log/app.log | jq 'select(.level=="ERROR") | {timestamp, message, error}'
-
-# find largest log files
-du -sh /var/log/* | sort -rh | head -10
-```
 
 # Troubleshooting Guide
 

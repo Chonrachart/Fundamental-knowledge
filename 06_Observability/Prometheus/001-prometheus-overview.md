@@ -157,13 +157,9 @@ Related notes: [../000-core](../000-core.md), [002-exporters-and-instrumentation
 
 ### Metric Types Exposed by Prometheus
 
-- **Counter**: monotonically increasing value (requests total, errors total); always increases or resets.
-- **Gauge**: instantaneous value that can go up and down (CPU usage, memory, disk, temperature).
-- **Histogram**: buckets of observations (request latency, response size); outputs _bucket, _count, _sum series.
-- **Summary**: quantile observations (p50, p95, p99 of latency); outputs _count and _sum; deprecated in favor of histograms.
-- Metric types: counter (increasing), gauge (up/down), histogram (distribution), summary (quantiles).
+- Prometheus supports four metric types: counter, gauge, histogram, and summary — see [../000-core](../000-core.md) for definitions
 
-Related notes: [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive.md)
+Related notes: [../000-core](../000-core.md)
 
 ### TSDB Storage and Compaction
 
@@ -250,7 +246,7 @@ Related notes: [003-alertmanager](./003-alertmanager.md), [../Grafana/003-alerti
 - Common patterns: rate of change (`rate(counter[5m])`), error rate (`sum(rate(...[5m])) / sum(rate(...[5m]))`), quantiles (`histogram_quantile(0.99, ...)`).
 - PromQL queries instant vectors (now) or range vectors (time window); functions like rate(), sum(), histogram_quantile().
 
-Related notes: [../Grafana/004-promql-deep-dive](../Grafana/004-promql-deep-dive.md)
+Related notes: see PromQL subsections below
 
 ### Relabeling and Label Manipulation
 
@@ -269,65 +265,77 @@ relabel_configs:
 
 Related notes: [002-exporters-and-instrumentation](./002-exporters-and-instrumentation.md), [../000-core](../000-core.md)
 
+### PromQL
+
+- **Metric** = name + optional **labels** (key-value pairs); **sample** = (metric, timestamp, value).
+- For metric type definitions (counter, gauge, histogram, summary), see [../000-core](../000-core.md)
+- **Selectors**: `name{label="value"}`; operators: `=`, `!=`, `=~` (regex match), `!~` (regex not match).
+- Example: `http_requests_total{job="api", code=~"5.."}` selects all 5xx requests for the api job.
+- Query-building flow: select metric -> filter labels -> apply function (rate, increase) -> aggregate (sum, avg) -> format output.
+
+Related notes: [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md), [../000-core](../000-core.md)
+
+### rate(), increase(), irate()
+
+- **rate(metric[window])**: Per-second average rate over the window (e.g. 5m); use with counters only; smooths spikes.
+- **increase(metric[window])**: Total increase over the window; approximately rate * seconds; use for "how many in the last 5m".
+- **irate(metric[window])**: Instant rate calculated from the last two data points; more sensitive to spikes; use for fast-changing counters.
+- Always apply a range with counters: `rate(http_requests_total[5m])` -- never use a bare counter in dashboards.
+
+Related notes: [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
+
+### Aggregation Operators
+
+- **sum**, **avg**, **min**, **max**, **count**, **count_values** -- aggregate across label dimensions.
+- **by (label)**: Keep only the specified labels in the result (group by).
+- **without (label)**: Remove the specified labels and aggregate the rest.
+- Example: `sum(rate(http_requests_total[5m])) by (code)` -- request rate grouped by status code.
+- Aggregation removes label dimensions; choose `by` or `without` to control what remains.
+
+Related notes: [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
+
+### PromQL Functions
+
+- **histogram_quantile(quantile, ...)**: Calculate percentile from histogram buckets; inner expression is usually `sum(rate(bucket[5m])) by (le, ...)`.
+- **absent(metric)**: Returns 1 if the metric has no series; useful for "alert if metric is missing".
+- **label_replace(v, dst, replacement, src, regex)**: Rewrite or create labels using regex capture groups.
+- **label_join(v, dst, separator, src1, src2, ...)**: Concatenate label values into a new label.
+- **delta(gauge[window])**: Difference between first and last value of a gauge over the window.
+- **idelta(gauge[window])**: Instant delta from the last two points of a gauge.
+
+Related notes: [../Grafana/003-alerting](../Grafana/003-alerting.md)
+
+### Histogram Buckets and Quantiles
+
+- Histogram exposes three metric families: `name_bucket{le="..."}` (cumulative counts), `name_count`, `name_sum`.
+- Each bucket counts observations with value <= the `le` (less-than-or-equal) upper bound.
+- To get percentiles: `histogram_quantile(0.9, sum(rate(name_bucket[5m])) by (le))` = 90th percentile.
+- The `le="+Inf"` bucket equals `name_count` (all observations).
+- Accuracy depends on bucket boundaries -- more buckets near the expected range gives better precision.
+
+Related notes: [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
+
+### Recording Rules
+
+- Pre-compute expensive PromQL expressions and store the result as a new time series in Prometheus.
+- Defined in a rule file with **record** (new metric name) and **expr** (the PromQL expression).
+- Reduces query load and latency for dashboards and alert rules that use heavy expressions.
+- Naming convention: `level:metric:operations` (e.g. `job:http_requests_total:rate5m`).
+- Evaluated on a configurable interval; results are written to TSDB like any scraped metric.
+
+Related notes: [../Grafana/003-alerting](../Grafana/003-alerting.md)
+
+### Example Queries
+
+- **Error rate**: `sum(rate(http_requests_total{code=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))`
+- **Request rate by path**: `sum(rate(http_requests_total[5m])) by (path)`
+- **p99 latency**: `histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))`
+- **Saturation (memory)**: `node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes`
+- **Alert if metric missing**: `absent(up{job="api"})` -- returns 1 when the api job has no `up` metric.
+
+Related notes: [../Grafana/003-alerting](../Grafana/003-alerting.md), [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
+
 ---
-
-# Practical Command Set (Core)
-
-```bash
-# -- Running Prometheus --
-# start Prometheus with custom config
-prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/data/prometheus
-
-# or via systemd
-systemctl start prometheus
-systemctl status prometheus
-
-# -- Checking Health --
-# query Prometheus health endpoint
-curl -s http://localhost:9090/-/healthy
-
-# -- Targets --
-# list all scrape targets and their status
-curl -s http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | {job:.labels.job_name, instance:.labels.instance, health:.health}'
-
-# check dropped targets
-curl -s http://localhost:9090/api/v1/targets | jq '.data.droppedTargets[]'
-
-# -- Metrics Discovery --
-# list all metric names available in Prometheus
-curl -s http://localhost:9090/api/v1/label/__name__/values | jq '.data[]' | head -20
-
-# list label values for a specific metric
-curl -s 'http://localhost:9090/api/v1/label/job/values' | jq '.data'
-
-# -- Querying --
-# instant query: get current value
-curl -s 'http://localhost:9090/api/v1/query?query=up' | jq '.data.result'
-
-# range query: get time series over a range
-curl -s 'http://localhost:9090/api/v1/query_range?query=rate(http_requests_total[5m])&start=1645000000&end=1645100000&step=60s' | jq '.data.result'
-
-# -- Alerts and Rules --
-# list active alerts
-curl -s http://localhost:9090/api/v1/alerts | jq '.data.alerts[] | {alertname:.labels.alertname, state:.state, value:.value}'
-
-# check alert rule evaluation status
-curl -s http://localhost:9090/api/v1/rules | jq '.data.groups[] | {name:.name, rules:[.rules[] | {alert:.alert, state:.state}]}'
-
-# -- WAL and Storage --
-# check disk usage of Prometheus data
-du -sh /data/prometheus
-
-# WAL replay/recovery after crash
-ls -la /data/prometheus/wal/
-
-# -- Config Validation --
-# validate prometheus.yml syntax before restart
-promtool check config /etc/prometheus/prometheus.yml
-
-# validate alert rules
-promtool check rules /etc/prometheus/rules.yml
-```
 
 # Troubleshooting Guide
 
@@ -354,3 +362,12 @@ promtool check rules /etc/prometheus/rules.yml
 3. Is retention period too long? Check config: `--storage.tsdb.retention.time` -- reduce retention or implement remote write.
 4. Check for memory/CPU saturation: `ps aux | grep prometheus` / `top` / `htop` -- memory high --> increase heap or enable WAL compression.
 5. Consider remote write or splitting into multiple instances.
+
+### PromQL query returns no data or unexpected results
+
+1. Does the metric exist? Prometheus UI > search metric name, or: `curl localhost:9090/api/v1/label/__name__/values | grep metric_name`. Not found means target not scraped, or metric name wrong.
+2. Are the labels correct? Run bare selector: `metric_name{job="api"}` in Prometheus UI. No results means label mismatch; check actual labels with `metric_name{}`.
+3. Is the range vector window appropriate? `rate(metric[5m])` needs at least 2 samples in 5m. Too short window for scrape interval means increase window (window should be >= 4x `scrape_interval`).
+4. Is the aggregation dropping needed labels? Check by/without clause; missing `by (le)` in histogram_quantile. Wrong grouping means add or remove labels in by/without.
+5. Is a recording rule stale or misconfigured? Check `/api/v1/rules` for errors; verify rule file syntax with `promtool`. Rule error means fix expr and reload Prometheus (`kill -HUP` or `/-/reload`).
+6. Check Prometheus targets and scrape health: Prometheus UI > Status > Targets -- look for DOWN targets or scrape errors.

@@ -94,7 +94,7 @@ Related notes: [002-dashboards-queries](./002-dashboards-queries.md)
 - Each panel has one or more queries written in the data source language (PromQL, LogQL, Flux).
 - Supports transforms (rename, merge, filter) and overrides for formatting.
 
-Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [004-promql-deep-dive](./004-promql-deep-dive.md)
+Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [../Prometheus/001-prometheus-overview](../Prometheus/001-prometheus-overview.md)
 
 ### Alerting
 

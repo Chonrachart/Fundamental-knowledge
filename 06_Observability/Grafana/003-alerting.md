@@ -81,7 +81,7 @@ Example: CPU alert pipeline
 - Alert rule = query + condition + for duration + folder + annotations.
 - "For" duration prevents flapping: condition must hold continuously before firing.
 
-Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [004-promql-deep-dive](./004-promql-deep-dive.md)
+Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [../Prometheus/001-prometheus-overview](../Prometheus/001-prometheus-overview.md)
 
 ### Contact Point
 
@@ -99,11 +99,12 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - **Default policy**: Catch-all route; sends unmatched alerts to a default contact point.
 - **Specific routes**: Match on labels to send to different channels (e.g. severity=warning -> email, severity=critical -> PagerDuty).
 - **Grouping**: Combine related alerts into a single notification (group by alertname, cluster, namespace).
-- **Timing intervals**: `group_wait` (initial delay), `group_interval` (batch window), `repeat_interval` (re-notify throttle).
+- **Timing intervals**: `group_wait` (initial delay), `group_interval` (batch window), `repeat_interval` (re-notify throttle) — these mirror Alertmanager grouping behavior.
 - Notification policies route alerts by label matchers; default policy is the catch-all.
 - Grouping reduces noise: related alerts are batched into a single notification.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md)
+Related notes: [../Prometheus/003-alertmanager](../Prometheus/003-alertmanager.md) for Alertmanager routing, grouping, and silences
 
 ### Silence
 

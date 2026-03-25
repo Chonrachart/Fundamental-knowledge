@@ -138,7 +138,7 @@ Related notes: [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview
 - Span metrics: Tempo generates RED metrics (Rate, Errors, Duration) from spans; stored in Prometheus/Mimir for alerting.
 - Exemplars: Prometheus metrics link to specific trace IDs, enabling metric-to-trace correlation.
 
-Related notes: [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md)
+Related notes: [../Grafana/002-dashboards-queries](../Grafana/002-dashboards-queries.md), [002-traceql-deep-dive](./002-traceql-deep-dive.md)
 
 ### Instrumentation
 
@@ -158,7 +158,7 @@ Related notes: [../Prometheus/002-exporters-and-instrumentation](../Prometheus/0
 - Logs-to-traces: Loki derived fields can parse trace IDs from log lines and create clickable links to Tempo.
 - Node graph panel visualizes the service graph generated from Tempo span data.
 
-Related notes: [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md), [../Logging/002-loki-and-promtail](../Logging/002-loki-and-promtail.md)
+Related notes: [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md), [../Logging/002-loki](../Logging/002-loki.md)
 
 ### Deployment on Kubernetes
 
@@ -171,46 +171,6 @@ Related notes: [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview
 Related notes: [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
 
 ---
-
-# Practical Command Set (Core)
-
-```bash
-# -- Health and Status --
-# check Tempo readiness (returns 200 when ready)
-curl -s http://tempo:3200/ready
-
-# check Tempo health
-curl -s http://tempo:3200/status
-
-# get build info and version
-curl -s http://tempo:3200/api/status/buildinfo | jq .
-
-# -- Querying Traces --
-# query a trace by ID (returns JSON trace data)
-curl -s http://tempo:3200/api/traces/<traceID> | jq .
-
-# search traces with TraceQL (Tempo 2.0+)
-curl -s -G http://tempo:3200/api/search \
-  --data-urlencode 'q={ span.http.status_code = 500 }' | jq .
-
-# search by service name and duration
-curl -s -G http://tempo:3200/api/search \
-  --data-urlencode 'q={ resource.service.name = "my-svc" && duration > 2s }' | jq .
-
-# -- Verify OTLP Ingestion --
-# check OTLP gRPC endpoint is listening (port 4317)
-nc -zv tempo 4317
-
-# check OTLP HTTP endpoint is listening (port 4318)
-curl -s -o /dev/null -w "%{http_code}" http://tempo:4318/v1/traces
-
-# -- Tempo Metrics (self-monitoring) --
-# Tempo exposes Prometheus metrics on /metrics
-curl -s http://tempo:3200/metrics | grep tempo_ingester_traces_created_total
-
-# check ingester flush rate
-curl -s http://tempo:3200/metrics | grep tempo_ingester_flush_duration_seconds
-```
 
 # Troubleshooting Guide
 

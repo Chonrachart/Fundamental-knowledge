@@ -101,42 +101,6 @@ Related notes: [003-actions-templates](./003-actions-templates.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# check Zabbix server status
-systemctl status zabbix-server
-
-# check Zabbix agent status on monitored host
-systemctl status zabbix-agent2
-
-# test agent connectivity from server
-zabbix_get -s 10.0.1.10 -k system.cpu.util
-
-# check what keys an agent supports
-zabbix_agentd -p
-
-# tail Zabbix server log for errors
-tail -f /var/log/zabbix/zabbix_server.log
-
-# tail Zabbix agent log
-tail -f /var/log/zabbix/zabbix_agent2.log
-
-# check Zabbix server config
-grep -v '^#\|^$' /etc/zabbix/zabbix_server.conf
-```
-
-
-- Zabbix server listens on port 10051 (trapper); agent listens on port 10050 (passive checks).
-- Host = monitored entity; must have at least one interface and belong to a host group.
-- Item = single metric; defined by type + key + interval; stored as history and trends.
-- Trigger = expression on item data; fires at a severity level; recovers when expression is false.
-- Action = conditions + operations; runs when a trigger changes state.
-- Template = reusable config bundle; link to host to apply, unlink to remove.
-- Proxy = optional relay for remote sites; buffers data and forwards to server.
-- Frontend connects to the database, not directly to the server process.
-
-Related notes: [../000-core](../000-core.md), [002-items-triggers](./002-items-triggers.md), [003-actions-templates](./003-actions-templates.md), [004-monitoring-patterns](./004-monitoring-patterns.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
 # Troubleshooting Guide
 
 ### Host shows "Unavailable" in Zabbix frontend

@@ -347,12 +347,12 @@ Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [../000-
 
 ### Alert States and Lifecycle
 
-- **Firing**: alert condition is true, notification sent.
-- **Resolved**: alert condition became false, resolve notification sent (if enabled).
-- **Pending**: alert in Prometheus but within `for` duration (not yet firing to Alertmanager).
-- **Suppressed**: alert fired but inhibited or silenced.
+- Alertmanager tracks alerts as **firing** (condition true, notification sent) or **resolved** (condition false, resolve notification sent if enabled).
+- **Suppressed**: alert fired but inhibited by inhibition rules or matched by a silence.
+- For generic alert states (Normal, Pending, Firing, Resolved) and the "for" duration concept, see Grafana alerting.
 
 Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [../Grafana/003-alerting](../Grafana/003-alerting.md)
+Related notes: [../Grafana/003-alerting](../Grafana/003-alerting.md) for Grafana-native alerting UI workflow
 
 ### Alert Annotations and Labels
 
@@ -376,95 +376,6 @@ Related notes: [001-prometheus-overview](./001-prometheus-overview.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# -- Alertmanager Service --
-# start Alertmanager
-alertmanager --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/data/alertmanager
-
-# or via systemd
-systemctl start alertmanager
-systemctl status alertmanager
-
-# -- Health & Status --
-# check Alertmanager health
-curl -s http://localhost:9093/-/healthy
-
-# -- Alerts --
-# list currently firing alerts
-curl -s http://localhost:9093/api/v1/alerts | jq '.data[] | {alertname:.labels.alertname, status:.status, startsAt:.startsAt}'
-
-# list active alerts with details
-curl -s http://localhost:9093/api/v1/alerts?active=true | jq '.data'
-
-# list grouped alerts
-curl -s http://localhost:9093/api/v1/alerts?group_by=alertname' | jq '.data'
-
-# -- Silences --
-# list active silences
-curl -s http://localhost:9093/api/v1/silences | jq '.data[] | {id:.id, matchers:.matchers, endsAt:.endsAt}'
-
-# create silence via API (maintenance window)
-curl -X POST http://localhost:9093/api/v1/silences \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "matchers": [{"name": "instance", "value": "host1", "isRegex": false}],
-    "startsAt": "2024-01-15T10:00:00Z",
-    "endsAt": "2024-01-15T12:00:00Z",
-    "createdBy": "ops",
-    "comment": "maintenance"
-  }' | jq '.silenceID'
-
-# delete a silence
-curl -X DELETE http://localhost:9093/api/v1/silences/<silence_id>
-
-# -- Configuration --
-# validate alertmanager.yml syntax
-amtool config routes --config.file=/etc/alertmanager/alertmanager.yml
-
-# reload configuration (or use HTTP endpoint)
-systemctl reload alertmanager
-curl -X POST http://localhost:9093/-/reload
-
-# -- Debugging --
-# check Alertmanager logs
-journalctl -u alertmanager -f
-docker logs alertmanager -f
-
-# test alert delivery
-curl -X POST http://localhost:9093/api/v1/alerts \
-  -H 'Content-Type: application/json' \
-  -d '[{
-    "labels": {"alertname": "TestAlert", "severity": "critical"},
-    "annotations": {"description": "This is a test"},
-    "startsAt": "2024-01-15T10:00:00Z",
-    "endsAt": "0001-01-01T00:00:00Z"
-  }]'
-
-# -- amtool (Alertmanager command-line tool) --
-# list routes
-amtool config routes
-
-# add a silence
-amtool silence add alertname=TestAlert
-
-# list silences
-amtool silence query
-
-# test alert with label matching
-amtool alert query --alertname=TestAlert --severity=critical
-```
-
-
-- Alertmanager receives alerts from Prometheus, deduplicates/groups them, applies inhibition/silences, and routes to receivers.
-- Grouping: `group_by` labels, `group_wait` (wait before first send), `group_interval` (wait between batches), `repeat_interval` (re-send delay).
-- Routing: tree of rules matching labels to receivers; nested routes override parent settings.
-- Inhibition: suppress low-severity alerts when high-severity exist; uses `source_match`, `target_match`, `equal` labels.
-- Silences: time-window suppression by label match; useful for maintenance windows; persisted to disk.
-- Receivers: Slack, email, PagerDuty, Opsgenie, webhook, SMS, chat (Discord, Mattermost, Telegram).
-- HA cluster: multiple Alertmanager instances with gossip protocol sync; all listen on same port, access via load balancer.
-- Alert states: Pending (Prometheus only), Firing (sent to Alertmanager), Resolved (condition false), Suppressed (inhibited/silenced).
 # Troubleshooting Guide
 
 ### Alert fired in Prometheus but not received in Slack

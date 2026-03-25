@@ -50,7 +50,7 @@ Concrete example: A spike of 50k logs/sec hits during a deployment. Without Kafk
 - **Replay** -- reprocess historical telemetry by resetting consumer offsets (useful when fixing a broken pipeline or adding a new backend)
 - **Fan-out** -- one topic can feed multiple consumers simultaneously (send logs to both Loki and a SIEM)
 
-Related notes: [OpenTelemetry overview](../OpenTelemetry/001-opentelemetry-overview.md), [Loki and Promtail](../Logging/002-loki-and-promtail.md)
+Related notes: [OpenTelemetry overview](../OpenTelemetry/001-opentelemetry-overview.md), [Loki](../Logging/002-loki.md)
 
 ### Core Concepts
 
@@ -69,7 +69,7 @@ Related notes: [../000-core](../000-core.md)
 - Set retention based on your buffer needs, not long-term storage (e.g., 2-6 hours is common for observability pipelines)
 - Replication factor of 3 is standard; ensures no data loss if a broker dies
 
-Related notes: [Loki and Promtail](../Logging/002-loki-and-promtail.md), [Tempo overview](../Tracing/001-tempo-overview.md)
+Related notes: [Loki](../Logging/002-loki.md), [Tempo overview](../Tracing/001-tempo-overview.md)
 
 ### When You Need Kafka
 
@@ -97,34 +97,6 @@ Related notes: [OpenTelemetry overview](../OpenTelemetry/001-opentelemetry-overv
 - Use `KafkaTopic` CRD to declaratively manage topics alongside your GitOps workflow
 
 Related notes: [../000-core](../000-core.md)
-
-# Practical Command Set (Core)
-
-```bash
-# --- Topic Management ---
-# Create a topic with 3 partitions and replication factor 3
-kafka-topics.sh --bootstrap-server localhost:9092 --create --topic logs-raw --partitions 3 --replication-factor 3
-
-# List all topics
-kafka-topics.sh --bootstrap-server localhost:9092 --list
-
-# Describe a topic (partitions, replicas, ISR)
-kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic logs-raw
-
-# --- Produce / Consume Test Messages ---
-# Produce a test message to a topic (interactive, Ctrl+C to stop)
-echo '{"level":"info","msg":"test log"}' | kafka-console-producer.sh --bootstrap-server localhost:9092 --topic logs-raw
-
-# Consume messages from the beginning of a topic
-kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic logs-raw --from-beginning --max-messages 10
-
-# --- Consumer Lag ---
-# Check consumer group lag (critical for monitoring pipeline health)
-kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group otel-logs-consumer --describe
-
-# List all consumer groups
-kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
-```
 
 # Troubleshooting Guide
 

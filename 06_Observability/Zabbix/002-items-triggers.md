@@ -127,38 +127,6 @@ Related notes: [004-monitoring-patterns](./004-monitoring-patterns.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# test an item key from the server side
-zabbix_get -s 10.0.1.10 -k system.cpu.util
-
-# test a specific item key with parameters
-zabbix_get -s 10.0.1.10 -k vfs.fs.size[/,pfree]
-
-# list all supported keys on an agent
-zabbix_agentd -p
-
-# test SNMP item from server
-snmpget -v2c -c public 10.0.1.1 .1.3.6.1.2.1.1.1.0
-
-# check item value via Zabbix API (curl)
-curl -s -X POST http://zabbix.example.com/api_jsonrpc.php \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"item.get","params":{"hostids":"10084","output":["name","lastvalue"]},"auth":"<token>","id":1}'
-```
-
-
-- Item = single metric; defined by type + key + interval; values stored as history (raw) and trends (aggregated).
-- Seven main item types: agent passive, agent active, SNMP, HTTP, script, calculated, dependent.
-- Key format: `name[param1,param2]`; e.g. `vfs.fs.size[/,pfree]` returns free disk percentage.
-- Trigger expression: `function(/host/key,period) operator threshold`; fires when true.
-- Six severity levels from Not classified to Disaster; severity drives filtering and escalation.
-- Trigger dependencies suppress child triggers when a parent trigger is already in PROBLEM state.
-- History = raw values (short retention); Trends = hourly aggregates (long retention).
-- Use `zabbix_get` to test any agent item key from the command line.
-
-Related notes: [../000-core](../000-core.md), [001-zabbix-overview](./001-zabbix-overview.md), [003-actions-templates](./003-actions-templates.md), [004-monitoring-patterns](./004-monitoring-patterns.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
 # Troubleshooting Guide
 
 ### Item shows "Not supported" or no data
