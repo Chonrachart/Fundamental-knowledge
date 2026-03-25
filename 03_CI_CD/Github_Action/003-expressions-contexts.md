@@ -4,6 +4,59 @@
 - Contexts provide runtime data: `github`, `env`, `secrets`, `job`, `steps`, `matrix`, `vars`.
 - Step and job outputs pass values between steps and jobs using `$GITHUB_OUTPUT` and `needs.<job>.outputs`.
 
+# Architecture
+
+```text
+Context Object Hierarchy:
+
+${{ <context>.<property> }}
+
+github ─── repository, ref, sha, actor, event_name
+│          event (full payload), run_id, run_number
+│          base_ref, head_ref (PR only)
+│
+env ────── workflow-level, job-level, step-level vars
+│
+secrets ── GITHUB_TOKEN, repo secrets, org secrets, env secrets
+│
+job ────── status, container
+│
+steps ──── <step_id>.outcome, <step_id>.outputs.<key>
+│
+matrix ─── current combination values (e.g. matrix.node)
+│
+needs ──── <job_id>.result, <job_id>.outputs.<key>
+│
+vars ───── repository/org-level configuration variables
+```
+
+# Mental Model
+
+```text
+Expression evaluation flow:
+
+  [1] GitHub reads YAML and finds ${{ ... }} expressions
+      |
+      v
+  [2] Expressions are evaluated BEFORE the shell sees them
+      |   - `${{ secrets.TOKEN }}` → masked value injected
+      |   - `${{ github.ref }}` → "refs/heads/main"
+      |
+      v
+  [3] Functions evaluated: contains(), startsWith(),
+      |   hashFiles(), format(), toJSON(), fromJSON()
+      |
+      v
+  [4] `if:` conditions evaluated as boolean
+      |   - Truthy: non-empty string, non-zero number
+      |   - Falsy: empty string, 0, null, false
+      |
+      v
+  [5] Step outputs written at runtime via $GITHUB_OUTPUT
+      |   - Available to later steps: steps.<id>.outputs.<key>
+      |   - Promoted to job output: needs.<job>.outputs.<key>
+```
+
 # Core Building Blocks
 
 ### github Context

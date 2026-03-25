@@ -4,6 +4,23 @@
 - Override files, healthchecks, and profiles enable environment-specific configuration.
 - Variable substitution via .env and env_file separates config from compose definitions.
 
+# Mental Model
+
+```text
+docker compose up -d
+  │
+  ├─ Read compose.yaml + override + .env
+  ├─ Build/pull images (if needed)
+  ├─ Create networks and volumes
+  ├─ Start services in dependency order
+  │    └─ depends_on + condition: service_healthy
+  ├─ Healthcheck loop per service
+  └─ Restart policy handles failures
+```
+
+- Compose reads config files, resolves variables, then orchestrates container lifecycle on a single host.
+- `depends_on` with `condition: service_healthy` ensures readiness, not just start order.
+
 # Core Building Blocks
 
 ### When and When Not to Use Compose in Production

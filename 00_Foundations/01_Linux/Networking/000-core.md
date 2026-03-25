@@ -155,34 +155,6 @@ Related notes: [007-Network-namespace](./007-Network-namespace.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# Show all interfaces and addresses
-ip addr show
-
-# Show routing table
-ip route show
-
-# Show listening sockets
-ss -tlnp
-
-# Show active connections
-ss -tanp
-
-# Trace packet path to a host
-traceroute 8.8.8.8
-
-# Test connectivity
-ping -c 3 8.8.8.8
-
-# DNS lookup
-dig example.com
-```
-
-One tool per layer: `ip` for interfaces/routes, `ss` for sockets, `iptables`/`nft` for firewall.
-
-
 # Troubleshooting Guide
 
 ```text

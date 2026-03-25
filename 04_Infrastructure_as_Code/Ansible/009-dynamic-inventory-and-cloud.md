@@ -89,9 +89,19 @@ cache_timeout: 300              # seconds
 # verify dynamic inventory
 ansible-inventory -i inventory/aws_ec2.yml --graph
 ansible-inventory -i inventory/aws_ec2.yml --list
+ansible-inventory -i inventory/aws_ec2.yml --host <hostname>
+
+# test with a specific AWS profile
+AWS_PROFILE=myprofile ansible-inventory -i inventory/aws_ec2.yml --graph
 
 # test connectivity
 ansible -i inventory/aws_ec2.yml env_prod -m ping
+
+# clear inventory cache
+rm -f /tmp/ansible_aws_cache/*
+
+# run playbook against dynamic inventory
+ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml --limit env_prod
 ```
 
 Related notes:
@@ -126,26 +136,6 @@ Related notes:
 
 - Tag/label your cloud resources consistently — these become Ansible group names.
 - Recommended EC2 tags: `Environment`, `Role`, `Project`, `Owner`.
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# inspect dynamic inventory
-ansible-inventory -i inventory/aws_ec2.yml --graph
-ansible-inventory -i inventory/aws_ec2.yml --list
-ansible-inventory -i inventory/aws_ec2.yml --host <hostname>
-
-# test plugin works (needs AWS credentials in env or ~/.aws)
-AWS_PROFILE=myprofile ansible-inventory -i inventory/aws_ec2.yml --graph
-
-# clear inventory cache
-rm -f /tmp/ansible_aws_cache/*
-
-# run playbook against dynamic inventory
-ansible-playbook -i inventory/aws_ec2.yml playbooks/site.yml --limit env_prod
-```
 
 
 

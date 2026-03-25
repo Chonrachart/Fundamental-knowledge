@@ -277,49 +277,22 @@ Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-trouble
 - Queries for monitoring database health and investigating issues.
 - Syntax differs between MySQL and PostgreSQL.
 
----
-
-# Practical Command Set (Core)
-
 ```bash
-# ---- PostgreSQL ----
+# --- CLI usage patterns ---
 
-# connect to a database
+# PostgreSQL: connect, run query, run SQL file, export CSV
 psql -h localhost -U postgres -d mydb
-
-# run a single query from command line
 psql -h localhost -U postgres -d mydb -c "SELECT COUNT(*) FROM users;"
-
-# run a SQL file
 psql -h localhost -U postgres -d mydb -f /path/to/script.sql
-
-# export query results to CSV
 psql -h localhost -U postgres -d mydb -c "COPY (SELECT * FROM users) TO STDOUT WITH CSV HEADER;" > users.csv
 
-# ---- MySQL ----
-
-# connect to a database
+# MySQL: connect, run query, run SQL file, export CSV
 mysql -h localhost -u root -p mydb
-
-# run a single query from command line
 mysql -h localhost -u root -p -e "SELECT COUNT(*) FROM users;" mydb
-
-# run a SQL file
 mysql -h localhost -u root -p mydb < /path/to/script.sql
-
-# export query results to CSV (requires FILE privilege or use --batch)
 mysql -h localhost -u root -p -B -e "SELECT * FROM users;" mydb | tr '\t' ',' > users.csv
 ```
 
-
-- CRUD maps to SQL: Create=INSERT, Read=SELECT, Update=UPDATE, Delete=DELETE.
-- NEVER run UPDATE or DELETE without a WHERE clause -- always SELECT first to verify.
-- `COUNT(*)` counts all rows; `COUNT(column)` counts non-NULL values only.
-- INNER JOIN returns matching rows only; LEFT JOIN returns all left-table rows plus matches.
-- Use `IS NULL` / `IS NOT NULL` to check for NULLs (not `= NULL`).
-- `LIKE` patterns: `%` matches any characters, `_` matches exactly one character.
-- PostgreSQL uses `pg_stat_activity` for connections; MySQL uses `SHOW PROCESSLIST`.
-- Always wrap destructive operations in a transaction: `BEGIN; ... ROLLBACK;` to test, then `COMMIT;` to apply.
 # Troubleshooting Guide
 
 ```text

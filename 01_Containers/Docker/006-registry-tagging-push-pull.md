@@ -4,6 +4,40 @@
 - Tags label image versions within a repository; digests pin exact content by hash.
 - `docker push` uploads images; `docker pull` downloads them; authentication via `docker login`.
 
+# Architecture
+
+```text
+  Registry (e.g. Docker Hub)
+  └── Repository (e.g. nginx)
+       ├── Tag: latest  ──▶ Manifest ──▶ Layer blobs
+       ├── Tag: 1.24    ──▶ Manifest ──▶ Layer blobs
+       └── Digest: sha256:abc... (immutable)
+```
+
+- **Registry** hosts multiple repositories; **repository** groups image versions under one name.
+- **Tag** is a mutable pointer to a manifest; **digest** is an immutable content hash.
+- Manifest references layer blobs; layers are shared across tags when content matches.
+
+# Mental Model
+
+```text
+Push flow:
+  docker push myregistry/app:v1
+    │
+    ├─ Check auth (docker login credentials)
+    ├─ Upload layers (skip already-present blobs)
+    └─ Upload manifest + tag
+
+Pull flow:
+  docker pull myregistry/app:v1
+    │
+    ├─ Resolve tag → manifest (or use digest)
+    ├─ Download missing layer blobs
+    └─ Assemble image locally
+```
+
+- Push uploads only new/changed layers; pull downloads only missing layers -- both are incremental.
+
 # Core Building Blocks
 
 ### What Is a Registry

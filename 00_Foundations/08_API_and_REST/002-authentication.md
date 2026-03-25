@@ -127,6 +127,12 @@ curl -s -H "Authorization: Bearer eyJhbGci..." \
 
 # decode a JWT payload (without verification)
 echo "eyJzdWIi..." | base64 -d 2>/dev/null | jq .
+
+# decode JWT from a full token (split on dots, take payload)
+echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+
+# check token expiry from JWT
+echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq '.exp | todate'
 ```
 
 Related notes: [001-rest-concepts](./001-rest-concepts.md)
@@ -236,6 +242,11 @@ az login --service-principal \
 
 # GCP -- activate service account
 gcloud auth activate-service-account --key-file=sa-key.json
+
+# verify current identity in each cloud
+aws sts get-caller-identity          # AWS
+az account show                      # Azure
+gcloud auth list                     # GCP
 ```
 
 Related notes: [000-core](./000-core.md)
@@ -259,50 +270,6 @@ Related notes: [000-core](./000-core.md)
 - **Apply least privilege** -- request only the scopes/permissions needed.
 - **Use managed identities** (AWS IAM roles, Azure Managed Identity, GCP Workload Identity) to avoid keys entirely.
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# test API key auth
-curl -s -H "X-API-Key: $API_KEY" https://api.example.com/v1/status
-
-# test bearer token auth
-curl -s -H "Authorization: Bearer $TOKEN" https://api.example.com/v1/me
-
-# test basic auth
-curl -s -u "$USERNAME:$PASSWORD" https://api.example.com/v1/status
-
-# obtain OAuth token (client credentials)
-curl -s -X POST \
-  -d "grant_type=client_credentials&client_id=$CID&client_secret=$CSEC" \
-  https://auth.example.com/oauth/token | jq .
-
-# decode JWT payload
-echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
-
-# check token expiry from JWT
-echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq '.exp | todate'
-
-# AWS -- get caller identity (verify auth)
-aws sts get-caller-identity
-
-# Azure -- show current account
-az account show
-
-# GCP -- show current auth
-gcloud auth list
-```
-
-
-- API keys are simplest but lack expiry, scoping, and are hard to rotate safely.
-- Bearer tokens (especially JWTs) are self-contained and can carry claims like expiry and scope.
-- OAuth 2.0 client credentials grant is the standard for service-to-service auth in DevOps.
-- Basic auth is base64 encoding (NOT encryption); only safe over HTTPS.
-- 401 = not authenticated (who are you?); 403 = not authorized (you cannot do that).
-- Managed identities eliminate secrets entirely -- always prefer them in cloud environments.
-- Never hardcode credentials; use env vars, secret managers, or managed identities.
-- Rotate long-lived credentials regularly; prefer short-lived tokens where possible.
 # Troubleshooting Guide
 
 ```text

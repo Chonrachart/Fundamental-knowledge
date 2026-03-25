@@ -146,58 +146,20 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 ### Application CRD
 
 - The core resource: defines what to deploy, from where, and to which cluster/namespace.
-- Fields:
-  - `spec.source`: Git repo URL, path, target revision (branch/tag/commit).
-  - `spec.destination`: Kubernetes cluster URL + namespace.
-  - `spec.project`: ArgoCD project for access control.
-  - `spec.syncPolicy`: manual or automated sync, self-heal, prune.
+- Fields: `spec.source` (Git repo + path + revision), `spec.destination` (cluster + namespace), `spec.project`, `spec.syncPolicy`.
 - One Application = one deployment unit (a directory of manifests).
-- Application CRD defines: source (Git), destination (cluster+namespace), sync policy.
 - Supports plain YAML, Helm, Kustomize, and Jsonnet for manifest rendering.
 - Auto-sync + self-heal + prune = fully automated GitOps.
 
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: myapp
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/org/manifests.git
-    targetRevision: main
-    path: apps/myapp
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: myapp
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-```
-
-Related notes: [002-argocd-applications](./002-argocd-applications.md)
+Related notes: [002-argocd-applications](./002-argocd-applications.md) for detailed Application CRD YAML and configuration options
 
 ### Sync Status and Health
 
-- **Sync Status**: does the cluster match Git?
-  - `Synced`: cluster matches Git.
-  - `OutOfSync`: differences exist.
-  - `Unknown`: ArgoCD cannot determine state.
-- **Health Status**: are the deployed resources healthy?
-  - `Healthy`: all resources are running and ready.
-  - `Progressing`: resources are being updated (e.g., Deployment rolling out).
-  - `Degraded`: resources are unhealthy (e.g., pod `CrashLoopBackOff`).
-  - `Missing`: expected resources don't exist in the cluster.
-  - `Suspended`: resource is paused (e.g., suspended CronJob).
+- **Sync Status**: does the cluster match Git? (`Synced`, `OutOfSync`, `Unknown`).
+- **Health Status**: are the deployed resources healthy? (`Healthy`, `Progressing`, `Degraded`, `Missing`, `Suspended`).
 - Dashboard shows both statuses together: Synced+Healthy = green, OutOfSync+Degraded = red.
-- Sync status: Synced (matches Git) or OutOfSync (differences exist).
-- Health status: Healthy, Progressing, Degraded, Missing.
 
-Related notes: [003-argocd-sync-strategies](./003-argocd-sync-strategies.md)
+Related notes: [003-argocd-sync-strategies](./003-argocd-sync-strategies.md) for detailed sync/health definitions and strategies
 
 ### Web UI
 
@@ -297,3 +259,9 @@ Related notes: [005-argocd-admin-operations](./005-argocd-admin-operations.md)
 3. Reduce sync frequency if too many apps: increase `timeout.reconciliation` in `argocd-cm`.
 4. Check repo-server: large repos or complex Helm charts slow rendering.
 5. Consider HA deployment for production workloads.
+
+---
+
+Related notes (Concept):
+- [../Concept/011-gitops](../Concept/011-gitops.md) — GitOps principles, pull vs push model, drift detection
+- [../Concept/005-deployment-strategies](../Concept/005-deployment-strategies.md) — Blue-Green, Canary, Rolling Update strategies

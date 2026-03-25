@@ -43,7 +43,7 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 | `docker rm` / `rmi`   | Remove container / image     |
 
 - Docker uses client-server model: CLI -> daemon -> `containerd` -> `runc`.
-- Image is immutable read-only layers; container adds a writable layer.
+- Image is immutable read-only layers; container adds a writable layer. Related notes: [005-images-layers-cache](./005-images-layers-cache.md) for image layer details
 - Dockerfile builds image; `docker run` creates container from image.
 - Registry stores and distributes images (Docker Hub is default).
 - `-d` detached, `-p` publish port, `-v` volume, `-e` env var.
@@ -67,6 +67,12 @@ Related notes:
 1. Check installation: `which docker`.
 2. Install Docker: follow official docs for your distro.
 3. Check PATH: `echo $PATH`.
+
+### Container exits immediately
+1. Check exit code: `docker ps -a` (STATUS column).
+2. Check logs: `docker logs <container>`.
+3. Common cause: CMD finishes immediately (e.g. `echo`); use a long-running process.
+4. Debug: `docker run -it --entrypoint sh <image>`.
 
 ### "Error response from daemon: conflict"
 1. A container with same name exists: `docker ps -a | grep <name>`.

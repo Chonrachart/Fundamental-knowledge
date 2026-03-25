@@ -4,6 +4,27 @@
 - Labels are key-value pairs attached to objects; selectors match labels to connect Deployments, Services, and queries to pods.
 - Probes (liveness, readiness) let kubelet monitor container health and control traffic routing.
 
+# Architecture
+
+```text
+┌─── Pod (unique IP, shared network namespace) ───────────────┐
+│                                                              │
+│  ┌─────────────────┐   pause container (holds network ns)   │
+│  │                 │                                         │
+│  │  ┌───────────┐  │   ┌───────────┐                        │
+│  │  │ Container │  │   │ Container │  (sidecar, optional)   │
+│  │  │  (main)   │  │   │ (logging) │                        │
+│  │  │  :8080    │◄─┼──►│  :9090    │  communicate via       │
+│  │  └───────────┘  │   └───────────┘  localhost              │
+│  │                 │                                         │
+│  │  ┌──────────────┴────────────────┐                        │
+│  │  │  Shared Volumes (emptyDir,    │                        │
+│  │  │  PVC, configMap, secret)      │                        │
+│  │  └───────────────────────────────┘                        │
+│  └─────────────────┘                                         │
+└──────────────────────────────────────────────────────────────┘
+```
+
 # Mental Model
 
 ```text

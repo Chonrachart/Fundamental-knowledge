@@ -4,6 +4,29 @@
 - StorageClass enables dynamic provisioning — PVCs automatically create PVs from a provisioner (cloud disk, NFS, etc.).
 - Access modes (RWO, ROX, RWX) and reclaim policies (Retain, Delete) control how storage is shared and cleaned up.
 
+# Architecture
+
+```text
+┌──────────────┐         ┌──────────────┐
+│ StorageClass │         │  PV (manual) │
+│ (provisioner)│         │  (static)    │
+└──────┬───────┘         └──────┬───────┘
+       │ dynamic provisioning   │ pre-created
+       ▼                        ▼
+┌──────────────────────────────────────┐
+│         PVC (namespace-scoped)       │
+│  requests: size, accessMode, class   │
+│                                      │
+│  Status: Pending → Bound             │
+└──────────────────┬───────────────────┘
+                   │ pod references PVC
+                   ▼
+            ┌─────────────┐
+            │     Pod     │
+            │  volumeMount│ → /app/data
+            └─────────────┘
+```
+
 # Mental Model
 
 ```text

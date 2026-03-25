@@ -38,6 +38,39 @@ Client → Ingress Controller (nginx/traefik pod)
         Service forwards to pod endpoints
 ```
 
+# Mental Model
+
+```text
+External request: https://app.example.com/api
+
+1. DNS resolves app.example.com → Node IP (or LB IP)
+        │
+        ▼
+2. Traffic hits NodePort (or LoadBalancer port)
+   → reaches Ingress Controller pod (nginx)
+        │
+        ▼
+3. Ingress Controller matches host + path rules
+   → host: app.example.com, path: /api
+        │
+        ▼
+4. Forwards to backend Service (ClusterIP:port)
+   → kube-proxy resolves to pod endpoints
+        │
+        ▼
+5. Packet reaches one of the Ready pods
+   → container processes request on targetPort
+```
+
+Example:
+```bash
+# Trace the full path
+curl -v https://app.example.com/api       # hits ingress controller
+kubectl get ingress myingress              # check host/path rules
+kubectl get endpoints web                  # see which pod IPs back the service
+kubectl logs <ingress-controller-pod>      # check access logs
+```
+
 # Core Building Blocks
 
 ### Service Types

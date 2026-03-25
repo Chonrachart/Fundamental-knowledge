@@ -42,6 +42,14 @@ ansible/
 Write playbook -> run it -> run it again -> second run must be all ok / skipped
 ```
 
+```bash
+# idempotency check: run twice, second run should be all ok
+ansible-playbook site.yml && ansible-playbook site.yml
+
+# pre-flight review
+ansible-playbook site.yml --check --diff
+```
+
 - Use modules (`ansible.builtin.package`, `ansible.builtin.file`, `ansible.builtin.service`) over `shell`/`command` — modules check state.
 - When `command`/`shell` is unavoidable, add `changed_when` and `creates`/`removes`.
 
@@ -96,6 +104,9 @@ ansible-lint
 
 # auto-fix safe issues
 ansible-lint --fix
+
+# syntax check only (catches YAML/Jinja2 errors without connecting)
+ansible-playbook site.yml --syntax-check
 ```
 
 Common issues caught:
@@ -151,30 +162,6 @@ molecule destroy
       ansible.builtin.wait_for:
         port: 80
         timeout: 5
-```
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# pre-flight review
-ansible-playbook site.yml --check --diff
-
-# lint
-ansible-lint
-
-# syntax check only
-ansible-playbook site.yml --syntax-check
-
-# idempotency check (run twice, second should be all ok)
-ansible-playbook site.yml && ansible-playbook site.yml
-
-# molecule full cycle
-molecule test
-
-# molecule quick iteration
-molecule converge && molecule verify
 ```
 
 

@@ -1,8 +1,47 @@
 # Dockerfile
 
 - Text file named `Dockerfile`; instructions build an image layer by layer.
-- Each instruction (except a few) creates one layer; order affects cache and image size.
+- Each instruction (except a few) creates one read-only layer; order affects cache and image size. Related notes: [005-images-layers-cache](./005-images-layers-cache.md) for image layer details
 - Common instructions: `FROM`, `RUN`, `COPY`, `ADD`, `WORKDIR`, `EXPOSE`, `CMD`, `ENTRYPOINT`.
+
+# Architecture
+
+```text
+  Dockerfile instruction ──▶ Layer (read-only)
+  ─────────────────────────────────────────────
+  FROM alpine:3.19          → base layer
+  RUN apk add nginx         → layer +1
+  COPY nginx.conf /etc/     → layer +2
+  COPY html/ /var/www/      → layer +3
+  CMD ["nginx", "-g", ...]  → metadata (no layer)
+  ─────────────────────────────────────────────
+  Result: Image = stack of layers
+```
+
+- Each `FROM`, `RUN`, `COPY`, `ADD` creates a new layer; metadata instructions (`CMD`, `ENV`, `EXPOSE`) update config without adding a layer.
+- Layers are content-hashed and cached; reused across builds if unchanged.
+
+# Mental Model
+
+```text
+Build context (.) ──▶ Sent to daemon
+                          │
+              ┌───────────┴───────────┐
+              ▼                       ▼
+         Instruction 1           .dockerignore
+         (cache hit?) ──Yes──▶ reuse layer
+              │No
+              ▼
+         Execute + create layer
+              │
+         Instruction 2 ...
+              │
+              ▼
+         Final image (tagged)
+```
+
+- Docker sends the build context to the daemon, then executes instructions top-to-bottom.
+- Each instruction checks cache first; on miss, executes and invalidates cache for all following instructions.
 
 # Core Building Blocks
 

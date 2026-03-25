@@ -183,29 +183,6 @@ Related notes: [002-control-flow](./002-control-flow.md), [001-variables-and-exp
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# --- Subshells ---
-( cd /tmp && do_work )           # isolate directory change
-result=$( complex_command )      # command substitution (also a subshell)
-( trap '' INT; long_task )       # ignore SIGINT only in subshell
-
-# --- Grouping ---
-{ echo "start"; process; echo "end"; } > log.txt   # combined redirect
-{ read -r first; read -r second; } < input.txt      # read two lines
-
-# --- Process Substitution ---
-diff <(sort file1) <(sort file2)                    # compare sorted outputs
-comm <(sort list1.txt) <(sort list2.txt)             # find common lines
-while read -r line; do echo "$line"; done < <(cmd)   # avoid pipe subshell
-tee >(gzip > backup.gz) < original.txt               # write and compress
-
-# --- Nested combinations ---
-diff <( ssh host1 cat /etc/hosts ) <( ssh host2 cat /etc/hosts )
-```
-
-
 # Troubleshooting Guide
 
 ```text

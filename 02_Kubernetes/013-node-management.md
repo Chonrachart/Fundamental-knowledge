@@ -4,6 +4,32 @@
 - Node affinity and pod affinity/anti-affinity provide fine-grained scheduling rules based on labels.
 - Cordon and drain safely remove a node from service for maintenance without losing workloads.
 
+# Architecture
+
+```text
+New Pod arrives at Scheduler
+    │
+    ▼
+1. Filter (hard constraints):
+   ├── nodeSelector labels match?
+   ├── node affinity required rules match?
+   ├── taints tolerated?
+   ├── enough CPU/memory?
+   └── node cordoned? → reject
+    │
+    ▼
+2. Score (soft preferences):
+   ├── preferred node affinity   (+weight)
+   ├── pod anti-affinity spread  (+weight)
+   └── resource balance          (+weight)
+    │
+    ▼
+3. Bind to highest-scoring node
+    │
+    ▼
+kubelet starts pod on chosen node
+```
+
 # Mental Model
 
 ```text
@@ -135,13 +161,6 @@ kubectl drain node1 --ignore-daemonsets --grace-period=60
 
 Related notes: [002-pods-labels](./002-pods-labels.md), [009-hpa-pod-disruption](./009-hpa-pod-disruption.md)
 
-
-- Taints are on nodes; tolerations are on pods. They work as a pair.
-- `NoExecute` is the only effect that evicts already-running pods.
-- nodeSelector is simpler but less flexible than node affinity.
-- Pod anti-affinity with `topologyKey: kubernetes.io/hostname` spreads replicas across nodes.
-- `kubectl drain` evicts all pods except DaemonSet pods and respects PDB constraints.
-- Cordon only prevents new scheduling; existing pods continue running.
 - `IgnoredDuringExecution` means affinity rules are checked at schedule time but not enforced after.
 - Toleration with `operator: Exists` and empty key matches any taint — use with caution.
 ---

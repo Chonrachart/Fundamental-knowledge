@@ -110,6 +110,13 @@ Related notes:
 
 - Default loop variable is `item`; rename with `loop_control.loop_var` to avoid conflicts in nested includes.
 
+```yaml
+# debug loop output: print each item being processed
+- ansible.builtin.debug:
+    msg: "Processing {{ item }}"
+  loop: "{{ my_list }}"
+```
+
 ### block / rescue / always
 
 ```yaml
@@ -168,23 +175,6 @@ Related notes:
   retries: 12        # try up to 12 times
   delay: 5           # wait 5 seconds between retries
   until: health.status == 200
-```
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# run only tasks matching a condition (use tags instead -- when is runtime)
-ansible-playbook site.yml --tags deploy
-
-# check what tasks would run (dry-run)
-ansible-playbook site.yml --check --diff
-
-# debug loop output: add to playbook
-- ansible.builtin.debug:
-    msg: "Processing {{ item }}"
-  loop: "{{ my_list }}"
 ```
 
 

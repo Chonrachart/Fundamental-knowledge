@@ -137,7 +137,7 @@ Steps:
   7. After confidence period, tear down Blue or reuse for next deployment
 ```
 
-Related notes: [005-deployment-strategies](./005-deployment-strategies.md)
+Related notes: [011-gitops](./011-gitops.md)
 
 ### Canary Deployment
 

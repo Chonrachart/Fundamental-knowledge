@@ -351,6 +351,13 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 5. Check update interval: default 2 minutes; may need to wait.
 6. Verify write-back method: `git` needs write access to the manifest repo.
 
+---
+
+Related notes (Concept):
+- [../Concept/011-gitops](../Concept/011-gitops.md) — Progressive delivery with GitOps
+- [../Concept/005-deployment-strategies](../Concept/005-deployment-strategies.md) — Canary, Blue-Green strategy fundamentals
+- [../Concept/010-metrics-and-dora](../Concept/010-metrics-and-dora.md) — DORA metrics for deployment analysis
+
 ### Notifications not sending
 
 1. Check notification controller logs: `kubectl logs -n argocd deploy/argocd-notifications-controller`.

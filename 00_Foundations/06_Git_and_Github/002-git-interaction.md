@@ -140,49 +140,6 @@ Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# Stage + commit tracked files
-git commit -am "message"
-
-# Amend last commit
-git add <forgotten-file>
-git commit --amend -m "updated message"
-
-# Delete / rename
-git rm <file>
-git mv <old> <new>
-
-# Compare changes
-git diff                 # working vs staging
-git diff --staged        # staging vs last commit
-
-# Discard / unstage
-git restore <file>               # discard working changes (from Index)
-git restore --source=HEAD <file> # discard working changes (from HEAD)
-git reset <file>                 # unstage a file
-
-# Rewrite history (local only)
-git reset --soft <hash>    # keep staged + working
-git reset --mixed <hash>   # reset staged, keep working
-git reset --hard <hash>    # reset everything
-
-# Safe undo (shared branches)
-git revert <hash>
-```
-
-All `git reset <hash>` modes are local-only operations; use `git revert` for pushed history.
-
-
-- `git commit -am` stages and commits tracked files only; new files need explicit `git add`.
-- `git commit --amend` rewrites the last commit with a new hash -- local only.
-- `git diff` compares Working Tree vs Index; `git diff --staged` compares Index vs last commit.
-- `git restore <file>` discards unstaged changes from Index; add `--source=HEAD` to restore from commit.
-- `git reset <file>` unstages; `git reset <hash>` moves the branch pointer.
-- Reset modes: `--soft` (pointer only), `--mixed` (pointer + Index), `--hard` (everything).
-- `git revert` is the safe undo -- creates a new inverting commit, preserves history.
-- `git rm` deletes and stages; `git mv` renames and stages.
 # Troubleshooting Guide
 
 ```text

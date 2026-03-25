@@ -4,6 +4,41 @@
 - Containers run in foreground by default; add `-d` for background (detached) mode.
 - Use `--name`, `-p`, `docker logs`, `docker exec` to manage container lifecycle.
 
+# Architecture
+
+```text
+  docker CLI ──▶ dockerd ──▶ containerd ──▶ runc
+  (docker run)   (API)      (runtime)     (spawn)
+                               │
+                          ┌────┴────┐
+                       namespaces  cgroups
+                       (isolation) (limits)
+```
+
+- CLI sends `run` request to daemon; daemon delegates to containerd; containerd uses runc to create the container process.
+- Namespaces isolate PID, network, mount, etc.; cgroups enforce resource limits.
+
+# Mental Model
+
+```text
+docker run nginx:alpine
+  │
+  ├─ Image locally? ──No──▶ docker pull nginx:alpine
+  │       │
+  │      Yes
+  ▼
+  Create container (writable layer + config)
+  │
+  ▼
+  Start process (PID 1 inside container)
+  │
+  ▼
+  Attach stdout/stderr (foreground) or detach (-d)
+```
+
+- `docker run` = pull (if needed) + create + start in one command.
+- Container runs until PID 1 exits; then status becomes "Exited".
+
 # Core Building Blocks
 
 ### Running Your First Container
@@ -105,10 +140,7 @@ Related notes:
 # Troubleshooting Guide
 
 ### Container exits immediately after `docker run -d`
-1. Check exit code: `docker ps -a` -- look at STATUS (e.g. Exited(1)).
-2. Check logs: `docker logs <container>`.
-3. Common: CMD runs a command that finishes (e.g. `echo`); use a long-running process.
-4. Debug interactively: `docker run -it --entrypoint sh <image>`.
+For "container exits immediately" troubleshooting, see [../000-core](../000-core.md)
 
 ### "port is already allocated"
 1. Another process uses the host port: `ss -tlnp | grep <port>`.

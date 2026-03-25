@@ -162,37 +162,6 @@ Related notes: [001-variables-and-expansion](./001-variables-and-expansion.md), 
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# define and call a simple function
-greet() { echo "Hello, $1"; }
-greet "World"
-
-# capture function output into a variable
-result=$(greet "World")
-
-# check function return code
-is_root() { [ "$EUID" -eq 0 ]; }
-if is_root; then echo "root"; fi
-
-# pass all script arguments to a function
-wrapper() { echo "Got $# args: $@"; }
-wrapper "$@"
-
-# use shift to process arguments one by one
-parse_flags() {
-    while [ "$#" -gt 0 ]; do
-        case "$1" in
-            -v) verbose=1 ;;
-            -f) file="$2"; shift ;;
-        esac
-        shift
-    done
-}
-```
-
-
 # Troubleshooting Guide
 
 ```text

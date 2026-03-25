@@ -63,6 +63,26 @@ Play ends → next play begins
   handlers: [...]
 ```
 
+```bash
+# run playbook
+ansible-playbook -i inventory/ playbooks/site.yml
+
+# dry-run with file diff
+ansible-playbook playbooks/site.yml --check --diff
+
+# run only tagged tasks
+ansible-playbook playbooks/site.yml --tags config
+
+# run against one host only
+ansible-playbook playbooks/site.yml --limit web1
+
+# start from a specific task (useful after failure mid-play)
+ansible-playbook playbooks/site.yml --start-at-task "Deploy nginx config"
+
+# list all tasks without running
+ansible-playbook playbooks/site.yml --list-tasks
+```
+
 ### Task Fields
 
 | Field | Purpose |
@@ -107,6 +127,11 @@ Related notes:
 - Prefer `command` over `shell`; use `shell` only when pipes/redirects are needed.
 - Prefer `ansible.builtin.*` FQCN to avoid module ambiguity across collections.
 
+```bash
+# ad-hoc single module
+ansible web -m ansible.builtin.service -a "name=nginx state=restarted" --become
+```
+
 ### Handlers
 
 ```yaml
@@ -130,32 +155,6 @@ handlers:
 Related notes:
 - [004-variables-facts-templating](./004-variables-facts-templating.md)
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# run playbook
-ansible-playbook -i inventory/ playbooks/site.yml
-
-# dry-run with file diff
-ansible-playbook playbooks/site.yml --check --diff
-
-# run only tagged tasks
-ansible-playbook playbooks/site.yml --tags config
-
-# run against one host only
-ansible-playbook playbooks/site.yml --limit web1
-
-# start from a specific task
-ansible-playbook playbooks/site.yml --start-at-task "Deploy nginx config"
-
-# list all tasks without running
-ansible-playbook playbooks/site.yml --list-tasks
-
-# ad-hoc single module
-ansible web -m ansible.builtin.service -a "name=nginx state=restarted" --become
-```
 
 # Troubleshooting Guide
 

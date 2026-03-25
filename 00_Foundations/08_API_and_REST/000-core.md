@@ -88,42 +88,6 @@ Related notes: [003-curl-and-practical-usage](./003-curl-and-practical-usage.md)
 - Real-world API usage involves pagination, rate limiting, error handling, and webhook integration.
 - Every DevOps workflow -- CI/CD, monitoring, alerting -- relies on practical API interaction patterns.
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# simple GET request
-curl -s https://api.example.com/health
-
-# GET with headers and verbose output
-curl -v -H "Authorization: Bearer $TOKEN" https://api.example.com/resource
-
-# POST with JSON body
-curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"key":"value"}' \
-  https://api.example.com/resource
-
-# check HTTP status code only
-curl -s -o /dev/null -w "%{http_code}" https://api.example.com/health
-
-# follow redirects
-curl -sL https://api.example.com/resource
-
-# save response to file
-curl -s -o response.json https://api.example.com/resource
-```
-
-
-- API = Application Programming Interface; a contract between software components defining how they communicate.
-- REST = Representational State Transfer; the most common API style, built on HTTP.
-- RESTful APIs use HTTP methods (GET, POST, PUT, PATCH, DELETE) to operate on resources identified by URLs.
-- Every API call has: method, URL, headers, optional body (request) and status code, headers, body (response).
-- Authentication methods: API keys, bearer tokens (JWT), OAuth 2.0, basic auth, cloud provider credentials.
-- Idempotent methods (GET, PUT, DELETE) are safe to retry; POST is not idempotent.
-- Status code families: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
-- curl is the essential CLI tool for API interaction, debugging, and automation scripting.
 # Troubleshooting Guide
 
 ```text

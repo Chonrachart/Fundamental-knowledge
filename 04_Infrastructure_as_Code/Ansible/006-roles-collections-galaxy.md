@@ -132,13 +132,6 @@ roles:
     version: "3.2.0"
 ```
 
-Related notes:
-- [009-dynamic-inventory-and-cloud](./009-dynamic-inventory-and-cloud.md) — amazon.aws collection for dynamic inventory
-
----
-
-# Practical Command Set (Core)
-
 ```bash
 # create role scaffold
 ansible-galaxy role init roles/nginx
@@ -153,9 +146,12 @@ ansible-galaxy collection install community.general
 # list installed collections
 ansible-galaxy collection list
 
-# show role info
+# show role info from Galaxy
 ansible-galaxy role info geerlingguy.nginx
 ```
+
+Related notes:
+- [009-dynamic-inventory-and-cloud](./009-dynamic-inventory-and-cloud.md) — amazon.aws collection for dynamic inventory
 
 
 

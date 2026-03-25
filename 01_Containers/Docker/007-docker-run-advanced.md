@@ -4,6 +4,30 @@
 - Syntax: `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]`
 - Flags control ports, env vars, resource limits, restart policies, volumes, user, and network.
 
+# Mental Model
+
+```text
+docker run [OPTIONS] IMAGE [CMD]
+  │
+  ├─ Isolation (namespaces)
+  │    PID, NET, MNT, UTS, IPC, USER
+  │
+  ├─ Resource limits (cgroups)
+  │    --memory, --cpus, --cpuset-cpus
+  │
+  ├─ Security
+  │    --user, --cap-drop, --read-only
+  │
+  ├─ Connectivity
+  │    --network, -p (ports), --dns
+  │
+  └─ Data
+       -v (volumes), --tmpfs, --mount
+```
+
+- Each `docker run` flag maps to a Linux isolation or resource control mechanism.
+- Namespaces provide process/network isolation; cgroups enforce CPU/memory limits; capabilities control kernel permissions.
+
 # Core Building Blocks
 
 ### Detach vs Foreground

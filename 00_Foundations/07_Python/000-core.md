@@ -58,6 +58,7 @@ ls __pycache__/
 - Bytecode (`.pyc`) is cached in `__pycache__/` for faster startup on subsequent imports.
 - Run with `python3` (prefer `python3` explicitly on Linux); check version with `python3 --version`.
 - Execution modes: script (`python3 script.py`), module (`python3 -m name`), one-liner (`python3 -c "..."`), interactive REPL.
+- Check syntax without running: `python3 -m py_compile script.py`; run with all warnings: `python3 -W all script.py`.
 - Shebang for executable scripts: `#!/usr/bin/env python3` then `chmod +x script.py`.
 - Source files are UTF-8 by default in Python 3; declare encoding with `# -*- coding: utf-8 -*-` only if needed.
 
@@ -69,6 +70,7 @@ Related notes: none (covered here)
 - Activate: `source myenv/bin/activate` (Linux/Mac) or `myenv\Scripts\activate` (Windows).
 - Deactivate: `deactivate`.
 - Always use a venv per project to avoid dependency conflicts.
+- Install packages: `pip install requests`; freeze: `pip freeze > requirements.txt`; restore: `pip install -r requirements.txt`.
 
 Related notes: none (covered here)
 
@@ -169,52 +171,6 @@ Related notes: [009-decorators-and-generators](./009-decorators-and-generators.m
 - Generators use `yield` to produce values lazily, one at a time.
 - Generator expressions: `(x for x in iterable)` -- memory-efficient iteration.
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# check Python version
-python3 --version
-
-# run a script
-python3 script.py
-
-# run a module as script
-python3 -m http.server 8000
-
-# run a one-liner
-python3 -c "print('hello')"
-
-# create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# install packages in venv
-pip install requests
-pip freeze > requirements.txt
-pip install -r requirements.txt
-
-# make script executable
-chmod +x script.py
-./script.py              # requires shebang line
-
-# check syntax without running
-python3 -m py_compile script.py
-
-# run with warnings enabled
-python3 -W all script.py
-```
-
-
-- Python is interpreted but compiles to bytecode (.pyc) cached in `__pycache__/`.
-- Indentation (4 spaces) defines blocks; mixing tabs and spaces raises `TabError`.
-- Everything is an object; variables are names bound to objects (dynamic typing).
-- `python3 -m venv env` creates an isolated environment; always use one per project.
-- LEGB scope rule: Local > Enclosing > Global > Built-in.
-- `with` statement manages resources (files, locks) via context managers.
-- `__name__ == "__main__"` guard separates reusable modules from script entry points.
-- PEP 8 is the style guide; enforce with `flake8` or `ruff`.
 # Troubleshooting Guide
 
 ```text

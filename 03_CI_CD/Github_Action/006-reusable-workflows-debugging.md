@@ -4,6 +4,64 @@
 - Composite actions bundle a sequence of steps into a reusable action defined in `action.yml`.
 - Debug logging is enabled via `ACTIONS_STEP_DEBUG` secret; `act` runs workflows locally in Docker.
 
+# Architecture
+
+```text
+Caller → Reusable Workflow Invocation:
+
+Caller Workflow (.github/workflows/ci.yml)
+  on: push
+  jobs:
+    call-build:
+      uses: ./.github/workflows/build.yml   ──┐
+      with: { node_version: '20' }            │
+      secrets: inherit                         │
+                                               v
+Reusable Workflow (.github/workflows/build.yml)
+  on: workflow_call
+    inputs: { node_version }
+    secrets: { token }
+    outputs: { version }
+  jobs:
+    build:
+      steps: [checkout, setup-node, npm ci, test]
+      outputs: version → returned to caller
+                                               │
+                                               v
+Caller can use: needs.call-build.outputs.version
+
+Composite Action (.github/actions/setup/action.yml)
+  runs: using: composite
+  steps: [setup-node, cache, npm ci]
+  → Inlined into the calling job (same runner)
+```
+
+# Mental Model
+
+```text
+Debugging flow with step outputs:
+
+  [1] Enable debug: set ACTIONS_STEP_DEBUG secret to "true"
+      |
+      v
+  [2] Re-run workflow → expanded debug lines in each step
+      |
+      v
+  [3] Inspect context: add `run: echo "${{ toJSON(github) }}"`
+      |   - Shows all available context values
+      |
+      v
+  [4] Trace outputs: check step `id:` → $GITHUB_OUTPUT writes
+      |   - Verify: echo "key=value" >> $GITHUB_OUTPUT
+      |   - Check job `outputs:` mapping exists
+      |   - Check `needs:` in consuming job
+      |
+      v
+  [5] Local testing: `act -j <job>` to run in Docker
+      - Faster iteration than push-and-wait
+      - Caveat: not 100% identical to GitHub runners
+```
+
 # Core Building Blocks
 
 ### Reusable Workflows

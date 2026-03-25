@@ -93,6 +93,22 @@ PostgreSQL strengths:         MySQL strengths:
 - Better concurrency (MVCC)     tutorials and tooling
 ```
 
+```bash
+# PostgreSQL: list all tables and sizes
+psql -c "\dt+"
+
+# PostgreSQL: describe a table's columns and types
+psql -c "\d orders"
+
+# MySQL: list tables with sizes
+mysql -e "SELECT table_name, ROUND(data_length/1024/1024, 2) AS size_mb
+          FROM information_schema.tables
+          WHERE table_schema = 'mydb';"
+
+# MySQL: describe a table
+mysql -e "DESCRIBE orders;" mydb
+```
+
 Related notes: [000-core](./000-core.md) | [002-sql-essentials](./002-sql-essentials.md)
 
 ### NoSQL Overview
@@ -133,6 +149,15 @@ Bank transfer example (ACID in action):
   Durability  --> after COMMIT, the transfer survives a server crash
 ```
 
+```bash
+# PostgreSQL: check current transaction isolation level
+psql -c "SHOW transaction_isolation;"
+
+# MySQL: check storage engine (InnoDB = ACID)
+mysql -e "SELECT table_name, engine FROM information_schema.tables
+          WHERE table_schema = 'mydb';"
+```
+
 Related notes: [000-core](./000-core.md) | [002-sql-essentials](./002-sql-essentials.md)
 
 ### Indexes
@@ -156,6 +181,14 @@ When NOT to add an index:
 Check existing indexes:
   PostgreSQL: \di  or  SELECT * FROM pg_indexes WHERE tablename = 'orders';
   MySQL:      SHOW INDEX FROM orders;
+```
+
+```bash
+# PostgreSQL: list all indexes on a table
+psql -c "SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'orders';"
+
+# MySQL: show indexes
+mysql -e "SHOW INDEX FROM orders;" mydb
 ```
 
 Related notes: [000-core](./000-core.md) | [006-monitoring-and-troubleshooting](./006-monitoring-and-troubleshooting.md)
@@ -182,6 +215,15 @@ Migration workflow:
   - Always test migrations against a copy of production data
   - Include both "up" (apply) and "down" (rollback) scripts
   - Run migrations in a transaction when possible
+```
+
+```bash
+# Flyway: run pending migrations
+flyway -url=jdbc:postgresql://localhost/mydb -user=admin -password=secret migrate
+
+# Alembic (Python): generate and apply a migration
+alembic revision --autogenerate -m "add email column"
+alembic upgrade head
 ```
 
 Related notes: [000-core](./000-core.md) | [003-user-and-access-management](./003-user-and-access-management.md)
@@ -220,61 +262,6 @@ Related notes: [000-core](./000-core.md) | [003-user-and-access-management](./00
 
 Related notes: [000-core](./000-core.md)
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# --- Inspect database structure ---
-
-# PostgreSQL: list all tables and their sizes
-psql -c "\dt+"
-
-# PostgreSQL: describe a table's columns and types
-psql -c "\d orders"
-
-# PostgreSQL: list all indexes on a table
-psql -c "SELECT indexname, indexdef FROM pg_indexes WHERE tablename = 'orders';"
-
-# MySQL: list tables with sizes
-mysql -e "SELECT table_name, ROUND(data_length/1024/1024, 2) AS size_mb
-          FROM information_schema.tables
-          WHERE table_schema = 'mydb';"
-
-# MySQL: describe a table
-mysql -e "DESCRIBE orders;" mydb
-
-# MySQL: show indexes
-mysql -e "SHOW INDEX FROM orders;" mydb
-
-# --- Check ACID / transactions ---
-
-# PostgreSQL: check current transaction isolation level
-psql -c "SHOW transaction_isolation;"
-
-# MySQL: check storage engine (InnoDB = ACID)
-mysql -e "SELECT table_name, engine FROM information_schema.tables
-          WHERE table_schema = 'mydb';"
-
-# --- Migration tools ---
-
-# Flyway: run pending migrations
-flyway -url=jdbc:postgresql://localhost/mydb -user=admin -password=secret migrate
-
-# Alembic: generate and apply a migration
-alembic revision --autogenerate -m "add email column"
-alembic upgrade head
-```
-
-
-- A table = a relation; a row = a tuple/record; a column = an attribute/field.
-- Primary key = unique + not null; foreign key = references another table's primary key.
-- ACID guarantees reliable transactions; BASE (Basically Available, Soft state, Eventually consistent) describes many NoSQL systems.
-- B-tree is the default index type in both PostgreSQL and MySQL; it handles equality and range queries.
-- An index on a column used in WHERE can turn a full table scan (O(n)) into a B-tree lookup (O(log n)).
-- Schema migrations should be versioned, idempotent where possible, and tested against production-like data.
-- PostgreSQL uses MVCC (Multi-Version Concurrency Control) so readers never block writers and vice versa.
-- When in doubt, start with PostgreSQL -- it covers relational, JSON (JSONB), and full-text search in one engine.
 # Troubleshooting Guide
 
 ```text

@@ -42,6 +42,14 @@ Need to run a local script on remote? ──yes──→ ansible.builtin.script
 - No pipes (`|`), redirects (`>`), or shell variables (`$HOME`) — these are silently ignored.
 - Safer than `shell` because no shell injection risk.
 
+```bash
+# test command module ad-hoc
+ansible web -m ansible.builtin.command -a "uptime" --become
+
+# check module documentation
+ansible-doc ansible.builtin.command
+```
+
 ```yaml
 - name: Check if app is installed
   ansible.builtin.command: /opt/app/bin/app --version
@@ -79,6 +87,14 @@ Related notes:
 - Runs a command **through** `/bin/sh` — supports pipes, redirects, env vars, and globbing.
 - Higher risk: user-controlled input in commands can lead to shell injection.
 
+```bash
+# test shell module ad-hoc (use quotes for pipes)
+ansible web -m ansible.builtin.shell -a "df -h | grep /data"
+
+# check module documentation
+ansible-doc ansible.builtin.shell
+```
+
 ```yaml
 - name: Get disk usage for data partition
   ansible.builtin.shell: df -h /data | tail -1 | awk '{print $5}'
@@ -112,6 +128,11 @@ Related notes:
 - Sends a command over SSH **without** Ansible's module system — no Python required on the target.
 - Use case: bootstrapping a host that has no Python (e.g., install Python itself).
 - Does not support `creates`, `removes`, or `chdir`.
+
+```bash
+# test raw module ad-hoc (no Python needed on target)
+ansible newhost -m ansible.builtin.raw -a "apt-get install -y python3" --become
+```
 
 ```yaml
 - name: Bootstrap Python on minimal host
@@ -249,25 +270,6 @@ All execution modules return the same set of values in the registered variable:
 - name: Show health check output
   ansible.builtin.debug:
     msg: "RC={{ health.rc }}, Output={{ health.stdout }}, Duration={{ health.delta }}"
-```
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# test a command module ad-hoc
-ansible web -m ansible.builtin.command -a "uptime" --become
-
-# test shell module ad-hoc (use quotes for pipes)
-ansible web -m ansible.builtin.shell -a "df -h | grep /data"
-
-# test raw module (no Python needed)
-ansible newhost -m ansible.builtin.raw -a "apt-get install -y python3" --become
-
-# check what a module supports
-ansible-doc ansible.builtin.command
-ansible-doc ansible.builtin.shell
 ```
 
 

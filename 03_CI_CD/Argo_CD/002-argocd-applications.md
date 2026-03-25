@@ -446,3 +446,9 @@ spec:
 1. Use `resources-finalizer.argocd.argoproj.io` finalizer on child apps only if you want cascade delete.
 2. Remove finalizer from child apps if you want them to survive root app deletion.
 3. To safely delete root app without deleting children: remove the finalizer first, then delete.
+
+---
+
+Related notes (Concept):
+- [../Concept/011-gitops](../Concept/011-gitops.md) — GitOps principles, repository structure patterns
+- [../Concept/008-environment-management](../Concept/008-environment-management.md) — Environment promotion and multi-env config

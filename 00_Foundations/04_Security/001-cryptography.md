@@ -59,6 +59,14 @@ Related notes: [000-core](./000-core.md), [003-symmetric-vs-asymmetric](./003-sy
 - Purpose: confidentiality; only parties with the key can read the data
 - Two main types: symmetric (one key) and asymmetric (key pair)
 
+```bash
+# Encrypt file with AES-256-CBC (symmetric)
+openssl enc -aes-256-cbc -salt -in file.txt -out file.enc -pass pass:secret
+
+# Encrypt with RSA public key (small data only — max keysize minus padding bytes)
+openssl rsautl -encrypt -pubin -inkey public.pem -in msg.txt -out msg.enc
+```
+
 Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 
 ### Decryption
@@ -66,6 +74,11 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 - Process of converting ciphertext back to plaintext using the key
 - Symmetric: same key for encrypt and decrypt
 - Asymmetric: private key decrypts what public key encrypted (or vice versa for signatures)
+
+```bash
+# Decrypt file with AES-256-CBC
+openssl enc -d -aes-256-cbc -in file.enc -out file.txt -pass pass:secret
+```
 
 Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 
@@ -79,6 +92,15 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 | :-------- | :------- | :---------------- |
 | AES-128   | 128 bits | Strong            |
 | AES-256   | 256 bits | Stronger          |
+
+```bash
+# Generate a random 256-bit key (hex)
+openssl rand -hex 32
+
+# Generate RSA key pair (4096-bit)
+openssl genrsa -out private.pem 4096
+openssl rsa -in private.pem -pubout -out public.pem
+```
 
 **Key types:**
 
@@ -104,38 +126,6 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
   - **CBC** (Cipher Block Chaining): each block depends on previous; needs initialization vector (IV)
   - **GCM** (Galois/Counter Mode): authenticated encryption; provides confidentiality + integrity; preferred for modern use
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# Generate a random 256-bit key (hex)
-openssl rand -hex 32
-
-# Encrypt file with AES-256-CBC
-openssl enc -aes-256-cbc -salt -in file.txt -out file.enc -pass pass:secret
-
-# Decrypt file
-openssl enc -d -aes-256-cbc -in file.enc -out file.txt -pass pass:secret
-
-# Generate RSA key pair
-openssl genrsa -out private.pem 4096
-openssl rsa -in private.pem -pubout -out public.pem
-
-# Encrypt with RSA public key (small data only)
-openssl rsautl -encrypt -pubin -inkey public.pem -in msg.txt -out msg.enc
-```
-
-Note: RSA can only encrypt data smaller than the key size; use hybrid encryption for larger payloads.
-
-
-- Plaintext = readable; ciphertext = encrypted; key = secret for the algorithm
-- Symmetric: one key, fast, for bulk data (AES, ChaCha20)
-- Asymmetric: key pair, slower, for key exchange and signatures (RSA, ECDSA)
-- AES-128 is strong; AES-256 is stronger; both are considered secure today
-- ECB mode is insecure (identical blocks); prefer GCM (authenticated encryption)
-- Key management (generation, rotation, storage) is often the weakest link
-- Hybrid encryption (asymmetric for key exchange + symmetric for data) is standard in TLS
 # Troubleshooting Guide
 
 ```text

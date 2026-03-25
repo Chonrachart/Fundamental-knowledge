@@ -4,6 +4,28 @@
 - CPU limit causes throttling; memory limit causes OOMKill -- exceeding memory is fatal, exceeding CPU is not.
 - QoS class (Guaranteed, Burstable, BestEffort) is derived from requests/limits and determines eviction order under pressure.
 
+# Architecture
+
+```text
+Node Allocatable Resources
+┌──────────────────────────────────────────────────┐
+│  Total:  4 CPU,  8Gi memory                      │
+│  System: 0.5 CPU, 1Gi  (reserved for OS/kubelet) │
+│  Allocatable: 3.5 CPU, 7Gi                       │
+│                                                   │
+│  ┌─ Pod A (Guaranteed) ─┐  ┌─ Pod B (Burstable)─┐│
+│  │ req=500m  lim=500m   │  │ req=200m  lim=1     ││
+│  │ req=256Mi lim=256Mi  │  │ req=128Mi lim=512Mi ││
+│  └──────────────────────┘  └─────────────────────┘│
+│                                                   │
+│  Scheduler sums requests: 700m CPU, 384Mi memory  │
+│  Remaining allocatable:   2.8 CPU, 6.6Gi          │
+│                                                   │
+│  Eviction order (memory pressure):                │
+│    1. BestEffort  2. Burstable  3. Guaranteed     │
+└──────────────────────────────────────────────────┘
+```
+
 # Mental Model
 
 ```text

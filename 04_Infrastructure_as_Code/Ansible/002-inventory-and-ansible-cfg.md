@@ -109,6 +109,20 @@ Related notes:
 | `web[0:2]` | First three hosts in `web` |
 | `~web.*` | Regex match |
 
+```bash
+# inspect inventory
+ansible-inventory --graph
+ansible-inventory --list
+ansible-inventory --host web1        # show all vars for a single host
+
+# test reachability per group
+ansible web -m ping
+ansible all -m ping
+
+# ad-hoc with connection var override
+ansible web -m ping -u deploy --private-key ~/.ssh/id_ed25519
+```
+
 Related notes:
 - [009-dynamic-inventory-and-cloud](./009-dynamic-inventory-and-cloud.md)
 
@@ -129,6 +143,7 @@ Related notes:
 
 - Ansible reads config in precedence order: `./ansible.cfg` > `~/.ansible.cfg` > `/etc/ansible/ansible.cfg`.
 - Project-level `ansible.cfg` (same directory as playbooks) is the most common setup.
+- `ansible-config dump --only-changed` shows only non-default settings.
 
 ```ini
 [defaults]
@@ -147,27 +162,6 @@ ssh_args            = -o ControlMaster=auto -o ControlPersist=60s  # reuse SSH c
 
 - `pipelining = true` requires `requiretty` to be disabled in sudoers on managed nodes.
 - `host_key_checking = false` is acceptable in isolated lab environments only.
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# inspect inventory
-ansible-inventory --graph
-ansible-inventory --list
-ansible-inventory --host web1
-
-# test reachability per group
-ansible web -m ping
-ansible all -m ping
-
-# show effective config
-ansible-config dump --only-changed
-
-# ad-hoc with connection var override
-ansible web -m ping -u deploy --private-key ~/.ssh/id_ed25519
-```
 
 
 

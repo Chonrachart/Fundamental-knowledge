@@ -4,6 +4,67 @@
 - Jobs declare a runner, optional matrix strategy, environment variables, and conditional execution.
 - `needs:` creates a DAG between jobs; `concurrency:` prevents duplicate runs on the same branch.
 
+# Architecture
+
+```text
+Workflow YAML Structure:
+
+.github/workflows/ci.yml
+├── name: CI                    # display name
+├── on:                         # triggers
+│   ├── push: { branches, paths, tags }
+│   ├── pull_request: { branches, paths }
+│   ├── schedule: [{ cron }]
+│   └── workflow_dispatch: { inputs }
+├── permissions:                # GITHUB_TOKEN scope
+├── env:                        # workflow-level env vars
+├── concurrency:                # prevent duplicate runs
+│   ├── group: ${{ github.ref }}
+│   └── cancel-in-progress: true
+└── jobs:
+    ├── build:
+    │   ├── runs-on: ubuntu-latest
+    │   ├── strategy: { matrix }
+    │   ├── env:                # job-level env vars
+    │   ├── if:                 # conditional execution
+    │   └── steps: [...]
+    └── deploy:
+        ├── needs: [build]      # DAG dependency
+        └── steps: [...]
+```
+
+# Mental Model
+
+```text
+How GitHub parses and executes a workflow:
+
+  [1] Event fires (push, PR, schedule, dispatch)
+      |
+      v
+  [2] GitHub finds workflows matching `on:` triggers
+      |   - Checks branch/path/tag filters
+      |   - Schedule only fires on default branch
+      |
+      v
+  [3] Concurrency check
+      |   - Same group running? Cancel old or queue new
+      |
+      v
+  [4] Jobs form a DAG via `needs:`
+      |   - No `needs:` = parallel execution
+      |   - `needs: [a, b]` = wait for both
+      |
+      v
+  [5] Each job: pick runner → expand matrix → run steps
+      |   - Matrix generates N job instances
+      |   - fail-fast cancels siblings on failure
+      |
+      v
+  [6] Steps run sequentially within a job
+      - `if:` evaluated before each step
+      - Outputs flow: step → job → downstream job
+```
+
 # Core Building Blocks
 
 ### on (Triggers)

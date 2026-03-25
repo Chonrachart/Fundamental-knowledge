@@ -144,33 +144,6 @@ Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# Simple GET request
-curl http://example.com
-
-# Verbose output showing headers and TLS handshake
-curl -v https://example.com
-
-# POST with JSON body
-curl -X POST -H "Content-Type: application/json" \
-  -d '{"key": "value"}' https://example.com/api
-
-# Show response headers only
-curl -I https://example.com
-
-# Follow redirects
-curl -L http://example.com
-
-# Check HTTP response code only
-curl -o /dev/null -s -w "%{http_code}" https://example.com
-
-# Test with specific HTTP method
-curl -X DELETE https://example.com/api/resource/1
-```
-
-
 # Troubleshooting Guide
 
 ```text

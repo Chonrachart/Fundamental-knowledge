@@ -2,14 +2,47 @@
 
 - Docker packages applications as images and runs them as containers with isolated filesystems, networks, and processes.
 - Core workflow: write Dockerfile, build image, push to registry, run container.
-- Images are immutable and layered; containers are ephemeral running instances.
+- Images are immutable and layered; containers are ephemeral running instances. Related notes: [005-images-layers-cache](./005-images-layers-cache.md) for image layer details
+
+# Architecture
+
+```text
+  docker CLI ──REST API──▶ dockerd (daemon)
+                                │
+                      ┌─────────┼──────────┐
+                      ▼         ▼          ▼
+                   Images   Containers  Networks/Volumes
+                      │         │
+                   Registry   containerd ──▶ runc
+                (pull/push)   (manages)     (spawns)
+```
+
+- **docker CLI**: User-facing tool; sends commands to daemon via REST API.
+- **dockerd**: Daemon; manages images, containers, networks, volumes.
+- **containerd**: Container runtime; manages container lifecycle (create, start, stop).
+- **runc**: Low-level OCI runtime; creates the actual Linux container (namespaces, cgroups).
+
+# Mental Model
+
+```text
+Dockerfile ──build──▶ Image ──run──▶ Container
+   (recipe)          (artifact)      (process)
+                        │               │
+                     push/pull      logs/exec/stop/rm
+                        │
+                     Registry
+```
+
+- Write a Dockerfile (recipe), `docker build` produces an image (immutable artifact).
+- `docker run` creates a container (running process) from the image.
+- `docker push/pull` moves images to/from registries.
 
 # Core Building Blocks
 
 ### Image
 
 - Read-only template for a container; built from Dockerfile or pulled from registry.
-- Layered: each Dockerfile instruction adds a layer; layers are cached and shared.
+- Layered: each instruction adds a layer; see [005-images-layers-cache](./005-images-layers-cache.md) for details.
 - Immutable; tag for version (e.g. `nginx:1.24`), digest for exact content.
 - Image = read-only template; Container = running instance of an image.
 - `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
@@ -77,10 +110,7 @@ Related notes:
 3. Verify image name and tag spelling.
 
 ### Container exits immediately
-1. Check exit code: `docker ps -a` (STATUS column).
-2. Check logs: `docker logs <container>`.
-3. Common cause: CMD finishes immediately (e.g. `echo`); use a long-running process.
-4. Debug: `docker run -it --entrypoint sh <image>`.
+For "container exits immediately" troubleshooting, see [../000-core](../000-core.md)
 
 ### Dockerfile build fails
 1. Check syntax: each instruction must be on its own line.

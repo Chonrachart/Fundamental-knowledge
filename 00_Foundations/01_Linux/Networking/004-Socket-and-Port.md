@@ -162,30 +162,6 @@ Related notes: [006-firewall-iptables-nftable](./006-firewall-iptables-nftable.m
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# List all listening TCP sockets
-ss -tlnp
-
-# List all listening UDP sockets
-ss -ulnp
-
-# Show all connections (established + listening)
-ss -tanp
-
-# Find what process uses port 80
-ss -tlnp | grep :80
-lsof -i :80
-
-# Check socket info via /proc
-ls -l /proc/<pid>/fd
-cat /proc/net/tcp
-```
-
-`ss` is the go-to tool for socket inspection on modern Linux.
-
-
 # Troubleshooting Guide
 
 ```text

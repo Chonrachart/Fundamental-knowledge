@@ -75,6 +75,14 @@ Client                              Server
 - Challenge: key distribution; both parties must share the secret securely
 - Examples: AES (Advanced Encryption Standard), ChaCha20
 
+```bash
+# Encrypt file with AES-256-CBC symmetric key
+openssl enc -aes-256-cbc -salt -in data.txt -out data.enc -pass pass:secret
+
+# Decrypt
+openssl enc -d -aes-256-cbc -in data.enc -out data.txt -pass pass:secret
+```
+
 Related notes: [001-cryptography](./001-cryptography.md)
 
 ### Asymmetric Encryption
@@ -94,6 +102,18 @@ Related notes: [001-cryptography](./001-cryptography.md), [007-pki-and-certifica
 - Public key = (n, e); private key = (n, d)
 - Encrypt with public key; decrypt with private key
 
+```bash
+# Generate RSA 4096-bit key pair
+openssl genrsa -out rsa_private.pem 4096
+openssl rsa -in rsa_private.pem -pubout -out rsa_public.pem
+
+# Sign a file with RSA private key
+openssl dgst -sha256 -sign rsa_private.pem -out file.sig file.txt
+
+# Verify signature with RSA public key
+openssl dgst -sha256 -verify rsa_public.pem -signature file.sig file.txt
+```
+
 Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md)
 
 ### ECDSA
@@ -102,6 +122,12 @@ Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md)
 - Smaller keys than RSA for equivalent security (256-bit EC ~ 3072-bit RSA)
 - Used for: TLS, Bitcoin, code signing
 - Shorter keys and faster operations with same security and less computational cost
+
+```bash
+# Generate ECDSA key pair (P-256 curve)
+openssl ecparam -genkey -name prime256v1 -out ec_private.pem
+openssl ec -in ec_private.pem -pubout -out ec_public.pem
+```
 
 Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md)
 
@@ -147,40 +173,6 @@ Related notes: [001-cryptography](./001-cryptography.md)
 Related notes: [001-cryptography](./001-cryptography.md), [000-core](./000-core.md)
 - This combines the security of asymmetric (no pre-shared secret needed) with the speed of symmetric
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# Generate RSA 4096-bit key pair
-openssl genrsa -out rsa_private.pem 4096
-openssl rsa -in rsa_private.pem -pubout -out rsa_public.pem
-
-# Generate ECDSA key pair (P-256 curve)
-openssl ecparam -genkey -name prime256v1 -out ec_private.pem
-openssl ec -in ec_private.pem -pubout -out ec_public.pem
-
-# Sign a file with RSA private key
-openssl dgst -sha256 -sign rsa_private.pem -out file.sig file.txt
-
-# Verify signature with RSA public key
-openssl dgst -sha256 -verify rsa_public.pem -signature file.sig file.txt
-
-# Encrypt file with AES-256 symmetric key
-openssl enc -aes-256-cbc -salt -in data.txt -out data.enc -pass pass:secret
-```
-
-Note: in production, use proper key management; never pass passwords on the command line.
-
-
-- Symmetric = 1 key, fast, bulk data; Asymmetric = key pair, slower, key exchange + signatures
-- AES-256 and ChaCha20 are the standard symmetric ciphers today
-- RSA security relies on factoring large primes; minimum 2048-bit keys
-- ECDSA 256-bit provides equivalent security to RSA 3072-bit with smaller keys
-- Diffie-Hellman enables shared secret over insecure channel without pre-sharing keys
-- TLS uses hybrid: ECDH key exchange (asymmetric) then AES-GCM (symmetric) for session
-- Never use RSA to encrypt bulk data directly; wrap a symmetric key instead
-- Key distribution is the fundamental problem that asymmetric crypto solves
 # Troubleshooting Guide
 
 ```text

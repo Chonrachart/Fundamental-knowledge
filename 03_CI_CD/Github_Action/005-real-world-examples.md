@@ -4,6 +4,33 @@
 - Security best practices: least-privilege permissions, pinned action versions, and secret hygiene.
 - Conditional steps and concurrency groups control when steps run and prevent duplicate deployments.
 
+# Mental Model
+
+```text
+CI/CD workflow pattern: trigger → build → test → deploy
+
+  [1] TRIGGER: push to main, PR opened, tag created
+      |
+      v
+  [2] BUILD: checkout → install deps (cached) → compile/bundle
+      |   - Matrix: multiple OS/language versions in parallel
+      |   - Upload artifact: dist/, binary, Docker image
+      |
+      v
+  [3] TEST: unit → integration → e2e (progressively slower)
+      |   - Service containers for integration (postgres, redis)
+      |   - Upload coverage/test results as artifacts
+      |
+      v
+  [4] SECURITY: lint, SAST, dependency scan (parallel with tests)
+      |
+      v
+  [5] DEPLOY: needs [build, test] + environment approval gate
+      |   - if: github.ref == main (deploy only from main)
+      |   - concurrency: prevent overlapping deploys
+      |   - Notify on success/failure
+```
+
 # Core Building Blocks
 
 ### Node.js Build and Test

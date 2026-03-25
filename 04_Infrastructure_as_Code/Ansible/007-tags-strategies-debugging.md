@@ -143,10 +143,6 @@ Related notes:
     success_msg: "app_port is valid: {{ app_port }}"
 ```
 
----
-
-# Practical Command Set (Core)
-
 ```bash
 # verbosity levels
 ansible-playbook site.yml -v       # task results
@@ -154,13 +150,13 @@ ansible-playbook site.yml -vv      # task input/output
 ansible-playbook site.yml -vvv     # SSH connection details
 ansible-playbook site.yml -vvvv    # connection plugin debug
 
-# surgical run
-ansible-playbook site.yml --limit web1 --tags config --check --diff
-
 # list everything without running
 ansible-playbook site.yml --list-hosts
 ansible-playbook site.yml --list-tasks
 ansible-playbook site.yml --list-tags
+
+# surgical run: combine limit + tags + dry-run
+ansible-playbook site.yml --limit web1 --tags config --check --diff
 ```
 
 

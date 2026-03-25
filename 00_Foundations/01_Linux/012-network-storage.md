@@ -245,50 +245,6 @@ Related notes: [006-disk](./006-disk.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# NFS
-showmount -e <nfs-server>                                  # list server exports
-mount -t nfs -o vers=4,rsize=1m,wsize=1m <server>:/path /mnt  # mount NFS
-umount /mnt                                                # unmount
-mount | grep nfs                                           # show NFS mounts
-exportfs -ra                                               # reload /etc/exports on server
-
-# SMB/CIFS
-mount -t cifs //<server>/<share> /mnt -o username=user,password=pass
-mount -t cifs //<server>/<share> /mnt -o credentials=~/.cifs_credentials,uid=1000,gid=1000
-umount /mnt
-
-# iSCSI
-iscsiadm -m discovery -t sendtargets -p <target-ip>      # discover targets
-iscsiadm -m node -L all                                    # list discovered nodes
-iscsiadm -m node -T <IQN> -p <target-ip> -l               # login to target
-iscsiadm -m node -T <IQN> -p <target-ip> -u               # logout
-iscsiadm -m session -P 3                                   # show active sessions (verbose)
-lsblk | grep iscsi                                         # list iSCSI block devices
-
-# Multipath
-multipath -ll                                              # list all multipath devices + paths
-multipath -a <device>                                      # add device to multipath
-multipathd status                                          # daemon status
-multipathd reconfigure                                     # reload /etc/multipath.conf
-
-# autofs
-systemctl status autofs                                    # check autofs daemon
-systemctl reload autofs                                    # reload /etc/auto.master
-journalctl -u autofs -n 50 --no-pager                     # autofs logs
-
-# LVM (on network storage)
-pvcreate /dev/sd*                                          # initialize physical volume
-vgcreate <vg-name> /dev/sd*                                # create volume group
-lvcreate -L 100G -n <lv-name> <vg-name>                    # create logical volume
-lvextend -L +50G /dev/vg/<lv-name>                         # extend LV
-resize2fs /dev/vg/<lv-name>                                # grow ext4 filesystem
-lvs / vgs / pvs                                            # list volumes / groups / physical
-```
-
-
 # Troubleshooting Guide
 
 ### NFS mount fails with "mount.nfs: Permission denied"

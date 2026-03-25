@@ -106,6 +106,9 @@ mysqldump --single-transaction -u root -p mydb users > mydb_users.sql
 
 # with compression
 mysqldump --single-transaction -u root -p mydb | gzip > mydb_$(date +%F).sql.gz
+
+# check binary log position (for PITR)
+mysql -e "SHOW MASTER STATUS\G"
 ```
 
 - **Restore:**
@@ -157,6 +160,12 @@ pg_restore -d mydb --clean --create mydb.dump
 
 # restore specific table from custom dump
 pg_restore -d mydb -t users mydb.dump
+
+# list contents of a custom dump without restoring
+pg_restore -l mydb.dump
+
+# check WAL archiving status (for PITR readiness)
+psql -c "SELECT * FROM pg_stat_archiver;"
 ```
 
 Related notes: [003-user-and-access-management](./003-user-and-access-management.md)
@@ -226,61 +235,6 @@ Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-trouble
 - Verify row counts, application functionality, and data integrity after restore.
 - Document restore time so you know your RTO (Recovery Time Objective).
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# --- MySQL ---
-# logical backup (single db, InnoDB safe)
-mysqldump --single-transaction -u root -p mydb > mydb.sql
-
-# logical backup (all databases)
-mysqldump --single-transaction --all-databases -u root -p > all.sql
-
-# restore
-mysql -u root -p mydb < mydb.sql
-
-# check binary log position (for PITR)
-mysql -e "SHOW MASTER STATUS\G"
-
-# --- PostgreSQL ---
-# logical backup (custom format, compressed)
-pg_dump -Fc mydb > mydb.dump
-
-# logical backup (all databases + roles)
-pg_dumpall > all.sql
-
-# restore custom format
-pg_restore -d mydb --clean mydb.dump
-
-# physical backup (streaming, compressed tar)
-pg_basebackup -D /backups/base -Ft -z -P -X stream
-
-# check WAL archiving status
-psql -c "SELECT * FROM pg_stat_archiver;"
-
-# --- General ---
-# compress a dump
-gzip mydb.sql
-
-# list contents of a pg custom dump without restoring
-pg_restore -l mydb.dump
-
-# verify a mysqldump file is valid SQL (quick check)
-head -20 mydb.sql
-tail -5 mydb.sql
-```
-
-
-- Logical backups (mysqldump, pg_dump) export SQL -- portable but slow for large DBs.
-- Physical backups (xtrabackup, pg_basebackup) copy raw files -- fast but version-specific.
-- Always use `--single-transaction` with mysqldump on InnoDB to avoid locking.
-- `pg_dump -Fc` (custom format) is the most flexible PostgreSQL backup format -- supports selective restore and compression.
-- `pg_dumpall` is the only tool that backs up PostgreSQL roles and global objects.
-- Point-in-time recovery requires binary logs (MySQL) or WAL archiving (PostgreSQL) on top of a base backup.
-- A backup without a tested restore procedure is not a backup -- test regularly.
-- Retention policy: automate deletion of old backups; keep enough to cover your RPO (Recovery Point Objective).
 # Troubleshooting Guide
 
 ```text

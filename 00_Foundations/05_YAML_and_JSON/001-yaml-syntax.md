@@ -108,6 +108,7 @@ answer: "yes"           # string "yes"
 
 - YAML 1.2 (strict spec) only recognizes `true` and `false`, but most tools still use YAML 1.1 rules.
 - Rule of thumb: if a string value could be mistaken for a boolean, quote it.
+- Check what type YAML assigns to a value: `yq '.country_code | type' data.yml`
 
 Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
 - **Octal numbers**: `0777` is parsed as octal (511 decimal) in YAML 1.1 -- quote if you mean the string.
@@ -299,37 +300,6 @@ Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# lint a YAML file for syntax and style issues
-yamllint playbook.yml
-
-# parse and re-emit YAML (catches syntax errors)
-yq '.' config.yml
-
-# check what type YAML assigns to a value
-yq '.country_code | type' data.yml
-
-# validate an Ansible playbook's YAML syntax
-ansible-playbook --syntax-check playbook.yml
-
-# validate a Kubernetes manifest
-kubectl apply --dry-run=client -f deployment.yml
-
-# show invisible characters (tabs show as ^I)
-cat -A config.yml
-```
-
-
-- YAML uses indentation (spaces only, never tabs) to denote structure.
-- Unquoted `yes`, `no`, `on`, `off`, `true`, `false` are all booleans -- quote when you mean strings.
-- `|` preserves newlines (literal); `>` folds newlines into spaces (folded).
-- `-` after block indicator (`|-`, `>-`) strips the trailing newline.
-- `&anchor` defines, `*alias` references, `<<: *merge` merges a mapping.
-- `---` separates multiple documents in one file.
-- Keys containing `:`, `#`, `{`, `[` or starting with `- ` must be quoted.
-- YAML 1.1 (PyYAML, most tools) has more boolean values than YAML 1.2 (strict spec).
 # Troubleshooting Guide
 
 ```text

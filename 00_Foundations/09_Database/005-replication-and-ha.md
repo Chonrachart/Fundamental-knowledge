@@ -118,6 +118,12 @@ START REPLICA;
 # check replica status
 mysql -e "SHOW REPLICA STATUS\G"
 # key fields: Replica_IO_Running, Replica_SQL_Running, Seconds_Behind_Source
+
+# list all GTID transactions executed
+mysql -e "SELECT @@gtid_executed\G"
+
+# skip a single replication error (use with caution)
+mysql -e "SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1; START REPLICA;"
 ```
 
 Related notes: [003-user-and-access-management](./003-user-and-access-management.md)
@@ -140,6 +146,9 @@ psql -c "SELECT client_addr, state, sent_lsn, replay_lsn,
 
 # check recovery status on replica
 psql -c "SELECT pg_is_in_recovery(), pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn();"
+
+# check WAL receiver status (on replica)
+psql -c "SELECT * FROM pg_stat_wal_receiver;"
 ```
 
 Related notes: [004-backup-and-restore](./004-backup-and-restore.md)
@@ -200,40 +209,7 @@ Related notes: [006-monitoring-and-troubleshooting](./006-monitoring-and-trouble
   - Can handle automatic failover with query rules and health checks.
 - **HAProxy** -- generic TCP/HTTP load balancer, used in front of database replicas for read distribution.
 
----
-
-# Practical Command Set (Core)
-
 ```bash
-# --- MySQL Replication ---
-# check binlog position on primary
-mysql -e "SHOW MASTER STATUS\G"
-
-# check replica lag and thread status
-mysql -e "SHOW REPLICA STATUS\G"
-
-# skip a single replication error (use with caution)
-mysql -e "SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1; START REPLICA;"
-
-# list all GTID transactions executed
-mysql -e "SELECT @@gtid_executed\G"
-
-# --- PostgreSQL Replication ---
-# check connected replicas and lag (on primary)
-psql -c "SELECT client_addr, state, replay_lag FROM pg_stat_replication;"
-
-# check if current server is a replica
-psql -c "SELECT pg_is_in_recovery();"
-
-# promote replica to primary
-pg_ctl promote -D /var/lib/postgresql/data
-# or via SQL:
-psql -c "SELECT pg_promote();"
-
-# check WAL receiver status (on replica)
-psql -c "SELECT * FROM pg_stat_wal_receiver;"
-
-# --- Proxy / Pooler ---
 # check PgBouncer stats
 psql -p 6432 -U pgbouncer pgbouncer -c "SHOW POOLS;"
 psql -p 6432 -U pgbouncer pgbouncer -c "SHOW STATS;"
@@ -241,19 +217,10 @@ psql -p 6432 -U pgbouncer pgbouncer -c "SHOW STATS;"
 # check ProxySQL status
 mysql -h 127.0.0.1 -P 6032 -u admin -p -e "SELECT * FROM runtime_mysql_servers;"
 
-# HAProxy -- check backend health via stats socket
+# HAProxy: check backend health via stats socket
 echo "show stat" | socat stdio /var/run/haproxy/admin.sock | cut -d, -f1,2,18
 ```
 
-
-- Primary handles writes; replicas serve reads and act as warm standbys.
-- Async replication is fast but can lose committed transactions on primary failure. Sync replication prevents data loss but adds latency.
-- MySQL replication uses binary logs (binlog); PostgreSQL uses WAL (Write-Ahead Log).
-- GTID (MySQL) and LSN (PostgreSQL) uniquely identify replication positions -- essential for failover.
-- Split-brain (two primaries) is the worst failure mode -- prevent it with fencing and quorum.
-- Connection poolers (PgBouncer, ProxySQL) reduce backend connection count and improve efficiency.
-- Automatic failover requires a consensus mechanism (etcd, Raft) to avoid split-brain.
-- Monitor replication lag continuously -- it directly affects data freshness on read replicas.
 # Troubleshooting Guide
 
 ```text

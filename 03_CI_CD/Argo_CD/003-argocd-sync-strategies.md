@@ -354,3 +354,9 @@ Related notes: [002-argocd-applications](./002-argocd-applications.md)
 3. Check sync interval: frequent self-heal checks may conflict with gradual changes.
 4. Temporarily disable self-heal for debugging: remove from syncPolicy.
 5. Use `argocd app diff myapp` to see exactly what ArgoCD considers out-of-sync.
+
+---
+
+Related notes (Concept):
+- [../Concept/011-gitops](../Concept/011-gitops.md) — GitOps reconciliation loop, drift detection
+- [../Concept/005-deployment-strategies](../Concept/005-deployment-strategies.md) — Deployment strategies that sync supports

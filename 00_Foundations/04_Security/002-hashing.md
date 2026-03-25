@@ -69,6 +69,11 @@ Related notes: [001-cryptography](./001-cryptography.md)
 - MD5 and SHA-1 are deprecated due to practical collision attacks
 - SHA-256 and SHA-3 have no known practical collisions
 
+```bash
+# Generate MD5 hash (legacy, not for security — collision attacks exist)
+md5sum myfile.tar.gz
+```
+
 Related notes: [001-cryptography](./001-cryptography.md)
 
 ### Salt
@@ -85,6 +90,11 @@ With salt:     Hash("password123" + "x9f2k") → unique digest per user
                Salt "x9f2k" stored alongside hash
 ```
 
+```bash
+# Hash a password with SHA-512 and salt (for quick testing; use bcrypt/Argon2 in apps)
+openssl passwd -6 -salt randomsalt "mypassword"
+```
+
 Related notes: [004-authentication](./004-authentication.md)
 
 ### SHA-256
@@ -96,6 +106,12 @@ Related notes: [004-authentication](./004-authentication.md)
 ```bash
 echo -n "hello" | sha256sum
 # 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+
+# Hash a file
+sha256sum myfile.tar.gz
+
+# Verify checksums from a file
+sha256sum --check checksums.txt
 ```
 
 Related notes: [001-cryptography](./001-cryptography.md), [007-pki-and-certificates](./007-pki-and-certificates.md)
@@ -144,38 +160,6 @@ Related notes: [004-authentication](./004-authentication.md)
 
 Related notes: [001-cryptography](./001-cryptography.md), [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# SHA-256 hash of a string
-echo -n "hello" | sha256sum
-
-# SHA-256 hash of a file
-sha256sum myfile.tar.gz
-
-# Verify checksums from a file
-sha256sum --check checksums.txt
-
-# Generate MD5 (legacy, not for security)
-md5sum myfile.tar.gz
-
-# Hash a password with openssl (SHA-512 with salt)
-openssl passwd -6 -salt randomsalt "mypassword"
-```
-
-Note: for password storage in applications, use bcrypt or Argon2 libraries, not command-line SHA.
-
-
-- Hash = fixed-size, one-way, deterministic digest of any input
-- Avalanche effect: 1-bit input change flips ~50% of output bits
-- MD5 and SHA-1 are broken (practical collision attacks); use SHA-256+
-- Salt = random data prepended/appended to input before hashing; defeats rainbow tables
-- bcrypt: slow by design, built-in salt, cost factor controls speed
-- Argon2id: modern default for password hashing; resists GPU/ASIC attacks
-- Fast hashes (SHA-256) for integrity; slow hashes (bcrypt/Argon2) for passwords
-- HMAC = keyed hash; provides both integrity and authentication
 # Troubleshooting Guide
 
 ```text

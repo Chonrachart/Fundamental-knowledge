@@ -155,29 +155,14 @@ Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
 Related notes: [002-pipeline-stages](./002-pipeline-stages.md)
 
-### Static Analysis / SAST
+### Security Testing (SAST / DAST / SCA)
 
-- Analyze source code without executing it — find bugs, vulnerabilities, and style issues.
-- Types:
-  - **Linting**: code style, formatting (`ESLint`, `Pylint`, `golangci-lint`).
-  - **Type checking**: type errors (`TypeScript`, `mypy`, `go vet`).
-  - **Security scanning**: known vulnerability patterns (`Semgrep`, `CodeQL`, `SonarQube`).
-- Run on every PR; fast enough to be a first-stage check.
-- Gate: block merge on critical/high severity findings.
-- SAST: analyze code statically; DAST: test running application.
+- **SAST**: analyze source code statically for vulnerabilities; run on every PR.
+- **DAST**: test a running application for runtime vulnerabilities; run weekly or pre-release.
+- **SCA**: scan dependencies for known CVEs and license issues.
+- SAST finds code issues, DAST finds runtime issues, SCA finds dependency issues.
 
-Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
-
-### DAST (Dynamic Application Security Testing)
-
-- Test a running application for vulnerabilities by sending requests and analyzing responses.
-- Finds: XSS, SQL injection, authentication issues, misconfigurations.
-- Tools: `OWASP ZAP`, `Burp Suite`, `Nuclei`.
-- Requires a deployed instance (staging or ephemeral environment).
-- Run less frequently: weekly, pre-release, or on-demand.
-- Complements SAST: SAST finds code issues, DAST finds runtime issues.
-
-Related notes: [009-ci-cd-security](./009-ci-cd-security.md)
+Related notes: [009-ci-cd-security](./009-ci-cd-security.md) for detailed SAST/DAST/SCA coverage, tools, and implementation
 
 ### Shift-Left Testing
 

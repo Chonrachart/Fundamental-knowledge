@@ -49,25 +49,14 @@ Event → Workflow → Job(s) → Step(s) → Action or shell command
 
 # Core Building Blocks
 
-### Workflow and Triggers
+### Workflow, Jobs, Steps, and Triggers
 
-- **Workflow**: YAML file in `.github/workflows/`; triggered by events.
-- **Triggers** (`on:`): push, pull_request, schedule, workflow_dispatch, workflow_call, repository_dispatch.
-- Filters: branches, tags, paths, paths-ignore.
-- Workflows live in `.github/workflows/` and are YAML files
+- **Workflow**: YAML file in `.github/workflows/`; triggered by events (`on:` key).
+- **Job**: set of steps on one runner; parallel by default, `needs:` creates ordering.
+- **Step**: single task — `run:` (shell) or `uses:` (reusable action).
+- **Runner**: VM (GitHub-hosted or self-hosted) that executes jobs.
 
-Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [002-workflow-syntax](./002-workflow-syntax.md)
-
-### Jobs and Steps
-
-- **Job**: Set of steps on one runner; jobs can depend on each other via `needs:`.
-- **Step**: Single task — `run:` (shell command) or `uses:` (reusable action).
-- **Runner**: VM that executes jobs; GitHub-hosted (ubuntu-latest, windows-latest) or self-hosted.
-- **Matrix**: Run job with multiple parameter combinations (e.g. node version, OS).
-- Jobs run in parallel by default; use `needs:` to create dependencies
-- Matrix strategy runs the same job with different parameter combinations
-
-Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [005-real-world-examples](./005-real-world-examples.md)
+Related notes: [001-github-actions-overview](./001-github-actions-overview.md) for detailed explanations, [002-workflow-syntax](./002-workflow-syntax.md) for trigger syntax and matrix
 
 ### Secrets and Security
 

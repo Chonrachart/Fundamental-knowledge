@@ -140,35 +140,6 @@ Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# show IP addresses on all interfaces
-ip addr show
-
-# show the routing table
-ip route show
-
-# add a static route
-ip route add 10.0.0.0/8 via 192.168.1.1
-
-# test reachability with ICMP
-ping -c 4 8.8.8.8
-
-# trace the path to a destination
-traceroute 8.8.8.8
-
-# show ARP / neighbor table
-ip neigh show
-
-# show NAT translations (iptables)
-iptables -t nat -L -n -v
-
-# calculate subnet info
-ipcalc 192.168.1.0/24
-```
-
-
 # Troubleshooting Guide
 
 ```text

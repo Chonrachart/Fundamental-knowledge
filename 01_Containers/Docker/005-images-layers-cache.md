@@ -4,6 +4,44 @@
 - Docker caches layers by content hash; unchanged instructions reuse cached layers for faster builds.
 - Multi-stage builds separate build tools from runtime, reducing final image size and attack surface.
 
+# Architecture
+
+```text
+  Image (read-only)          Container (runtime)
+  ┌──────────────────┐      ┌──────────────────┐
+  │ Layer 3: COPY .  │      │ Writable layer   │ ← copy-on-write
+  │ Layer 2: RUN npm │      ├──────────────────┤
+  │ Layer 1: COPY pkg│      │ Layer 3 (shared) │
+  │ Layer 0: FROM    │      │ Layer 2 (shared) │
+  └──────────────────┘      │ Layer 1 (shared) │
+         │                  │ Layer 0 (shared) │
+    content-hash            └──────────────────┘
+    (cache key)
+```
+
+- Image = stack of read-only layers, each identified by content hash.
+- Container adds one thin writable layer on top; multiple containers share the same image layers.
+
+# Mental Model
+
+```text
+docker build instruction N
+  │
+  ├─ Cache key = (parent layer hash + instruction + input files hash)
+  │
+  ├─ Match in cache? ──Yes──▶ Reuse cached layer (fast)
+  │       │
+  │      No
+  ▼
+  Execute instruction → new layer
+  │
+  ▼
+  All subsequent layers: cache INVALIDATED
+```
+
+- Cache evaluation is per-instruction, top-to-bottom; one miss cascades to all following layers.
+- For `COPY`/`ADD`: cache key includes file content hashes, not just instruction text.
+
 # Core Building Blocks
 
 ### How Layers Work

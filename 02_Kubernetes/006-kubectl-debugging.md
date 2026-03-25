@@ -4,6 +4,28 @@
 - Most commands are namespaced; use `-n <namespace>` or `--all-namespaces` (`-A`).
 - Core debugging loop: get (status) -> describe (events) -> logs (app output) -> exec (inspect inside container).
 
+# Architecture
+
+```text
+kubectl CLI
+    │
+    ▼  (REST/HTTPS :6443)
+API Server ──── authenticates + authorizes request
+    │
+    ├── read operations (get, describe) ──► etcd (cluster state)
+    │
+    └── exec / logs / port-forward
+            │
+            ▼  (kubelet API :10250)
+        kubelet on target node
+            │
+            ▼
+        container runtime (containerd)
+            │
+            ▼
+        target container (stdin/stdout/exec)
+```
+
 # Debugging Workflow
 
 ```text

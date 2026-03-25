@@ -125,28 +125,6 @@ Related notes: [001-Network-interface](./001-Network-interface.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# Resolve using full nsswitch chain (honours /etc/hosts + DNS)
-getent hosts example.com
-
-# Direct DNS query (bypasses /etc/hosts)
-dig example.com
-dig +short example.com
-nslookup example.com
-
-# Check which resolv.conf is in use
-ls -l /etc/resolv.conf
-
-# systemd-resolved cache flush
-resolvectl flush-caches
-
-# systemd-resolved status (shows per-link DNS servers)
-resolvectl status
-```
-
-
 # Troubleshooting Guide
 
 ```text

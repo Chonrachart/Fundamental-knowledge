@@ -4,6 +4,24 @@
 - Never store secrets in images; inject at runtime via env vars, mounted files, or orchestrator secrets.
 - Minimal base images, capability dropping, and image scanning form a defense-in-depth approach.
 
+# Architecture
+
+```text
+  Defense-in-Depth Layers
+  ┌─────────────────────────────────┐
+  │ 1. Minimal base image           │ ← reduce attack surface
+  │ 2. Non-root USER                │ ← limit process privileges
+  │ 3. Read-only rootfs             │ ← prevent filesystem tampering
+  │ 4. Drop capabilities            │ ← restrict kernel permissions
+  │ 5. Resource limits (mem/cpu)    │ ← prevent resource exhaustion
+  │ 6. No secrets in image          │ ← prevent credential leaks
+  │ 7. Image scanning               │ ← detect known CVEs
+  └─────────────────────────────────┘
+```
+
+- Each layer mitigates a different attack vector; combine all for robust container security.
+- Outer layers (base image, scanning) reduce what is shipped; inner layers (user, caps, read-only) restrict what runs.
+
 # Core Building Blocks
 
 ### Run as Non-Root

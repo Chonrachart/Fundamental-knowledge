@@ -65,6 +65,12 @@ Related notes:
     - vars/secrets.yml        # loaded from file (can be vaulted)
 ```
 
+```bash
+# pass extra var at runtime (highest precedence)
+ansible-playbook site.yml -e "app_version=2.1.0"
+ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
+```
+
 ### set_fact (runtime)
 
 ```yaml
@@ -123,6 +129,14 @@ Available in all tasks and templates
 - `gather_facts: false` skips collection (faster runs when facts are unused).
 - `ansible_facts` dict holds all facts; also accessible as top-level `ansible_*` vars.
 
+```bash
+# print all facts for a host
+ansible web1 -m ansible.builtin.setup
+
+# filter facts to a specific subset
+ansible web1 -m ansible.builtin.setup -a "filter=ansible_default_ipv4"
+```
+
 Related notes:
 - [005-loops-conditions-blocks](./005-loops-conditions-blocks.md) — using facts in `when:`
 
@@ -162,26 +176,6 @@ log_level=debug
 | `join` | `{{ list \| join(",") }}` | `"a,b,c"` |
 | `length` | `{{ list \| length }}` | count items |
 | `selectattr` | `{{ users \| selectattr("active") }}` | filter list |
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# print all facts for a host
-ansible web1 -m ansible.builtin.setup
-
-# filter facts
-ansible web1 -m ansible.builtin.setup -a "filter=ansible_default_ipv4"
-
-# debug variable in playbook (add task)
-- ansible.builtin.debug:
-    var: my_variable
-
-# pass extra var at runtime (highest precedence)
-ansible-playbook site.yml -e "app_version=2.1.0"
-ansible-playbook site.yml -e "@vars/overrides.yml"   # from file
-```
 
 
 

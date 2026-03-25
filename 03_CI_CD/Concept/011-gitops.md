@@ -89,30 +89,7 @@ Manual drift example:
   Action: revert to replicas=3 (if auto-sync enabled)
 ```
 
-Example — ArgoCD Application manifest:
-
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: myapp
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/org/k8s-manifests.git
-    targetRevision: main
-    path: apps/myapp
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: myapp
-  syncPolicy:
-    automated:
-      prune: true         # delete resources removed from Git
-      selfHeal: true      # revert manual changes
-    syncOptions:
-      - CreateNamespace=true
-```
+Related notes: [../Argo_CD/002-argocd-applications](../Argo_CD/002-argocd-applications.md) for ArgoCD Application CRD details
 
 # Core Building Blocks
 
@@ -335,27 +312,7 @@ Related notes: [009-ci-cd-security](./009-ci-cd-security.md), [003-best-practice
 - Both are managed via Git manifests — GitOps controls the rollout strategy.
 - Progressive delivery: `Argo Rollouts` (canary/blue-green) managed via Git.
 
-```yaml
-# Argo Rollouts - Canary strategy
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: myapp
-spec:
-  strategy:
-    canary:
-      steps:
-        - setWeight: 10
-        - pause: { duration: 5m }
-        - setWeight: 30
-        - pause: { duration: 5m }
-        - setWeight: 60
-        - pause: { duration: 5m }
-      canaryService: myapp-canary
-      stableService: myapp-stable
-```
-
-Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [010-metrics-and-dora](./010-metrics-and-dora.md)
+Related notes: [../Argo_CD/004-argocd-advanced-patterns](../Argo_CD/004-argocd-advanced-patterns.md) for Argo Rollouts canary/blue-green YAML details, [005-deployment-strategies](./005-deployment-strategies.md), [010-metrics-and-dora](./010-metrics-and-dora.md)
 
 ---
 
@@ -392,3 +349,12 @@ Related notes: [005-deployment-strategies](./005-deployment-strategies.md), [010
 3. Check repo server performance: large repos or complex Helm charts slow rendering.
 4. Check cluster API server load: many resources to sync can be slow.
 5. Split large applications into smaller ones for parallel sync.
+
+---
+
+Related notes (Argo_CD):
+- [../Argo_CD/001-argocd-overview](../Argo_CD/001-argocd-overview.md) — ArgoCD architecture, components, installation
+- [../Argo_CD/002-argocd-applications](../Argo_CD/002-argocd-applications.md) — Application CRD, app-of-apps, ApplicationSet
+- [../Argo_CD/003-argocd-sync-strategies](../Argo_CD/003-argocd-sync-strategies.md) — Sync policies, hooks, waves, windows
+- [../Argo_CD/004-argocd-advanced-patterns](../Argo_CD/004-argocd-advanced-patterns.md) — Argo Rollouts, Image Updater, multi-cluster
+- [../Argo_CD/005-argocd-admin-operations](../Argo_CD/005-argocd-admin-operations.md) — RBAC, SSO, backup, monitoring

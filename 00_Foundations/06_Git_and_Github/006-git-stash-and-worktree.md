@@ -120,39 +120,6 @@ Related notes: [001-git-setup](./001-git-setup.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# --- STASH ---
-git stash push -m "wip: description"      # save changes with label
-git stash push -u -m "wip: with untracked" # include untracked files
-git stash list                             # list all stashes
-git stash show -p stash@{0}               # view full diff of a stash
-git stash pop                             # apply + remove most recent
-git stash apply stash@{2}                 # apply specific, keep in stack
-git stash drop stash@{1}                  # remove specific stash
-git stash clear                           # remove ALL stashes
-git stash branch fix-from-stash           # create branch from stash
-
-# --- WORKTREE ---
-git worktree add ../hotfix main           # new worktree for main branch
-git worktree add -b feat ../feat origin/main  # new branch + worktree
-git worktree list                         # list all worktrees
-git worktree remove ../hotfix             # clean up worktree
-git worktree prune                        # remove stale references
-```
-
-> Use `git stash` for quick, temporary context switches. Use `git worktree` when you need to work on two branches simultaneously for an extended period.
-
-
-- `git stash` saves staged + unstaged changes to tracked files; add `-u` for untracked, `-a` for ignored too
-- Stash is a LIFO stack — `stash@{0}` is always the most recent
-- `pop` = apply + drop; `apply` = apply only — use `apply` when you want to keep a safety copy
-- If `pop` encounters conflicts, the stash is **not** removed — you must drop it manually after resolving
-- `git stash branch` is the escape hatch when a stash no longer applies cleanly to the current branch
-- Worktrees share one `.git` — no duplicate object storage, but each has its own index and HEAD
-- A branch cannot be checked out in two worktrees simultaneously
-- `git worktree prune` is housekeeping — run it if you deleted a worktree directory manually
 # Troubleshooting Guide
 
 ```text

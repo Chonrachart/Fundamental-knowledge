@@ -163,35 +163,6 @@ Related notes: [005-errors-and-exit-codes](./005-errors-and-exit-codes.md), [003
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# assign and use variables
-name="alice"; echo "Hello, $name"
-
-# parameter expansion defaults
-echo "${UNSET_VAR:-fallback_value}"
-
-# string manipulation with parameter expansion
-file="/var/log/syslog.1.gz"
-echo "${file##*/}"        # syslog.1.gz  (basename)
-echo "${file%/*}"         # /var/log     (dirname)
-
-# export for child processes
-export MY_VAR="visible_to_children"
-bash -c 'echo $MY_VAR'   # visible_to_children
-
-# list all exported variables
-export -p
-
-# check if variable is set
-[[ -v MY_VAR ]] && echo "set" || echo "unset"
-
-# unset a variable
-unset MY_VAR
-```
-
-
 # Troubleshooting Guide
 
 ```text

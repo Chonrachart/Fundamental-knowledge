@@ -335,3 +335,9 @@ Related notes: [001-argocd-overview](./001-argocd-overview.md)
 4. Applications will auto-sync from Git (cluster workloads are unaffected).
 5. Verify all apps: `argocd app list` — check sync and health status.
 6. Lesson: protect ArgoCD namespace with RBAC and resource policies.
+
+---
+
+Related notes (Concept):
+- [../Concept/011-gitops](../Concept/011-gitops.md) — GitOps principles, secrets in GitOps
+- [../Concept/009-ci-cd-security](../Concept/009-ci-cd-security.md) — CI/CD security, RBAC, secret management

@@ -4,6 +4,27 @@
 - A ServiceAccount is a pod-level identity; pods authenticate to the API server using the ServiceAccount's token.
 - Principle of least privilege: grant only the permissions each workload or user actually needs.
 
+# Architecture
+
+```text
+Request arrives at API Server
+    │
+    ▼
+1. Authentication  ── who are you?
+   (client cert, token, OIDC)
+    │
+    ▼
+2. Authorization   ── are you allowed?
+   (RBAC: match subject → binding → role → rules)
+    │
+    ▼
+3. Admission Control ── mutate/validate the request
+   (webhooks: LimitRanger, PodSecurity, etc.)
+    │
+    ▼
+4. Persist to etcd (request accepted)
+```
+
 # Mental Model
 
 ```text

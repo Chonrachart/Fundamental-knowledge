@@ -146,7 +146,7 @@ updates:
 - Never checkout and execute fork PR code in `pull_request_target` without review.
 - Use `environment` with required reviewers for deploy jobs triggered by PRs.
 
-Related notes: [004-secrets-cache](./004-secrets-cache.md), [003-expressions-contexts](./003-expressions-contexts.md), [008-self-hosted-runners](./008-self-hosted-runners.md)
+Related notes: [004-secrets-cache](./004-secrets-cache.md), [003-expressions-contexts](./003-expressions-contexts.md), [008-self-hosted-runners](./008-self-hosted-runners.md), [../Concept/009-ci-cd-security](../Concept/009-ci-cd-security.md)
 
 
 - OIDC eliminates long-lived cloud credentials; tokens are scoped to repo + branch + environment.

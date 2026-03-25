@@ -215,33 +215,6 @@ Related notes: [008-practical-patterns](./008-practical-patterns.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# check which shell is running
-echo $SHELL
-echo $BASH_VERSION
-
-# run a script
-chmod +x script.sh && ./script.sh
-
-# debug a script (print each command before execution)
-bash -x script.sh
-
-# syntax check without executing
-bash -n script.sh
-
-# source a script (run in current shell)
-source script.sh
-
-# check exit code of last command
-echo $?
-
-# run with strict mode inline
-bash -euo pipefail script.sh
-```
-
-
 # Troubleshooting Guide
 
 ```text

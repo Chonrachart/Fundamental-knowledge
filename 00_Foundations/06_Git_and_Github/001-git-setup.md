@@ -139,36 +139,6 @@ Related notes: [002-git-interaction](./002-git-interaction.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# Initialize
-git init
-
-# Configure identity
-git config --global user.name "Name"
-git config --global user.email "name@example.com"
-
-# Stage and commit
-git add <file>
-git commit -m "message"
-
-# Inspect
-git status
-git log --oneline --graph
-git log -p
-```
-
-Check config: `git config --global --list` or `git config --local --list`
-
-
-- `git init` creates `.git/` directory; skip if repository was cloned.
-- `git config --global` sets identity for all repos; `--local` overrides per-repo.
-- Three areas: Working Tree (edit), Staging Area (stage), Repository (commit).
-- Commit reads from Index only, never directly from Working Tree.
-- HEAD points to current branch; branch points to latest commit.
-- `.gitignore` affects untracked files only; use `git rm --cached` for already-tracked files.
-- Each commit is a SHA-1 hash forming an immutable linked chain.
 # Troubleshooting Guide
 
 ```text

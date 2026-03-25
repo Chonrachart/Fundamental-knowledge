@@ -100,6 +100,32 @@ Related notes: [001-cryptography](./001-cryptography.md), [003-symmetric-vs-asym
 - **Renew** — generate new CSR or use ACME for automated renewal
 - **Revoke** — notify CA to add serial to CRL / OCSP; reasons include key compromise, change of affiliation
 
+```bash
+# Generate EC P-256 private key (alternative to RSA)
+openssl ecparam -genkey -name prime256v1 -out server-ec.key
+
+# Create CSR non-interactively
+openssl req -new -key server.key -out server.csr \
+  -subj "/CN=example.com/O=MyOrg"
+
+# Inspect certificate details
+openssl x509 -in cert.pem -text -noout
+openssl x509 -in cert.pem -noout -dates                     # check validity dates
+openssl x509 -in cert.pem -noout -subject -issuer           # subject and issuer
+openssl req -in server.csr -text -noout                     # view CSR details
+
+# Fetch remote certificate chain
+openssl s_client -connect example.com:443 -showcerts
+
+# Verify cert against CA (with optional intermediate)
+openssl verify -CAfile ca.pem cert.pem
+openssl verify -CAfile ca.pem -untrusted intermediate.pem cert.pem
+
+# Check if key and cert match (both md5 outputs must be equal)
+openssl x509 -noout -modulus -in cert.pem | openssl md5
+openssl rsa -noout -modulus -in key.pem | openssl md5
+```
+
 Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
 
 ### Certificate Formats
@@ -113,6 +139,20 @@ Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-ch
 
 - PEM files have `-----BEGIN CERTIFICATE-----` / `-----BEGIN PRIVATE KEY-----` headers
 - A PEM file can contain multiple certs concatenated (cert chain bundle)
+
+```bash
+# PEM → PKCS12 (bundle key + cert for import)
+openssl pkcs12 -export -out cert.pfx -inkey key.pem -in cert.pem
+
+# PKCS12 → PEM
+openssl pkcs12 -in cert.pfx -out cert.pem -nodes
+
+# PEM → DER
+openssl x509 -in cert.pem -outform der -out cert.der
+
+# DER → PEM
+openssl x509 -in cert.der -inform der -out cert.pem
+```
 
 Related notes: [001-cryptography](./001-cryptography.md)
 
@@ -184,57 +224,6 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 
 Related notes: [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md), [004-authentication](./004-authentication.md)
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# --- Key and CSR generation ---
-openssl genrsa -out server.key 2048                          # RSA 2048 private key
-openssl ecparam -genkey -name prime256v1 -out server-ec.key  # EC P-256 private key
-openssl req -new -key server.key -out server.csr             # create CSR interactively
-openssl req -new -key server.key -out server.csr \
-  -subj "/CN=example.com/O=MyOrg"                           # create CSR non-interactively
-
-# --- Self-signed certificate ---
-openssl req -x509 -newkey rsa:2048 -keyout key.pem \
-  -out cert.pem -days 365 -nodes                            # generate key + self-signed cert
-
-# --- Inspect certificates ---
-openssl x509 -in cert.pem -text -noout                      # view cert details
-openssl x509 -in cert.pem -noout -dates                     # check validity dates
-openssl x509 -in cert.pem -noout -subject -issuer           # subject and issuer
-openssl req -in server.csr -text -noout                     # view CSR details
-openssl s_client -connect example.com:443 -showcerts        # fetch remote cert chain
-
-# --- Verify ---
-openssl verify -CAfile ca.pem cert.pem                      # verify cert against CA
-openssl verify -CAfile ca.pem -untrusted intermediate.pem cert.pem  # with intermediate
-
-# --- Format conversion ---
-openssl pkcs12 -export -out cert.pfx \
-  -inkey key.pem -in cert.pem                               # PEM → PKCS12
-openssl pkcs12 -in cert.pfx -out cert.pem -nodes            # PKCS12 → PEM
-openssl x509 -in cert.pem -outform der -out cert.der        # PEM → DER
-openssl x509 -in cert.der -inform der -out cert.pem         # DER → PEM
-
-# --- Check key/cert match ---
-openssl x509 -noout -modulus -in cert.pem | openssl md5     # cert modulus hash
-openssl rsa -noout -modulus -in key.pem | openssl md5       # key modulus hash
-# Both md5 outputs must match
-```
-
-Note: always use `-nodes` (no DES) in dev/test to skip passphrase; in production, protect private keys with passphrases or HSMs.
-
-
-- A certificate binds a public key to an identity; the CA's signature is the proof of that binding
-- Root CAs are self-signed and kept offline; intermediate CAs handle day-to-day issuance
-- CSR contains the public key + subject info; the private key never leaves the server
-- PEM is Base64-encoded ASCII (most common on Linux); PKCS#12 bundles key + cert in binary (common for import/export)
-- Let's Encrypt certs are valid for 90 days; certbot auto-renews via systemd timer or cron
-- OCSP stapling is preferred over CRL because it is real-time and reduces CA load
-- mTLS requires both client and server to present and verify certificates — used heavily in service meshes (Istio, Linkerd)
-- Certificate Transparency (CT) logs provide public auditability of all issued certificates
 # Troubleshooting Guide
 
 ### Certificate has expired

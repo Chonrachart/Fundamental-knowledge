@@ -4,6 +4,30 @@
 - PDB (Pod Disruption Budget) limits how many pods can be voluntarily evicted at once during drains and upgrades.
 - HPA handles scaling for load; PDB handles safety during maintenance -- they complement each other.
 
+# Architecture
+
+```text
+                    ┌───────────────┐
+                    │ metrics-server│ (or Prometheus adapter)
+                    └───────┬───────┘
+                            │ CPU/memory/custom metrics
+                            ▼
+┌──────────────────────────────────────────────┐
+│  HPA Controller (runs in controller-manager) │
+│                                              │
+│  every 15s:                                  │
+│    current = avg metric across pods          │
+│    desired = current * (currentVal/targetVal)│
+│    clamp to [minReplicas, maxReplicas]       │
+│    stabilize (scaleDown window: 300s)        │
+└──────────────────┬───────────────────────────┘
+                   │ patch replicas
+                   ▼
+            ┌──────────────┐
+            │  Deployment  │ ──► ReplicaSet ──► Pods
+            └──────────────┘
+```
+
 # Mental Model
 
 ```text

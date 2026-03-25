@@ -136,33 +136,6 @@ Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# check network interfaces and IP addresses
-ip addr show
-
-# test reachability
-ping -c 4 8.8.8.8
-
-# trace route to destination
-traceroute 8.8.8.8
-
-# DNS lookup
-dig example.com
-nslookup example.com
-
-# show routing table
-ip route show
-
-# show active connections and listening ports
-ss -tulnp
-
-# capture packets (requires root)
-tcpdump -i eth0 -n port 443
-```
-
-
 # Troubleshooting Guide
 
 ```text

@@ -146,36 +146,6 @@ Related notes:
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# system
-uname -a
-uptime
-
-# cpu/memory/process
-ps aux
-top
-free -h
-
-# filesystem/disk
-lsblk
-df -h
-mount
-/etc/fstab
-
-# networking
-ip a
-ip r
-ss -tulpen
-
-# services/logs
-systemctl status <service>
-journalctl -u <service> -n 100 --no-pager
-```
-
-- These commands cover most first-pass Linux troubleshooting.
-
 # Troubleshooting Guide
 
 ### General diagnostic sequence

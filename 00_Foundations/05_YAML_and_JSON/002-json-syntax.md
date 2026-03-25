@@ -237,24 +237,7 @@ Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
 - `jq` is a command-line JSON processor -- essential for scripting with APIs and tool output.
 - Key operations:
 
----
-
-# Practical Command Set (Core)
-
 ```bash
-# pretty-print JSON
-cat data.json | python3 -m json.tool
-cat data.json | jq '.'
-
-# validate JSON syntax (non-zero exit on error)
-python3 -m json.tool < data.json > /dev/null
-
-# extract a field from JSON
-jq -r '.metadata.name' resource.json
-
-# filter array elements
-jq '.items[] | select(.kind == "Deployment")' resources.json
-
 # count array elements
 jq '.items | length' resources.json
 
@@ -263,23 +246,10 @@ jq 'keys' config.json
 
 # merge two JSON objects
 jq -s '.[0] * .[1]' base.json override.json
-
-# convert JSON to YAML
-yq -P input.json
-
-# kubectl with JSON output piped to jq
-kubectl get pods -o json | jq -r '.items[].metadata.name'
 ```
 
+---
 
-- JSON has 6 types: string, number, boolean (`true`/`false`), null, object, array.
-- All keys must be double-quoted strings -- single quotes are invalid.
-- No comments allowed in standard JSON; use JSONC or `_comment` keys as workarounds.
-- No trailing commas -- the most common hand-editing mistake.
-- YAML is a superset of JSON -- valid JSON is valid YAML.
-- Use JSON for APIs and machine interchange; use YAML for human-authored config.
-- `jq -r` gives raw output (no quotes); `jq '.'` pretty-prints.
-- JSON Schema provides IDE autocomplete and validation for structured config files.
 # Troubleshooting Guide
 
 ```text

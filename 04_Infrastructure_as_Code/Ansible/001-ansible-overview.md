@@ -42,6 +42,15 @@ Role       →  reusable bundle of tasks/handlers/vars/templates
 - Defines hosts and groups; can be static (INI/YAML) or dynamic (cloud plugin).
 - `hosts: web` in a play means "run against the `web` group from inventory".
 
+```bash
+# test connectivity (ad-hoc ping)
+ansible all -m ping -i inventory/hosts.ini
+ansible web -m ping                          # uses ansible.cfg inventory default
+
+# inspect inventory structure
+ansible-inventory -i inventory/hosts.ini --graph
+```
+
 Related notes:
 - [002-inventory-and-ansible-cfg](./002-inventory-and-ansible-cfg.md)
 
@@ -57,6 +66,11 @@ Related notes:
 
 - Unit of work. Preferred over `shell`/`command` because modules are idempotent.
 - Full list: `ansible-doc -l` or `ansible-doc ansible.builtin.<module>`.
+
+```bash
+# ad-hoc one-liner: run a module on a group
+ansible web -m ansible.builtin.package -a "name=curl state=present" --become
+```
 
 Related notes:
 - [003-playbooks-tasks-handlers](./003-playbooks-tasks-handlers.md)
@@ -92,33 +106,6 @@ Run it:
 ```bash
 ansible-playbook -i inventory/hosts.ini playbooks/site.yml
 ```
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# verify installation
-ansible --version
-
-# test connectivity (ad-hoc ping)
-ansible all -m ping -i inventory/hosts.ini
-ansible web -m ping                          # uses ansible.cfg inventory default
-
-# run a playbook
-ansible-playbook -i inventory/hosts.ini playbooks/site.yml
-
-# dry-run (no changes)
-ansible-playbook -i inventory/hosts.ini playbooks/site.yml --check --diff
-
-# ad-hoc one-liner
-ansible web -m ansible.builtin.package -a "name=curl state=present" --become
-
-# inspect inventory
-ansible-inventory -i inventory/hosts.ini --graph
-```
-
-- Add `-v`, `-vv`, `-vvv` to any command for increasing verbosity.
 
 
 

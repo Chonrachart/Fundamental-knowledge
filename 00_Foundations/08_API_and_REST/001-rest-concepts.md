@@ -79,6 +79,21 @@ DELETE    Delete    No**    Yes           No
 ** DELETE may include a body in some APIs but typically does not
 ```
 
+```bash
+# curl examples for each method
+curl -s https://api.example.com/v1/servers/42                          # GET
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"name":"web-01"}' https://api.example.com/v1/servers            # POST
+curl -s -X PUT -H "Content-Type: application/json" \
+  -d '{"name":"web-01","region":"eu-west-1"}' \
+  https://api.example.com/v1/servers/42                                # PUT
+curl -s -X PATCH -H "Content-Type: application/json" \
+  -d '{"region":"eu-west-1"}' https://api.example.com/v1/servers/42    # PATCH
+curl -s -X DELETE https://api.example.com/v1/servers/42                # DELETE
+# check only the status code
+curl -s -o /dev/null -w "%{http_code}" https://api.example.com/v1/servers/42
+```
+
 Related notes: [000-core](./000-core.md)
 
 ### Status Codes
@@ -191,48 +206,6 @@ Related notes: [003-curl-and-practical-usage](./003-curl-and-practical-usage.md)
 - JSON (application/json) is the standard for nearly all modern REST APIs.
 - Some APIs also support XML, YAML, or plain text.
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# GET a resource
-curl -s https://api.example.com/v1/servers/42
-
-# POST to create a resource
-curl -s -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"name":"web-01","region":"us-east-1"}' \
-  https://api.example.com/v1/servers
-
-# PUT to replace a resource
-curl -s -X PUT \
-  -H "Content-Type: application/json" \
-  -d '{"name":"web-01","region":"eu-west-1"}' \
-  https://api.example.com/v1/servers/42
-
-# PATCH to partially update
-curl -s -X PATCH \
-  -H "Content-Type: application/json" \
-  -d '{"region":"eu-west-1"}' \
-  https://api.example.com/v1/servers/42
-
-# DELETE a resource
-curl -s -X DELETE https://api.example.com/v1/servers/42
-
-# check only the status code
-curl -s -o /dev/null -w "%{http_code}" https://api.example.com/v1/servers/42
-```
-
-
-- REST is an architectural style, not a protocol; it uses HTTP as its transport.
-- Resources are identified by URLs; operations are expressed through HTTP methods.
-- Stateless: each request is independent; server stores no session between calls.
-- GET/PUT/DELETE are idempotent (safe to retry); POST is not.
-- JSON is the standard data format; Content-Type and Accept headers negotiate format.
-- Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
-- 429 Too Many Requests means you are rate limited; respect Retry-After header.
-- URL convention: plural nouns for collections (/servers), IDs for individuals (/servers/42).
 # Troubleshooting Guide
 
 ```text

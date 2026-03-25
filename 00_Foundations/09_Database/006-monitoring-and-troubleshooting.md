@@ -235,6 +235,14 @@ export DATA_SOURCE_NAME="user:pass@(localhost:3306)/"
 # verify exporter is serving metrics
 curl -s http://localhost:9187/metrics | head -20   # postgres
 curl -s http://localhost:9104/metrics | head -20   # mysql
+
+# check database port is responding
+nc -zv <host> 5432   # PostgreSQL
+nc -zv <host> 3306   # MySQL
+
+# check disk usage on data directory
+df -h /var/lib/postgresql   # PostgreSQL
+df -h /var/lib/mysql        # MySQL
 ```
 
 Related notes: [000-core](./000-core.md)
@@ -299,68 +307,6 @@ Related notes: [002-sql-essentials](./002-sql-essentials.md), [001-database-conc
 - **Nested Loop / Hash Join / Merge Join** -- how tables are joined; each suits different data sizes.
 - **Rows** -- estimated number of rows; if wildly wrong, run ANALYZE to update statistics.
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# --- PostgreSQL Monitoring ---
-
-# check active connections count
-psql -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY state;"
-
-# find queries running longer than 5 minutes
-psql -c "SELECT pid, now()-query_start AS duration, query FROM pg_stat_activity WHERE state='active' AND now()-query_start > interval '5 min';"
-
-# database sizes
-psql -c "SELECT datname, pg_size_pretty(pg_database_size(datname)) FROM pg_database ORDER BY pg_database_size(datname) DESC;"
-
-# cache hit ratio
-psql -c "SELECT round(sum(blks_hit)/nullif(sum(blks_hit+blks_read),0),4) AS ratio FROM pg_stat_database;"
-
-# replication lag
-psql -c "SELECT client_addr, state, replay_lag FROM pg_stat_replication;"
-
-# kill a runaway query
-psql -c "SELECT pg_terminate_backend(<pid>);"
-
-# --- MySQL Monitoring ---
-
-# check active connections
-mysql -e "SHOW PROCESSLIST;"
-
-# connection count vs max
-mysql -e "SHOW GLOBAL STATUS LIKE 'Threads_connected'; SHOW VARIABLES LIKE 'max_connections';"
-
-# database sizes
-mysql -e "SELECT table_schema, ROUND(SUM(data_length+index_length)/1024/1024,2) AS size_mb FROM information_schema.TABLES GROUP BY table_schema ORDER BY size_mb DESC;"
-
-# InnoDB buffer pool usage
-mysql -e "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool%';"
-
-# kill a runaway query
-mysql -e "KILL <thread_id>;"
-
-# --- External Checks ---
-
-# check database port is responding
-nc -zv <host> 5432   # PostgreSQL
-nc -zv <host> 3306   # MySQL
-
-# check disk usage on data directory
-df -h /var/lib/postgresql   # PostgreSQL
-df -h /var/lib/mysql        # MySQL
-```
-
-
-- Monitor five things: connections, query performance, disk usage, replication lag, and locks.
-- Cache hit ratio should be above 95%; below that means the buffer pool / shared_buffers is too small or workload does not fit in memory.
-- `SHOW PROCESSLIST` (MySQL) and `pg_stat_activity` (PostgreSQL) are the first places to look when something is slow.
-- `EXPLAIN ANALYZE` runs the query and shows actual timing; plain `EXPLAIN` only estimates -- use ANALYZE for real diagnostics.
-- Seq Scan on a large table almost always means a missing index; create one on the WHERE/JOIN column.
-- Prometheus exporters (mysqld_exporter, postgres_exporter) are the standard way to feed database metrics into Grafana dashboards.
-- Set alerts on connection usage (>80%), disk usage (>85%), replication lag (>30s), and any deadlocks.
-- Always check the database error log as a last resort -- it often contains the root cause that status views do not show.
 # Troubleshooting Guide
 
 ```text

@@ -49,6 +49,15 @@ ansible-vault edit group_vars/prod/secrets.yml
 
 # change vault password
 ansible-vault rekey group_vars/prod/secrets.yml
+
+# rekey with a new password file
+ansible-vault rekey group_vars/prod/secrets.yml --new-vault-password-file new_pass.txt
+
+# check if a file is vault-encrypted (first line shows $ANSIBLE_VAULT if encrypted)
+head -1 group_vars/prod/secrets.yml
+
+# encrypt all secrets files at once
+find . -name "secrets.yml" | xargs ansible-vault encrypt
 ```
 
 ### Encrypt a Single String (inline secret)
@@ -114,25 +123,6 @@ group_vars/
 
 Related notes:
 - [002-inventory-and-ansible-cfg](./002-inventory-and-ansible-cfg.md) — group_vars layout
-
----
-
-# Practical Command Set (Core)
-
-```bash
-# check if a file is vault-encrypted
-head -1 group_vars/prod/secrets.yml     # shows $ANSIBLE_VAULT if encrypted
-
-# re-encrypt with new password
-ansible-vault rekey group_vars/prod/secrets.yml --new-vault-password-file new_pass.txt
-
-# encrypt all secrets files at once
-find . -name "secrets.yml" | xargs ansible-vault encrypt
-
-# decrypt to review (never commit after this)
-ansible-vault decrypt group_vars/prod/secrets.yml
-ansible-vault view group_vars/prod/secrets.yml    # safer -- view without writing plaintext
-```
 
 
 

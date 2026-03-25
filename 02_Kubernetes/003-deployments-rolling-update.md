@@ -4,6 +4,28 @@
 - Rolling updates gradually replace old pods with new ones, controlled by maxSurge and maxUnavailable parameters.
 - Rollback reverts to a previous ReplicaSet revision; history depth is governed by revisionHistoryLimit (default 10).
 
+# Architecture
+
+```text
+Deployment (desired state: image, replicas, strategy)
+    │
+    ├── ReplicaSet v2 (current)   replicas: 3
+    │       ├── Pod-a  (Running)
+    │       ├── Pod-b  (Running)
+    │       └── Pod-c  (Running)
+    │
+    └── ReplicaSet v1 (previous)  replicas: 0  (kept for rollback)
+
+Rolling Update (maxSurge:1, maxUnavailable:0):
+  v1: ███  v2: _       ← start
+  v1: ███  v2: █       ← surge: +1 new pod
+  v1: ██   v2: █       ← old pod terminated
+  v1: ██   v2: ██      ← surge again
+  v1: █    v2: ██      ← old pod terminated
+  v1: █    v2: ███     ← surge again
+  v1: _    v2: ███     ← complete
+```
+
 # Mental Model
 
 ```text

@@ -134,32 +134,6 @@ Related notes: [007-Network-namespace](./007-Network-namespace.md), [002-ip-comm
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# List all interfaces with state
-ip link show
-
-# Show all addresses
-ip addr show
-
-# Bring interface up / down
-ip link set eth0 up
-ip link set eth0 down
-
-# Create bridge
-ip link add name br0 type bridge
-
-# Create veth pair
-ip link add veth0 type veth peer name veth1
-
-# Attach interface to bridge
-ip link set veth0 master br0
-```
-
-Use `ip link` for interface state, `ip addr` for addresses.
-
-
 # Troubleshooting Guide
 
 ```text

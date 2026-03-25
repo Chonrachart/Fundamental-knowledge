@@ -2,65 +2,21 @@
 
 - Infrastructure as Code tool by HashiCorp; declarative HCL config defines desired infrastructure state.
 - Provider-based architecture: plugins for AWS, GCP, Azure, Kubernetes, and hundreds of other platforms.
-- Execution model: `plan` shows what will change, `apply` makes it happen, `state` tracks what exists.
+- Workflow: write `.tf` files, `init`, `plan`, `apply`; state tracks what Terraform manages.
+- For detailed workflow, architecture, and examples: see [001-terraform-overview](./001-terraform-overview.md).
 
 # Architecture
 
 ```text
 .tf files (HCL config)
         │
-        ▼
-terraform init
-  → downloads providers (.terraform/)
-  → configures backend (state storage)
+  terraform init  → downloads providers, configures backend
         │
-        ▼
-terraform plan
-  → reads current state (from backend)
-  → reads config (.tf files)
-  → builds dependency graph
-  → computes diff (create, update, destroy)
+  terraform plan  → reads state + config, computes diff
         │
-        ▼
-terraform apply
-  → executes changes via provider APIs
-  → updates state file
+  terraform apply → executes changes via provider APIs, updates state
         │
-        ▼
-terraform.tfstate (in backend)
-  → maps config addresses to real resource IDs
-  → source of truth for what Terraform manages
-```
-
-# Mental Model
-
-```text
-Write HCL → Init → Plan → Apply → State updated
-
-1. Write desired state in .tf files
-2. `terraform init` — fetch providers and modules
-3. `terraform plan` — preview changes (safe, read-only)
-4. `terraform apply` — execute changes against provider APIs
-5. State file records what was created and their IDs
-6. Next plan compares config ↔ state ↔ real infra
-```
-
-Example:
-```bash
-mkdir infra && cd infra
-cat > main.tf <<'EOF'
-provider "aws" { region = "us-east-1" }
-resource "aws_instance" "web" {
-  ami           = "ami-0abcdef1234567890"
-  instance_type = "t3.micro"
-  tags = { Name = "web" }
-}
-EOF
-
-terraform init      # download aws provider
-terraform plan      # preview: 1 to add
-terraform apply     # create the instance
-terraform destroy   # tear it down
+terraform.tfstate → maps config addresses to real resource IDs
 ```
 
 # Core Building Blocks
@@ -69,20 +25,19 @@ terraform destroy   # tear it down
 
 - Plugins that interface with cloud/platform APIs (AWS, GCP, Azure, K8s, etc.).
 - Defined in `terraform { required_providers {} }` with version constraints.
-- `terraform init` downloads them into `.terraform/providers/`.
 
 Related notes: [003-providers-data-sources](./003-providers-data-sources.md)
 
 ### Resources and Data Sources
 
-- **Resource**: A piece of infrastructure Terraform creates and manages (e.g. `aws_instance`, `aws_s3_bucket`).
-- **Data source**: A read-only lookup of existing infrastructure (e.g. `data.aws_ami.ubuntu`).
+- **Resource**: infrastructure Terraform creates and manages (e.g. `aws_instance`).
+- **Data source**: read-only lookup of existing infrastructure (e.g. `data.aws_ami.ubuntu`).
 
 Related notes: [002-hcl-syntax-resources](./002-hcl-syntax-resources.md), [003-providers-data-sources](./003-providers-data-sources.md)
 
 ### State
 
-- Terraform state maps config to real infrastructure; stored in a backend (local file or remote).
+- Maps config to real infrastructure; stored in a backend (local file or remote).
 - Remote backends (S3, GCS, Terraform Cloud) enable team collaboration and state locking.
 
 Related notes: [005-state-backend](./005-state-backend.md)
@@ -109,13 +64,10 @@ Related notes: [006-modules-workspaces](./006-modules-workspaces.md)
 Related notes: [007-cli-commands](./007-cli-commands.md)
 
 
-- Terraform is declarative: you describe desired state, not steps to get there.
+- Terraform is declarative: describe desired state, not steps to get there.
 - `terraform plan` is safe and read-only; always review before `apply`.
-- State file is the source of truth for what Terraform manages — never edit manually.
-- Remote backend (S3 + DynamoDB) enables team collaboration with locking.
-- Provider versions are pinned in `.terraform.lock.hcl` for reproducibility.
-- `count` and `for_each` create multiple instances of a resource.
-- Modules are the primary mechanism for code reuse and organization.
+- State file is the source of truth — never edit manually.
+- Provider versions pinned in `.terraform.lock.hcl` for reproducibility.
 - `terraform destroy` removes all managed resources — use with caution.
 ---
 
@@ -135,7 +87,7 @@ Related notes: [007-cli-commands](./007-cli-commands.md)
 1. Another `terraform apply` may be running; wait for it to finish.
 2. If stuck: `terraform force-unlock <LOCK_ID>` — only if certain no other process is running.
 
-# Topic Map (basic → advanced)
+# Topic Map (basic to advanced)
 
 - [001-terraform-overview](./001-terraform-overview.md) — What Terraform is, workflow, provider/resource/state concepts
 - [002-hcl-syntax-resources](./002-hcl-syntax-resources.md) — HCL language, resource blocks, count, for_each, lifecycle

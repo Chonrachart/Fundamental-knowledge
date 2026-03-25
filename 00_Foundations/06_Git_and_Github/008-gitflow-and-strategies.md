@@ -131,6 +131,19 @@ Related notes: [003-git-branch](./003-git-branch.md), [005-git-pull-request](./0
   - After merging to main, always tag the commit
 ```
 
+```bash
+# Gitflow commands
+git checkout -b feature/payment develop            # feature from develop
+git checkout develop && git merge feature/payment   # merge back to develop
+git checkout -b release/1.2.0 develop              # cut release branch
+git checkout main && git merge release/1.2.0       # release to main
+git tag -a v1.2.0 -m "Release 1.2.0"              # tag the release
+git checkout develop && git merge release/1.2.0    # sync release back to develop
+git checkout -b hotfix/critical main               # hotfix from main
+git checkout main && git merge hotfix/critical     # fix to main
+git checkout develop && git merge hotfix/critical  # fix to develop too
+```
+
 Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository](./004-git-remote-repository.md)
 
 ### Trunk-Based Development
@@ -180,45 +193,6 @@ Related notes: [003-git-branch](./003-git-branch.md), [004-git-remote-repository
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# --- GITHUB FLOW ---
-git checkout -b feature/add-auth main             # branch from main
-git push -u origin feature/add-auth               # push and track
-gh pr create --title "Add auth" --body "Details"   # open PR
-# merge via GitHub UI or: gh pr merge --squash
-
-# --- GITFLOW ---
-git checkout -b feature/payment develop            # feature from develop
-git checkout develop && git merge feature/payment   # merge back to develop
-git checkout -b release/1.2.0 develop              # cut release branch
-git checkout main && git merge release/1.2.0       # release to main
-git tag -a v1.2.0 -m "Release 1.2.0"              # tag the release
-git checkout develop && git merge release/1.2.0    # sync release back to develop
-git checkout -b hotfix/critical main               # hotfix from main
-git checkout main && git merge hotfix/critical     # fix to main
-git checkout develop && git merge hotfix/critical  # fix to develop too
-
-# --- TRUNK-BASED ---
-git pull origin main                               # always start from latest
-git checkout -b small-fix main                     # tiny branch (optional)
-# ... small commit ...
-git push -u origin small-fix
-gh pr create --title "Fix typo" --body "Quick fix" # merge within hours
-```
-
-> In Gitflow, always merge release and hotfix branches into **both** `main` and `develop` to keep them in sync.
-
-
-- **GitHub Flow**: main + feature branches + PRs -- every merge deploys
-- **Gitflow**: main + develop + feature/release/hotfix branches -- structured release cycle
-- **Trunk-Based**: everyone commits to main -- feature flags hide WIP
-- Gitflow hotfix branches must merge to **both** main and develop
-- Gitflow release branches freeze features -- only bug fixes allowed after cut
-- Trunk-Based requires mature CI/CD and feature flag infrastructure
-- Start simple (GitHub Flow), add structure only when needed
-- The best strategy is the one the whole team follows consistently
 # Troubleshooting Guide
 
 ```text

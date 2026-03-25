@@ -134,45 +134,12 @@ Related notes: [003-git-branch](./003-git-branch.md)
 - **CI checks** — ensure all automated tests and linters pass before requesting review
 - **Self-review first** — review your own diff before assigning reviewers
 - **Respond to feedback** — address all comments; push fix commits or explain why no change is needed
+- **Post-merge cleanup** — after PR is merged, switch to main, pull, and delete the feature branch:
+  - `git switch main && git pull`
+  - `git branch -d feature-xyz` (local) and `git push --delete origin feature-xyz` (remote)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# Fork workflow setup
-git clone <fork-url>
-git remote add upstream <original-url>
-
-# Keep fork in sync
-git fetch upstream
-git switch main && git merge upstream/main
-git push origin main
-
-# Feature branch workflow
-git switch -c feature-xyz
-# ... make changes ...
-git add <files> && git commit -m "Description"
-git push -u origin feature-xyz
-# --> open PR on GitHub
-
-# After PR is merged — cleanup
-git switch main && git pull
-git branch -d feature-xyz
-git push --delete origin feature-xyz
-```
-
-- Use `git push -u` on the first push to set upstream tracking for the new branch
-
-
-- Fork = your copy of someone else's repo; PR = request to merge back
-- PR has a base branch (target) and compare branch (your changes)
-- Three GitHub merge strategies: merge commit, squash and merge, rebase and merge
-- Draft PRs signal work-in-progress and block merging
-- `Fixes #N` in PR description auto-closes the linked issue on merge
-- Keep forks in sync: `git fetch upstream` then `git merge upstream/main`
-- Small, focused PRs with descriptive titles get reviewed faster
-- Always run CI checks before requesting review
 # Troubleshooting Guide
 
 ```text

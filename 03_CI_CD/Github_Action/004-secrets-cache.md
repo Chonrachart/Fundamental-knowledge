@@ -4,6 +4,60 @@
 - Caching (`actions/cache`) speeds up builds by reusing dependencies across runs; keyed by lockfile hash.
 - Artifacts persist build outputs between jobs; environments gate deployments with approval rules.
 
+# Architecture
+
+```text
+Secrets Injection and Cache Storage:
+
+Secrets:
+  Repo/Org Settings ──(encrypted at rest)──> GitHub Secrets Store
+       |
+       v  (injected at job start)
+  Runner Environment ──> ${{ secrets.NAME }} in YAML
+       |                  (value masked in logs)
+       v
+  Step execution ──> env var or inline value (never logged)
+
+Cache:
+  actions/cache
+       |
+       ├── key: npm-${{ hashFiles('**/package-lock.json') }}
+       |         ^-- deterministic hash of lockfile
+       |
+       ├── SAVE: job end ──> compress path ──> GitHub cache storage
+       |                     (scoped to branch, 10 GB repo limit)
+       |
+       └── RESTORE: job start ──> exact key match? ──> cache hit
+                                  no? ──> restore-keys fallback
+                                  no? ──> cache miss (fresh install)
+```
+
+# Mental Model
+
+```text
+Secret masking + cache hit/miss flow:
+
+  Secrets:
+  [1] Secret stored encrypted in GitHub Settings
+  [2] At job start, secrets injected as env vars
+  [3] Log scanner masks any output matching secret values
+  [4] Fork PRs: secrets NOT injected (security boundary)
+
+  Cache:
+  [1] Compute cache key from hashFiles() of lockfile
+      |
+      v
+  [2] Exact key exists? → cache HIT → restore path → skip install
+      |
+      +-- No exact match → try restore-keys prefix match
+      |     → partial HIT → restore (may need partial update)
+      |
+      +-- No match at all → cache MISS → full install
+      |
+      v
+  [3] At job end: if key was new, save path to cache
+```
+
 # Core Building Blocks
 
 ### Secrets

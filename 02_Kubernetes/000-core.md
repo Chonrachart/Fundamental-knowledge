@@ -70,22 +70,12 @@ kubectl get pods -o wide            # see pods and their nodes
 
 ### Control Plane
 
-- **kube-apiserver**: Front door for all operations; REST API; validates and persists to etcd.
-- **etcd**: Distributed key-value store; single source of truth for cluster state.
-- **kube-scheduler**: Watches unscheduled pods; assigns to nodes based on resources, affinity, taints.
-- **kube-controller-manager**: Runs controllers (Deployment, ReplicaSet, Node, Endpoint, etc.); reconciles actual → desired state.
-- Kubernetes = control plane (API, scheduler, controllers, etcd) + worker nodes (kubelet, kube-proxy, runtime).
+- API server, etcd, scheduler, controller-manager — detailed in [001-kubernetes-overview](./001-kubernetes-overview.md).
 - Declarative: `kubectl apply -f` is idempotent; controllers reconcile continuously.
-
-Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md)
 
 ### Worker Node
 
-- **kubelet**: Agent on each node; ensures containers in pods are running and healthy.
-- **kube-proxy**: Maintains network rules (`iptables`/IPVS) for Service → Pod routing.
-- **Container runtime**: Runs containers (`containerd`, `CRI-O`); communicates via CRI.
-
-Related notes: [001-kubernetes-overview](./001-kubernetes-overview.md)
+- kubelet, kube-proxy, container runtime — detailed in [001-kubernetes-overview](./001-kubernetes-overview.md).
 
 ### Workloads
 
@@ -139,32 +129,19 @@ Related notes: [008-resource-requests-limits](./008-resource-requests-limits.md)
 # Troubleshooting Guide
 
 ### Pod stuck in Pending
-1. Check events: `kubectl describe pod <name>` — look at Events section.
-2. Insufficient resources: `kubectl describe node <node>` — check Allocatable vs Allocated.
-3. No matching node (nodeSelector/affinity): verify labels on nodes `kubectl get nodes --show-labels`.
-4. PVC not bound: `kubectl get pvc` — check status.
+For Pod Pending troubleshooting, see [006-kubectl-debugging](./006-kubectl-debugging.md).
 
 ### Pod in CrashLoopBackOff
-1. Check logs: `kubectl logs <pod>` and `kubectl logs <pod> --previous`.
-2. Common causes: missing config/env, wrong command, dependency not ready.
-3. Check exit code: `kubectl describe pod <pod>` — Last State → Exit Code.
-4. Debug interactively: `kubectl run debug --image=busybox -it --rm -- sh`.
+For CrashLoopBackOff troubleshooting, see [006-kubectl-debugging](./006-kubectl-debugging.md).
 
 ### ImagePullBackOff
-1. Check image name/tag: typo or tag doesn't exist in registry.
-2. Private registry: need `imagePullSecrets` on pod or `ServiceAccount`.
-3. Network/proxy: node can't reach registry; check DNS and proxy config.
+For ImagePullBackOff troubleshooting, see [006-kubectl-debugging](./006-kubectl-debugging.md).
 
 ### Service not routing traffic to pods
-1. Check selector matches pod labels: `kubectl get endpoints <svc>`.
-2. If endpoints empty: labels don't match or pods aren't Ready.
-3. Check readiness probe: failing probe removes pod from endpoints.
-4. Check port: Service `targetPort` must match container's listening port.
+For Service routing troubleshooting, see [004-services-ingress](./004-services-ingress.md).
 
 ### Node NotReady
-1. Check node: `kubectl describe node <name>` — Conditions section.
-2. Check kubelet: `systemctl status kubelet` on the node; `journalctl -u kubelet`.
-3. Common: kubelet stopped, container runtime down, disk/memory pressure.
+For Node NotReady troubleshooting, see [006-kubectl-debugging](./006-kubectl-debugging.md).
 
 # Topic Map (basic → advanced)
 

@@ -314,43 +314,6 @@ Related notes: [000-core](./000-core.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# --- yamllint ---
-yamllint .                              # lint all YAML in current dir
-yamllint -d '{extends: default, rules: {line-length: {max: 150}}}' file.yml
-
-# --- yq (v4) ---
-yq '.key' file.yml                      # read
-yq -i '.key = "value"' file.yml         # write in-place
-yq -o=json file.yml                     # convert to JSON
-yq eval-all '. as $item ireduce({}; . * $item)' *.yml   # merge all
-
-# --- jq ---
-jq '.' file.json                        # pretty-print
-jq -r '.field' file.json                # raw string output
-jq '.[] | select(.x > 5)' file.json     # filter
-jq -s '.' *.json                        # slurp files into array
-
-# --- python ---
-python3 -m json.tool < file.json        # pretty-print / validate JSON
-python3 -c "import yaml; yaml.safe_load(open('f.yml'))"  # parse YAML
-
-# --- conversion ---
-yq -o=json input.yml                    # YAML -> JSON
-yq -P input.json                        # JSON -> YAML
-```
-
-
-- `yamllint` checks both syntax and style; configure with `.yamllint.yml`.
-- `yq` (v4, Go) is the recommended YAML processor -- it also handles JSON and XML.
-- `jq` is the standard CLI JSON processor -- use `-r` for raw output, `-s` to slurp files.
-- `python3 -m json.tool` is built-in and needs no install -- good for quick JSON validation.
-- Always use `yaml.safe_load()` in Python, never `yaml.load()` (security risk).
-- YAML to JSON conversion is lossless for data but loses comments and formatting.
-- IDE schema validation (via JSON Schema) provides the fastest feedback loop.
-- Pre-commit hooks with yamllint prevent bad YAML from entering version control.
 # Troubleshooting Guide
 
 ```text

@@ -20,10 +20,17 @@
 # Topic Map (basic → advanced)
 
 ### Ansible
-- [Ansible/001-ansible-overview](./Ansible/001-ansible-overview.md) — Playbooks, inventory, modules (start here)
-- [Ansible/002-roles-vars](./Ansible/002-roles-vars.md) — Roles, variables, templates
-- [Ansible/003-modules-handlers](./Ansible/003-modules-handlers.md) — Common modules, handlers
-- [Ansible/004-inventory-dynamic-tags](./Ansible/004-inventory-dynamic-tags.md) — Inventory, dynamic, group_vars, tags
+- [Ansible/001-ansible-overview](./Ansible/001-ansible-overview.md) — Concepts, terms, first playbook (start here)
+- [Ansible/002-inventory-and-ansible-cfg](./Ansible/002-inventory-and-ansible-cfg.md) — Inventory, groups, `ansible.cfg`
+- [Ansible/003-playbooks-tasks-handlers](./Ansible/003-playbooks-tasks-handlers.md) — Tasks, handlers, notify/restart
+- [Ansible/004-variables-facts-templating](./Ansible/004-variables-facts-templating.md) — Vars, facts, Jinja2 templates
+- [Ansible/005-loops-conditions-blocks](./Ansible/005-loops-conditions-blocks.md) — loop, when, block/rescue
+- [Ansible/006-roles-collections-galaxy](./Ansible/006-roles-collections-galaxy.md) — Roles, structure, reuse
+- [Ansible/007-tags-strategies-debugging](./Ansible/007-tags-strategies-debugging.md) — Tags, limit, debug, verbosity
+- [Ansible/008-vault-secrets](./Ansible/008-vault-secrets.md) — Secrets, vault encrypt/decrypt
+- [Ansible/009-dynamic-inventory-and-cloud](./Ansible/009-dynamic-inventory-and-cloud.md) — Dynamic inventory, plugins
+- [Ansible/010-best-practices-testing](./Ansible/010-best-practices-testing.md) — Structure, lint, molecule
+- [Ansible/011-command-shell-execution](./Ansible/011-command-shell-execution.md) — command, shell, raw, script modules
 
 ### Terraform
 - [Terraform/001-terraform-overview](./Terraform/001-terraform-overview.md) — What Terraform is, workflow, provider/resource/state

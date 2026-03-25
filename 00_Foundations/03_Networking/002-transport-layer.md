@@ -167,26 +167,6 @@ Related notes: [001-network-models](./001-network-models.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# show all listening TCP and UDP ports with process info
-ss -tulnp
-
-# test if a remote TCP port is open
-nc -zv example.com 443
-
-# show established TCP connections
-ss -tn state established
-
-# capture TCP handshake packets on port 443
-tcpdump -i eth0 -n 'tcp port 443 and (tcp[tcpflags] & (tcp-syn|tcp-fin) != 0)'
-
-# show per-protocol statistics (retransmits, errors)
-ss -s
-```
-
-
 # Troubleshooting Guide
 
 ```text

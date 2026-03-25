@@ -84,46 +84,10 @@ Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
 - `yamllint` lints YAML files; `jq` queries and transforms JSON; `yq` does the same for YAML.
 - `python3 -m json.tool` pretty-prints JSON; `yaml.safe_load()` parses YAML safely in Python.
 - IDE extensions provide real-time schema validation for Kubernetes, Ansible, Docker Compose files.
+- `yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' base.yml override.yml` -- merge two YAML files with override.
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# validate YAML syntax
-yamllint playbook.yml
-
-# pretty-print JSON
-cat response.json | python3 -m json.tool
-
-# query a YAML field (yq v4 syntax)
-yq '.metadata.name' deployment.yml
-
-# query a JSON field
-jq '.status.conditions[0].type' pod.json
-
-# convert YAML to JSON
-yq -o=json values.yml
-
-# convert JSON to YAML
-yq -P input.json
-
-# validate JSON syntax (returns non-zero on error)
-python3 -m json.tool < input.json > /dev/null
-
-# merge two YAML files
-yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' base.yml override.yml
-```
-
-
-- YAML is a superset of JSON -- any valid JSON is valid YAML, but not vice versa.
-- YAML uses indentation for structure; JSON uses braces and brackets.
-- YAML supports comments (`#`); JSON does not.
-- Unquoted `yes`, `no`, `on`, `off` in YAML are parsed as booleans -- always quote ambiguous strings.
-- `jq` is for JSON; `yq` is for YAML (and can convert between them).
-- JSON is preferred for APIs and machine output; YAML is preferred for human-authored config.
-- Both formats represent the same data types: scalars, sequences (arrays), and mappings (objects).
-- `yamllint` catches style and syntax issues; schema validation catches structural/semantic issues.
 # Troubleshooting Guide
 
 ```text

@@ -4,6 +4,22 @@
 - Both can be injected into pods as environment variables or mounted as files in volumes.
 - Mounted ConfigMaps/Secrets auto-update (with delay), but env vars and subPath mounts require a pod restart.
 
+# Architecture
+
+```text
+┌─────────────┐    ┌──────────────┐
+│  ConfigMap   │    │    Secret    │
+│  (plaintext) │    │  (base64)   │
+└──────┬───────┘    └──────┬───────┘
+       │                   │
+       ├───── env/envFrom ─┤──► container ENV vars (set once at start)
+       │                   │
+       └── volume mount ───┘──► files in container filesystem
+                                  │
+                           kubelet watches ──► auto-sync (~1 min)
+                           (except subPath ──► NO auto-sync)
+```
+
 # Mental Model
 
 ```text

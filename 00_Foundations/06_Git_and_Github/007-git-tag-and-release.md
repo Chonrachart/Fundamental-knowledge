@@ -137,38 +137,6 @@ Related notes: [005-git-pull-request](./005-git-pull-request.md)
 
 ---
 
-# Practical Command Set (Core)
-
-```bash
-# --- TAGS ---
-git tag -a v1.0.0 -m "Initial stable release"   # annotated tag at HEAD
-git tag -a v0.9.0 abc1234 -m "Retroactive tag"   # tag a past commit
-git tag -l "v1.*"                                  # list matching tags
-git show v1.0.0                                    # inspect tag + commit
-git push origin v1.0.0                             # push single tag
-git push origin --tags                             # push all tags
-git tag -d v1.0.0                                  # delete local tag
-git push origin --delete v1.0.0                    # delete remote tag
-
-# --- GITHUB RELEASES ---
-gh release create v1.0.0 --title "v1.0.0" --generate-notes
-gh release create v1.0.0 ./dist/app.zip --title "v1.0.0" --notes "Bug fixes"
-gh release create v2.0.0-rc.1 --prerelease --title "v2.0.0 Release Candidate"
-gh release list
-gh release view v1.0.0
-```
-
-> Prefer annotated tags for anything shared with others. Use `--follow-tags` or configure `push.followTags` to avoid forgetting to push tags.
-
-
-- Lightweight tags = just a pointer; annotated tags = full Git object with tagger, date, message
-- Always use annotated tags (`-a`) for releases — they carry author and timestamp
-- Tags are **not** pushed by default — use `git push origin <tag>` or `--tags`
-- SemVer: `MAJOR.MINOR.PATCH` — break.feature.fix
-- `git push origin --delete v1.0` removes a tag from the remote
-- GitHub Releases build on tags — they add release notes and downloadable artifacts
-- `gh release create --generate-notes` auto-generates changelog from merged PRs
-- `--prerelease` and `--draft` flags let you stage releases before going public
 # Troubleshooting Guide
 
 ```text

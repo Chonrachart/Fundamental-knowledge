@@ -92,6 +92,14 @@ Vault -> Checks policy for this identity
 Vault -> Returns secret (or generates dynamic credential with TTL)
 ```
 
+```bash
+vault status                                    # check Vault seal status
+vault login -method=kubernetes role=my-app      # authenticate via K8s SA
+vault kv get secret/myapp/config                # read KV secret
+vault kv put secret/myapp/config key=value      # write KV secret
+vault read database/creds/my-role               # get dynamic DB creds
+```
+
 Related notes: [authorization](./005-authorization.md)
 
 ### Kubernetes Secrets
@@ -118,6 +126,16 @@ data:
 - Use external secret operators (External Secrets Operator, Secrets Store CSI Driver) to sync from Vault or cloud
 - Avoid env vars for secrets when possible -- mounted files are harder to leak via process inspection
 
+```bash
+# Create secret imperatively
+kubectl create secret generic db-creds \
+  --from-literal=username=admin \
+  --from-literal=password=s3cret
+
+# Decode and read a secret value
+kubectl get secret db-creds -o jsonpath='{.data.password}' | base64 -d
+```
+
 Related notes: [authorization](./005-authorization.md)
 
 ### AWS Secrets Manager
@@ -135,6 +153,13 @@ Related notes: [authorization](./005-authorization.md)
 | Cost             | Paid per secret/call    | Free (standard tier)           |
 | Best for         | Secrets needing rotation| Config values, simple secrets  |
 
+```bash
+aws secretsmanager create-secret \
+  --name myapp/db --secret-string '{"user":"admin","pass":"s3cret"}'
+aws secretsmanager get-secret-value --secret-id myapp/db
+aws secretsmanager rotate-secret --secret-id myapp/db
+```
+
 Related notes: [authorization](./005-authorization.md)
 
 ### Secrets Management Principles
@@ -146,43 +171,6 @@ Related notes: [authentication](./004-authentication.md), [authorization](./005-
 - **Encrypt at rest** and in transit (TLS for network, KMS for storage)
 - **Prefer dynamic secrets** over static ones when the secrets manager supports it
 
----
-
-# Practical Command Set (Core)
-
-```bash
-# --- Vault ---
-vault status                                    # check Vault seal status
-vault login -method=kubernetes role=my-app      # authenticate via K8s SA
-vault kv get secret/myapp/config                # read KV secret
-vault kv put secret/myapp/config key=value      # write KV secret
-vault read database/creds/my-role               # get dynamic DB creds
-
-# --- Kubernetes Secrets ---
-kubectl create secret generic db-creds \
-  --from-literal=username=admin \
-  --from-literal=password=s3cret               # create secret imperatively
-kubectl get secret db-creds -o jsonpath='{.data.password}' | base64 -d
-                                                # decode and read a secret
-
-# --- AWS Secrets Manager ---
-aws secretsmanager create-secret \
-  --name myapp/db --secret-string '{"user":"admin","pass":"s3cret"}'
-aws secretsmanager get-secret-value --secret-id myapp/db
-aws secretsmanager rotate-secret --secret-id myapp/db
-```
-
-> Use `vault`, `kubectl`, and `aws` CLIs for quick secret operations; automate rotation in CI/CD pipelines.
-
-
-- Secrets = API keys, passwords, tokens, certificates, private keys -- all must be protected
-- Never commit secrets to version control; use pre-commit hooks and secret scanning
-- Vault provides dynamic secrets with automatic expiry -- eliminates static credential sprawl
-- Kubernetes Secrets are base64-encoded, not encrypted; enable encryption at rest with KMS
-- AWS Secrets Manager supports automatic rotation via Lambda for RDS and other services
-- Least privilege: each app should only access the secrets it needs
-- Audit all secret access; use CloudTrail (AWS), audit logs (Vault), or K8s audit policy
-- Prefer short-lived / dynamic secrets over long-lived static credentials
 # Troubleshooting Guide
 
 ```text
