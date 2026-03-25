@@ -4,6 +4,19 @@
 - API Gateway creates REST/HTTP APIs that front Lambda functions — the standard serverless API pattern.
 - Serverless = no server management, auto-scaling, pay-per-use; trade control for operational simplicity.
 
+# Architecture
+
+```text
+Event Sources                    Lambda Service                 Outputs
+─────────────                    ──────────────                 ───────
+API Gateway  ──┐                 ┌──────────────────────┐
+S3 Events    ──┤                 │  Execution Environment│
+SQS Queue    ──┼──► Invoke ────►│  ├── Runtime (Python)  │────► Response to caller
+EventBridge  ──┤                 │  ├── Handler function  │────► Other AWS services
+CloudWatch   ──┘                 │  └── Layers (deps)     │────► CloudWatch Logs
+                                 └──────────────────────┘
+```
+
 # Mental Model
 
 ```text
@@ -31,6 +44,8 @@ Response to caller (API Gateway → HTTP response)
 - **Concurrency**: 1,000 concurrent executions per account (soft limit); reserved concurrency per function.
 - Lambda max timeout is 15 minutes; max memory is 10 GB; CPU scales with memory.
 
+Related notes: [002-iam](./002-iam.md)
+
 ```python
 # Python Lambda handler
 def handler(event, context):
@@ -53,6 +68,8 @@ def handler(event, context):
 | SNS | Async | Fan-out notifications |
 | CloudWatch Logs | Async | Log processing |
 
+Related notes: [001-aws-overview](./001-aws-overview.md)
+
 ### API Gateway
 
 - **REST API**: Full-featured; resources, methods, stages, usage plans.
@@ -68,12 +85,16 @@ Client → API Gateway (api.example.com/users)
            → Response to client
 ```
 
+Related notes: [003-vpc-networking](./003-vpc-networking.md)
+
 ### IAM and Permissions
 
 - **Execution role**: IAM role Lambda assumes; grants access to AWS services (S3, DynamoDB, logs).
 - **Resource policy**: Controls who can invoke the function (API Gateway, S3, other accounts).
 - Always follow least privilege for execution role.
 - Lambda execution role determines what AWS services the function can access.
+
+Related notes: [002-iam](./002-iam.md)
 
 ### Environment and Configuration
 
@@ -84,6 +105,8 @@ Client → API Gateway (api.example.com/users)
 - Environment variables are the standard way to pass config; use KMS for sensitive values.
 - Layers share common dependencies across functions — useful for large libraries.
 - Lambda in VPC needs NAT Gateway for internet access — adds cost and cold start latency.
+
+Related notes: [003-vpc-networking](./003-vpc-networking.md)
 
 ### Cold Start
 

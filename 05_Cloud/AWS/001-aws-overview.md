@@ -1,51 +1,54 @@
 # AWS Overview
 
 - Amazon Web Services is the largest cloud platform with 200+ services across compute, storage, networking, and databases.
-- Global infrastructure: 30+ Regions, each with 3+ Availability Zones; Edge Locations for CDN and DNS.
-- Pay-as-you-go pricing; shared responsibility model separates AWS infrastructure security from customer data security.
+- Pay-as-you-go pricing with multiple commitment options for cost optimization.
+- For regions, AZs, and edge locations, see [../000-core](../000-core.md)
+- For the Shared Responsibility Model, see [../000-core](../000-core.md)
+- For AWS service categories, see [000-core](./000-core.md)
 
-# Core Building Blocks
-
-### Regions and Availability Zones
-
-- **Region**: Geographic area (e.g. us-east-1, eu-west-1); choose based on latency, compliance, service availability, cost.
-- **AZ**: One or more isolated data centers within a region; connected by low-latency links.
-- **Multi-AZ**: Deploy across AZs for high availability; if one AZ fails, others continue.
-- **Edge Locations**: CDN (CloudFront) and DNS (Route 53) points of presence worldwide.
-- Region = geographic area; AZ = isolated data center(s) within a region.
-
-### Service Categories
-
-| Category | Key Services |
-|----------|-------------|
-| Compute | EC2, Lambda, ECS, EKS, Fargate |
-| Storage | S3, EBS, EFS, Glacier |
-| Networking | VPC, Route 53, CloudFront, ELB |
-| Database | RDS, DynamoDB, ElastiCache, Aurora |
-| Security | IAM, KMS, Secrets Manager, WAF |
-| Monitoring | CloudWatch, CloudTrail, X-Ray |
-| IaC | CloudFormation, CDK |
-| Containers | ECS, EKS, ECR, Fargate |
-- IAM, Route 53, CloudFront, and S3 namespace are global; most services are regional.
-
-### Shared Responsibility Model
+# Architecture
 
 ```text
-Customer responsibility ("security IN the cloud"):
-  ├── Data encryption and classification
-  ├── IAM (users, roles, policies)
-  ├── OS patching (EC2)
-  ├── Network config (SG, NACL, VPC)
-  └── Application code and dependencies
+AWS Global Infrastructure:
 
-AWS responsibility ("security OF the cloud"):
-  ├── Physical data centers
-  ├── Hardware and networking
-  ├── Hypervisor and host OS
-  └── Managed service infrastructure (RDS, Lambda, S3)
++------------------------------------------------------------------+
+|                        AWS Cloud                                  |
+|  +------------------+  +------------------+  +----------------+  |
+|  | Region: us-east-1|  | Region: eu-west-1|  | Region: ap-..  |  |
+|  |  +------+ +------+  |  +------+ +------+  |                |  |
+|  |  | AZ-a | | AZ-b |  |  | AZ-a | | AZ-b |  |    ...         |  |
+|  |  +------+ +------+  |  +------+ +------+  |                |  |
+|  +------------------+  +------------------+  +----------------+  |
+|                                                                  |
+|  Edge Locations (CloudFront CDN) -- 400+ worldwide               |
++------------------------------------------------------------------+
 ```
-- Shared responsibility: AWS secures infrastructure; you secure your configs, data, and access.
-- Always enable MFA on root account; use IAM users/roles for daily work.
+
+# Mental Model
+
+```text
+AWS Request Flow:
+
+1. User authenticates via IAM
+2. Request hits the AWS API endpoint for the target region
+3. Service processes request within the selected AZ
+4. Resources provisioned within VPC (if applicable)
+5. Response returned, logged in CloudTrail
+```
+
+Example — launching an EC2 instance:
+```bash
+# 1. Authenticate (IAM credentials or role)
+aws sts get-caller-identity
+
+# 2-4. Request targets us-east-1, provisions in AZ us-east-1a inside your VPC
+aws ec2 run-instances --image-id ami-0abcdef --instance-type t3.micro \
+  --subnet-id subnet-abc123 --region us-east-1
+
+# 5. Response includes instance ID; event logged in CloudTrail
+```
+
+# Core Building Blocks
 
 ### AWS CLI and Access
 
@@ -60,18 +63,21 @@ aws s3 ls                              # list S3 buckets
 - Use `aws-vault` or SSO for secure credential management.
 - `aws sts get-caller-identity` is the first debugging step for permission issues.
 
+Related notes: [002-iam](./002-iam.md)
+
 ### Pricing Models
 
 | Model | Use Case |
 |-------|----------|
 | On-Demand | Default; pay per hour/second; no commitment |
-| Reserved (1–3yr) | Steady-state workloads; up to 72% discount |
+| Reserved (1-3yr) | Steady-state workloads; up to 72% discount |
 | Spot | Fault-tolerant workloads; up to 90% discount; can be interrupted |
 | Savings Plans | Flexible commitment; applies across instance families |
+
 - Spot instances save up to 90% but can be interrupted with 2-minute warning.
 - Use tags for cost allocation, automation, and access control.
 
-Related notes: [002-iam](./002-iam.md), [003-vpc-networking](./003-vpc-networking.md), [004-ec2](./004-ec2.md)
+Related notes: [004-ec2](./004-ec2.md), [009-lambda-serverless](./009-lambda-serverless.md)
 
 ---
 

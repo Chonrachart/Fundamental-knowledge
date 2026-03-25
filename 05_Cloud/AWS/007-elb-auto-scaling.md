@@ -26,6 +26,20 @@ Auto Scaling Group
   └── Scaling Policy: target CPU 60%
 ```
 
+# Mental Model
+
+```text
+Request flow through ALB + ASG:
+1. Client sends request to ALB DNS name
+2. ALB receives on listener (port 80/443)
+3. Listener rules evaluate (host, path)
+4. Request forwarded to target group
+5. Health check determines healthy targets
+6. Target (EC2) processes request
+7. CloudWatch alarm triggers ASG scaling policy
+8. ASG launches/terminates instances, registers with target group
+```
+
 # Core Building Blocks
 
 ### Load Balancer Types
@@ -37,6 +51,8 @@ Auto Scaling Group
 | CLB | L4/L7 (legacy) | Avoid for new deployments |
 - ALB operates at Layer 7 (HTTP); NLB at Layer 4 (TCP); avoid CLB (legacy).
 
+Related notes: [003-vpc-networking](./003-vpc-networking.md)
+
 ### ALB (Application Load Balancer)
 
 - **Listener**: Port + protocol (80/HTTP, 443/HTTPS); rules route to target groups.
@@ -46,6 +62,8 @@ Auto Scaling Group
 - ALB supports path-based and host-based routing with multiple target groups.
 - Cross-zone load balancing distributes traffic evenly across all targets in all AZs.
 
+Related notes: [003-vpc-networking](./003-vpc-networking.md), [005-security-groups](./005-security-groups.md)
+
 ### NLB (Network Load Balancer)
 
 - Layer 4; ultra-low latency; millions of requests/sec.
@@ -53,11 +71,15 @@ Auto Scaling Group
 - Use for: TCP services, gRPC, non-HTTP protocols.
 - NLB preserves client source IP; ALB sets `X-Forwarded-For` header.
 
+Related notes: [003-vpc-networking](./003-vpc-networking.md)
+
 ### Target Groups and Health Checks
 
 - Health check: protocol, path, interval, threshold.
 - Unhealthy targets removed from rotation; re-added when healthy.
 - Target types: `instance`, `ip`, `lambda`.
+
+Related notes: [004-ec2](./004-ec2.md), [009-lambda-serverless](./009-lambda-serverless.md)
 
 ### Auto Scaling Group (ASG)
 
@@ -78,6 +100,8 @@ Scaling Policy: Target Tracking
   CPU < 60% → scale in (remove instances)
   Cooldown: 300 seconds between adjustments
 ```
+
+Related notes: [004-ec2](./004-ec2.md)
 
 ### ASG + ALB Integration
 

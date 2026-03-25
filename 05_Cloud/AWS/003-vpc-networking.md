@@ -28,6 +28,62 @@ Internet Gateway (IGW) — attached to VPC
 NAT Gateway — in public subnet, has Elastic IP
 ```
 
+# Mental Model
+
+```text
+Packet flow: Internet → EC2 instance in private subnet
+
+[1] Request hits Internet Gateway (IGW)
+[2] Route table directs to public subnet
+[3] NACL evaluates inbound rules (stateless -- both directions checked)
+[4] ALB/NAT in public subnet receives traffic
+[5] Route table directs to private subnet
+[6] NACL evaluates inbound rules for private subnet
+[7] Security Group evaluates inbound rules (stateful -- return traffic auto-allowed)
+[8] EC2 instance receives request
+```
+
+### Concrete example: Web request through ALB to private EC2
+
+```text
+User browser → https://app.example.com
+  │
+  ▼
+[IGW] Internet Gateway receives HTTPS request
+  │
+  ▼
+[Route Table: public subnet] 0.0.0.0/0 → igw-xxx matches → public subnet
+  │
+  ▼
+[NACL: public subnet] Rule 100 ALLOW TCP 443 inbound ✔
+  │
+  ▼
+[ALB: 10.0.1.50] in public subnet, listener on 443
+  ALB terminates TLS, forwards to target group on port 8080
+  │
+  ▼
+[Route Table: private subnet] 10.0.10.0/24 → local matches → private subnet
+  │
+  ▼
+[NACL: private subnet] Rule 100 ALLOW TCP 8080 from 10.0.1.0/24 ✔
+  │
+  ▼
+[SG: app-server] Inbound ALLOW TCP 8080 from sg-alb ✔
+  │
+  ▼
+[EC2: 10.0.10.20] App server receives request on port 8080
+  │
+  ▼
+Response follows reverse path:
+  EC2 → SG (stateful, auto-allowed) → NACL (must allow ephemeral ports 1024-65535 outbound)
+  → ALB → NACL outbound → IGW → User browser
+```
+
+- The key difference between SG and NACL shows here: the Security Group auto-allows the return traffic (stateful), but the NACL requires explicit outbound rules for ephemeral ports (stateless).
+- ALB lives in the public subnet so it can receive internet traffic; EC2 stays in the private subnet, reachable only from the ALB's Security Group.
+
+Related notes: [000-core](./000-core.md) for generic cloud concepts, [007-elb-auto-scaling](./007-elb-auto-scaling.md) for ALB details
+
 # Core Building Blocks
 
 ### VPC and CIDR

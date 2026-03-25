@@ -1,8 +1,8 @@
 # AWS (Amazon Web Services)
 
 - Cloud platform with 200+ services spanning compute, storage, networking, databases, security, and more.
-- Global infrastructure: Regions (geographic), Availability Zones (isolated data centers within a region), Edge Locations (CDN).
-- Shared responsibility model: AWS secures infrastructure; you secure your data, config, and access.
+- For cloud regions, availability zones, and edge locations, see [../000-core](../000-core.md)
+- For the Shared Responsibility Model, see [../000-core](../000-core.md)
 
 # Architecture
 
@@ -55,14 +55,12 @@ Related notes: [004-ec2](./004-ec2.md), [008-ecs-eks](./008-ecs-eks.md), [009-la
 
 - **VPC**: Isolated virtual network; subnets, route tables, gateways.
 - **Security Group**: Stateful firewall at instance level.
+- **NACL**: Stateless firewall at subnet level.
 - **ALB/NLB**: Load balancing across targets.
 - **Route 53**: DNS service.
-- Region = geographic area; AZ = isolated data center within a region (typically 3 AZs per region).
-- Security Groups are stateful (allow return traffic); NACLs are stateless (must allow both directions).
 - Default VPC exists in every region; custom VPCs are recommended for production.
-- Multi-AZ deployments provide high availability within a region.
 
-Related notes: [003-vpc-networking](./003-vpc-networking.md), [007-elb-auto-scaling](./007-elb-auto-scaling.md)
+Related notes: [003-vpc-networking](./003-vpc-networking.md) for SG/NACL details, [007-elb-auto-scaling](./007-elb-auto-scaling.md)
 
 ### Storage
 
@@ -82,10 +80,9 @@ Related notes: [006-rds-databases](./006-rds-databases.md)
 ### Security and Identity
 
 - **IAM**: Users, groups, roles, policies; global service.
-- **Shared responsibility**: AWS secures hardware/network; you secure config, data, access.
 - IAM is global; most other services are regional.
-- Shared responsibility: AWS secures "of" the cloud; you secure "in" the cloud.
 - Always use IAM roles (temporary credentials) over IAM users (long-lived keys).
+- For the Shared Responsibility Model, see [../000-core](../000-core.md)
 
 Related notes: [002-iam](./002-iam.md)
 
@@ -94,15 +91,13 @@ Related notes: [002-iam](./002-iam.md)
 # Troubleshooting Guide
 
 ### Cannot access EC2 instance from internet
-1. Check subnet has route `0.0.0.0/0 → igw-xxx` (public subnet).
-2. Check instance has public IP or Elastic IP.
-3. Check security group allows inbound on the required port.
-4. Check NACL allows traffic (if custom NACL configured).
+For EC2 connectivity issues, see [003-vpc-networking](./003-vpc-networking.md)
 
 ### AWS CLI returns "Access Denied"
 1. Check IAM policy: does the user/role have permission for this action on this resource?
 2. Check resource policy (S3 bucket policy, KMS key policy) if applicable.
 3. Use `aws sts get-caller-identity` to verify which identity is being used.
+4. For detailed IAM troubleshooting, see [002-iam](./002-iam.md)
 
 ### Resources in wrong region
 1. Check `AWS_DEFAULT_REGION` env var or `--region` flag.

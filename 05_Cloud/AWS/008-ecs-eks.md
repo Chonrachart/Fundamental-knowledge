@@ -28,6 +28,19 @@ EKS Architecture:
     └── Fargate Profile (serverless pods)
 ```
 
+# Mental Model
+
+```text
+ECS container deployment flow:
+1. Build container image, push to ECR
+2. Create task definition (image, CPU, memory, ports, env vars)
+3. Create ECS service (desired count, launch type: Fargate/EC2)
+4. Service scheduler places tasks across AZs
+5. Register tasks with ALB target group
+6. ALB routes traffic to running containers
+7. Service auto-scales based on CloudWatch metrics
+```
+
 # Core Building Blocks
 
 ### ECS Concepts
@@ -41,6 +54,8 @@ EKS Architecture:
 | Container | Container | Single container in a task |
 - Task definition is to ECS what a Pod spec is to Kubernetes.
 
+Related notes: [001-aws-overview](./001-aws-overview.md)
+
 ### ECS Launch Types
 
 | Type | Manage | Cost | Use Case |
@@ -49,6 +64,8 @@ EKS Architecture:
 | EC2 | Your instances | Instance cost | GPU, custom AMI, cost optimization |
 - Fargate eliminates EC2 management for both ECS and EKS — pay per task resources.
 - Fargate tasks in private subnets need NAT Gateway for internet access (pull images, etc.).
+
+Related notes: [004-ec2](./004-ec2.md), [003-vpc-networking](./003-vpc-networking.md)
 
 ### ECS Service with ALB
 
@@ -64,12 +81,16 @@ ALB → Target Group → ECS Service (desired: 3 tasks)
 - Service auto-scaling: target tracking on CPU, memory, or ALB request count.
 - ECS service auto-scaling uses Application Auto Scaling (not EC2 ASG).
 
+Related notes: [007-elb-auto-scaling](./007-elb-auto-scaling.md)
+
 ### ECR (Elastic Container Registry)
 
 - Private Docker registry on AWS; stores container images.
 - Integrates with ECS, EKS, and Lambda for pulling images.
 - Image scanning for vulnerabilities; lifecycle policies for cleanup.
 - ECR is the standard private registry for AWS container workloads.
+
+Related notes: [002-iam](./002-iam.md)
 
 ```bash
 # Login, build, push
@@ -86,6 +107,8 @@ docker push <account>.dkr.ecr.<region>.amazonaws.com/my-app:latest
 - Node options: Managed Node Groups (recommended), self-managed, or Fargate profiles.
 - EKS control plane is managed by AWS; you manage worker nodes (or use Fargate).
 - `aws eks update-kubeconfig` configures kubectl for EKS cluster access.
+
+Related notes: [002-iam](./002-iam.md), [003-vpc-networking](./003-vpc-networking.md)
 
 ```bash
 # Configure kubectl for EKS

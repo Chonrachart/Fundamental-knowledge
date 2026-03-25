@@ -4,6 +4,67 @@
 - Multi-AZ provides high availability with automatic failover; read replicas offload read traffic.
 - Automated backups, snapshots, and encryption at rest/in-transit are built-in.
 
+# Architecture
+
+```text
+              Application
+                  │
+          ┌───────┴───────┐
+          │  RDS Endpoint  │ (DNS — same after failover)
+          └───────┬───────┘
+                  │
+    ┌─────────────┼─────────────────────────────┐
+    │ VPC         │                              │
+    │  ┌──────────┴──────────┐                   │
+    │  │     AZ-a            │    AZ-b           │
+    │  │ ┌────────────────┐  │ ┌──────────────┐  │
+    │  │ │  Primary (RW)  │  │ │  Standby     │  │
+    │  │ │  db.m5.large   │──┼─│  (sync repl) │  │
+    │  │ └───────┬────────┘  │ └──────────────┘  │
+    │  │         │           │                   │
+    │  └─────────┼───────────┘                   │
+    │            │ async replication              │
+    │  ┌─────────┴───────────┐                   │
+    │  │  Read Replica (RO)  │  (same or cross   │
+    │  │  separate endpoint  │   region)         │
+    │  └─────────────────────┘                   │
+    └────────────────────────────────────────────┘
+```
+
+# Mental Model
+
+RDS provisioning flow — from engine selection to production-ready:
+
+```text
+1. Choose engine (MySQL, PostgreSQL, Aurora...)
+         │
+2. Select instance class (db.t3.medium, etc.)
+         │
+3. Configure storage (gp3, io1, size)
+         │
+4. Set VPC, subnet group, security group
+         │
+5. Enable Multi-AZ for HA (automatic failover)
+         │
+6. Create read replicas for read scaling
+         │
+7. Configure automated backups + retention
+```
+
+Example — create a Multi-AZ RDS instance:
+```bash
+aws rds create-db-instance \
+  --db-instance-identifier mydb-prod \
+  --db-instance-class db.m5.large \
+  --engine postgres \
+  --allocated-storage 100 \
+  --storage-type gp3 \
+  --multi-az \
+  --vpc-security-group-ids sg-0123456789abcdef0 \
+  --db-subnet-group-name my-subnet-group \
+  --backup-retention-period 7
+```
+
 # Core Building Blocks
 
 ### RDS Basics
@@ -17,6 +78,8 @@
 - Enable encryption at rest when creating the instance — can't enable later.
 - RDS instances should always be in private subnets.
 
+Related notes: [003-vpc-networking](./003-vpc-networking.md), [002-iam](./002-iam.md)
+
 ### Multi-AZ
 
 - Synchronous standby replica in another AZ; automatic failover on primary failure.
@@ -24,12 +87,16 @@
 - Not for read scaling — standby is passive.
 - Multi-AZ is for HA (automatic failover); read replicas are for read scaling.
 
+Related notes: [003-vpc-networking](./003-vpc-networking.md)
+
 ### Read Replicas
 
 - Asynchronous replication; use for read-heavy workloads.
 - Can be in same AZ, different AZ, or different region (cross-region).
 - Can be promoted to standalone DB (breaks replication).
 - Up to 15 replicas for Aurora; 5 for standard RDS.
+
+Related notes: [001-aws-overview](./001-aws-overview.md)
 
 ### Backups and Snapshots
 
@@ -42,12 +109,16 @@
 - Restoring a backup or snapshot always creates a NEW RDS instance.
 - Point-in-time recovery lets you restore to any second within the retention period.
 
+Related notes: [005-s3](./005-s3.md)
+
 ### Aurora
 
 - AWS-proprietary; MySQL and PostgreSQL compatible; up to 5x MySQL / 3x PostgreSQL performance.
 - Storage auto-scales (10 GB to 128 TB); 6 copies across 3 AZs.
 - Serverless mode: auto-scales compute; pay per ACU-second.
 - Aurora stores 6 copies of data across 3 AZs automatically.
+
+Related notes: [001-aws-overview](./001-aws-overview.md)
 
 ### DynamoDB (Overview)
 
@@ -57,7 +128,7 @@
 - **Partition key** + optional **sort key**; no joins, no SQL.
 - DynamoDB is serverless NoSQL; no maintenance, no patching.
 
-Related notes: [001-aws-overview](./001-aws-overview.md), [003-vpc-networking](./003-vpc-networking.md)
+Related notes: [001-aws-overview](./001-aws-overview.md), [002-iam](./002-iam.md)
 
 ---
 
