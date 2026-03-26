@@ -124,17 +124,24 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md), 
 - Signed by a Certificate Authority (CA); trusted chain
 - Used in TLS/HTTPS, code signing, email (S/MIME)
 
-Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS and SSL cert chain](../03_Networking/006-TLS-and-SSL-cert-chain.md)
+Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS and SSL cert chain](../03_Networking/009-tls-and-ssl-cert-chain.md)
 
+### Multi-Factor Authentication (MFA)
 
-- CIA Triad = Confidentiality + Integrity + Availability
-- Authentication = who you are; Authorization = what you can do
-- Symmetric encryption uses one shared key; asymmetric uses a key pair
-- Hashing is one-way and fixed-size; encryption is reversible with the key
-- Digital signatures = hash the message + sign the hash with private key
-- Certificates bind a public key to an identity via a CA trust chain
-- Non-repudiation ensures actions cannot be denied after the fact
-- TLS combines asymmetric (handshake) + symmetric (session) encryption
+- Requires two or more independent factors: something you know + something you have/are
+- TOTP (time-based codes), WebAuthn (hardware keys), push notifications, SMS (weakest)
+- Critical for all privileged access — admin accounts, VPN, cloud consoles
+
+Related notes: [010-mfa](./010-mfa.md)
+
+### Incident Response
+
+- Structured process for handling security incidents: detect, contain, eradicate, recover, learn
+- Follows NIST 6-phase lifecycle; evidence preservation throughout all phases
+- Preparation (runbooks, tools, drills) determines how well you respond when it happens
+
+Related notes: [011-incident-response](./011-incident-response.md)
+
 ---
 
 # Troubleshooting Guide
@@ -178,3 +185,5 @@ Related notes: [007-pki-and-certificates](./007-pki-and-certificates.md), [TLS a
 - [007-pki-and-certificates](./007-pki-and-certificates.md) — PKI, CSR, OpenSSL, cert formats, Let's Encrypt
 - [008-linux-security-hardening](./008-linux-security-hardening.md) — SSH, SELinux/AppArmor, auditd, sysctl
 - [009-network-security](./009-network-security.md) — Defense in depth, zero trust, IDS/IPS, segmentation
+- [010-mfa](./010-mfa.md) — TOTP, WebAuthn/FIDO2, push, SMS, MFA attacks
+- [011-incident-response](./011-incident-response.md) — IR phases, forensics, evidence preservation, post-mortem

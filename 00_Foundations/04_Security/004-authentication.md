@@ -105,27 +105,107 @@ Related notes: [authorization](./005-authorization.md)
 - OAuth 2.0 separates resource owner, client, auth server, and resource server
 
 ### JWT (JSON Web Token)
-- Compact token format: `header.payload.signature`
-- Payload contains claims (e.g. user ID, roles, expiry)
-- Signed (HMAC or RSA) so recipient can verify integrity without calling the issuer
-- **Header**: algorithm (`alg`), type (`typ: JWT`)
-- **Payload**: claims (`sub`, `exp`, `iat`, custom claims like roles)
-- **Signature**: ensures payload has not been tampered with
-- Stateless sessions; server does not store session state
-- API authentication; client sends JWT in `Authorization: Bearer <token>`
-- Validate signature on every request; use HTTPS
-- Keep payload small; do not store secrets in claims
-- JWT is stateless: `header.payload.signature`, signed with HMAC or RSA
-- Always validate JWT signatures server-side; never trust claims without verification
+
+- Compact token format: `header.payload.signature` (Base64URL encoded, separated by dots).
+- Signed (HMAC or RSA/ECDSA) so the recipient can verify integrity without calling the issuer.
+- Stateless: server does not store session state — all information is in the token itself.
+
+**Structure:**
+
+```text
+Header (algorithm + type):
+  {"alg": "RS256", "typ": "JWT"}
+
+Payload (claims):
+  {
+    "sub": "user123",       <-- subject (who the token represents)
+    "iat": 1711411200,      <-- issued at (Unix timestamp)
+    "exp": 1711414800,      <-- expiration (1 hour later)
+    "nbf": 1711411200,      <-- not before (token not valid before this time)
+    "aud": "api.example.com", <-- audience (intended recipient)
+    "jti": "abc-123-def",   <-- JWT ID (unique identifier, prevents replay)
+    "roles": ["admin"]      <-- custom claim
+  }
+
+Signature:
+  HMAC-SHA256(base64(header) + "." + base64(payload), secret)
+  OR
+  RSA-SHA256(base64(header) + "." + base64(payload), private_key)
+```
+
+**JWT vs Session Cookies:**
+
+| Property | JWT | Session Cookie |
+|----------|-----|----------------|
+| State | Stateless (self-contained) | Stateful (server stores session) |
+| Storage | Client (localStorage or cookie) | Server (memory, DB, Redis) |
+| Scalability | Easy (no shared state) | Harder (session store must be shared) |
+| Revocation | Hard (valid until expiry) | Easy (delete server-side session) |
+| Size | Larger (carries claims) | Small (just session ID) |
+| Best for | APIs, microservices, SPAs | Traditional web apps |
+
+**Token refresh pattern:**
+- Access token: short-lived (15 min–1 hour) — used for API calls.
+- Refresh token: long-lived (days–weeks) — used only to get a new access token.
+- When access token expires, client sends refresh token to get a new access token without re-login.
+
+**Common JWT vulnerabilities:**
+
+| Vulnerability | What happens | Prevention |
+|--------------|-------------|------------|
+| `alg: none` | Attacker removes signature, server accepts unsigned token | Reject tokens with `alg: none`; whitelist allowed algorithms |
+| Algorithm confusion | Server expects HMAC but attacker uses RSA public key as HMAC secret | Explicitly specify algorithm on verification, don't read from token header |
+| Missing expiry validation | Expired tokens still accepted | Always validate `exp` claim server-side |
+| Token in URL | Token logged in server access logs, browser history | Send tokens in `Authorization` header, never in query strings |
+| Sensitive data in payload | JWT payload is Base64-encoded (NOT encrypted) — anyone can read it | Never put secrets, passwords, or PII in JWT claims |
+
+```bash
+# decode a JWT payload (not verified, just decoded)
+echo "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIzIn0.signature" | \
+  cut -d. -f2 | base64 -d 2>/dev/null | python3 -m json.tool
+
+# verify a JWT with a public key (using Python PyJWT)
+python3 -c "
+import jwt
+token = 'your.jwt.token'
+payload = jwt.decode(token, key=open('public.pem').read(), algorithms=['RS256'])
+print(payload)
+"
+```
+
+Related notes: [002-hashing](./002-hashing.md), [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
+
+### Multi-Factor Authentication (MFA)
+
+- Adds a second factor beyond passwords: TOTP codes, hardware security keys, push notifications.
+- Critical for all privileged access — admin accounts, VPN, cloud consoles.
+- WebAuthn/FIDO2 (hardware keys) is the strongest factor; SMS is the weakest.
+
+Related notes: [010-mfa](./010-mfa.md)
+
 ---
 
 # Troubleshooting Guide
 
-```text
-Login fails
-  |-> Wrong credentials? -> verify password / key path / token value
-  |-> Key mismatch? -> compare public key on server vs local private key
-  |-> Token expired? -> check exp claim / refresh token flow
-  |-> MFA failure? -> verify TOTP clock sync / backup codes
-  |-> OAuth error? -> check redirect_uri, client_id, scopes, grant_type
-```
+### Login fails with wrong credentials
+1. Verify the credential: check password, key path, or token value is correct.
+2. For SSH key auth: compare public key on server (`~/.ssh/authorized_keys`) with local private key: `ssh-keygen -y -f ~/.ssh/id_rsa`.
+3. Check file permissions: SSH requires `chmod 600 ~/.ssh/id_rsa` and `chmod 700 ~/.ssh/`.
+
+### Token expired or rejected
+1. Check `exp` claim: decode the JWT and verify expiration time hasn't passed.
+2. Check clock sync: server and token issuer must agree on time (`timedatectl`).
+3. Check audience (`aud`) claim: token may be issued for a different service.
+4. If using refresh tokens: request a new access token with the refresh token.
+
+### OAuth flow errors
+1. Check `redirect_uri`: must exactly match what's registered with the authorization server (including trailing slash).
+2. Check `client_id` and `client_secret`: verify they match the registered application.
+3. Check `scope`: requested scopes must be allowed for the client.
+4. Check `grant_type`: ensure it matches the flow you're using (authorization_code, client_credentials, etc.).
+
+### MFA failure
+1. TOTP code rejected: check clock sync on device (must be within 30 seconds). Try the next code.
+2. Hardware key not recognized: check browser WebAuthn support; try a different USB port.
+3. User locked out: use backup codes, or admin can temporarily disable MFA for re-enrollment.
+4. See [010-mfa](./010-mfa.md) for detailed MFA troubleshooting.

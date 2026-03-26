@@ -128,16 +128,19 @@ Related notes: [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
 
 # Troubleshooting Guide
 
-```text
-Encryption not working?
-  │
-  ├─ Wrong key? ──▶ Verify key matches (symmetric: same key; asymmetric: correct pair)
-  │
-  ├─ Wrong algorithm/mode? ──▶ Ensure encrypt and decrypt use same algorithm + mode
-  │
-  ├─ Corrupted ciphertext? ──▶ Use GCM (authenticated) to detect tampering
-  │
-  ├─ Key too short? ──▶ Use AES-256 (minimum AES-128); RSA minimum 2048-bit
-  │
-  └─ Performance issue? ──▶ Use symmetric for bulk data; asymmetric only for key exchange
-```
+### Decryption fails or produces garbage output
+1. Verify the key matches: symmetric requires the same key; asymmetric requires the correct key pair.
+2. Verify algorithm and mode match: encrypt and decrypt must use the same algorithm (e.g., AES-256-GCM on both sides).
+3. Check the IV/nonce: CBC requires the same IV; GCM requires the same nonce. Mismatched IV = garbage output.
+4. Check for corrupted ciphertext: use GCM (authenticated encryption) to detect tampering — it will fail with an auth error instead of producing garbage.
+
+### Key-related issues
+1. Key too short: use AES-256 (minimum AES-128); RSA minimum 2048-bit (prefer 4096).
+2. Key not found: check file path and permissions: `ls -la /path/to/key.pem`.
+3. Key format mismatch: ensure PEM vs DER format matches what the tool expects: `openssl rsa -in key.pem -check`.
+
+### Performance issues with encryption
+1. Symmetric encryption (AES) is fast — use it for bulk data.
+2. Asymmetric encryption (RSA) is slow — use it only for key exchange or signing small data.
+3. If encrypting large files with RSA: switch to hybrid approach (RSA encrypts an AES key, AES encrypts the data).
+4. Use hardware acceleration if available: `openssl speed aes-256-gcm` to check throughput.
