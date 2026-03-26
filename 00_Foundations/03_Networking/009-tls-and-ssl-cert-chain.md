@@ -89,7 +89,7 @@ openssl s_client -connect example.com:443 -showcerts </dev/null 2>/dev/null | \
 - **Authentication** -- server identity verified via digital certificate; prevents impersonation
 - **Integrity** -- message authentication codes ensure data is not modified in transit
 
-Related notes: [005-http-https](./005-http-https.md), [008-ipsec-vpn](./008-ipsec-vpn.md)
+Related notes: [008-http-https](./008-http-https.md), [011-vpn-technologies](./011-vpn-technologies.md)
 
 ### SSL vs TLS
 
@@ -104,7 +104,7 @@ Improvements of TLS over SSL:
 - Better protection against known attacks (POODLE, BEAST, etc.)
 - More secure key exchange mechanisms (forward secrecy with ECDHE)
 
-Related notes: [005-http-https](./005-http-https.md)
+Related notes: [008-http-https](./008-http-https.md)
 
 ### TLS Handshake
 
@@ -130,7 +130,7 @@ Client                              Server
 - TLS 1.3 simplifies this to a single round trip (1-RTT).
 - Session resumption can achieve 0-RTT in TLS 1.3.
 
-Related notes: [005-http-https](./005-http-https.md)
+Related notes: [008-http-https](./008-http-https.md)
 
 ### Certificates
 
@@ -144,7 +144,7 @@ An SSL/TLS certificate contains:
 - **Expiration date** -- cert is invalid after this date
 - **Serial number** -- unique identifier
 
-Related notes: [005-http-https](./005-http-https.md)
+Related notes: [008-http-https](./008-http-https.md)
 
 ### Certificate Authority (CA)
 
@@ -157,7 +157,7 @@ Example CAs:
 - **DigiCert** -- commercial, enterprise
 - **GlobalSign** -- commercial, enterprise
 
-Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+Related notes: [010-proxy-and-load-balancing](./010-proxy-and-load-balancing.md)
 
 ### Certificate Chain
 ```text
@@ -183,7 +183,7 @@ Root CA Certificate         (self-signed, in browser/OS trust store)
 4. Client checks: root CA exists in local trusted store?
 5. If all valid, connection is trusted.
 
-Related notes: [005-http-https](./005-http-https.md)
+Related notes: [008-http-https](./008-http-https.md)
 - A certificate chain is the hierarchical trust path from server certificate to trusted root CA.
 - The chain links through one or more intermediate certificates.
 

@@ -1,8 +1,8 @@
-# IPsec and VPN
+# VPN Technologies
 
-- IPsec (Internet Protocol Security) is a Layer 3 protocol suite that secures IP traffic with encryption, integrity verification, and peer authentication.
-- VPN (Virtual Private Network) creates a secure tunnel over an untrusted network; IPsec is one of the primary technologies used to build VPNs.
-- IPsec operates in two modes: transport mode (host-to-host, protects payload) and tunnel mode (site-to-site, encapsulates entire packet).
+- VPN (Virtual Private Network) creates a secure encrypted tunnel over an untrusted network.
+- IPsec is a Layer 3 protocol suite with complex negotiation (IKE) — powerful but complex to configure.
+- WireGuard is a modern, minimal VPN protocol with simpler design and stronger default cryptography.
 
 # Architecture
 
@@ -73,7 +73,7 @@ ipsec statusall
 - **Authenticates peers** before sending protected traffic
 - Works at Layer 3 (network layer), transparent to applications above
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ### AH (Authentication Header)
 
@@ -82,7 +82,7 @@ Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
 - Less common in practice; mostly replaced by ESP.
 - Protocol number: 51
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ### ESP (Encapsulating Security Payload)
 
@@ -91,7 +91,7 @@ Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
 - Protocol number: 50
 - Supports both transport and tunnel modes.
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ### IKE (Internet Key Exchange)
 
@@ -103,7 +103,7 @@ Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
   - MOBIKE support for mobile clients
 - Uses UDP port 500 (or 4500 with NAT traversal).
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ### Transport Mode
 
@@ -127,7 +127,7 @@ Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
 [New IP Header] [ESP Header] [Original IP Header + Payload (encrypted)] [ESP Trailer]
 ```
 
-Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md), [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md), [010-proxy-and-load-balancing](./010-proxy-and-load-balancing.md)
 
 ### Common Use Cases
 
@@ -136,7 +136,7 @@ Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md), [0
 - **Server-to-server** -- protect traffic between servers over untrusted networks
 - **Cloud connectivity** -- secure tunnels to cloud VPCs (AWS VPN, Azure VPN Gateway)
 
-Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+Related notes: [010-proxy-and-load-balancing](./010-proxy-and-load-balancing.md)
 
 ### IPsec vs TLS
 
@@ -148,18 +148,51 @@ Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 | Site-to-site, remote access VPN       | HTTPS, secure APIs, email              |
 | Transparent to applications           | Application must use TLS libraries     |
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
+
+### WireGuard
+
+- Modern VPN protocol designed for simplicity — roughly 4,000 lines of code vs 400,000+ for IPsec/OpenVPN.
+- Runs in the Linux kernel (also available on Windows, macOS, mobile).
+- Uses UDP on a single configurable port (default 51820).
+- Fixed modern cryptography (no cipher negotiation):
+  - Key exchange: Curve25519
+  - Encryption: ChaCha20
+  - Authentication: Poly1305
+  - Hashing: BLAKE2s
+- **Cryptokey routing**: each peer has a public key and a list of allowed IPs. The public key determines which peer to send to; the allowed IPs determine which traffic to encrypt.
+
+```text
+WireGuard peer configuration:
+  [Peer]
+  PublicKey = <peer-public-key>
+  AllowedIPs = 10.2.0.0/24        <-- traffic to this subnet goes through this peer
+  Endpoint = 203.0.113.50:51820   <-- peer's public IP and port
+```
+
+- No connection state to manage — if a peer is silent, WireGuard sends no traffic (no keepalive overhead by default).
+- Roaming: if a peer's IP changes (e.g., mobile switching networks), WireGuard updates the endpoint automatically on the next authenticated packet.
+
+### WireGuard vs IPsec
+
+| Property | WireGuard | IPsec |
+|----------|-----------|-------|
+| Code complexity | ~4,000 lines | ~400,000+ lines |
+| Cipher negotiation | None (fixed modern set) | Complex (many algorithm choices) |
+| Key exchange | Noise protocol (1-RTT) | IKE Phase 1 + Phase 2 (multiple RTT) |
+| Configuration | Simple (public key + allowed IPs) | Complex (proposals, transforms, policies) |
+| Performance | Fast (kernel-level, modern crypto) | Varies (depends on implementation) |
+| UDP port | Single port (51820) | Multiple: UDP 500, 4500 |
+| Stealth | Silent when idle | Periodic IKE keepalives |
+| Use cases | Remote access, site-to-site, containers | Enterprise VPN, cloud gateways, legacy |
+
+- WireGuard is preferred for new deployments where simplicity and performance matter.
+- IPsec remains necessary for interoperability with existing enterprise equipment and cloud VPN gateways (AWS VPN, Azure VPN Gateway).
+
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ---
 
-- IPsec works at Layer 3; it secures all IP traffic transparently to applications.
-- VPN is the use case; IPsec is one technology that implements it.
-- ESP (protocol 50) provides encryption + integrity; AH (protocol 51) provides integrity only.
-- IKEv2 is the modern standard for key negotiation; uses UDP 500/4500.
-- Transport mode: protects payload, keeps original IP header (host-to-host).
-- Tunnel mode: encapsulates entire packet in new IP header (site-to-site VPN).
-- IPsec secures network-layer traffic; TLS secures application-layer traffic -- they serve different purposes.
-- If you only need secure web traffic, TLS is sufficient; for network-to-network encryption, use IPsec.
 # Troubleshooting Guide
 
 ```text

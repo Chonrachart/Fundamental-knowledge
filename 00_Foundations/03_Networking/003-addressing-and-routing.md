@@ -70,7 +70,7 @@ ip route show
 - Each packet is routed independently based on its destination IP.
 - IPv4 = 32-bit (4 octets, ~4.3 billion addresses); IPv6 = 128-bit (8 hex groups, virtually unlimited).
 
-Related notes: [001-network-models](./001-network-models.md), [002-transport-layer](./002-transport-layer.md)
+Related notes: [001-network-models](./001-network-models.md), [005-transport-layer](./005-transport-layer.md)
 
 ### Subnets and CIDR Notation
 
@@ -95,7 +95,7 @@ Related notes: [000-core](./000-core.md)
 - Static routes are manually configured; dynamic routes are learned via protocols (OSPF, BGP, etc.).
 - Routing table: destination + next hop + interface. Default route = `0.0.0.0/0`.
 
-Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
+Related notes: [011-vpn-technologies](./011-vpn-technologies.md)
 
 ### Gateway
 
@@ -109,15 +109,35 @@ Related notes: [001-network-models](./001-network-models.md)
 ### ICMP (Internet Control Message Protocol)
 
 - ICMP works alongside IP for error reporting and network diagnostics.
-- It does not carry application data like TCP or UDP.
-- Common uses:
-  - `ping` -- ICMP Echo Request / Echo Reply (test reachability)
-  - `traceroute` -- ICMP Time Exceeded messages (map the path)
-  - Destination Unreachable -- tells sender that packet cannot be delivered
-- Useful for checking reachability and troubleshooting routing problems.
-- ICMP is for diagnostics (ping, traceroute), not data transfer.
+- It does not carry application data like TCP or UDP — it signals problems and provides information.
+- ICMP messages have a type and code that identify the specific message.
 
-Related notes: [000-core](./000-core.md)
+Common ICMP types:
+
+| Type | Code | Name | Used by / Meaning |
+|------|------|------|-------------------|
+| 0 | 0 | Echo Reply | Response to ping |
+| 3 | 0 | Destination Unreachable - Net | No route to network |
+| 3 | 1 | Destination Unreachable - Host | Host is down or unreachable |
+| 3 | 3 | Destination Unreachable - Port | No service listening on that port (UDP) |
+| 3 | 4 | Fragmentation Needed | Packet too big, DF flag set (used by PMTUD) |
+| 5 | 0 | Redirect | Router tells sender to use a better route |
+| 8 | 0 | Echo Request | Sent by ping |
+| 11 | 0 | Time Exceeded | TTL reached 0 — used by traceroute |
+
+- `ping` sends Echo Request (type 8), expects Echo Reply (type 0).
+- `traceroute` sends packets with incrementing TTL; each router that decrements TTL to 0 sends back Time Exceeded (type 11), revealing the path hop by hop.
+- Blocking ICMP entirely breaks PMTUD and makes network debugging harder — allow at least type 3 and type 11.
+
+```bash
+# ping: sends ICMP Echo Request
+ping -c 3 192.168.1.1
+
+# traceroute: uses ICMP Time Exceeded to map the path
+traceroute 8.8.8.8
+```
+
+Related notes: [000-core](./000-core.md), [002-link-layer-and-ethernet](./002-link-layer-and-ethernet.md)
 
 ### NAT (Network Address Translation)
 ```text
@@ -128,7 +148,7 @@ Inbound (DNAT):
   Internet  -->  203.0.113.1:443  -->  [Router/NAT]  -->  192.168.1.50:443
 ```
 
-Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+Related notes: [010-proxy-and-load-balancing](./010-proxy-and-load-balancing.md)
 - NAT translates private IPs to a public IP (and back) at the network boundary.
 - Allows many devices on a private network to share one public IP address.
 - Types:

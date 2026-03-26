@@ -105,7 +105,7 @@ server {
 Client --> Forward Proxy --> Internet --> Server
 ```
 
-Related notes: [005-http-https](./005-http-https.md), [008-ipsec-vpn](./008-ipsec-vpn.md)
+Related notes: [008-http-https](./008-http-https.md), [011-vpn-technologies](./011-vpn-technologies.md)
 
 ### Reverse Proxy
 
@@ -123,7 +123,7 @@ Related notes: [005-http-https](./005-http-https.md), [008-ipsec-vpn](./008-ipse
 Client --> Reverse Proxy --> Backend Server(s)
 ```
 
-Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [008-http-https](./008-http-https.md), [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 - Reverse proxy: server-side, hides backend servers, client is unaware.
 - SSL termination at the reverse proxy offloads encryption from backends.
 - nginx, HAProxy, Envoy, and Traefik are common reverse proxy / load balancer tools.
@@ -138,19 +138,33 @@ Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chai
 | Access control, filtering  | Load balancing, SSL, caching |
 | Client aware of proxy      | Client unaware of backends   |
 
-Related notes: [008-ipsec-vpn](./008-ipsec-vpn.md)
+Related notes: [011-vpn-technologies](./011-vpn-technologies.md)
 - Forward proxy: client-side, hides client identity, client is aware.
 
 ### Load Balancing Algorithms
 
-- **Round Robin** -- sends each request to the next server in order; simple, even distribution
-- **Least Connections** -- sends to the server with fewest active connections; best when request durations vary
-- **IP Hash** -- same client IP always routes to same backend; provides session affinity
-- **Weighted Round Robin / Weighted Least Connections** -- assigns more traffic to more powerful servers based on configured weights
+- **Round Robin** — sends each request to the next server in order; simple, even distribution. Best when all servers are similar and requests are roughly equal.
+- **Weighted Round Robin** — assigns more traffic to more powerful servers based on configured weights. Server with weight 3 gets 3x traffic of weight 1.
+- **Least Connections** — sends to the server with fewest active connections. Best when request durations vary (some fast, some slow).
+- **Weighted Least Connections** — like least connections but accounts for server capacity via weights.
+- **IP Hash** — hashes client IP to determine backend; same client always hits same server. Provides basic session affinity without cookies.
+- **Consistent Hashing** — distributes requests across backends using a hash ring. When a backend is added or removed, only a small fraction of requests are redistributed (unlike IP hash which reshuffles everything).
+- **Sticky Sessions (Session Affinity)** — routes a client to the same backend for the duration of a session, tracked via cookies or headers. Required when backends store session state locally.
+- **Response-Time Based (Least Response Time)** — routes to the backend with the fastest recent response time. Automatically adapts to backend performance.
 
-Related notes: [005-http-https](./005-http-https.md)
-- Load balancing distributes traffic to improve availability, scalability, and performance.
-- Common algorithms: round robin, least connections, IP hash, weighted variants.
+When to use which:
+
+| Algorithm | Best for |
+|-----------|----------|
+| Round Robin | Stateless services, equal-capacity servers |
+| Weighted Round Robin | Mixed-capacity servers |
+| Least Connections | Long-lived or variable-duration requests |
+| IP Hash | Simple session affinity without cookies |
+| Consistent Hashing | Caching layers (minimizes cache misses on scaling) |
+| Sticky Sessions | Stateful apps that store session data on the backend |
+| Response-Time Based | Backends with varying performance characteristics |
+
+Related notes: [008-http-https](./008-http-https.md)
 
 ### Health Checks
 
@@ -161,7 +175,7 @@ Related notes: [005-http-https](./005-http-https.md)
   - **TCP** -- verify port is open and accepting connections
   - **Custom script** -- run application-specific checks
 
-Related notes: [005-http-https](./005-http-https.md)
+Related notes: [008-http-https](./008-http-https.md)
 - Health checks remove unhealthy backends from the pool automatically.
 
 ### Load Balancer Components

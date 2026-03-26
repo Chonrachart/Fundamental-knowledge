@@ -79,7 +79,7 @@ curl -v https://example.com/api/data
 - **Body** -- optional payload (form data, JSON, file upload); used with POST, PUT, PATCH
 - HTTP request = method + URL + headers + optional body.
 
-Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+Related notes: [010-proxy-and-load-balancing](./010-proxy-and-load-balancing.md)
 
 ### HTTP Response
 
@@ -94,7 +94,7 @@ Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 - HTTP response = status code + headers + body.
 - Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error.
 
-Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+Related notes: [010-proxy-and-load-balancing](./010-proxy-and-load-balancing.md)
 
 ### HTTP Properties
 
@@ -103,7 +103,7 @@ Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
 - **Connection reuse** -- HTTP/1.1 keep-alive and HTTP/2 multiplexing reduce overhead
 - HTTP is stateless; each request is independent with no built-in session memory.
 
-Related notes: [004-DNS](./004-DNS.md)
+Related notes: [006-dns](./006-dns.md)
 - HTTP/2 adds multiplexing (multiple requests over one connection); HTTP/3 uses QUIC (UDP-based).
 
 ### HTTPS (HTTP Secure)
@@ -121,7 +121,7 @@ Related notes: [004-DNS](./004-DNS.md)
 | No server auth      | Server certificate required  |
 | Susceptible to MITM | Protected against MITM       |
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ### HTTPS Connection Flow
 
@@ -139,8 +139,46 @@ Client                           Server
   |                                 |
   |==== Encrypted HTTP traffic ====|
 ```
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 - TLS handshake happens after TCP handshake, before any HTTP data flows.
+
+### HTTP Version Evolution
+
+- HTTP/1.1 (1997): one request at a time per connection. Browsers open 6-8 parallel connections to work around this.
+  - Head-of-line blocking: if one request is slow, it blocks all requests behind it on that connection.
+  - Keep-alive: reuses connections to avoid repeated TCP handshakes, but still one-request-at-a-time.
+
+- HTTP/2 (2015): multiplexing — many requests and responses flow over a single TCP connection simultaneously.
+  - Header compression (HPACK): reduces overhead for repeated headers (cookies, user-agent).
+  - Server push: server can proactively send resources the client will need (e.g., CSS, JS).
+  - Binary framing: more efficient than HTTP/1.1 text parsing.
+  - Still uses TCP — so TCP-level head-of-line blocking remains (one lost packet stalls all streams).
+
+- HTTP/3 (2022): replaces TCP with QUIC (built on UDP) to eliminate TCP-level head-of-line blocking.
+  - 0-RTT connection setup: can send data on the first packet (resuming previous connection).
+  - Connection migration: survives network changes (e.g., switching from Wi-Fi to mobile) without reconnecting.
+  - Per-stream loss recovery: one lost packet only stalls that stream, not all streams.
+  - Built-in TLS 1.3: encryption is mandatory and integrated into the protocol.
+
+| Feature | HTTP/1.1 | HTTP/2 | HTTP/3 |
+|---------|----------|--------|--------|
+| Transport | TCP | TCP | QUIC (UDP) |
+| Multiplexing | No (1 req/conn) | Yes | Yes |
+| Head-of-line blocking | Yes (HTTP + TCP) | Partial (TCP only) | No |
+| Header compression | No | HPACK | QPACK |
+| Connection setup | TCP + TLS (2-3 RTT) | TCP + TLS (2-3 RTT) | 1 RTT (or 0-RTT) |
+| Encryption | Optional | Optional (but nearly universal) | Mandatory (TLS 1.3) |
+
+```bash
+# check which HTTP version a server supports
+curl -sI --http2 https://example.com | head -1
+# HTTP/2 200
+
+# check HTTP/3 support (requires curl compiled with HTTP/3)
+curl --http3 -sI https://example.com | head -1
+```
+
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md), [005-transport-layer](./005-transport-layer.md)
 
 ---
 
@@ -151,7 +189,7 @@ Cannot reach HTTPS site?
   |
   +--> DNS resolves? --> dig example.com
   |       |
-  |       +--> no --> DNS issue (see 004-DNS)
+  |       +--> no --> DNS issue (see 006-dns)
   |
   +--> TCP connects? --> curl -v https://example.com (check "Connected to")
   |       |

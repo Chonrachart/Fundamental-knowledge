@@ -60,7 +60,7 @@ ss -tulnp
 - TCP uses a 3-way handshake (SYN, SYN-ACK, ACK) to establish and a 4-way teardown (FIN, ACK, FIN, ACK) to close.
 - TCP header is 20+ bytes; UDP header is 8 bytes.
 
-Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [008-http-https](./008-http-https.md), [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ### UDP (User Datagram Protocol)
 
@@ -72,7 +72,7 @@ Related notes: [005-http-https](./005-http-https.md), [006-TLS-and-SSL-cert-chai
 - Used by: DNS, DHCP, video streaming, VoIP, gaming.
 - Lower overhead than TCP: smaller header (8 bytes vs TCP 20+ bytes).
 
-Related notes: [004-DNS](./004-DNS.md)
+Related notes: [006-dns](./006-dns.md)
 
 ### TCP vs UDP
 
@@ -134,7 +134,7 @@ Client               Server
   |    data can flow both ways |
 ```
 
-Related notes: [005-http-https](./005-http-https.md)
+Related notes: [008-http-https](./008-http-https.md)
 
 ### TCP 4-Way Teardown
 
@@ -154,7 +154,7 @@ Client               Server
   |== connection closed ==|
 ```
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
 
 ### Common TCP Flags
 Related notes: [001-network-models](./001-network-models.md)

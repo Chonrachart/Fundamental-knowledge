@@ -4,7 +4,7 @@
 - Resolution follows a hierarchical chain: stub resolver -> recursive resolver -> root -> TLD -> authoritative nameserver, with caching at every layer.
 - Operational DNS knowledge -- record types, TTL strategy, internal service discovery, DNSSEC -- is critical for reliable infrastructure.
 
-> For DNS fundamentals, see [Networking/004-DNS](../03_Networking/004-DNS.md)
+> For DNS fundamentals, see [Networking/006-dns](../03_Networking/006-dns.md)
 
 # Architecture
 

@@ -92,7 +92,7 @@ Example: opening https://example.com
 - Troubleshoot bottom-up: physical first, then link, network, transport, application.
 - A packet traverses every layer twice: once at sender (down), once at receiver (up).
 
-Related notes: [002-transport-layer](./002-transport-layer.md), [003-addressing-and-routing](./003-addressing-and-routing.md)
+Related notes: [005-transport-layer](./005-transport-layer.md), [003-addressing-and-routing](./003-addressing-and-routing.md)
 
 ### OSI Layers with Protocol Examples
 
@@ -106,7 +106,7 @@ Related notes: [002-transport-layer](./002-transport-layer.md), [003-addressing-
 |   2   | Ethernet (802.3), Wi-Fi MAC (802.11), ARP, VLAN (802.1Q)| Switch, bridge, MAC table forwarding              |
 |   1   | Copper, fiber, radio                                    | Cables, transceivers, hubs, signal repeaters      |
 
-Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md), [005-http-https](./005-http-https.md)
+Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md), [008-http-https](./008-http-https.md)
 
 ### TCP/IP Model (4 Layers)
 
@@ -116,7 +116,7 @@ Related notes: [006-TLS-and-SSL-cert-chain](./006-TLS-and-SSL-cert-chain.md), [0
 - **Link** -- local network communication using frames and MAC addresses. Includes Ethernet, Wi-Fi, and the physical medium. Switches operate here.
 - TCP/IP Application layer combines OSI layers 7, 6, and 5.
 
-Related notes: [002-transport-layer](./002-transport-layer.md), [003-addressing-and-routing](./003-addressing-and-routing.md)
+Related notes: [005-transport-layer](./005-transport-layer.md), [003-addressing-and-routing](./003-addressing-and-routing.md)
 
 ### OSI to TCP/IP Mapping
 
@@ -145,10 +145,10 @@ Related notes: [000-core](./000-core.md)
 
 - PDU names: Data, Segment/Datagram, Packet, Frame, Bits (top to bottom).
 
-Related notes: [002-transport-layer](./002-transport-layer.md)
+Related notes: [005-transport-layer](./005-transport-layer.md)
 
 ### Devices by Layer
-Related notes: [007-proxy-and-load-balancing](./007-proxy-and-load-balancing.md)
+Related notes: [010-proxy-and-load-balancing](./010-proxy-and-load-balancing.md)
 - Layer 1 (Physical): cable, repeater, hub, transceiver
 - Layer 2 (Data Link): switch, bridge
 - Layer 3 (Network): router, Layer 3 switch
