@@ -1,30 +1,32 @@
 # Containers
 
-- Lightweight, isolated environment that packages an application with its dependencies and runs on a shared host kernel.
-- Uses Linux namespaces (PID, net, mount, UTS, IPC, user) for isolation and cgroups for resource limits.
-- Portable and reproducible: same image produces identical runtime on any host.
+### Overview
 
-# Architecture
+- **Why it exists** — Applications need a consistent, isolated environment to run regardless of host OS differences, without the overhead of full virtual machines.
+- **What it is** — A lightweight, isolated runtime environment that packages an application with its dependencies, using Linux namespaces for isolation and cgroups for resource limits, sharing the host kernel.
+- **One-liner** — Containers are isolated processes on a shared kernel — portable, fast to start, and far lighter than VMs.
+
+### Architecture
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│                     Host OS (Linux Kernel)           │
-│                                                     │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────┐ │
-│  │ Container A  │  │ Container B  │  │Container C │ │
-│  │ ┌──────────┐ │  │ ┌──────────┐ │  │┌──────────┐│ │
-│  │ │   App    │ │  │ │   App    │ │  ││   App    ││ │
-│  │ ├──────────┤ │  │ ├──────────┤ │  │├──────────┤│ │
-│  │ │  Libs    │ │  │ │  Libs    │ │  ││  Libs    ││ │
-│  │ └──────────┘ │  │ └──────────┘ │  │└──────────┘│ │
-│  │  namespaces  │  │  namespaces  │  │ namespaces │ │
-│  │  cgroups     │  │  cgroups     │  │ cgroups    │ │
-│  └──────────────┘  └──────────────┘  └────────────┘ │
-│                                                     │
-│  ┌─────────────────────────────────────────────────┐ │
-│  │          Container Runtime (containerd/runc)     │ │
-│  └─────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                     Host OS (Linux Kernel)                  │
+│                                                             │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐   │
+│  │  Container A  │  │  Container B  │  │  Container C  │   │
+│  │ ┌───────────┐ │  │ ┌───────────┐ │  │ ┌───────────┐ │   │
+│  │ │    App    │ │  │ │    App    │ │  │ │    App    │ │   │
+│  │ ├───────────┤ │  │ ├───────────┤ │  │ ├───────────┤ │   │
+│  │ │   Libs    │ │  │ │   Libs    │ │  │ │   Libs    │ │   │
+│  │ └───────────┘ │  │ └───────────┘ │  │ └───────────┘ │   │
+│  │  namespaces   │  │  namespaces   │  │  namespaces   │   │
+│  │  cgroups      │  │  cgroups      │  │  cgroups      │   │
+│  └───────────────┘  └───────────────┘  └───────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │          Container Runtime (containerd / runc)      │    │
+│  └─────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
 
 vs VM:
 ┌──────────────┐  ┌──────────────┐
@@ -35,12 +37,12 @@ vs VM:
 │ │ Guest OS │ │  │ │ Guest OS │ │
 │ └──────────┘ │  │ └──────────┘ │
 └──────┬───────┘  └──────┬───────┘
-       └────────┬────────┘
+       └────────┬─────────┘
          Hypervisor (KVM, VMware)
-            Host OS
+              Host OS
 ```
 
-# Mental Model
+### Mental Model
 
 ```text
 Dockerfile  ──build──▶  Image  ──run──▶  Container
@@ -51,103 +53,107 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
                     (Docker Hub, ECR)
 ```
 
-Concrete example:
-```bash
-# Build image from Dockerfile
-docker build -t myapp:1.0 .
+- Write a `Dockerfile` (recipe), `docker build` produces an immutable image.
+- `docker run` creates a container (running process) from the image.
+- Containers are ephemeral; state not in a volume is lost on removal.
+- `docker push` / `docker pull` move images between host and registry.
 
-# Push to registry
-docker push registry.company.com/myapp:1.0
+### Core Building Blocks
 
-# Run container from image
-docker run -d --name web -p 8080:80 myapp:1.0
+### Namespaces
 
-# Check logs, exec into container
-docker logs web
-docker exec -it web sh
-```
+- **Why it exists** — Processes on the same kernel must not see or interfere with each other's resources.
+- **What it is** — Linux kernel feature that partitions global resources into independent views per container: `PID` (process tree), `net` (network stack), `mount` (filesystem), `UTS` (hostname), `IPC` (inter-process comms), `user` (UID mapping).
+- **One-liner** — Namespaces control what a container can see.
 
-# Core Building Blocks
+### cgroups
 
-### Container vs VM
+- **Why it exists** — Without limits, one container can starve the host or other containers of CPU and memory.
+- **What it is** — Linux control groups; enforce per-container limits and accounting for CPU, memory, I/O, and network bandwidth. The kernel refuses to let a container exceed its cgroup quota.
+- **One-liner** — cgroups control what a container can use.
 
-| Aspect | Container | VM |
-|--------|-----------|-----|
-| Isolation | Process-level (namespaces) | Hardware-level (hypervisor) |
-| Kernel | Shares host kernel | Own guest kernel |
-| Start time | Milliseconds | Seconds-minutes |
-| Size | MBs (app + libs) | GBs (full OS) |
-| Overhead | Minimal | High (CPU/RAM for guest OS) |
-| Use case | App packaging, density, microservices | Strong isolation, different OS/kernel |
+### Container Runtime Stack
 
-- Container shares host kernel; VM has its own guest OS.
-
-### Image Layers
-
-- Image = stack of read-only layers; each Dockerfile instruction adds a layer.
-- Layers are cached and shared across images by content hash.
-- Copy-on-write: container gets a thin writable layer on top.
-- Image is immutable read-only layers; container adds a writable layer on top.
-- `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
-- Alpine base images are ~5MB; distroless even smaller.
-
-Related notes:
-- [005-images-layers-cache](./Docker/005-images-layers-cache.md)
-
-### Runtime Stack
+- **Why it exists** — A layered runtime stack separates high-level container management from the low-level Linux primitives that create processes.
+- **What it is** — The chain from user-facing tooling down to the kernel: a high-level runtime (`containerd`) manages lifecycle; a low-level OCI runtime (`runc`) calls clone/unshare to actually create namespaced processes.
+- **One-liner** — `containerd` manages the lifecycle; `runc` creates the actual container process.
 
 ```text
 Docker CLI / docker compose
        │
   Docker Engine (dockerd)
        │
-  containerd (container lifecycle)
+  containerd  (container lifecycle manager)
        │
-  runc (OCI runtime — actually creates the container)
+  runc  (OCI runtime — calls Linux clone/unshare)
        │
   Linux Kernel (namespaces + cgroups)
 ```
 
-- **Namespaces**: `PID`, `network`, `mount`, `UTS`, `IPC`, `user` -- isolate what container can see.
-- **cgroups**: Limit CPU, memory, I/O -- isolate what container can use.
-- Namespaces = what you can see; cgroups = what you can use.
-- OCI = Open Container Initiative; standard for container format and runtime.
-- `containerd` manages lifecycle; `runc` creates the actual container process.
+- OCI = Open Container Initiative; defines the standard image format and runtime spec.
+- `runc` is the reference OCI runtime; `crun` and `gVisor runsc` are alternatives.
 
-### Orchestration
+### Container vs VM
 
-- Manage many containers across hosts: scheduling, scaling, self-healing, networking.
-- **Kubernetes** is the standard; Docker Swarm, Nomad are alternatives.
+- **Why it exists** — Teams need to choose the right isolation model for their workload.
+- **What it is** — A comparison of how containers and VMs achieve isolation at different levels of the stack.
+- **One-liner** — Containers share the kernel and start in milliseconds; VMs carry a full guest OS and start in seconds.
+
+| Aspect | Container | VM |
+|---|---|---|
+| Isolation | Process-level (namespaces) | Hardware-level (hypervisor) |
+| Kernel | Shares host kernel | Own guest kernel |
+| Start time | Milliseconds | Seconds–minutes |
+| Size | MBs (app + libs) | GBs (full OS) |
+| Overhead | Minimal | High (CPU/RAM for guest OS) |
+| Use case | App packaging, density, microservices | Strong isolation, different OS/kernel |
+
+### Image Layers
+
+- **Why it exists** — Building images from scratch every time would be slow; layers enable caching and sharing.
+- **What it is** — An image is a stack of read-only layers; each Dockerfile instruction adds one. Layers are identified by content hash and shared across images. A running container gets a thin writable layer on top.
+- **One-liner** — Images are immutable layered snapshots; containers add a writable layer on top.
+
+- Layers are cached: unchanged instructions reuse the cached layer on rebuild.
+- Copy-on-write: writing inside a container modifies only the writable layer, not the image.
+- Alpine base images are ~5 MB; distroless images are even smaller.
 
 Related notes:
-- [../../02_Kubernetes/001-kubernetes-overview](../../02_Kubernetes/001-kubernetes-overview.md)
+- [Docker/005-images-layers-cache](./Docker/005-images-layers-cache.md)
 
----
+### Docker Subfolder
 
-# Troubleshooting Guide
+- Docker is the most common toolchain built on top of the container runtime stack.
+- The Docker subfolder covers the full Docker platform: CLI, daemon, images, Dockerfile, networking, volumes, registries, and Compose.
+
+Related notes:
+- [Docker/000-core](./Docker/000-core.md) — Docker overview, key commands, topic map
+
+### Troubleshooting
 
 ### Container exits immediately
-1. Check exit code: `docker ps -a` (look at STATUS column).
+
+1. Check exit code: `docker ps -a` — look at the STATUS column.
 2. Check logs: `docker logs <container>`.
-3. Common causes: CMD/ENTRYPOINT fails, missing env vars, app crash.
-4. Debug: `docker run -it --entrypoint sh <image>` to get a shell.
+3. Common causes: CMD/ENTRYPOINT fails, missing env vars, application crash.
+4. Debug interactively: `docker run -it --entrypoint sh <image>` to get a shell.
 
 ### "permission denied" inside container
-1. Check what user runs: `docker exec <ctr> whoami` / `docker exec <ctr> id`.
-2. Check file ownership: `docker exec <ctr> ls -la /path`.
-3. Fix: `--user` flag at run, or `chown` in Dockerfile before `USER`.
+
+1. Check running user: `docker exec <container> whoami` and `docker exec <container> id`.
+2. Check file ownership: `docker exec <container> ls -la /path`.
+3. Fix: pass `--user` flag at `docker run`, or add `chown` + `USER` in the Dockerfile.
 
 ### Cannot connect to container port
-1. Verify port published: `docker port <container>`.
-2. Verify app listens on correct port inside container: `docker exec <ctr> ss -tlnp`.
+
+1. Verify port is published: `docker port <container>`.
+2. Verify app listens on the correct port inside container: `docker exec <container> ss -tlnp`.
 3. Check host firewall: `iptables -L -n` or `ufw status`.
-4. Ensure `-p host:container` matches the app's listening port.
+4. Ensure `-p host:container` matches the app's actual listening port.
 
 ### Image pull fails
-1. Check registry login: `docker login <registry>`.
-2. Check image name/tag: typo or tag does not exist.
-3. Check proxy: `docker info` shows `HTTP_PROXY`; set in `/etc/systemd/system/docker.service.d/http-proxy.conf`.
-4. Check DNS: `nslookup registry-1.docker.io`.
-# Topic Map
 
-- [Docker/000-core](./Docker/000-core.md) -- Docker overview, key commands, topic map
+1. Check registry login: `docker login <registry>`.
+2. Check image name and tag for typos; verify the tag exists in the registry.
+3. Check proxy settings: `docker info` shows `HTTP_PROXY`; configure in `/etc/systemd/system/docker.service.d/http-proxy.conf`.
+4. Check DNS resolution: `nslookup registry-1.docker.io`.

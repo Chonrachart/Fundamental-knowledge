@@ -1,10 +1,36 @@
-# docker run -- Advanced
+# docker run — Advanced Flags
 
-- `docker run` creates a new container from an image and starts it with configurable options.
-- Syntax: `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]`
-- Flags control ports, env vars, resource limits, restart policies, volumes, user, and network.
+### Overview
 
-# Mental Model
+- **Why it exists** — A container's isolation, resource consumption, security posture, networking, and data persistence must all be configured at startup because the container's environment is immutable once running.
+- **What it is** — `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]` creates and starts a new container. Each flag maps to a Linux kernel mechanism: namespaces for isolation, cgroups for resource limits, capabilities for privilege control, and bind mounts or volumes for data.
+- **One-liner** — `docker run` flags are the dials that tune exactly how much isolation, resources, and access a container gets.
+
+### Architecture
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                     docker run [OPTIONS] IMAGE              │
+│                                                             │
+│  ┌──────────────┐  ┌────────────────┐  ┌─────────────────┐ │
+│  │  Lifecycle   │  │    Resource    │  │    Security     │ │
+│  │              │  │    (cgroups)   │  │  (capabilities) │ │
+│  │  -d / --rm   │  │  --memory      │  │  --user         │ │
+│  │  --restart   │  │  --cpus        │  │  --read-only    │ │
+│  │  --name      │  │  --cpuset-cpus │  │  --cap-drop     │ │
+│  └──────────────┘  └────────────────┘  └─────────────────┘ │
+│                                                             │
+│  ┌──────────────┐  ┌────────────────┐  ┌─────────────────┐ │
+│  │  Networking  │  │     Data       │  │   Config        │ │
+│  │ (namespaces) │  │  (bind/volume) │  │                 │ │
+│  │  --network   │  │  -v / --mount  │  │  -e             │ │
+│  │  -p / -P     │  │  --tmpfs       │  │  --env-file     │ │
+│  │  --dns       │  │                │  │  --entrypoint   │ │
+│  └──────────────┘  └────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Mental Model
 
 ```text
 docker run [OPTIONS] IMAGE [CMD]
@@ -25,132 +51,242 @@ docker run [OPTIONS] IMAGE [CMD]
        -v (volumes), --tmpfs, --mount
 ```
 
-- Each `docker run` flag maps to a Linux isolation or resource control mechanism.
-- Namespaces provide process/network isolation; cgroups enforce CPU/memory limits; capabilities control kernel permissions.
+- Namespaces provide process and network isolation between containers and the host.
+- cgroups enforce CPU and memory limits so one container cannot starve others.
+- Capabilities control which kernel operations a process may perform; dropping them follows least-privilege.
+- Volumes and bind mounts are the only way to persist data beyond the container's lifetime.
 
-# Core Building Blocks
+### Core Building Blocks
 
-### Detach vs Foreground
+### Detach and Auto-Remove (-d / --rm)
 
-- `-d, --detach`: Run in background; returns container ID; logs not shown.
-- Without `-d`: runs in foreground; Ctrl+C stops container (unless `--sig-proxy=false`); logs to terminal.
-- `--rm`: Automatically remove container when it exits; useful for one-off runs.
-- `-d` runs detached; `--rm` auto-removes on exit; combine for one-off background tasks.
+- **Why it exists** — Long-running services should not block the terminal, and one-off containers should not leave stale stopped containers behind.
+- **What it is** — `-d` (detach) starts the container in the background and returns its ID immediately; logs are not printed to the terminal. `--rm` automatically removes the container filesystem once it exits. The two flags are often combined for ephemeral utility containers.
+- **One-liner** — `-d` runs in the background; `--rm` cleans up automatically on exit.
 
 ```bash
+# Run a service in the background
 docker run -d --name web nginx:alpine
+
+# Run a one-off command and auto-clean up
 docker run --rm alpine echo "hello"
+
+# Run interactively and clean up on exit
+docker run --rm -it ubuntu bash
 ```
 
-### Publish Ports (-p, -P)
+### Port Publishing (-p / -P)
 
-- `-p host_port:container_port`: Map host port to container port; multiple `-p` allowed.
-- `-p 8080:80`: Host 8080 maps to container 80; access via `localhost:8080`.
-- `-p 127.0.0.1:8080:80`: Bind only to localhost (not all interfaces).
-- `-p 80`: Random host port maps to container 80; see with `docker port`.
-- **-P**: Publish all ports declared in `EXPOSE` to random host ports.
-- `-p 127.0.0.1:8080:80` binds only to localhost; `-p 8080:80` binds to all interfaces.
-
-Related notes:
-- [004-docker-network-volume](./004-docker-network-volume.md)
-
-### Environment Variables (-e, --env-file)
-
-- `-e KEY=value`: Set env var in container; multiple `-e` allowed.
-- `--env-file path`: Read `KEY=value` lines from file; one var per line.
-- Override image `ENV`; used for config (DB host, API key, etc.).
+- **Why it exists** — Containers have their own network namespace; ports must be explicitly mapped to make services reachable from the host or external network.
+- **What it is** — `-p host_port:container_port` forwards traffic from a host port to a container port. Multiple `-p` flags are allowed. `-p 127.0.0.1:8080:80` restricts binding to localhost only. `-P` publishes all ports declared with `EXPOSE` in the image to random host ports.
+- **One-liner** — `-p` maps a host port to a container port so the service is reachable from outside.
 
 ```bash
+# Bind port 8080 on all interfaces to container port 80
+docker run -d -p 8080:80 nginx
+
+# Bind only on localhost
+docker run -d -p 127.0.0.1:8080:80 nginx
+
+# Publish all EXPOSEd ports to random host ports
+docker run -d -P nginx
+
+# Check which host port was assigned
+docker port <container>
+```
+
+### Environment Variables (-e / --env-file)
+
+- **Why it exists** — Containers must receive runtime configuration (database URLs, API keys, feature flags) without baking secrets into the image.
+- **What it is** — `-e KEY=value` injects a single environment variable into the container, overriding any `ENV` set in the Dockerfile. `--env-file path` reads `KEY=value` lines from a file on the host. Multiple `-e` flags are allowed. Values are visible in `docker inspect` output, so avoid using them for highly sensitive secrets in production.
+- **One-liner** — `-e` and `--env-file` inject runtime configuration into the container at start.
+
+```bash
+# Single variable
 docker run -e DB_HOST=db -e DB_PASS=secret myapp
+
+# From a file
 docker run --env-file .env myapp
+
+# Verify inside the container
+docker exec <ctr> env | grep DB_HOST
 ```
 
 ### Memory and CPU Limits
 
-- `--memory, -m`: Max memory (e.g. `512m`, `1g`); container can be OOM-killed if exceeded.
-- `--memory-swap`: Total memory + swap; set to same as `--memory` to disable swap.
-- `--cpus`: Cap CPU (e.g. `1.5` = 1.5 cores); `--cpu-shares`: Relative weight (default 1024).
-- `--cpuset-cpus`: Pin to specific CPU cores (e.g. `0-3`).
-- `-m 512m` sets memory limit; `--cpus=1.5` limits to 1.5 CPU cores.
+- **Why it exists** — Without limits a single container can exhaust all host CPU or memory, starving other containers and destabilizing the host.
+- **What it is** — `--memory` (or `-m`) sets the maximum RAM a container may use; exceeding it causes the process to be OOM-killed. `--memory-swap` sets the combined memory + swap ceiling. `--cpus` limits total CPU time as a fraction of cores (e.g. `1.5` = 1.5 cores). `--cpuset-cpus` pins the container to specific CPU cores.
+- **One-liner** — `--memory` and `--cpus` prevent a single container from monopolizing host resources.
 
 ```bash
+# Limit to 512 MB RAM and 0.5 CPU cores
 docker run -m 512m --cpus=0.5 myapp
+
+# Disable swap (memory-swap == memory)
+docker run -m 512m --memory-swap=512m myapp
+
+# Pin to CPU cores 0 and 1
+docker run --cpuset-cpus="0,1" myapp
+
+# Check current limits
+docker inspect <ctr> | grep -E "Memory|Cpu"
 ```
 
-### Restart Policy (--restart)
+### Restart Policies (--restart)
 
-- **no** (default): Do not restart.
-- **always**: Always restart; on daemon restart, container starts too.
-- **on-failure**: Restart only if exit code non-zero; optional max count: `on-failure:3`.
-- **unless-stopped**: Like always, but do not start after stop if daemon restarted.
-- Restart policies: `no`, `always`, `on-failure[:max]`, `unless-stopped`.
+- **Why it exists** — Services should survive crashes and host reboots without manual intervention.
+- **What it is** — The restart policy controls what Docker does when a container exits. Policies are set at `docker run` time and managed by the Docker daemon (not the OS init system).
+- **One-liner** — `--restart` tells Docker whether and when to automatically restart a container.
 
-### User and Capabilities
+| Policy | Behavior |
+|---|---|
+| `no` (default) | Never restart |
+| `always` | Restart on any exit; also starts on daemon restart |
+| `on-failure[:N]` | Restart only on non-zero exit; optional max retries |
+| `unless-stopped` | Like `always` but does not start if manually stopped before daemon restart |
 
-- `--user, -u`: Run as user (e.g. `1000:1000` or `www-data`); container may need writable dirs.
-- `--read-only`: Mount root filesystem read-only; use tmpfs or volumes for writable paths.
-- `--cap-add, --cap-drop`: Add or drop Linux capabilities; drop all then add minimal: `--cap-drop=ALL --cap-add=NET_BIND_SERVICE`.
-- `--cap-drop=ALL --cap-add=<needed>` follows least-privilege principle.
-- `--read-only` makes root filesystem immutable; use with `--tmpfs` and volumes.
+```bash
+# Restart on crash, max 3 times
+docker run --restart=on-failure:3 myapp
 
-Related notes:
-- [008-security-user-best-practices](./008-security-user-best-practices.md)
+# Always restart (suitable for services)
+docker run -d --restart=always nginx
 
-### Network and DNS
+# Check restart policy
+docker inspect <ctr> --format '{{.HostConfig.RestartPolicy.Name}}'
+```
 
-- `--network`: Attach to network (bridge, host, none, or user-defined name).
-- `--dns`: DNS server inside container (e.g. `8.8.8.8`).
-- `--add-host`: Add line to `/etc/hosts` (e.g. `--add-host=db:10.0.0.5`).
-- `--hostname`: Set container hostname.
+### User, Read-Only, and Capabilities (--user / --read-only / --cap-drop)
 
-### Volume and Mount
+- **Why it exists** — Containers run as root by default, which is dangerous; least-privilege reduces the blast radius of a container escape or compromise.
+- **What it is** — `--user` sets the UID:GID the container process runs as, preventing root escalation. `--read-only` mounts the root filesystem read-only, preventing writes to the container layer. `--cap-drop` removes Linux capabilities from the process; `--cap-add` adds specific ones back. The canonical hardening pattern is `--cap-drop=ALL --cap-add=<only what is needed>`.
+- **One-liner** — `--user`, `--read-only`, and `--cap-drop` implement least-privilege for a container.
 
-- `-v, --volume`: Bind mount or named volume; `host_path:container_path[:options]`.
-- `:ro`: Read-only in container.
-- `--mount`: More explicit; `type=bind|volume|tmpfs`, source, target, and options.
-- `--tmpfs`: Mount tmpfs at path (e.g. `--tmpfs /tmp`).
+```bash
+# Run as non-root UID 1000
+docker run --user 1000:1000 myapp
 
-### Entrypoint and Command Override
+# Read-only root fs; writable tmpfs for /tmp
+docker run --read-only --tmpfs /tmp myapp
 
-- `--entrypoint`: Override image ENTRYPOINT; useful for debug (e.g. `--entrypoint sh`).
-- Args after image name override CMD; combined with ENTRYPOINT: `docker run myimg arg1` means ENTRYPOINT receives arg1.
-- `--entrypoint sh` overrides ENTRYPOINT for debugging.
+# Drop all capabilities, add back only what is needed
+docker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp
+
+# Run with no capabilities at all (for purely compute workloads)
+docker run --cap-drop=ALL myapp
+```
+
+### Network and DNS (--network / --dns)
+
+- **Why it exists** — Different containers need different network isolation levels; some must share a network namespace with the host, others must be completely isolated or on a custom overlay.
+- **What it is** — `--network` attaches the container to a network driver: `bridge` (default, isolated), `host` (shares host network namespace), `none` (no network), or a user-defined network name. `--dns` overrides the DNS server used inside the container. `--add-host` injects static entries into `/etc/hosts`. `--hostname` sets the container's hostname.
+- **One-liner** — `--network` controls which network a container joins; `--dns` controls name resolution inside it.
+
+```bash
+# Attach to a user-defined bridge network
+docker run --network my-net myapp
+
+# Use host networking (no isolation; highest performance)
+docker run --network host nginx
+
+# Custom DNS
+docker run --dns 8.8.8.8 myapp
+
+# Static host entry
+docker run --add-host=db:10.0.0.5 myapp
+```
+
+### Volumes and Mounts (-v / --mount / --tmpfs)
+
+- **Why it exists** — Container filesystems are ephemeral; data written inside a container is lost when it is removed unless it is stored in a volume or bind mount.
+- **What it is** — `-v host_path:container_path[:options]` is the shorthand for bind mounts and named volumes. `--mount` is the explicit, verbose form with `type=bind|volume|tmpfs`, `source`, and `target` keys — preferred in scripts for clarity. `--tmpfs path` mounts a temporary in-memory filesystem at the given path, which is fast and automatically cleaned up on exit.
+- **One-liner** — `-v` and `--mount` persist or share data; `--tmpfs` provides fast ephemeral scratch space.
+
+```bash
+# Named volume (managed by Docker)
+docker run -v mydata:/app/data myapp
+
+# Bind mount (host directory into container)
+docker run -v /host/config:/app/config:ro myapp
+
+# Explicit --mount syntax (recommended in scripts)
+docker run --mount type=bind,source=/host/config,target=/app/config,readonly myapp
+
+# In-memory tmpfs for /tmp
+docker run --tmpfs /tmp myapp
+
+# List volumes
+docker volume ls
+```
+
+### Entrypoint Override (--entrypoint)
+
+- **Why it exists** — The image's default `ENTRYPOINT` may not be what is needed for debugging, testing, or alternative workflows; overriding it avoids rebuilding the image.
+- **What it is** — `--entrypoint` replaces the `ENTRYPOINT` defined in the Dockerfile entirely. Any arguments after the image name become the new `CMD` passed to the overridden entrypoint. A common pattern is `--entrypoint sh` to open a shell inside a running image for debugging.
+- **One-liner** — `--entrypoint` overrides the image's default startup command without rebuilding.
+
+```bash
+# Open a shell instead of the default entrypoint
+docker run --rm -it --entrypoint sh myapp
+
+# Run a different binary inside the image
+docker run --rm --entrypoint printenv myapp
+
+# Pass arguments to the overridden entrypoint
+docker run --rm --entrypoint python myapp script.py
+```
 
 ### Common Flags Summary
 
 | Flag | Short | Purpose |
-|------|--------|---------|
-| --detach | -d | Run in background |
-| --publish | -p | Port mapping |
-| --env | -e | Environment variable |
-| --volume | -v | Mount volume |
-| --memory | -m | Memory limit |
-| --restart | | Restart policy |
-| --name | | Container name |
-| --rm | | Remove when exit |
-| --user | -u | Run as user |
-| --network | | Attach network |
-| --entrypoint | | Override entrypoint |
+|---|---|---|
+| `--detach` | `-d` | Run container in background |
+| `--rm` | | Remove container automatically on exit |
+| `--publish` | `-p` | Map host port to container port |
+| `-P` | | Publish all EXPOSEd ports to random host ports |
+| `--env` | `-e` | Set environment variable |
+| `--env-file` | | Load environment variables from file |
+| `--memory` | `-m` | Maximum RAM the container may use |
+| `--cpus` | | Fraction of CPU cores available to container |
+| `--restart` | | Restart policy (no/always/on-failure/unless-stopped) |
+| `--name` | | Assign a name to the container |
+| `--user` | `-u` | Run process as specified UID:GID |
+| `--read-only` | | Mount root filesystem read-only |
+| `--cap-drop` | | Remove Linux capability |
+| `--cap-add` | | Add Linux capability |
+| `--network` | | Connect container to a network |
+| `--dns` | | Override DNS server inside container |
+| `--volume` | `-v` | Bind mount or named volume |
+| `--mount` | | Explicit mount (bind/volume/tmpfs) |
+| `--tmpfs` | | Mount in-memory tmpfs at path |
+| `--entrypoint` | | Override image ENTRYPOINT |
 
-Related notes:
-- [004-docker-network-volume](./004-docker-network-volume.md)
-- [008-security-user-best-practices](./008-security-user-best-practices.md)
+### Troubleshooting
 
----
+### Container is OOM-killed immediately or after a short time
 
-# Troubleshooting Guide
+1. Confirm OOM kill: `docker inspect <ctr> | grep OOMKilled` — look for `true`.
+2. Increase the memory limit: `-m 1g` (or higher).
+3. Check application memory usage: `docker stats <ctr>` while it runs.
+4. Set `--memory-swap` equal to `--memory` to prevent swap use masking the real problem.
 
-### Container OOM killed
-1. Check: `docker inspect <ctr> | grep OOMKilled`.
-2. Increase memory limit: `-m 1g`.
-3. Profile app memory usage; fix leaks.
+### Container keeps restarting (restart loop)
 
-### Container keeps restarting
 1. Check restart policy: `docker inspect <ctr> --format '{{.HostConfig.RestartPolicy.Name}}'`.
-2. Check logs for crash reason: `docker logs --tail 50 <ctr>`.
-3. Use `on-failure:3` to limit retries instead of `always`.
+2. Inspect crash reason: `docker logs --tail 50 <ctr>`.
+3. Run without restart policy to see the failure interactively: `docker run --rm -it IMAGE`.
+4. Switch from `always` to `on-failure:3` to cap retries while debugging.
 
-### Environment variables not set inside container
-1. Verify: `docker exec <ctr> env | grep <VAR>`.
-2. Check `-e` syntax: `-e KEY=value` (no spaces around `=`).
-3. Check `--env-file` format: one `KEY=value` per line, no quotes needed.
+### Environment variable not present inside container
+
+1. Verify the variable was injected: `docker exec <ctr> env | grep <VAR>`.
+2. Check `-e` syntax — no spaces around `=`: `-e KEY=value` not `-e KEY = value`.
+3. For `--env-file`, confirm the file uses `KEY=value` lines with no surrounding quotes.
+4. Variables set after the image name as `KEY=value` are treated as commands, not environment — use `-e`.
+
+### Port not reachable from host
+
+1. Verify the port mapping exists: `docker port <ctr>`.
+2. Check that `-p` was specified — without it, the port is only reachable inside the Docker network.
+3. If using `-p 127.0.0.1:8080:80`, the port is only accessible from localhost, not external IPs.
+4. Check if the application inside the container is listening on `0.0.0.0`, not `127.0.0.1`.

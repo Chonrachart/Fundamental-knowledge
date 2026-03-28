@@ -1,118 +1,165 @@
 # Docker Overview
 
-- Docker packages applications as images and runs them as containers with isolated filesystems, networks, and processes.
-- Core workflow: write Dockerfile, build image, push to registry, run container.
-- Images are immutable and layered; containers are ephemeral running instances. Related notes: [005-images-layers-cache](./005-images-layers-cache.md) for image layer details
+### Overview
 
-# Architecture
+- **Why it exists** — Teams need a reproducible way to package applications with all their dependencies and run them identically in development, CI, and production.
+- **What it is** — Docker is a platform built on the container runtime stack (dockerd → containerd → runc) that provides image building via Dockerfiles, image distribution via registries, and container execution via the Docker CLI and daemon.
+- **One-liner** — Docker turns a Dockerfile into a runnable container through a layered image format, a content-addressable registry, and a client-server runtime.
+
+### Architecture
 
 ```text
-  docker CLI ──REST API──▶ dockerd (daemon)
-                                │
-                      ┌─────────┼──────────┐
-                      ▼         ▼          ▼
-                   Images   Containers  Networks/Volumes
-                      │         │
-                   Registry   containerd ──▶ runc
-                (pull/push)   (manages)     (spawns)
+  docker CLI  ──REST API──▶  dockerd (Docker daemon)
+                                  │
+                        ┌─────────┼──────────┐
+                        ▼         ▼          ▼
+                     Images   Containers  Networks/Volumes
+                        │         │
+                     Registry   containerd ──▶ runc
+                  (pull/push)   (lifecycle)   (create)
 ```
 
-- **docker CLI**: User-facing tool; sends commands to daemon via REST API.
-- **dockerd**: Daemon; manages images, containers, networks, volumes.
-- **containerd**: Container runtime; manages container lifecycle (create, start, stop).
-- **runc**: Low-level OCI runtime; creates the actual Linux container (namespaces, cgroups).
+- `docker CLI` — User-facing binary; translates commands into REST calls to the daemon.
+- `dockerd` — Daemon process; owns image storage, container state, networks, and volumes.
+- `containerd` — Container lifecycle manager; pulls images, creates snapshots, starts/stops containers.
+- `runc` — OCI-compliant low-level runtime; calls Linux `clone`/`unshare` to create namespaced processes.
 
-# Mental Model
+### Mental Model
 
 ```text
 Dockerfile ──build──▶ Image ──run──▶ Container
-   (recipe)          (artifact)      (process)
-                        │               │
-                     push/pull      logs/exec/stop/rm
-                        │
-                     Registry
+  (recipe)           (artifact)      (process)
+                         │               │
+                      push/pull      logs/exec/stop/rm
+                         │
+                      Registry
+                   (Docker Hub, ECR, GHCR)
 ```
 
-- Write a Dockerfile (recipe), `docker build` produces an image (immutable artifact).
-- `docker run` creates a container (running process) from the image.
-- `docker push/pull` moves images to/from registries.
+- `docker build` reads the Dockerfile top-to-bottom and produces a layered, immutable image.
+- `docker push` / `docker pull` move images between the local daemon and a remote registry.
+- `docker run` creates a new container (writable layer) from an image and starts the main process.
+- Each container is isolated: its own filesystem view, network namespace, and process tree.
 
-# Core Building Blocks
+### Core Building Blocks
 
 ### Image
 
-- Read-only template for a container; built from Dockerfile or pulled from registry.
-- Layered: each instruction adds a layer; see [005-images-layers-cache](./005-images-layers-cache.md) for details.
-- Immutable; tag for version (e.g. `nginx:1.24`), digest for exact content.
-- Image = read-only template; Container = running instance of an image.
-- `docker build` creates image; `docker run` creates container; `docker push` uploads to registry.
-- Tags label image versions; digests pin exact content by hash.
+- **Why it exists** — Applications and their dependencies must be bundled into a single portable artifact that produces identical behavior on any Docker host.
+- **What it is** — A read-only, layered filesystem snapshot built from a Dockerfile. Each instruction adds a content-addressed layer. Images are stored locally by the daemon and in remote registries. Tags (e.g. `nginx:1.25`) are human-readable pointers; digests (e.g. `nginx@sha256:...`) pin exact content.
+- **One-liner** — An image is the immutable blueprint from which containers are created.
 
 ```bash
 docker build -t myapp:1.0 .
 docker pull nginx:alpine
 docker images
+docker inspect myapp:1.0
 ```
+
+- Layers are cached; only changed layers and everything after them are rebuilt.
+- Alpine base images are ~5 MB; distroless images exclude shells and package managers entirely.
+- `docker image prune` removes dangling (untagged) images to reclaim disk space.
 
 Related notes:
 - [005-images-layers-cache](./005-images-layers-cache.md)
 
 ### Container
 
-- Running instance of an image; has its own filesystem, network, process tree.
-- Ephemeral by default -- data is lost when removed unless stored in volumes or bind mounts.
-- Lightweight: shares host kernel, starts in milliseconds.
-- Containers are ephemeral; use volumes for persistent data.
+- **Why it exists** — An image is static; a container is the live, running instance that actually does work.
+- **What it is** — A running (or stopped) instance of an image. Docker adds a thin writable layer on top of the image layers. The container has its own network namespace, PID namespace, and mount namespace. Data written inside the container is lost when it is removed unless persisted to a volume or bind mount.
+- **One-liner** — A container is an isolated, ephemeral process spawned from an image.
 
 ```bash
 docker run -d --name web -p 8080:80 nginx:alpine
 docker ps
+docker exec -it web sh
 docker stop web
 docker rm web
 ```
+
+- `-d` runs in background; `-p host:ctr` publishes a port; `-v` mounts a volume; `-e` sets env var.
+- Containers are ephemeral by default; use volumes for any data that must survive restarts.
+- `docker inspect <container>` shows IP, mounts, environment, and state in full JSON.
 
 Related notes:
 - [002-running-containers-basics](./002-running-containers-basics.md)
 
 ### Dockerfile
 
-- Text file with instructions to build an image, layer by layer.
-- Common instructions: `FROM`, `RUN`, `COPY`, `ADD`, `WORKDIR`, `EXPOSE`, `CMD`, `ENTRYPOINT`.
-- Dockerfile defines how to build an image layer by layer.
+- **Why it exists** — Image builds must be reproducible, version-controlled, and reviewable as code.
+- **What it is** — A plain-text file with ordered instructions that `docker build` executes top-to-bottom to produce an image. Each instruction creates a new layer. The final image is the stack of all layers.
+- **One-liner** — A Dockerfile is the source code for a Docker image.
 
 ```dockerfile
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]
 ```
+
+- `FROM` sets the base image; every Dockerfile starts here.
+- `RUN` executes a command and commits the result as a new layer.
+- `COPY` / `ADD` bring files from the build context into the image.
+- `CMD` / `ENTRYPOINT` define the default command when the container starts.
+- Order instructions from least- to most-frequently-changed to maximize cache reuse.
 
 Related notes:
 - [003-dockerfile](./003-dockerfile.md)
 
 ### Registry
 
-- Server that stores and distributes images (Docker Hub, GHCR, ECR, private).
-- `docker push` uploads; `docker pull` downloads.
-- Default registry is Docker Hub (`docker.io`).
-- Registry stores images; Docker Hub is the default public registry.
+- **Why it exists** — Images must be stored centrally so they can be shared across teams, machines, and deployment environments.
+- **What it is** — A server (Docker Hub, GHCR, ECR, GCR, or self-hosted) that stores and serves Docker images over HTTPS. Images are identified by `registry/repository:tag`. `docker push` uploads; `docker pull` downloads. The Docker daemon defaults to Docker Hub (`docker.io`) when no registry host is specified.
+- **One-liner** — A registry is the distribution system for Docker images.
+
+```bash
+# Login to a private registry
+docker login registry.company.com
+
+# Tag and push
+docker tag myapp:1.0 registry.company.com/team/myapp:1.0
+docker push registry.company.com/team/myapp:1.0
+
+# Pull on another host
+docker pull registry.company.com/team/myapp:1.0
+```
+
+- Use image digests (`image@sha256:...`) in production to pin exact content instead of mutable tags.
+- Private registries require `docker login` before push or pull.
+- ECR images expire unless a lifecycle policy is configured.
 
 Related notes:
 - [006-registry-tagging-push-pull](./006-registry-tagging-push-pull.md)
 
----
-
-# Troubleshooting Guide
+### Troubleshooting
 
 ### Image not found when running container
-1. Check image exists locally: `docker images | grep <name>`.
-2. Pull from registry: `docker pull <image>:<tag>`.
-3. Verify image name and tag spelling.
 
-### Container exits immediately
-For "container exits immediately" troubleshooting, see [../000-core](../000-core.md)
+1. Check if image exists locally: `docker images | grep <name>`.
+2. Pull it explicitly: `docker pull <image>:<tag>`.
+3. Verify image name and tag spelling — tags are case-sensitive.
+4. If using a private registry, ensure you are logged in: `docker login <registry>`.
 
 ### Dockerfile build fails
-1. Check syntax: each instruction must be on its own line.
-2. Check build context: files referenced by COPY must exist relative to context.
-3. Check `.dockerignore` is not excluding needed files.
+
+1. Check syntax: each instruction must start on its own line with a valid keyword.
+2. Check build context: files referenced by `COPY` must exist relative to the build context directory.
+3. Check `.dockerignore` — it may be excluding files that `COPY` needs.
+4. Run with `--no-cache` to rule out a stale cached layer: `docker build --no-cache -t <name> .`.
+
+### Container starts but application is unreachable
+
+1. Verify the port is published: `docker port <container>`.
+2. Confirm the app listens inside the container: `docker exec <container> ss -tlnp`.
+3. Check that `-p` maps the correct host port to the container's listening port.
+4. Check host firewall rules: `iptables -L -n` or `ufw status`.
+
+### "OCI runtime exec failed" when using docker exec
+
+1. Confirm the container is running: `docker ps`.
+2. Check the binary exists inside the image: some minimal images (distroless) have no shell.
+3. Use an image that has a shell, or add one temporarily with a debug sidecar.
+4. Try `docker exec <container> /bin/sh` if `bash` is not installed.

@@ -1,113 +1,317 @@
-# Compose Production Patterns
+# Docker Compose Production Patterns
 
-- Docker Compose is suitable for single-node stacks (e.g. small app + DB + cache); not a replacement for Kubernetes.
-- Override files, healthchecks, and profiles enable environment-specific configuration.
-- Variable substitution via .env and env_file separates config from compose definitions.
+### Overview
 
-# Mental Model
+- **Why it exists** — A bare `docker-compose.yml` written for local development is not safe or flexible enough for production; override files, healthchecks, profiles, and variable substitution fill those gaps without duplicating the whole file.
+- **What it is** — A set of patterns — override file merging, healthcheck-gated startup, `--scale`, profiles, and `.env`/`env_file` variable substitution — that make Compose configs environment-aware and production-resilient on a single host.
+- **One-liner** — Production Compose patterns layer environment-specific config on top of a base file instead of duplicating it.
+
+### Architecture
 
 ```text
-docker compose up -d
-  │
-  ├─ Read compose.yaml + override + .env
-  ├─ Build/pull images (if needed)
-  ├─ Create networks and volumes
-  ├─ Start services in dependency order
-  │    └─ depends_on + condition: service_healthy
-  ├─ Healthcheck loop per service
-  └─ Restart policy handles failures
+.env (variable substitution)
+      │
+compose.yaml          ← base: shared across all environments
+      │
+docker-compose.override.yml   ← auto-merged (dev defaults)
+      │
+docker-compose.prod.yml       ← explicit: -f flag for production
+
+docker compose -f compose.yaml -f docker-compose.prod.yml up -d
+      │
+      ├─ Resolve variables from .env
+      ├─ Merge file layers (later file wins on same key)
+      ├─ Pull / build images
+      ├─ Create networks and volumes
+      └─ Start services in depends_on + healthcheck order
 ```
 
-- Compose reads config files, resolves variables, then orchestrates container lifecycle on a single host.
-- `depends_on` with `condition: service_healthy` ensures readiness, not just start order.
+### Mental Model
 
-# Core Building Blocks
+```text
+compose.yaml (base)
+  +
+docker-compose.prod.yml (overrides)
+  │
+  ├── resource limits added
+  ├── restart: unless-stopped
+  ├── healthcheck configured
+  └── debug/dev services removed (no profile match)
+        │
+        ▼
+   docker compose up -d
+        │
+        ├── db starts first
+        │     └── healthcheck loop: pg_isready every 5s
+        │           └── becomes healthy after start_period
+        │
+        └── app starts after db: condition: service_healthy
+              └── guaranteed DB is ready before first connection
+```
 
-### When and When Not to Use Compose in Production
+- Think of the base file as the skeleton and override files as environment-specific flesh.
+- Healthchecks turn `depends_on` from "container started" into "service ready".
+- Profiles keep optional services (debug tools, seeders) out of the default `up`.
 
-- `docker compose` is suitable for single-node stacks (e.g. small app + DB + cache); same host, simple networking.
-- For multi-node, high availability, scheduling, use Kubernetes or other orchestrator; Compose does not replace them.
-- Use Compose for staging, dev, CI; or production only if single server is acceptable.
-- Compose is for single-node; use Kubernetes for multi-node, HA, and scheduling.
+### Core Building Blocks
 
-### Override and Multiple Files
+### Compose in Production vs Kubernetes
 
-- `docker-compose.yml` + `docker-compose.override.yml`: Override is merged automatically (later file wins for same key).
-- `-f a.yml -f b.yml`: Merge in order; use for prod vs dev (e.g. docker-compose.yml + docker-compose.prod.yml).
-- **env_file** in compose: Load env vars from file into container; **.env** in project dir is loaded by Compose for variable substitution in the compose file itself (e.g. ${VAR}).
-- `docker-compose.override.yml` is auto-merged; use `-f` for explicit file composition.
+- **Why it exists** — Teams need to know when Compose is sufficient and when to reach for a full orchestrator to avoid under-engineering or over-engineering infrastructure.
+- **What it is** — Docker Compose runs on a single host with no built-in scheduling, multi-node networking, or rolling update primitives; Kubernetes runs across many nodes with HA, auto-scaling, and self-healing across machines.
+- **One-liner** — Use Compose for single-node stacks; use Kubernetes when you need multi-node, HA, or automated scheduling.
 
-### Healthcheck in Compose
+| Concern | Docker Compose | Kubernetes |
+|---|---|---|
+| Nodes | Single host | Multi-node cluster |
+| High availability | Manual (restart policy) | Built-in (ReplicaSet) |
+| Rolling updates | Recreate only | Rolling / canary / blue-green |
+| Auto-scaling | `--scale` (manual) | HPA / VPA |
+| Secret management | env files / Docker Secrets | Kubernetes Secrets + CSI |
+| Good for | Dev, staging, small prod | Production at scale |
 
-- **healthcheck** in service: test (command or CMD-SHELL), interval, timeout, start_period, retries.
-- **depends_on: condition: service_healthy** (Compose v2.1+): Start service only when dependency is healthy; use for "wait for DB ready".
-- **restart: unless-stopped** or **always** so Compose restarts unhealthy containers (Docker uses health status).
-- Healthcheck + `condition: service_healthy` ensures dependency readiness, not just start order.
-- `restart: unless-stopped` restarts containers on failure and daemon restart, but respects manual stops.
+### Override Files (-f Merging)
+
+- **Why it exists** — Dev, staging, and production environments share the same services but differ in image tags, resource limits, volume mounts, and restart policies; duplicating the entire file is fragile.
+- **What it is** — `docker-compose.override.yml` is merged automatically when running `docker compose up`; additional files are layered with `-f`; for any key that exists in both files the later file wins, and arrays are merged.
+- **One-liner** — Split per-environment differences into override files and merge them with `-f` instead of duplicating the base.
+
+```yaml
+# compose.yaml  (base — committed, shared)
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+  db:
+    image: postgres:16-alpine
+```
+
+```yaml
+# docker-compose.override.yml  (dev — auto-merged, gitignored or committed)
+services:
+  web:
+    volumes:
+      - .:/app              # live code reload in dev
+    environment:
+      - DEBUG=true
+```
+
+```yaml
+# docker-compose.prod.yml  (production — explicit -f)
+services:
+  web:
+    image: registry.example.com/myapp:${TAG}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "0.5"
+  db:
+    restart: unless-stopped
+```
+
+```bash
+# Development (override.yml auto-applied)
+docker compose up -d
+
+# Production (explicit merge)
+docker compose -f compose.yaml -f docker-compose.prod.yml up -d
+
+# Preview the merged result before applying
+docker compose -f compose.yaml -f docker-compose.prod.yml config
+```
+
+### Healthcheck in Compose (test / interval / timeout / start_period / retries)
+
+- **Why it exists** — Docker needs a way to determine whether a service is genuinely ready to serve traffic, not just that its process started.
+- **What it is** — The `healthcheck` block in a service definition runs a command on a configurable schedule; Docker tracks the result and marks the container `healthy`, `unhealthy`, or `starting` during the `start_period`.
+- **One-liner** — Healthcheck tells Docker and Compose when a service is ready, not just running.
 
 ```yaml
 services:
   db:
-    image: postgres:16
+    image: postgres:16-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s        # how often to run the check
+      timeout: 3s         # time before check is considered failed
+      retries: 5          # consecutive failures before unhealthy
+      start_period: 10s   # grace period before failures count
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+```
+
+- During `start_period` failures do not count toward `retries` — gives slow-starting services time to initialise.
+- `test` accepts `["CMD", ...]` (exec form, no shell) or `["CMD-SHELL", "..."]` (runs via `/bin/sh`).
+- Check health status with: `docker inspect --format='{{.State.Health.Status}}' <container>`.
+
+### depends_on with condition: service_healthy
+
+- **Why it exists** — Restarting an app repeatedly while its database initialises wastes resources and pollutes logs; waiting for a healthy signal solves the root cause.
+- **What it is** — Setting `condition: service_healthy` under a `depends_on` entry tells Compose to wait until the dependency's healthcheck reports `healthy` before starting the dependent service.
+- **One-liner** — `condition: service_healthy` makes Compose wait for readiness, not just container start.
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 3s
       retries: 5
       start_period: 10s
+
   app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy    # blocks until db is healthy
+    environment:
+      DATABASE_URL: postgres://postgres:${DB_PASSWORD}@db:5432/app
+```
+
+- `condition: service_started` (default) — wait for container start only.
+- `condition: service_healthy` — wait for healthcheck to pass.
+- `condition: service_completed_successfully` — wait for a one-shot container (migration, seed) to exit 0.
+
+### Scaling with --scale
+
+- **Why it exists** — A single container handling all traffic is a single point of failure; running multiple replicas spreads load and improves resilience on a single host.
+- **What it is** — `docker compose up --scale <service>=N` starts N containers for a service; Compose assigns each a unique name and Docker's internal DNS returns all IPs for round-robin load balancing on the project network.
+- **One-liner** — `--scale web=3` runs three replicas of a service behind DNS round-robin on the Compose network.
+
+```bash
+# Start three replicas of the web service
+docker compose up -d --scale web=3
+
+# Check all replicas
+docker compose ps
+
+# Scale down
+docker compose up -d --scale web=1
+```
+
+- Do not publish a fixed host port (`"8080:80"`) when scaling — multiple containers cannot all bind the same host port; use a reverse proxy (nginx, Traefik) as the single entry point.
+- `deploy.replicas` in compose.yaml requires Docker Swarm mode; `--scale` works without Swarm.
+
+### Profiles for Optional Services
+
+- **Why it exists** — Debug tools, seeders, and admin UIs should be available in the compose file but not start automatically on every `docker compose up`.
+- **What it is** — Adding `profiles: [<name>]` to a service means it only starts when that profile is explicitly activated with `--profile <name>`; omitting the flag leaves those services stopped.
+- **One-liner** — Profiles keep optional services out of the default `up` without removing them from the file.
+
+```yaml
+services:
+  app:
+    build: .                   # no profiles — always started
+
+  db:
+    image: postgres:16-alpine  # no profiles — always started
+
+  adminer:
+    image: adminer
+    ports:
+      - "8090:8080"
+    profiles:
+      - debug                  # only starts with --profile debug
+
+  db-seed:
+    build: ./seed
     depends_on:
       db:
         condition: service_healthy
+    profiles:
+      - seed                   # only starts with --profile seed
 ```
 
-Related notes:
-- [009-compose-basics](./009-compose-basics.md)
+```bash
+# Normal start — adminer and db-seed do NOT start
+docker compose up -d
 
-### Dependency and Startup Order
+# Start with debug tools
+docker compose --profile debug up -d
 
-- **depends_on**: Only start order; does not wait for app to be "ready" unless **condition: service_healthy**.
-- For "wait for DB to accept connections": use healthcheck on DB + condition: service_healthy on app; or use entrypoint script in app that waits (e.g. wait-for-it, custom loop).
-- **condition: service_started** (default): Start after dependency container has started (no readiness).
+# Run seed job, then stop it
+docker compose --profile seed run --rm db-seed
+```
 
-### Scale and Replicas
+### Variable Substitution (.env vs env_file)
 
-- **deploy.replicas** (Compose v3): e.g. `deploy: replicas: 3`; requires `docker compose up` with Swarm mode or Compose v2 deploy; `docker compose up` without Swarm runs one container per service.
-- `docker compose up -d --scale web=3`: Scale service at runtime (no Swarm); multiple containers, one service name (DNS round-robin on same network).
-- `--scale web=3` creates multiple containers behind DNS round-robin on the same network.
+- **Why it exists** — Hardcoding image tags, passwords, and hostnames in compose.yaml makes it impossible to reuse the same file across environments.
+- **What it is** — `.env` (a file of `KEY=value` pairs in the project directory) feeds `${VAR}` placeholders inside the compose.yaml file itself at parse time; `env_file` in a service block passes variables into the container's environment at runtime — these are two different mechanisms.
+- **One-liner** — `.env` fills placeholders in compose.yaml; `env_file` injects env vars into the running container.
 
-### Profiles
+```bash
+# .env  (project root — feeds compose.yaml substitution)
+TAG=1.4.2
+DB_PASSWORD=supersecret
+POSTGRES_USER=app
+```
 
-- **profiles: [debug]**: Service is only started when you pass `--profile debug` (e.g. `docker compose --profile debug up`).
-- Use for optional services (debug sidecar, dev-only tools); default `up` without profile does not start them.
-- Reduces resource use when you don't need those services.
-- Profiles let you define optional services that only start with `--profile <name>`.
+```yaml
+# compose.yaml — uses .env for substitution
+services:
+  web:
+    image: registry.example.com/myapp:${TAG}   # substituted from .env
+    env_file:
+      - .env.runtime          # injected into container environment
+    environment:
+      APP_VERSION: ${TAG}     # also substituted from .env
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+```
 
-### Variable Substitution and .env
+```bash
+# .env.runtime  (passed into the container via env_file)
+LOG_LEVEL=info
+FEATURE_FLAGS=payments,notifications
+```
 
-- **.env** file (in project dir): KEY=value; used for ${KEY} in compose file (image tag, port, env_file path).
-- **env_file** in service: Passed into container as env vars; .env for compose file is not automatically passed to containers unless you `env_file: .env`.
-- **environment** with ${VAR}: Substituted from host env or .env; use for overrides per environment.
-- `.env` file feeds ${VAR} substitution in compose files; `env_file` passes vars into containers.
+- `.env` is loaded automatically by Compose for substitution; it is not automatically passed into containers unless you also add `env_file: .env`.
+- Override a single variable without editing `.env`: `TAG=2.0.0 docker compose up -d`.
+- Never commit `.env` files containing real secrets; commit a `.env.example` with placeholder values.
 
-Related notes:
-- [009-compose-basics](./009-compose-basics.md)
-
----
-
-# Troubleshooting Guide
+### Troubleshooting
 
 ### Override file not being applied
-1. `docker-compose.override.yml` is auto-merged only with `docker compose up` (not `-f`).
-2. With `-f`: must list all files: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up`.
-3. Check file naming -- must be exact: `docker-compose.override.yml`.
+
+1. `docker-compose.override.yml` is auto-merged only when using `docker compose up` from the same directory — check you are in the project root.
+2. With explicit `-f` flags, every file must be listed: `docker compose -f compose.yaml -f docker-compose.prod.yml up`.
+3. Run `docker compose config` to print the fully merged config and confirm the override values appear.
+4. Check the filename exactly — it must be `docker-compose.override.yml` for auto-merge; any other name requires `-f`.
 
 ### Healthcheck always shows "unhealthy"
-1. Test the command manually: `docker exec <ctr> pg_isready -U postgres`.
-2. Increase `start_period` -- app may need more time to initialize.
+
+1. Test the healthcheck command manually inside the container: `docker exec <ctr> pg_isready -U postgres`.
+2. Increase `start_period` — a database may need 15–30 s to fully initialise before the check can pass.
 3. Increase `retries` and `interval` for slow-starting services.
+4. Check the `test` syntax — `CMD-SHELL` runs in `/bin/sh`; `CMD` uses exec directly (no shell expansion).
 
 ### ${VAR} not substituted in compose file
-1. Check `.env` file exists in project root (same dir as compose file).
-2. Verify format: `KEY=value` (no spaces, no export prefix).
-3. Check for typos: `${DB_HOST}` in compose must match `DB_HOST=...` in `.env`.
+
+1. Check `.env` exists in the project root — the same directory as the compose file.
+2. Verify the format: `KEY=value` (no spaces around `=`, no `export` prefix, no quotes unless the value contains spaces).
+3. Check for typos: `${DB_HOST}` in the compose file must match `DB_HOST=...` in `.env` exactly.
+4. Use `docker compose config` to see the substituted output before running `up`.
+
+### Services start out of order despite depends_on
+
+1. `depends_on` without a condition only waits for container start, not process readiness.
+2. Add a `healthcheck` to the dependency service.
+3. Change `depends_on` to use `condition: service_healthy`.
+4. If the dependency image does not support a healthcheck command, use `condition: service_started` and add a retry loop in the dependent service's entrypoint.

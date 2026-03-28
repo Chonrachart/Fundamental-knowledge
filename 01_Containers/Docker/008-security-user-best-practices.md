@@ -1,111 +1,278 @@
-# Security, User, and Best Practices
+# Container Security Best Practices
 
-- Running containers as non-root reduces blast radius if a process is compromised.
-- Never store secrets in images; inject at runtime via env vars, mounted files, or orchestrator secrets.
-- Minimal base images, capability dropping, and image scanning form a defense-in-depth approach.
+### Overview
 
-# Architecture
+- **Why it exists** — Containers share the host kernel, so a misconfigured or compromised container can escalate privileges to the host or laterally to neighbouring containers; layered controls reduce the blast radius of any single failure.
+- **What it is** — A set of defence-in-depth practices — non-root users, secret hygiene, read-only filesystems, capability dropping, resource limits, minimal base images, and continuous image scanning — applied at build time, runtime, and registry level.
+- **One-liner** — Secure containers by shrinking attack surface at every layer: image, runtime flags, kernel capabilities, and supply chain.
+
+### Architecture
 
 ```text
-  Defense-in-Depth Layers
-  ┌─────────────────────────────────┐
-  │ 1. Minimal base image           │ ← reduce attack surface
-  │ 2. Non-root USER                │ ← limit process privileges
-  │ 3. Read-only rootfs             │ ← prevent filesystem tampering
-  │ 4. Drop capabilities            │ ← restrict kernel permissions
-  │ 5. Resource limits (mem/cpu)    │ ← prevent resource exhaustion
-  │ 6. No secrets in image          │ ← prevent credential leaks
-  │ 7. Image scanning               │ ← detect known CVEs
-  └─────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    Defence-in-Depth Layers                      │
+│                                                                 │
+│  Layer 1 – Supply Chain                                         │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  Minimal base image (alpine / distroless)                 │  │
+│  │  No secrets baked into layers                             │  │
+│  │  Image scanning (Trivy / Snyk / Docker Scout)             │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                    │
+│  Layer 2 – Build / Image                                        │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  USER directive  →  run as non-root UID                   │  │
+│  │  --secret flag   →  secrets never written to layers       │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                    │
+│  Layer 3 – Runtime Flags                                        │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  --read-only + --tmpfs   →  immutable root filesystem     │  │
+│  │  --cap-drop=ALL + --cap-add <only needed>                 │  │
+│  │  --memory / --cpus       →  resource limits               │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                    │
+│  Layer 4 – Kernel / Host                                        │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  seccomp / AppArmor profiles                              │  │
+│  │  No privileged mode  (--privileged=false)                 │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-- Each layer mitigates a different attack vector; combine all for robust container security.
-- Outer layers (base image, scanning) reduce what is shipped; inner layers (user, caps, read-only) restrict what runs.
+### Mental Model
 
-# Core Building Blocks
+```text
+Dockerfile build                   docker run
+─────────────────                  ──────────────────────────────
+FROM minimal-base                  --read-only
+  │                                --tmpfs /tmp
+USER nonroot          ─────▶       --cap-drop=ALL
+  │                                --cap-add NET_BIND_SERVICE
+No secrets in layers               --memory=256m --cpus=0.5
+  │                                --security-opt no-new-privileges
+Image scanning (CI)                │
+                                   Running container with minimal
+                                   privileges and surface area
+```
 
-### Run as Non-Root
+- Start with the smallest possible base image — fewer packages means fewer CVEs.
+- Never put a secret (API key, password, cert) inside a `RUN`, `ENV`, or `COPY` instruction; it will be frozen in the layer history forever.
+- Drop all Linux capabilities at runtime and add back only what the process genuinely requires.
+- A read-only filesystem prevents attackers from writing payloads or modifying binaries inside the running container.
+- Scanning images in CI catches known vulnerabilities before they reach production.
 
-- Running as root inside container increases risk; if process is compromised, attacker has root in container.
-- **USER** in Dockerfile: Switch to non-root user for subsequent instructions and at runtime.
-- Create user/group in Dockerfile (e.g. `adduser`), set ownership of needed dirs, then `USER` name or uid.
-- Some images (e.g. official nginx) already use non-root; check with `docker run --user 1000 image id`.
-- Always use `USER` in Dockerfile to run as non-root; create the user with `adduser`/`addgroup`.
+### Core Building Blocks
+
+### Non-Root User (USER Directive)
+
+- **Why it exists** — Processes running as UID 0 inside a container can exploit kernel misconfigurations to gain root on the host; non-root processes limit that lateral movement.
+- **What it is** — The `USER` instruction in a Dockerfile sets the UID/GID for all subsequent `RUN`, `CMD`, and `ENTRYPOINT` instructions and for the container process at runtime.
+- **One-liner** — Always end your Dockerfile with `USER nonroot` so the container process is never root.
 
 ```dockerfile
-RUN addgroup -g 1000 app && adduser -u 1000 -G app -D app
+FROM node:20-alpine
+
+# Create a dedicated user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 WORKDIR /app
-COPY --chown=app:app . .
-USER app
-CMD ["node", "index.js"]
+COPY --chown=appuser:appgroup package*.json ./
+RUN npm ci --omit=dev
+
+COPY --chown=appuser:appgroup . .
+
+# Switch to non-root before the entrypoint
+USER appuser
+
+CMD ["node", "server.js"]
 ```
 
-### Do Not Store Secrets in Image
+- Use `--chown` on `COPY` so the app files are owned by the non-root user.
+- Distroless images ship `nonroot` (UID 65532) by default — use `USER nonroot` with them.
+- If you need to bind to port < 1024, use `--cap-add NET_BIND_SERVICE` instead of running as root.
 
-- Never `COPY` `.env` or secret files into image; they stay in layers and can be extracted.
-- Use runtime injection: environment variables (`docker run -e`, orchestration secrets), or mounted secret files (Kubernetes secret mount, Docker secret).
-- For build-time secrets (private npm, apt repo): use Docker BuildKit `--secret` so they are not written into any layer; or use multi-stage and only copy non-secret artifacts.
-- Never `COPY` secrets into image layers; use `--secret` at build time or env vars at runtime.
+### Secret Hygiene (Never Bake Secrets into Layers)
 
-### Read-Only and Immutable
+- **Why it exists** — Every `RUN`, `ENV`, and `COPY` instruction creates an immutable layer; secrets stored there can be extracted with `docker history` or by pulling the image.
+- **What it is** — Using `docker build --secret` (BuildKit) mounts a secret at build time without writing it to any layer; at runtime, secrets are injected via environment variables, mounted files, or a secrets manager — never baked in.
+- **One-liner** — Secrets must never touch an image layer; mount them at build time or inject them at runtime.
 
-- `--read-only`: Container root filesystem read-only; combine with `--tmpfs` for `/tmp` and writable volume for data.
-- Makes it harder for an attacker to persist or modify files in the image.
-- `--read-only` + `--tmpfs /tmp` + volumes = immutable container with controlled writable paths.
+```dockerfile
+# Build-time secret (BuildKit) — never lands in a layer
+# syntax=docker/dockerfile:1
+FROM python:3.12-slim
+RUN --mount=type=secret,id=pip_token \
+    pip install --index-url https://$(cat /run/secrets/pip_token)@pypi.example.com/simple mypackage
+```
 
-### Limit Capabilities
+```bash
+# Pass the secret at build time
+docker build --secret id=pip_token,src=./pip_token.txt -t myapp .
 
-- By default containers run with a subset of Linux capabilities; some (e.g. `CAP_NET_RAW`) can be dropped.
-- `--cap-drop=ALL --cap-add=NET_BIND_SERVICE`: Drop all, add only what is needed.
-- Reduces impact of container escape or privilege misuse.
-- `--cap-drop=ALL --cap-add=<needed>` follows least-privilege for Linux capabilities.
+# Runtime injection via environment variable
+docker run --env-file .secrets.env myapp
 
-### Resource Limits
+# What NOT to do:
+# ENV API_KEY=supersecret        ← baked into layer forever
+# RUN curl -H "Token: $MY_KEY"   ← visible in docker history
+```
 
-- Always set memory limit (`-m`) and optionally CPU (`--cpus`) so one container cannot starve the host.
-- In production, use orchestrator (Kubernetes) to set requests/limits.
+- Use Docker Secrets (Swarm) or Kubernetes Secrets for runtime injection in production.
+- Rotate any secret that was accidentally baked into an image and push a new tag immediately.
 
-Related notes:
-- [007-docker-run-advanced](./007-docker-run-advanced.md)
+### Read-Only Filesystem (--read-only + --tmpfs)
 
-### Image Scanning and Base Image
+- **Why it exists** — A writable root filesystem lets attackers drop scripts, modify binaries, or establish persistence; a read-only filesystem makes this impossible.
+- **What it is** — `--read-only` mounts the container root filesystem as read-only; `--tmpfs` carves out in-memory writable directories for paths the app genuinely needs to write (e.g. `/tmp`, `/var/run`).
+- **One-liner** — Run containers `--read-only` and add `--tmpfs` only for the directories that must be writable.
 
-- Use trusted base images (official, verified publisher); pin by digest for reproducibility.
-- Scan images for known vulnerabilities (Trivy, Snyk, Docker Scout, registry scanners); fix or upgrade base and dependencies.
-- Prefer minimal bases (alpine, distroless) to reduce attack surface.
-- Pin base image versions and digests for reproducible, auditable builds.
-- Scan images with Trivy, Snyk, or Docker Scout before deploying to production.
-- Alpine and distroless bases minimize attack surface and image size.
+```bash
+docker run \
+  --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+  --tmpfs /var/run:rw,noexec,nosuid \
+  myapp
+```
+
+- `noexec` on `--tmpfs` prevents execution of binaries dropped into `/tmp`.
+- Test your application first — some frameworks write socket files or cache to unexpected paths.
+
+### Capability Dropping (--cap-drop / --cap-add)
+
+- **Why it exists** — Docker containers inherit a default set of Linux capabilities (e.g. `CHOWN`, `NET_RAW`, `SYS_CHROOT`) that most applications do not need; each retained capability is an exploitable attack surface.
+- **What it is** — `--cap-drop=ALL` strips every Linux capability from the container; `--cap-add <CAP>` restores only the specific ones the process requires.
+- **One-liner** — Drop all capabilities first, then add back the minimum your app needs.
+
+```bash
+docker run \
+  --cap-drop=ALL \
+  --cap-add NET_BIND_SERVICE \
+  --security-opt no-new-privileges \
+  -p 80:80 nginx:alpine
+```
+
+| Capability | Needed for |
+|---|---|
+| `NET_BIND_SERVICE` | Binding to ports < 1024 |
+| `CHOWN` | Changing file ownership at runtime |
+| `SETUID` / `SETGID` | Changing process UID/GID at runtime |
+| `SYS_PTRACE` | Debuggers (never in production) |
+
+- `--security-opt no-new-privileges` prevents `setuid` binaries from escalating privileges.
+
+### Resource Limits (--memory / --cpus)
+
+- **Why it exists** — An unconstrained container can consume all host CPU and memory, causing denial of service for every other workload on the node.
+- **What it is** — Docker flags `--memory`, `--memory-swap`, `--cpus`, and `--pids-limit` map directly to Linux cgroup controls that the kernel enforces regardless of what the container process does.
+- **One-liner** — Always set memory and CPU limits so one container cannot starve the host.
+
+```bash
+docker run \
+  --memory=256m \
+  --memory-swap=256m \
+  --cpus=0.5 \
+  --pids-limit=100 \
+  myapp
+```
+
+- `--memory-swap` equal to `--memory` disables swap, preventing a container from silently using host swap.
+- `--pids-limit` prevents fork-bomb style attacks.
+- In Docker Compose use `mem_limit` / `cpus` under `deploy.resources` (Compose v3) or directly under the service (Compose v2).
+
+### Minimal Base Images (alpine / distroless)
+
+- **Why it exists** — Every package installed in a base image is a potential CVE; fewer packages means fewer vulnerabilities to patch and a smaller image to pull.
+- **What it is** — Alpine Linux (~5 MB, musl libc, busybox) and Google Distroless images (no shell, no package manager, just the runtime) are minimal bases that drastically reduce attack surface and image size.
+- **One-liner** — Use `alpine` or `distroless` as your base to minimise attack surface and image size.
+
+```dockerfile
+# Alpine — small general-purpose base
+FROM python:3.12-alpine
+
+# Multi-stage: build on full image, copy artefact into distroless
+FROM golang:1.22 AS builder
+WORKDIR /app
+COPY . .
+RUN go build -o server .
+
+FROM gcr.io/distroless/static-debian12
+COPY --from=builder /app/server /server
+ENTRYPOINT ["/server"]
+```
+
+- Distroless has no shell, so `docker exec ... /bin/sh` is impossible — great for production.
+- Use multi-stage builds to keep build tools (compilers, test runners) out of the final image.
+
+### Image Scanning (Trivy / Snyk / Docker Scout)
+
+- **Why it exists** — Images accumulate CVEs in OS packages and language dependencies; automated scanning in CI catches them before deployment.
+- **What it is** — Static analysis tools that compare image layer contents against known CVE databases (NVD, GitHub Advisories, OS vendor feeds) and report vulnerabilities by severity.
+- **One-liner** — Scan every image in CI and block on CRITICAL/HIGH findings before pushing to a registry.
+
+```bash
+# Trivy (free, fast, runs locally and in CI)
+trivy image --severity CRITICAL,HIGH --exit-code 1 myapp:latest
+
+# Docker Scout (built into Docker Desktop / Docker Hub)
+docker scout cves myapp:latest
+
+# Snyk (commercial, integrates with GitHub Actions)
+snyk container test myapp:latest --severity-threshold=high
+```
+
+- Run scanning as a CI gate — fail the pipeline on CRITICAL findings.
+- Rebuild and push images regularly even without code changes to pick up patched base images.
+- Use `trivy fs .` to scan source dependencies before building the image.
 
 ### Security Checklist
 
-- Run as non-root (`USER`).
-- No secrets in image; inject at runtime or use build secrets.
-- Use minimal base; pin versions/digests.
-- Set memory/CPU limits.
-- Prefer read-only root where possible.
-- Drop unneeded capabilities.
-- Scan images regularly.
+- Build
+  - `FROM` uses a minimal base (alpine, distroless, or a slim official variant)
+  - Multi-stage build — no compiler or build tools in final image
+  - `USER nonroot` (or equivalent non-root UID) as the last user-setting instruction
+  - No secrets in `ENV`, `ARG`, `RUN`, or `COPY` instructions
+  - `--secret` used for any build-time credentials
+  - Image scanned with Trivy/Snyk/Docker Scout; no CRITICAL/HIGH CVEs
+- Runtime
+  - `--read-only` enabled; `--tmpfs` added for necessary write paths
+  - `--cap-drop=ALL` with only required capabilities re-added
+  - `--security-opt no-new-privileges` set
+  - `--memory` and `--cpus` limits set
+  - `--pids-limit` set
+  - No `--privileged` flag
+  - Secrets injected via environment, mounted file, or secrets manager — not baked in
+- Registry / Supply Chain
+  - Images tagged with immutable digest in production (not `:latest`)
+  - Registry access controlled; only CI/CD pipeline can push
+  - Base images rebuilt and re-scanned on a regular schedule
 
-Related notes:
-- [003-dockerfile](./003-dockerfile.md)
-- [007-docker-run-advanced](./007-docker-run-advanced.md)
+### Troubleshooting
 
----
+### Container exits with "permission denied"
 
-# Troubleshooting Guide
+1. Check if the process is trying to bind a port < 1024 without `NET_BIND_SERVICE`: `docker run --cap-add NET_BIND_SERVICE ...`
+2. Check file ownership: `docker run --rm myapp ls -la /app` — files must be owned by the non-root UID.
+3. Check `--read-only` is not blocking a path the app writes to: add `--tmpfs <path>` for that directory.
+4. Verify `COPY --chown=appuser:appgroup` is used in Dockerfile so app files are accessible to the non-root user.
 
 ### App fails after switching to non-root USER
+
 1. Check file ownership: `docker exec <ctr> ls -la /app`.
-2. Add `chown` before USER in Dockerfile: `COPY --chown=app:app . .`.
-3. Ensure writable dirs exist: `RUN mkdir -p /app/data && chown app:app /app/data`.
+2. Add `--chown` to `COPY` in Dockerfile: `COPY --chown=app:app . .`.
+3. Ensure writable dirs exist: `RUN mkdir -p /app/data && chown app:app /app/data` before the `USER` instruction.
+4. Check if the process needs a Linux capability — add it with `--cap-add` and test.
 
-### "read-only file system" errors with --read-only
-1. App needs writable paths: add `--tmpfs /tmp` for temp files.
-2. Mount volume for data dirs: `-v data:/app/data`.
-3. Check app logs to identify which path it tries to write.
+### Secrets appeared in docker history
 
-### Vulnerability scanner finds CVEs in base image
-1. Update base image tag: `FROM nginx:1.27-alpine` (latest patch).
-2. Rebuild: `docker build --no-cache -t myapp .`.
-3. Consider `distroless` base for fewer packages and attack surface.
+1. Immediately rotate the exposed secret in your secrets manager / provider.
+2. Rebuild the image removing the `ENV`/`ARG`/`RUN` that leaked the secret; all intermediate layers will be new.
+3. Push a new tag and update all deployments to use the clean image.
+4. Delete or retag the compromised image in the registry; enable registry audit logs to see who pulled it.
+
+### trivy scan reports CRITICAL CVEs in base image
+
+1. Pull the latest base tag and rebuild: `docker build --no-cache -t myapp .`
+2. Switch to a newer version tag: `python:3.11-alpine` → `python:3.12-alpine`.
+3. If using a vendor image you cannot change, apply OS patches in Dockerfile: `RUN apk upgrade --no-cache` (alpine) or `RUN apt-get update && apt-get upgrade -y` (debian).
+4. Add a `.trivyignore` file only for CVEs with no fix available and with documented risk acceptance.

@@ -1,155 +1,244 @@
 # Images, Layers, and Cache
 
-- Each Dockerfile instruction creates a read-only layer; layers stack to form the final image filesystem.
-- Docker caches layers by content hash; unchanged instructions reuse cached layers for faster builds.
-- Multi-stage builds separate build tools from runtime, reducing final image size and attack surface.
+### Overview
 
-# Architecture
+- **Why it exists** — Building images from scratch on every change would be slow and wasteful; a layered, cacheable system lets Docker reuse unchanged work and share common layers across images to save time and disk space.
+- **What it is** — A Docker image is an ordered stack of read-only layers, one per Dockerfile instruction that changes the filesystem. At runtime a thin writable layer is added on top. Docker's build cache maps each layer to a content hash so unchanged instructions are skipped. Multi-stage builds and BuildKit extend this with advanced cache control and secrets handling.
+- **One-liner** — Images are immutable layer stacks where Docker reuses cached layers for fast, incremental builds.
 
-```text
-  Image (read-only)          Container (runtime)
-  ┌──────────────────┐      ┌──────────────────┐
-  │ Layer 3: COPY .  │      │ Writable layer   │ ← copy-on-write
-  │ Layer 2: RUN npm │      ├──────────────────┤
-  │ Layer 1: COPY pkg│      │ Layer 3 (shared) │
-  │ Layer 0: FROM    │      │ Layer 2 (shared) │
-  └──────────────────┘      │ Layer 1 (shared) │
-         │                  │ Layer 0 (shared) │
-    content-hash            └──────────────────┘
-    (cache key)
-```
-
-- Image = stack of read-only layers, each identified by content hash.
-- Container adds one thin writable layer on top; multiple containers share the same image layers.
-
-# Mental Model
+### Architecture
 
 ```text
-docker build instruction N
-  │
-  ├─ Cache key = (parent layer hash + instruction + input files hash)
-  │
-  ├─ Match in cache? ──Yes──▶ Reuse cached layer (fast)
-  │       │
-  │      No
-  ▼
-  Execute instruction → new layer
-  │
-  ▼
-  All subsequent layers: cache INVALIDATED
+┌──────────────────────────────────────────────────────────┐
+│                   Image Layer Stack                      │
+│                                                          │
+│   ┌─────────────────────────────────┐  ← writable layer │
+│   │  Container Layer (read-write)   │    (runtime only)  │
+│   └─────────────────────────────────┘                    │
+│   ┌─────────────────────────────────┐                    │
+│   │  Layer 4: COPY . /app  (app src)│  ← changes often  │
+│   └─────────────────────────────────┘                    │
+│   ┌─────────────────────────────────┐                    │
+│   │  Layer 3: RUN npm install       │  ← changes rarely  │
+│   └─────────────────────────────────┘                    │
+│   ┌─────────────────────────────────┐                    │
+│   │  Layer 2: COPY package*.json .  │  ← cache anchor   │
+│   └─────────────────────────────────┘                    │
+│   ┌─────────────────────────────────┐                    │
+│   │  Layer 1: FROM node:18          │  ← base image      │
+│   └─────────────────────────────────┘                    │
+│                                                          │
+│   Layer sharing across images:                           │
+│                                                          │
+│   image-a      image-b      image-c                      │
+│   ┌──────┐     ┌──────┐     ┌──────┐                    │
+│   │ L4-a │     │ L4-b │     │ L4-c │  unique per image  │
+│   ├──────┤     ├──────┤     └──┬───┘                    │
+│   │ L3-a │     │ L3-ab│        │     shared layer on    │
+│   └──┬───┘     └──┬───┘        │     disk — one copy    │
+│      └────────────┴────────────┘                        │
+│                 shared base                              │
+└──────────────────────────────────────────────────────────┘
 ```
 
-- Cache evaluation is per-instruction, top-to-bottom; one miss cascades to all following layers.
-- For `COPY`/`ADD`: cache key includes file content hashes, not just instruction text.
+### Mental Model
 
-# Core Building Blocks
+```text
+docker build .
+      │
+      ▼
+For each Dockerfile instruction:
+      │
+      ├──▶ Compute cache key (instruction text + parent layer hash)
+      │
+      ├──▶ Cache HIT? ──▶ reuse existing layer, skip execution
+      │
+      └──▶ Cache MISS? ──▶ execute instruction, create new layer
+                            ALL subsequent layers also miss cache
+                            (cache is invalidated from this point down)
 
-### How Layers Work
 
-- Each Dockerfile instruction (except a few like `ENV` that can be merged) creates a read-only layer.
-- Layers are stacked; top layer is the final filesystem view.
-- When you run a container, Docker adds a writable layer on top of the image layers; all writes go there (copy-on-write).
-- Layer = diff from previous layer; stored by content hash; same layer can be shared across images.
-- Each Dockerfile instruction creates a layer; layers are cached by content hash.
-- Copy-on-write: container gets a thin writable layer on top of read-only image layers.
+docker run <image>
+      │
+      ▼
+Stack read-only image layers  +  add thin read-write container layer
+      │
+      ▼
+Copy-on-Write (CoW): container reads from image layers directly;
+only modified files are copied up to the writable layer
+```
 
-![Container layers with writable layer](../pic/container-layers.png)
+- Instruction order is critical — put rarely-changing instructions (FROM, RUN apt-get) near the top and frequently-changing ones (COPY source code) near the bottom.
+- A single changed instruction busts the cache for every instruction below it.
+- `.dockerignore` prevents large or sensitive host files from being sent to the daemon as build context, which speeds up every build.
+- Multi-stage builds use multiple `FROM` statements; only the final stage is shipped, so build tools never reach production.
+- BuildKit is the modern builder (default since Docker 23) — it parallelises independent stages and unlocks `--mount` cache and secret flags.
 
-Multiple containers from the same image share all read-only layers; each gets its own thin writable layer.
+### Core Building Blocks
 
-![Sharing layers across containers](../pic/sharing-layers.png)
+### Image Layers (Read-Only Stack)
 
-### Why Order Matters
+- **Why it exists** — Storing the full filesystem for every image separately would waste enormous disk space; sharing common layers between images keeps storage and transfer costs low.
+- **What it is** — Each Dockerfile instruction that modifies the filesystem (`RUN`, `COPY`, `ADD`) produces a new read-only layer identified by a SHA256 content hash. Layers are stacked using a union filesystem (overlayfs). Multiple images that share a base layer reference the same on-disk data — no duplication.
+- **One-liner** — Image layers are immutable, content-addressed filesystem diffs that are shared across images.
 
-- Docker rebuilds from the first changed instruction; all layers after that are recreated.
-- Put rarely changing steps first (e.g. base image, install system deps), frequently changing steps last (e.g. COPY app code).
-- Example: If you `COPY . .` before `RUN npm install`, any file change invalidates cache for `RUN` and everything after; better: `COPY package*.json` first, `RUN npm ci`, then `COPY . .` so only code changes invalidate last steps.
-- Cache invalidation cascades: one changed layer rebuilds all subsequent layers.
+```bash
+# Inspect layers of an image
+docker image inspect nginx --format '{{.RootFS.Layers}}'
+
+# See layer-by-layer history and sizes
+docker image history nginx
+
+# See how much space is shared vs unique
+docker system df -v
+```
 
 ### Build Cache
 
-- **Cache hit**: Instruction and all previous layers unchanged -- reuse cached layer.
-- **Cache miss**: Instruction or input changed -- rebuild that layer and all following.
-- `--no-cache`: Ignore cache; rebuild all layers (`docker build --no-cache`).
-- **Cache from**: Use another image as cache source (e.g. previous build); advanced use for CI.
+- **Why it exists** — Re-executing every instruction on every build (compiling dependencies, running apt-get) would make iterative development unbearably slow.
+- **What it is** — Before executing an instruction, Docker computes a cache key from the instruction text and the parent layer's hash. For `COPY`/`ADD`, file content is also included. If a matching key exists in the cache, the stored layer is reused. Once any instruction misses, all subsequent instructions also miss — cache is sequential.
+- **One-liner** — The build cache skips unchanged instructions by matching a content-derived key, invalidating everything below the first change.
 
-### Build Context
+```bash
+# Force full rebuild, ignoring cache
+docker build --no-cache -t myapp .
 
-- **Context** = set of files sent to Docker daemon for COPY/ADD (usually current directory: `.`).
-- Everything under the context path is sent (unless `.dockerignore` excludes it); large context = slow build.
-- `.dockerignore`: Like `.gitignore`; exclude files/dirs from context; reduces size and avoids copying secrets or build artifacts.
-- Never `COPY` secrets; use build-time secrets (`--secret`) or runtime env/volumes.
-- `.dockerignore` excludes files from build context, reducing build time and preventing secret leaks.
+# Good order: stable dependencies before volatile source code
+# BAD — copies all source first, cache busts on any file change:
+# COPY . /app
+# RUN npm install
+
+# GOOD — copies only package files, installs, then copies source:
+# COPY package.json package-lock.json /app/
+# RUN npm install
+# COPY . /app
+```
+
+### .dockerignore
+
+- **Why it exists** — The entire build context directory is sent to the Docker daemon before building; without filtering, `.git`, `node_modules`, test data, and secrets slow every build and may leak into the image.
+- **What it is** — A `.dockerignore` file in the build context root lists patterns (same syntax as `.gitignore`) of paths to exclude from the context tarball sent to the daemon. Excluded files are not available to `COPY` or `ADD` instructions and never appear in any layer.
+- **One-liner** — `.dockerignore` is the allowlist filter that keeps the build context lean and secrets out of images.
 
 ```text
-# .dockerignore
+# .dockerignore example
 .git
 node_modules
 *.log
 .env
-dist
+tests/
+docs/
+*.md
 ```
 
-### Multi-Stage Build
+```bash
+# See how large the build context is (printed at start of docker build)
+docker build . 2>&1 | head -3
+# Sending build context to Docker daemon  4.096kB
+```
 
-- **Problem**: Building compilers and deps increases image size and attack surface.
-- **Solution**: First stage (builder) compiles/builds; second stage copies only artifacts (binary, static files) into minimal base.
-- Only the last stage's layers become the final image; earlier stages are discarded.
-- `COPY --from=stage_name`: Copy from earlier stage or from any image.
-- Multi-stage builds separate build dependencies from runtime, dramatically reducing image size.
+### Multi-Stage Builds
+
+- **Why it exists** — Build tools (compilers, test runners, dev dependencies) are needed to produce an artifact but must not ship to production — they bloat the image and expand the attack surface.
+- **What it is** — A Dockerfile can contain multiple `FROM` statements, each starting a new stage with its own layer set. Artifacts are copied from one stage to another with `COPY --from=<stage>`. Only the final stage becomes the shipped image; earlier stages are discarded after the build.
+- **One-liner** — Multi-stage builds let you compile in a fat build image and ship only the binary in a minimal runtime image.
 
 ```dockerfile
 # Stage 1: build
-FROM node:20-alpine AS builder
+FROM node:18 AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run build          # produces /app/dist
 
-# Stage 2: run
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Stage 2: runtime — only dist/ is copied, no node_modules, no src
+FROM node:18-alpine AS runtime
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+EXPOSE 3000
+CMD ["node", "dist/server.js"]
 ```
 
-### Reducing Image Size
+```bash
+# Build only up to a specific stage (useful for debugging)
+docker build --target builder -t myapp:builder .
 
-- Use **alpine** or **distroless** base when possible.
-- **Multi-stage**: Don't ship build tools in final image.
-- **Combine RUN** and clean in same layer: `RUN apt update && apt install -y pkg && rm -rf /var/lib/apt/lists/*` so cache doesn't keep deleted files.
-- Avoid **ADD** for local archives (use `COPY` + `RUN` to extract) so you control what goes in.
-- **Squash** (experimental or buildkit): Merge layers into one; reduces layers but can reduce cache reuse.
-- `docker history <image>` shows layer sizes for debugging large images.
+# Final image contains only the runtime stage
+docker build -t myapp:prod .
+docker image history myapp:prod   # no compiler layers visible
+```
 
 ### BuildKit
 
-- Modern build engine (enable with `DOCKER_BUILDKIT=1` or in daemon config).
-- Parallel stage builds, better cache, `RUN --mount=type=cache` for persistent cache across builds.
-- `--mount=type=secret`: Mount secret at build time without leaving it in image.
-- BuildKit enables parallel builds, better caching, and secure secret mounting.
+- **Why it exists** — The classic builder is sequential and has no way to pass secrets safely or cache package manager downloads across builds; BuildKit solves all three.
+- **What it is** — Docker's next-generation build engine (default since Docker 23.0). Key features: parallel execution of independent stages, `--mount=type=cache` to persist package manager caches between builds, `--mount=type=secret` to inject secrets at build time without baking them into a layer, and `--mount=type=ssh` for SSH agent forwarding.
+- **One-liner** — BuildKit is the modern build backend that adds parallelism, persistent caches, and safe secret handling to Docker builds.
 
-Related notes:
-- [003-dockerfile](./003-dockerfile.md)
-- [006-registry-tagging-push-pull](./006-registry-tagging-push-pull.md)
+```dockerfile
+# syntax=docker/dockerfile:1
 
----
+FROM python:3.12-slim
 
-# Troubleshooting Guide
+# Cache pip downloads across builds — never stored in a layer
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
 
-### Build is slow / not using cache
-1. Check instruction order: put `COPY package*.json` + `RUN npm ci` before `COPY . .`.
-2. Check if `.dockerignore` excludes unnecessary files (`node_modules`, `.git`, logs).
-3. Enable BuildKit: `DOCKER_BUILDKIT=1 docker build .` -- parallel builds and better cache.
+# Inject a secret at build time — never appears in any layer
+RUN --mount=type=secret,id=gh_token \
+    curl -H "Authorization: token $(cat /run/secrets/gh_token)" \
+         https://api.github.com/repos/org/private-repo/tarball -o pkg.tar.gz
+```
 
-### Image unexpectedly large
-1. Check layer sizes: `docker history <image>`.
-2. Look for large RUN layers that install + don't clean: combine `apt install && rm -rf /var/lib/apt/lists/*`.
-3. Use multi-stage build to exclude build tools from final image.
-4. Check if `.dockerignore` is missing -- entire build context (including `.git`) may be copied.
+```bash
+# Enable BuildKit (already default in Docker 23+)
+DOCKER_BUILDKIT=1 docker build -t myapp .
 
-### "layer does not exist" or "manifest unknown"
-1. Image may have been deleted from registry or local cache.
-2. Try `docker pull <image>` again.
-3. If using digest, verify it still exists in registry.
+# Pass a secret file
+docker build --secret id=gh_token,src=~/.gh_token -t myapp .
+
+# Build multiple stages in parallel (BuildKit does this automatically)
+docker build -t myapp .
+```
+
+| Feature                    | Classic Builder | BuildKit     |
+|----------------------------|-----------------|--------------|
+| Parallel stage execution   | No              | Yes          |
+| `--mount=type=cache`       | No              | Yes          |
+| `--mount=type=secret`      | No              | Yes          |
+| Default since Docker 23    | No              | Yes          |
+| Dockerfile syntax version  | Implicit        | `# syntax=`  |
+
+### Troubleshooting
+
+### Cache not being reused — every build runs all instructions
+
+1. Check if `--no-cache` is set in your CI build command — remove it for incremental builds.
+2. Confirm instruction order: any instruction that changes (especially `COPY . .`) busts all layers below it — move stable instructions (dependency install) above volatile ones (source copy).
+3. For `COPY`/`ADD`, verify that `.dockerignore` is not excluding files the instruction depends on, causing spurious content changes.
+
+### Image is unexpectedly large
+
+1. Run `docker image history <image>` — identify which layers contribute the most size.
+2. Check for files downloaded and not deleted in the same `RUN` layer: `RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*`.
+3. Confirm multi-stage builds are used — the final `FROM` should be a minimal base (`alpine`, `distroless`, `-slim`).
+4. Run `docker run --rm -it <image> du -sh /*` to find large directories inside the image.
+
+### Secret visible in image layer
+
+1. Run `docker image history --no-trunc <image>` — look for the secret value in `RUN` commands.
+2. If found: the secret was passed as a build arg (`ARG`) or plain `ENV` — these are baked into the layer. Rebuild using `--mount=type=secret` with BuildKit.
+3. Rotate the leaked secret immediately; the old image tags must be deleted from the registry.
+
+### Build context is too large — build is slow even before first instruction executes
+
+1. The size is printed on the first line of `docker build` output — if it is large, add a `.dockerignore`.
+2. Common culprits: `node_modules`, `.git`, `__pycache__`, test fixtures, build artifacts.
+3. Add them to `.dockerignore` and re-run; the context size should drop immediately.
+
+### Multi-stage build: `COPY --from` fails with "not found"
+
+1. Verify the source stage name matches exactly: `FROM node:18 AS builder` and `COPY --from=builder`.
+2. Confirm the file exists in the source stage at that path: `docker build --target builder -t debug . && docker run --rm debug ls /app/dist`.
+3. Check that the source stage did not fail silently — add `RUN ls /app/dist` at the end of the builder stage to assert the artifact was created.

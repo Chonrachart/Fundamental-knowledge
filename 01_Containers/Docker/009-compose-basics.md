@@ -1,38 +1,60 @@
 # Docker Compose Basics
 
-- Define and run multi-container apps with a YAML file (`docker-compose.yml`).
-- One project per directory; `docker compose up` starts all services.
-- Use for local dev, integration tests; production often uses Kubernetes or similar.
+### Overview
 
-# Architecture
+- **Why it exists** — Running multiple containers that must work together (app, database, cache) by hand with individual `docker run` commands is error-prone and hard to share; Compose codifies the entire multi-container setup as a single versioned file.
+- **What it is** — A tool that reads a `docker-compose.yml` (or `compose.yaml`) YAML file and manages the full lifecycle of a multi-service application — creating networks, volumes, and containers in the correct order with a single command.
+- **One-liner** — Compose is `docker run` for multi-container apps, expressed as declarative YAML and executed with `docker compose up`.
+
+### Architecture
 
 ```text
 docker-compose.yml
        │
   docker compose up
        │
-  ┌────┴─────────────────────┐
-  │  Project Network (auto)  │
-  │                          │
-  │  ┌─────┐    ┌─────┐     │
-  │  │ web │───▶│ db  │     │
-  │  │:8080│    │:5432│     │
-  │  └─────┘    └──┬──┘     │
-  │                │        │
-  │           ┌────┴────┐   │
-  │           │ dbdata  │   │
-  │           │(volume) │   │
-  │           └─────────┘   │
-  └──────────────────────────┘
+  ┌────┴────────────────────────────────┐
+  │      Project Network (auto-created) │
+  │                                     │
+  │  ┌──────────┐      ┌──────────┐     │
+  │  │   web    │─DNS─▶│   db     │     │
+  │  │ :8080:80 │      │  :5432   │     │
+  │  └──────────┘      └────┬─────┘     │
+  │                         │           │
+  │                   ┌─────┴──────┐    │
+  │                   │  dbdata    │    │
+  │                   │ (volume)   │    │
+  │                   └────────────┘    │
+  └─────────────────────────────────────┘
 ```
 
-# Core Building Blocks
+### Mental Model
 
-### Service
+```text
+compose.yaml ──parse──▶  Project
+                            │
+               ┌────────────┼────────────┐
+               ▼            ▼            ▼
+           Networks      Volumes     Services
+         (auto bridge)  (named/bind) (containers)
+               │                        │
+               └──────────attached──────┘
+                                        │
+                              start in depends_on order
+                              service name = DNS hostname
+```
 
-- One container definition; can specify image, build, ports, env, volumes, etc.
-- Service name becomes hostname for other services on same network.
-- Service names become DNS hostnames on the project network.
+- Each service in the YAML becomes a container; the service name is its DNS hostname on the project network.
+- Compose creates one bridge network per project automatically — services reach each other by name without exposing ports to the host.
+- `docker compose up` is idempotent — run it again and Compose only recreates changed services.
+
+### Core Building Blocks
+
+### YAML Structure (services / networks / volumes)
+
+- **Why it exists** — All configuration for the multi-container application must live in one place so any developer can reproduce the full stack with a single command.
+- **What it is** — The `compose.yaml` file has three top-level keys: `services` (container definitions), `networks` (custom bridge networks), and `volumes` (named persistent volumes).
+- **One-liner** — `services` defines containers, `networks` defines connectivity, `volumes` declares persistent storage.
 
 ```yaml
 services:
@@ -44,6 +66,7 @@ services:
       - DB_HOST=db
     depends_on:
       - db
+
   db:
     image: postgres:16-alpine
     environment:
@@ -51,81 +74,170 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
 
+networks:
+  default:           # auto-created; listed here only to customise
+
 volumes:
-  dbdata:
+  dbdata:            # named volume persists across down/up cycles
 ```
 
-### Build and Image
+### Service Definition (image / build / ports / environment / depends_on)
 
-- **build**: Build from Dockerfile; path and optional context/dockerfile.
-- **image**: Use pre-built image; if both, image names the built image.
-- **restart**: `no`, `always`, `on-failure` -- when to restart container.
-
-### Network
-
-- By default Compose creates one network per project; all services join it and resolve each other by service name.
-- **networks**: Define custom networks; attach services with `networks: [front]`.
-- **ports**: Publish host:container; only publish what you need.
-- Compose creates one bridge network per project automatically.
-
-Related notes:
-- [004-docker-network-volume](./004-docker-network-volume.md)
-
-### Volumes
-
-- **volumes**: Named or anonymous; persist data; list under top-level `volumes:` to name them.
-- **bind mount**: Host path:container path; e.g. `.:/app` for live code.
-- **tmpfs**: In-memory; no persistence.
-- Top-level `volumes:` declares named volumes that persist across `docker compose down`.
-- `docker compose down -v` removes volumes too -- use with caution.
+- **Why it exists** — Each service needs to describe what image to use, how to reach it from the host, and what configuration its process needs.
+- **What it is** — A service block under `services:` is a single container specification; the most common fields are `image` (pre-built), `build` (path to Dockerfile), `ports` (host:container), `environment` (env vars), and `depends_on` (start ordering).
+- **One-liner** — A service block is a `docker run` command written as YAML.
 
 ```yaml
-volumes:
-  - ./config:/app/config:ro
-  - cache:/app/cache
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: myapp:latest        # names the built image
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: production
+      DB_URL: postgres://db/app
+    depends_on:
+      - db
+    restart: unless-stopped
 ```
 
-### depends_on
+- `build` and `image` can coexist — `build` builds it, `image` names the result.
+- `restart: unless-stopped` restarts the container on failure and after daemon restart, but respects a manual `docker compose stop`.
 
-- Start order only; does not wait for service to be "ready" (e.g. DB accepting connections).
-- For health-based ordering use condition: `depends_on: db: condition: service_healthy` with healthcheck on db.
-- `depends_on` controls start order only; use `condition: service_healthy` for readiness.
+### Default Project Network and DNS
 
-Related notes:
-- [010-compose-production-patterns](./010-compose-production-patterns.md)
+- **Why it exists** — Containers need to reach each other by a stable name without hardcoding IP addresses that change on every restart.
+- **What it is** — Compose automatically creates one bridge network named `<project>_default` and attaches every service to it; each container is reachable on that network using its service name as a DNS hostname.
+- **One-liner** — On the Compose network, `web` can reach `db` at hostname `db` — no IP, no extra config.
 
-### Commands
+```yaml
+# web container can connect to postgres at host "db", port 5432
+services:
+  web:
+    environment:
+      - DATABASE_URL=postgres://db:5432/app   # "db" resolves via Compose DNS
+  db:
+    image: postgres:16-alpine
+```
+
+- Custom networks can be defined to isolate service groups (e.g. `frontend` and `backend` networks).
+- Only ports listed under `ports:` are exposed to the host; everything else stays internal.
+
+### Volume Types in Compose (named / bind / tmpfs)
+
+- **Why it exists** — Different services have different persistence needs: databases need durable storage, dev environments need live code reload, and caches can use ephemeral memory.
+- **What it is** — Compose supports three volume types: named volumes (managed by Docker, persist across `down/up`), bind mounts (host path mapped into container, useful for dev), and tmpfs (in-memory, no persistence).
+- **One-liner** — Use named volumes for databases, bind mounts for live dev code, and tmpfs for ephemeral scratch space.
+
+```yaml
+services:
+  db:
+    volumes:
+      - dbdata:/var/lib/postgresql/data      # named volume
+
+  web:
+    volumes:
+      - ./src:/app/src                       # bind mount (dev live-reload)
+      - /app/node_modules                    # anonymous volume (protects node_modules)
+
+  cache:
+    volumes:
+      - type: tmpfs
+        target: /data                        # in-memory, lost on stop
+
+volumes:
+  dbdata:    # declare named volumes at top level
+```
+
+- `docker compose down` removes containers and networks but NOT named volumes — data is safe.
+- `docker compose down -v` removes named volumes too — use with caution.
+
+### depends_on (Start Order vs service_healthy)
+
+- **Why it exists** — Services have dependencies; starting an app before its database is ready causes connection errors on startup.
+- **What it is** — `depends_on` controls container start order; by default it only waits for the dependency container to be *started* (not ready). With `condition: service_healthy` it waits until the dependency passes its `healthcheck`.
+- **One-liner** — `depends_on` controls start order; add `condition: service_healthy` to wait for readiness, not just startup.
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy   # waits until db passes healthcheck
+```
+
+- Without `condition: service_healthy`, the app starts as soon as the db *container* starts — the database process may not be ready.
+- An alternative for simple cases is an entrypoint script using `wait-for-it.sh db:5432`.
+
+### Key Compose Commands
+
+- **Why it exists** — Managing the full lifecycle (start, stop, logs, exec, status) of all services should be possible without memorising container IDs.
+- **What it is** — A set of `docker compose` subcommands that operate on the entire project or on specific services by name.
+- **One-liner** — `up` starts everything, `down` tears it down, `logs`, `ps`, and `exec` are your day-to-day inspection tools.
 
 ```bash
+# Start all services in the background
 docker compose up -d
+
+# Stop and remove containers and networks (keeps volumes)
 docker compose down
+
+# Show running containers for this project
 docker compose ps
+
+# Follow logs for a specific service
 docker compose logs -f web
+
+# Open a shell in a running service container
 docker compose exec web sh
+
+# Run a one-off command in a new container (does not start the service)
+docker compose run --rm web python manage.py migrate
+
+# Rebuild images and recreate containers
+docker compose up -d --build
+
+# Stop services without removing them
+docker compose stop
 ```
 
-- `docker compose up -d` starts all services in background; `docker compose down` stops and removes them.
-- `docker compose exec <service> sh` opens a shell in a running service container.
-
----
-
-# Troubleshooting Guide
+### Troubleshooting
 
 ### "service web depends on db which is undefined"
-1. Check indentation in YAML -- `depends_on` must list valid service names.
-2. Verify service name spelling matches exactly.
 
-### Containers start but app can't connect to DB
-1. `depends_on` only waits for container start, not readiness.
-2. Add `healthcheck` on DB + `condition: service_healthy` on app.
-3. Or use entrypoint script that waits: `wait-for-it.sh db:5432`.
+1. Check indentation in YAML — `depends_on` must be at the service level, not nested inside another key.
+2. Verify the service name in `depends_on` matches exactly (case-sensitive) a key under `services:`.
+3. Run `docker compose config` to see the fully resolved configuration and spot YAML parse errors.
+
+### Containers start but app cannot connect to DB
+
+1. `depends_on` only waits for the container to start, not for the database to accept connections.
+2. Add a `healthcheck` on the `db` service and `condition: service_healthy` under `depends_on` in the app.
+3. As a fallback, use `wait-for-it.sh db:5432` or a retry loop in the entrypoint script.
+4. Confirm the hostname used in the connection string matches the service name exactly: `db` not `localhost`.
 
 ### "network xxx not found" after down/up
-1. Run `docker compose down` to clean up old networks.
-2. Then `docker compose up -d` to recreate.
-3. Check for orphan containers: `docker compose down --remove-orphans`.
 
-### Volume data lost after `docker compose down`
-1. `down` removes containers and networks but NOT named volumes.
-2. `down -v` removes volumes too -- avoid unless intended.
-3. Use named volumes (declared in top-level `volumes:`) for persistence.
+1. Run `docker compose down` to clean up stale networks before bringing the stack back up.
+2. Then `docker compose up -d` to recreate networks and containers.
+3. Check for orphan containers from a previous run: `docker compose down --remove-orphans`.
+
+### Volume data lost after docker compose down
+
+1. `docker compose down` removes containers and networks but NOT named volumes — named volume data is safe.
+2. `docker compose down -v` removes named volumes — avoid unless you intend to reset data.
+3. Verify you are using a named volume (`dbdata:/var/lib/...`) and not an anonymous volume; anonymous volumes may be pruned.
+4. Check the `volumes:` top-level key declares the named volume; without it Compose treats it as anonymous.
