@@ -5,7 +5,7 @@
 - **What it is** — A namespace-scoped Kubernetes resource that acts as a firewall for pod traffic. A CNI plugin (Calico, Cilium, Weave) reads the policies and enforces them using iptables or eBPF — the kube-proxy does not participate.
 - **One-liner** — NetworkPolicy = namespace firewall rules that restrict pod-to-pod and pod-to-external traffic, enforced by the CNI plugin.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 ┌──── Node ─────────────────────────────────────────┐
@@ -55,6 +55,10 @@ The safest baseline: start with a default-deny-all policy for the namespace, the
 # Core Building Blocks
 
 ### Policy Structure
+
+- **Why it exists** — NetworkPolicy resources need a consistent schema so the CNI plugin can parse and enforce them reliably across any cluster.
+- **What it is** — The YAML structure of a NetworkPolicy object, covering `podSelector`, `policyTypes`, `ingress`, and `egress` fields.
+- **One-liner** — The full skeleton of a NetworkPolicy manifest with all four top-level spec fields annotated.
 
 ```yaml
 apiVersion: networking.k8s.io/v1

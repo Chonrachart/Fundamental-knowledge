@@ -5,7 +5,7 @@
 - **What it is** — A set of fields on a Pod (`spec.securityContext`) or on an individual container (`spec.containers[].securityContext`) that control the Linux security attributes of that pod or container: UID/GID, Linux capabilities, filesystem write access, and privilege escalation.
 - **One-liner** — Security contexts let you run containers with the minimum Linux privileges they need, reducing blast radius if a container is compromised.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
   Pod spec
@@ -39,6 +39,10 @@ Two levels:
 # Core Building Blocks
 
 ### Key Fields Reference
+
+- **Why it exists** — Security context fields are spread across pod-level and container-level specs; a single reference table prevents misconfiguring where a field is valid.
+- **What it is** — A consolidated table of all major security context fields, the level they apply at, what they do, and the recommended hardened value.
+- **One-liner** — Quick-reference table for every security context field with recommended production values.
 
 | Field | Level | What it does | Recommended value |
 |-------|-------|--------------|-------------------|
@@ -145,6 +149,10 @@ securityContext:
 
 ### Hardened Security Context — Complete Example
 
+- **Why it exists** — Seeing all the recommended security context fields together in a single working manifest is more actionable than reading individual fields in isolation.
+- **What it is** — A complete Pod spec combining pod-level and container-level security context fields at their recommended hardened values, including the writable `emptyDir` volumes needed when `readOnlyRootFilesystem` is set.
+- **One-liner** — A copy-paste-ready hardened Pod manifest with every security context best practice applied.
+
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -190,6 +198,10 @@ spec:
 ---
 
 ### Pod-level vs Container-level Summary
+
+- **Why it exists** — Some security context fields are only valid at the pod level, others only at the container level, and some are valid at both (with container overriding pod). Mixing them up silently has no effect.
+- **What it is** — A table mapping each field to the level(s) where it is valid and noting override behaviour.
+- **One-liner** — At-a-glance reference for which fields belong at pod level vs container level.
 
 | Setting | Pod-level | Container-level | Notes |
 |---------|-----------|-----------------|-------|

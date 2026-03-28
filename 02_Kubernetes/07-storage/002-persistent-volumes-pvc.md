@@ -5,7 +5,7 @@
 - **What it is** — A PersistentVolume (PV) is a cluster-scoped resource representing a piece of real storage (cloud disk, NFS share, local disk). A PersistentVolumeClaim (PVC) is a namespaced request for storage that gets bound to a matching PV.
 - **One-liner** — PV is the storage unit; PVC is the request — they meet in the middle so devs and admins work independently.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Admin side                           Developer side
@@ -91,6 +91,10 @@ Key fields:
 
 ### PV Lifecycle
 
+- **Why it exists** — Understanding the lifecycle states of a PV is essential for diagnosing why a PVC is stuck in Pending or why data persists or disappears after a PVC deletion.
+- **What it is** — The four sequential states a PV moves through: Available, Bound, Released, and then either Deleted or Retained depending on the reclaim policy.
+- **One-liner** — PV state machine: Available → Bound → Released → Deleted or Retained.
+
 ```text
 Available → Bound → Released → Deleted (or Retained)
 
@@ -131,6 +135,10 @@ PVC binding rules — Kubernetes binds a PVC to a PV when ALL of these match:
 
 ### Mounting PVC in a Pod
 
+- **Why it exists** — A PVC on its own does nothing; it must be referenced in a pod spec so Kubernetes knows to attach and mount the underlying storage into the container.
+- **What it is** — The two-part pod spec pattern: declare the PVC as a named volume under `spec.volumes`, then mount it into a container via `spec.containers[].volumeMounts`.
+- **One-liner** — Reference the PVC by name in `spec.volumes`, then mount it at the desired container path.
+
 ```yaml
 spec:
   containers:
@@ -146,6 +154,10 @@ spec:
 ```
 
 ### Access Modes
+
+- **Why it exists** — Different storage backends support different concurrency models; declaring the wrong access mode causes a PVC to remain unbound or causes data corruption when multiple writers are assumed.
+- **What it is** — A set of four access mode values that describe how many nodes (or pods) can mount a volume simultaneously and with what read/write permissions.
+- **One-liner** — Declares whether the volume can be mounted by one node, many nodes, or one pod — and in what read/write combination.
 
 | Mode | Short | Meaning |
 |------|-------|---------|

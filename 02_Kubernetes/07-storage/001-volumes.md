@@ -5,7 +5,7 @@
 - **What it is** — A volume is a directory (backed by some storage medium) that is mounted into one or more containers in a pod. Volumes are declared in the pod spec and exist for the lifetime of the pod, not the lifetime of any single container.
 - **One-liner** — Volumes give pods a place to store and share data that survives container restarts.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 ┌─────────────────────────────────────────┐
@@ -41,6 +41,10 @@ Think of it like:
 # Core Building Blocks
 
 ### Volume Types Overview
+
+- **Why it exists** — Kubernetes supports many volume backends with different lifetimes and use cases; a summary table helps you pick the right type without reading each section first.
+- **What it is** — A quick-reference table of the most common volume types, their data lifetime, and their primary use case.
+- **One-liner** — Pick the right volume type at a glance: lifetime and use case for each built-in type.
 
 | Type | Lifetime | Use Case |
 |------|----------|----------|

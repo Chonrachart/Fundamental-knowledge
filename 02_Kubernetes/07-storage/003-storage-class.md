@@ -5,7 +5,7 @@
 - **What it is** — A cluster-scoped resource that defines a storage provisioner (the plugin that creates the actual storage), parameters (disk type, IOPS, zone, etc.), and a reclaim policy. When a PVC references a StorageClass, the provisioner creates a PV automatically.
 - **One-liner** — StorageClass is the blueprint that tells Kubernetes how to auto-create storage on demand.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Static provisioning (no StorageClass)        Dynamic provisioning (with StorageClass)
@@ -91,6 +91,10 @@ Common provisioner values:
 | No provisioning (manual) | `kubernetes.io/no-provisioner` |
 
 ### Default StorageClass
+
+- **Why it exists** — Developers often omit `storageClassName` in PVCs; a cluster-wide default ensures those claims are still fulfilled by dynamic provisioning without requiring every developer to know the class name.
+- **What it is** — A StorageClass annotated with `storageclass.kubernetes.io/is-default-class: "true"` that Kubernetes automatically assigns to any PVC that does not specify a `storageClassName`.
+- **One-liner** — The fallback StorageClass used when a PVC leaves `storageClassName` blank.
 
 When a PVC does not specify `storageClassName`, Kubernetes automatically uses the StorageClass annotated with:
 

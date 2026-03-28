@@ -6,7 +6,7 @@
 - **What it is** — A two-phase process: first upgrade the control plane (API server, controller-manager, scheduler, etcd), then upgrade each worker node one at a time. kubeadm handles the ordering and component config regeneration; you manage the OS-level package installation.
 - **One-liner** — kubeadm upgrades the control plane first, then workers are drained, upgraded, and uncordoned one at a time.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 Upgrade order (MUST follow this sequence):
@@ -49,6 +49,10 @@ The key insight: `kubeadm upgrade apply` only touches control plane static pod m
 - **One-liner** — Control plane must be upgraded before workers; no component should be more than 1 minor version behind the API server.
 
 ### Checking current versions
+
+- **Why it exists** — Before planning or executing an upgrade, you need to know the current versions of all components to determine what upgrade path is available and what skew constraints apply.
+- **What it is** — A set of CLI commands that query the running cluster and local binaries to report their current versions.
+- **One-liner** — Run these commands to see what version each component is running before planning an upgrade.
 
 ```bash
 # Kubernetes server and client version
