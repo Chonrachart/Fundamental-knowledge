@@ -74,6 +74,10 @@ spec:
 
 ### Service Types
 
+- **Why it exists** — Different workloads have different exposure requirements: some need only cluster-internal access, others need to be reachable from outside the cluster or from the internet.
+- **What it is** — Four distinct Service variants (`ClusterIP`, `NodePort`, `LoadBalancer`, `ExternalName`) that control the scope and mechanism of traffic routing. Each higher-level type builds on the one before it.
+- **One-liner** — Service types define who can reach a Service and how, from cluster-internal only up to full internet-facing load balancing.
+
 | Type | Reachable from | Use case |
 |------|---------------|----------|
 | `ClusterIP` | Within cluster only | Internal microservice communication |

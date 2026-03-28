@@ -174,6 +174,10 @@ containers:
 
 ### Pod Lifecycle Phases
 
+- **Why it exists** — Operators and controllers need a standardized way to understand where a pod is in its life at a glance, from scheduling through completion or failure.
+- **What it is** — A high-level summary field (`status.phase`) on a Pod object that reflects the overall state of the pod at any given moment. It is distinct from individual container statuses and conditions.
+- **One-liner** — Pod lifecycle phases are the five top-level states that describe where a pod is in its existence, from pending through succeeded or failed.
+
 | Phase | Meaning |
 |-------|---------|
 | `Pending` | Pod accepted but not yet scheduled or images not pulled |

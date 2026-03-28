@@ -73,6 +73,10 @@ Controllers/Scheduler watch (via API server) and act
 
 ### Cluster Sizing
 
+- **Why it exists** — The number of etcd nodes determines fault tolerance; choosing the wrong size leaves the cluster either under-protected or with unnecessary write overhead.
+- **What it is** — The configuration of how many etcd member nodes form the cluster, governed by Raft quorum rules. Odd numbers are required because quorum is a strict majority; even numbers do not improve fault tolerance.
+- **One-liner** — Cluster sizing controls how many node failures etcd can survive while still accepting writes.
+
 | Nodes | Tolerated failures | Notes |
 |-------|-------------------|-------|
 | 1 | 0 | Dev/test only — no HA |
@@ -82,6 +86,10 @@ Controllers/Scheduler watch (via API server) and act
 Odd numbers only — even numbers do not improve fault tolerance and increase quorum cost.
 
 ### What Lives in etcd
+
+- **Why it exists** — Understanding what data etcd holds clarifies the blast radius of etcd loss and why backups are critical.
+- **What it is** — The complete persistent state of the Kubernetes cluster: every API object, configuration record, and lease. Keys are stored under a `/registry/` prefix hierarchy mirroring the API group and resource structure.
+- **One-liner** — etcd holds every Kubernetes object and cluster configuration record; losing it without a backup means losing the entire cluster.
 
 - All Kubernetes API objects: pods, deployments, services, configmaps, secrets, namespaces, nodes, RBAC rules
 - Cluster configuration and leader lease records

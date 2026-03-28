@@ -96,6 +96,10 @@ Result:  3 pods running → reconciled
 
 ### Other Notable Controllers
 
+- **Why it exists** — Beyond the core Deployment/ReplicaSet/Node controllers, many other Kubernetes objects require their own dedicated reconciliation loops to function correctly.
+- **What it is** — A collection of additional controllers bundled in kube-controller-manager, each responsible for keeping a specific resource type in its desired state (namespaces, service accounts, jobs, PVCs, etc.).
+- **One-liner** — Other notable controllers handle the full breadth of Kubernetes object lifecycle management beyond pods and deployments.
+
 | Controller | What it reconciles |
 |-----------|-------------------|
 | Namespace Controller | Cleans up resources when a namespace is deleted |
@@ -106,6 +110,10 @@ Result:  3 pods running → reconciled
 | PersistentVolume Controller | Binds PVCs to available PVs |
 
 ### The Reconcile Loop Concept
+
+- **Why it exists** — All controllers share the same fundamental pattern; understanding it once lets you reason about any controller's behavior, including custom controllers you write.
+- **What it is** — The universal control loop pattern: watch for resource changes via the API server, compare desired state to actual state, and take the minimal corrective action to close any gap. Each iteration ends by requeueing the resource to be checked again.
+- **One-liner** — The reconcile loop is the single pattern that every Kubernetes controller follows: observe, compare, act, repeat.
 
 ```bash
 # You can observe reconciliation in action:
