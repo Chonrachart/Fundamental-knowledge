@@ -1,11 +1,11 @@
 # ConfigMaps and Secrets
 
-## Overview
+### Overview
 **Why it exists** — Hardcoding configuration and credentials into container images makes them inflexible and insecure; ConfigMaps and Secrets let you decouple config from the image so the same image runs in dev, staging, and production with different values.
 **What it is** — Namespace-scoped Kubernetes objects that store key-value pairs or file content; ConfigMaps for non-sensitive config, Secrets for sensitive data; both injectable into pods as env vars or volume-mounted files.
 **One-liner** — Decouple application configuration and credentials from the container image.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 ┌─────────────┐    ┌──────────────┐
@@ -21,7 +21,7 @@
                            (except subPath ──► NO auto-sync)
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 ConfigMap / Secret created in namespace
@@ -40,7 +40,7 @@ kubelet watches for changes:
 
 ConfigMaps and Secrets must live in the **same namespace** as the pod that references them.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### ConfigMap
 
@@ -169,7 +169,7 @@ By default, Secrets are stored in etcd as base64 plaintext. Enable `EncryptionCo
 
 For production workloads prefer external secret management: `sealed-secrets`, `external-secrets-operator`, or HashiCorp Vault with the CSI provider.
 
-## Troubleshooting
+### Troubleshooting
 
 ### Env var from ConfigMap/Secret is empty in pod
 1. Verify the object exists: `kubectl get configmap <name>` / `kubectl get secret <name>`

@@ -1,12 +1,12 @@
 # StatefulSets
 
-## Overview
+### Overview
 
 **Why it exists** — Databases, message queues, and clustered apps like Redis or Elasticsearch need stable network identities and persistent storage that survive pod restarts and rescheduling. Deployments give pods random names and transient storage — unsuitable for stateful apps.
 **What it is** — A workload controller like Deployment, but designed for stateful applications. StatefulSets give each pod a stable, ordered name (`mysql-0`, `mysql-1`, `mysql-2`), a stable DNS hostname via a headless Service, and its own PersistentVolumeClaim that persists across pod restarts and rescheduling.
 **One-liner** — A StatefulSet gives each pod a permanent identity (name, DNS, storage) that survives restarts and rescheduling.
 
-## Architecture
+### Architecture
 
 ```text
 StatefulSet "mysql" (replicas: 3)
@@ -21,7 +21,7 @@ StatefulSet "mysql" (replicas: 3)
            If mysql-1 is rescheduled → same name, same PVC, same DNS
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 Scenario: Deploy a 3-node MySQL cluster with StatefulSet
@@ -49,7 +49,7 @@ Key difference from Deployment:
   StatefulSet: pod names are stable ordinals, PVCs follow the pod
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Stable Pod Identity
 
@@ -166,7 +166,7 @@ kubectl get pvc    # PVCs still exist — data safe
 kubectl delete pvc data-mysql-0 data-mysql-1 data-mysql-2   # manual cleanup
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### StatefulSet pods stuck in Pending
 

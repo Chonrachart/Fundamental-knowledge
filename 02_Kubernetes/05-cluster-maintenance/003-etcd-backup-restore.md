@@ -1,12 +1,12 @@
 # etcd Backup and Restore
 
-## Overview
+### Overview
 
 **Why it exists** — etcd is the single source of truth for all cluster state: every object, every secret, every config. If etcd data is corrupted or lost without a backup, the cluster state is irrecoverable — you cannot reconstruct what was running, what secrets existed, or what policies were in place. Regular backups are the only safety net.
 **What it is** — A process of using `etcdctl` to snapshot the etcd key-value store to a file, and restoring from that snapshot when needed. The snapshot captures the full cluster state at a point in time.
 **One-liner** — etcd IS the cluster; back it up with `etcdctl snapshot save` and restore with `etcdctl snapshot restore`.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 etcd data flow:
@@ -27,7 +27,7 @@ etcd data flow:
                                          (new data dir → update etcd manifest)
 ```
 
-## Mental Model
+### Mental Model
 
 Think of etcd as the cluster's brain. `kubectl get pods` is just reading from etcd. `kubectl apply` writes to etcd. Everything the API server returns is ultimately a read from etcd.
 
@@ -35,7 +35,7 @@ A backup is a frozen copy of that brain at a moment in time. Restoring it means:
 
 The most common exam trap: forgetting `ETCDCTL_API=3`. Without it, the v2 API is used and commands silently fail or behave differently.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### ETCDCTL_API environment variable
 
@@ -148,7 +148,7 @@ cat /etc/kubernetes/manifests/etcd.yaml | grep -E "data-dir|cert|key|trusted"
 kubectl describe pod etcd-<controlplane> -n kube-system | grep -A5 "Command:"
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### etcdctl snapshot save: "context deadline exceeded" or connection refused
 1. Verify etcd is running: `kubectl get pods -n kube-system | grep etcd`.

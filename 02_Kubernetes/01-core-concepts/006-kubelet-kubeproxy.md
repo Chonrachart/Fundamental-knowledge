@@ -1,12 +1,12 @@
 # kubelet and kube-proxy
 
-## Overview
+### Overview
 
 **Why it exists** — Every worker node needs a local agent to run pods and route Service traffic; kubelet and kube-proxy fill those two roles.
 **What it is** — kubelet ensures containers described in PodSpecs are running and healthy; kube-proxy maintains network rules so Service IPs route to the right pods.
 **One-liner** — kubelet runs your pods; kube-proxy makes Services work.
 
-## Architecture
+### Architecture
 
 ```text
 Worker Node
@@ -32,7 +32,7 @@ Worker Node
 └──────────────────────────────────────────────────────────┘
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 kubelet flow:
@@ -67,7 +67,7 @@ kube-proxy flow:
   gets redirected to one of the backend pod IPs
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### kubelet
 
@@ -140,7 +140,7 @@ crictl pods        # running pod sandboxes
 crictl logs <id>   # container logs
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### kubelet not starting / node NotReady
 

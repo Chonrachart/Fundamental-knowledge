@@ -1,11 +1,11 @@
 # Certificates API and kubeconfig
 
-## Overview
+### Overview
 **Why it exists** — Clusters need a way to issue signed certificates for new users and components without exposing the CA private key. Separately, every kubectl user needs a portable, structured way to carry cluster address, credentials, and context.
 **What it is** — Two related tools: the CertificateSigningRequest (CSR) API lets you request certs signed by the cluster CA through Kubernetes itself; kubeconfig is the config file (`~/.kube/config`) that stores cluster endpoints, user credentials, and named contexts so kubectl knows who it is and which cluster it is talking to.
 **One-liner** — CSR API = "get a cert signed by the cluster"; kubeconfig = "where is the cluster, who am I, which context am I in."
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
   CSR Workflow
@@ -43,13 +43,13 @@
   └─────────────────────────────────────────────────────────────┘
 ```
 
-## Mental Model
+### Mental Model
 
 **CSR API:** The CA private key never leaves the control plane. Instead of handing out the key, you submit a certificate request through the API. An admin (or automated process) approves it, Kubernetes signs it, and you retrieve the signed cert. This keeps the CA key secure while allowing new identities to be minted on-demand.
 
 **kubeconfig:** Think of it as a Rolodex. Each card (context) says "to talk to cluster X, use credentials Y, and default to namespace Z." You can have dozens of clusters in one file and switch between them with a single command.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### CertificateSigningRequest (CSR) API
 
@@ -203,7 +203,7 @@ KUBECONFIG=~/.kube/config:~/.kube/dev-config kubectl get nodes
 kubectl config view --flatten > ~/.kube/merged-config
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### kubectl: no configuration has been provided
 1. `KUBECONFIG` env var is unset and `~/.kube/config` does not exist.

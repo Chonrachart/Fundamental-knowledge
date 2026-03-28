@@ -1,11 +1,11 @@
 # Worker Node Failure Troubleshooting
 
-## Overview
+### Overview
 **Why it exists** — When a worker node fails, all pods scheduled to it become unavailable; diagnosing the root cause quickly minimizes downtime.
 **What it is** — Scenario-based guide for diagnosing worker node failures: NotReady status, kubelet problems, disk pressure, memory pressure, and network partition.
 **One-liner** — Start with `kubectl get nodes`, then `kubectl describe node`, then SSH → `systemctl status kubelet`.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 Control Plane                    Worker Node
@@ -29,7 +29,7 @@ The kubelet is the agent on every worker node. It:
 
 If the kubelet stops or loses connectivity to the API server, the node transitions to `NotReady`.
 
-## Mental Model
+### Mental Model
 
 ```text
 kubectl get nodes shows NotReady
@@ -58,7 +58,7 @@ Diagnose based on error:
   "config error"       → kubelet config → check /var/lib/kubelet/config.yaml
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Node Conditions
 **Why it exists** — The kubelet continuously reports node health to the API server via Conditions; each condition signals a specific type of pressure or failure.
@@ -75,7 +75,7 @@ Diagnose based on error:
 
 ---
 
-## Troubleshooting Scenarios
+### Troubleshooting Scenarios
 
 ### 1. Node Shows NotReady
 

@@ -1,12 +1,12 @@
 # DaemonSets
 
-## Overview
+### Overview
 
 **Why it exists** — Cluster infrastructure needs run on every node: log collectors need to read every node's `/var/log`, network plugins need to configure every node's networking stack, monitoring agents need to expose every node's metrics. You do not want to calculate replica counts manually — you want exactly one pod per node, automatically, as nodes come and go.
 **What it is** — A DaemonSet is a workload controller that ensures exactly one pod (matching the pod template) runs on every node (or every node matching a node selector/affinity). When a node joins the cluster, the DaemonSet controller creates a pod on it. When a node leaves, its DaemonSet pod is garbage-collected.
 **One-liner** — A DaemonSet runs exactly one pod per matching node — pod count tracks node count, not a replica field.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 DaemonSet "node-exporter"
@@ -21,13 +21,13 @@ DaemonSet "node-exporter"
   Node C removed       ──► DaemonSet pod on Node C is garbage-collected
 ```
 
-## Mental Model
+### Mental Model
 
 A DaemonSet replaces the mental model of "how many pods do I need?" with "every node is a slot." The controller continuously reconciles: for each node, is there exactly one pod from this DaemonSet? If not, create one. If a node is removed, delete the orphaned pod.
 
 Unlike a Deployment, there is no `replicas` field. Scaling up means adding nodes; scaling down means removing nodes.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### DaemonSet spec
 
@@ -168,7 +168,7 @@ kubectl rollout history daemonset/fluentd -n kube-system
 | Update | RollingUpdate with `maxSurge` | RollingUpdate with `maxUnavailable` or OnDelete |
 | Namespace-scoped | Yes | Yes |
 
-## Troubleshooting
+### Troubleshooting
 
 ### DaemonSet pod not appearing on a node
 1. Check node taints: `kubectl describe node <name> | grep Taint` — add matching toleration.

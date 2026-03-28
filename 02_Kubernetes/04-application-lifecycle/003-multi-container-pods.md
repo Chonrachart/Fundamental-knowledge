@@ -1,11 +1,11 @@
 # Multi-Container Pods
 
-## Overview
+### Overview
 **Why it exists** — Some processes are so tightly coupled that they must share the same network namespace and local storage to function; packaging them in one pod avoids inter-pod network hops and lets them communicate over localhost.
 **What it is** — A pod that declares more than one container; all containers share the pod's network namespace (same IP, same localhost), and can share volumes explicitly defined in the pod spec.
 **One-liner** — Co-locate tightly coupled helper processes with the main app so they share network and storage.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 ┌─────────────────────── Pod ──────────────────────────┐
@@ -27,7 +27,7 @@ initContainers:        │  containers:
   (sequential)            (all start together)
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 Decide: should two processes be in the same pod?
@@ -45,7 +45,7 @@ NO — separate pods if:
 
 All containers in a pod are scheduled on the same node together. If one container fails and restarts, the others keep running (unless the pod's `restartPolicy` causes the pod to terminate).
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Sidecar Pattern
 
@@ -163,7 +163,7 @@ spec:
     emptyDir: {}   # lives as long as the pod; wiped on pod deletion
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Init container keeps restarting — main app never starts
 1. Check init container logs: `kubectl logs <pod> -c <init-container-name>`

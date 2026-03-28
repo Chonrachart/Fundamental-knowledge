@@ -1,11 +1,11 @@
 # Control Plane Failure Troubleshooting
 
-## Overview
+### Overview
 **Why it exists** — If the control plane is degraded, nothing else works correctly: pods stop scheduling, controllers stop reconciling, and `kubectl` itself may become unresponsive.
 **What it is** — Scenario-based guide for diagnosing control plane component failures: API server, scheduler, controller-manager, and etcd.
 **One-liner** — Control plane components run as static pods in `kube-system`; start every investigation with `kubectl get pods -n kube-system`.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 Control Plane Node
@@ -26,7 +26,7 @@ Control Plane Node
          │  Manifests in: /etc/kubernetes/manifests/
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 kubectl unresponsive?
@@ -44,7 +44,7 @@ API server up but slow or returning errors?
 
 All control plane components run as **static pods**. The kubelet on the control plane node reads manifests from `/etc/kubernetes/manifests/` and keeps them running. Deleting the pod object only causes it to be recreated.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Static Pods (Control Plane Components)
 **Why it exists** — Control plane components must run even before the cluster API is available; static pods are managed directly by the kubelet without going through the API server.
@@ -67,7 +67,7 @@ kubectl get componentstatuses
 kubectl get cs
 ```
 
-## Troubleshooting Scenarios
+### Troubleshooting Scenarios
 
 ---
 

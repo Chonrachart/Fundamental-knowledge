@@ -1,12 +1,12 @@
 # Cluster Upgrade with kubeadm
 
-## Overview
+### Overview
 
 **Why it exists** — Kubernetes releases security patches and new features on a regular cadence. Running an outdated cluster exposes workloads to known CVEs and prevents access to newer API versions. kubeadm provides a structured, reproducible path for upgrading cluster components without re-provisioning nodes.
 **What it is** — A two-phase process: first upgrade the control plane (API server, controller-manager, scheduler, etcd), then upgrade each worker node one at a time. kubeadm handles the ordering and component config regeneration; you manage the OS-level package installation.
 **One-liner** — kubeadm upgrades the control plane first, then workers are drained, upgraded, and uncordoned one at a time.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 Upgrade order (MUST follow this sequence):
@@ -26,13 +26,13 @@ Upgrade order (MUST follow this sequence):
      └─ kubectl uncordon <worker>  ← from control plane
 ```
 
-## Mental Model
+### Mental Model
 
 Think of the cluster upgrade like upgrading a relay race team: the lead runner (control plane) upgrades first and sets the new pace. The rest of the runners (workers) upgrade one at a time so the race (workloads) never fully stops. The version skew policy is the rule that says no runner can be more than one version behind the leader — fall too far behind and the team cannot coordinate.
 
 The key insight: `kubeadm upgrade apply` only touches control plane static pod manifests. It does not restart worker kubelets or reschedule pods — you must drain and restart each worker separately.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Version skew policy
 
@@ -127,7 +127,7 @@ kubectl version --short
 | 1.27 → 1.29 | No — must go 1.27 → 1.28 → 1.29 |
 | 1.28.0 → 1.28.5 | Yes — patch version bump only |
 
-## Troubleshooting
+### Troubleshooting
 
 ### kubeadm upgrade plan shows "no available upgrades"
 1. The apt package cache may be stale: `apt-get update`.

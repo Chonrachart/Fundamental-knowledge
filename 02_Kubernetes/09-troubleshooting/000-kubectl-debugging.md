@@ -1,11 +1,11 @@
 # kubectl Debugging Commands
 
-## Overview
+### Overview
 **Why it exists** — Kubernetes resources are managed through the API server; you need tools to inspect cluster state, stream container output, and interact with running containers.
 **What it is** — A reference for the core `kubectl` commands used in debugging: getting resource status, describing events, reading logs, executing into containers, forwarding ports, and checking resource usage.
 **One-liner** — The standard debugging loop is: `get` (status) → `describe` (events) → `logs` (app output) → `exec` (inspect inside).
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 kubectl CLI
@@ -27,7 +27,7 @@ API Server ──── authenticates + authorizes request
         target container (stdin/stdout/exec)
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 Debugging loop:
@@ -44,7 +44,7 @@ Most problems surface in one of three places:
 2. **Logs** — app-level errors, missing config, dependency failures
 3. **Inside the container** (`exec`) — wrong files, missing env vars, connectivity issues
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### kubectl get
 **Why it exists** — First step in any debug; shows the current state of one or many resources at a glance.

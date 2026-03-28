@@ -1,11 +1,11 @@
 # Ingress and Gateway API
 
-## Overview
+### Overview
 **Why it exists** — Without Ingress, every HTTP service needs its own LoadBalancer (one cloud LB per service = expensive and hard to manage). Ingress consolidates HTTP/HTTPS routing behind one load balancer, using host and path rules to fan traffic to multiple backend services.
 **What it is** — Ingress is a Kubernetes API object that defines HTTP routing rules. A separate **Ingress controller** (e.g., nginx-ingress, Traefik) watches these objects and configures a reverse proxy accordingly. Gateway API is the successor — more expressive, role-oriented, and supports more protocols.
 **One-liner** — Ingress is one load balancer + one reverse proxy handling HTTP routing to many services; Gateway API is its more powerful successor.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 Internet
@@ -26,7 +26,7 @@ Ingress Controller Pod (nginx / traefik / etc.)
 Each backend Service → Endpoints → Pod IPs
 ```
 
-## Mental Model
+### Mental Model
 
 An Ingress resource is just configuration — it does nothing on its own. You must install an Ingress controller first. The controller is a pod (often in `ingress-nginx` namespace) that:
 1. Gets a LoadBalancer Service or NodePort to receive external traffic
@@ -45,7 +45,7 @@ External request: https://app.example.com/api/v1/users
 5. Pod handles request
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Ingress Controller
 **Why it exists** — The Ingress resource defines what routing should happen; the controller makes it happen.
@@ -224,7 +224,7 @@ spec:
 | Portability | Low (annotation hell) | High (standard spec) |
 | Adoption | Universal | Growing; nginx, Traefik, Istio support it |
 
-## Troubleshooting
+### Troubleshooting
 
 ### Ingress returns 404
 1. Check Ingress resource rules: `kubectl describe ingress <name>` — verify host and path match the request.

@@ -1,12 +1,12 @@
 # Namespaces
 
-## Overview
+### Overview
 
 **Why it exists** — In a shared cluster, different teams and environments (dev, staging, prod) need isolation: their own resource quotas, their own access controls, and the ability to reuse names without collision.
 **What it is** — A virtual cluster within a Kubernetes cluster. Namespaces partition resources (pods, services, configmaps, etc.) into isolated groups. Most Kubernetes objects are namespace-scoped; a few (nodes, PersistentVolumes, ClusterRoles) are cluster-scoped and not confined to any namespace.
 **One-liner** — Namespaces are virtual clusters for team and environment isolation within a single Kubernetes cluster.
 
-## Architecture
+### Architecture
 
 ```text
 Kubernetes Cluster
@@ -29,7 +29,7 @@ Same name, different namespace = different objects:
   web (default) ≠ web (production)
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 Think of namespaces like folders in a filesystem:
@@ -47,7 +47,7 @@ Objects in the same namespace can reference each other by short name.
 Objects in different namespaces need the full DNS name or cross-namespace references.
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Default Namespaces
 
@@ -161,7 +161,7 @@ spec:
       memory: "2Gi"
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Objects not found — "No resources found in default namespace"
 

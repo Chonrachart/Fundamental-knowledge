@@ -1,11 +1,11 @@
 # Pod Disruption Budget
 
-## Overview
+### Overview
 **Why it exists** — Node drains, cluster upgrades, and autoscaler scale-downs can evict pods simultaneously; without a PDB, all replicas of a Deployment could be evicted at once, causing a complete outage.
 **What it is** — A namespace-scoped policy object that tells Kubernetes the minimum number of pods (or maximum number of unavailable pods) that must be maintained during voluntary disruptions.
 **One-liner** — Guarantee minimum availability during planned maintenance by limiting how many pods can be evicted at once.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 3-replica Deployment with PDB minAvailable=2
@@ -23,7 +23,7 @@ kubectl drain node-A:
 End state: all pods evicted safely with at least 2 running at all times
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 PDB answers: "How many of my pods can be disrupted simultaneously?"
@@ -38,7 +38,7 @@ Both accept:
 Use ONE or the other — not both in the same PDB.
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Voluntary vs Involuntary Disruptions
 
@@ -137,7 +137,7 @@ Status:
 - Combine PDB with HPA: HPA can scale up during a drain so the PDB is satisfied faster
 - Use percentages for Deployments whose replica count changes with HPA
 
-## Troubleshooting
+### Troubleshooting
 
 ### kubectl drain blocked — "Cannot evict pod as it would violate the pod's disruption budget"
 1. Check current disruption budget: `kubectl get pdb -n <namespace>` — look at `ALLOWED DISRUPTIONS`

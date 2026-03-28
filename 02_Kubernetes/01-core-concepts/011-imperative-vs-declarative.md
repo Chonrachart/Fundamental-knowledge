@@ -1,12 +1,12 @@
 # Imperative vs Declarative
 
-## Overview
+### Overview
 
 **Why it exists** — Kubernetes supports two ways of interacting with the cluster. Understanding the distinction is critical for knowing when quick one-liners are appropriate vs when you need version-controlled manifests.
 **What it is** — Imperative commands tell Kubernetes exactly what to do step by step (`kubectl run`, `kubectl expose`, `kubectl delete`). Declarative commands describe the desired end state and let Kubernetes figure out how to reach it (`kubectl apply -f`). The reconciliation loop is built around the declarative model.
 **One-liner** — Imperative = tell it what to do; declarative = tell it what you want and let it converge.
 
-## Architecture
+### Architecture
 
 ```text
 Imperative:
@@ -25,7 +25,7 @@ Declarative:
                                    reconcile continuously
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 Imperative (step-by-step instructions):
@@ -48,7 +48,7 @@ Declarative (state description):
   # Store in Git → full history of intended state
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Imperative Commands
 
@@ -158,7 +158,7 @@ Use DECLARATIVE when:
   - Multiple environments (parameterize with Helm/Kustomize)
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### `kubectl apply` returns "field is immutable"
 

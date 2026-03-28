@@ -1,13 +1,13 @@
 # Helm Charts
 
-## Overview
+### Overview
 **Why it exists** — Kubernetes applications need to be deployed across multiple environments with different configs (dev/staging/prod). Charts standardize this by providing reusable, parameterized templates so the same application package can be configured differently without duplicating YAML.
 
 **What it is** — A structured directory containing Kubernetes YAML templates, default configuration values, metadata, and helper functions. Charts enable templating, versioning, and dependency management for Kubernetes applications.
 
 **One-liner** — A chart is a Helm package that combines templates, configuration, and metadata to enable reusable Kubernetes application deployments.
 
-## Architecture (ASCII where relevant)
+### Architecture (ASCII where relevant)
 
 ```
 Chart Directory Structure
@@ -50,7 +50,7 @@ Render final YAML
 Apply to cluster with kubectl
 ```
 
-## Mental Model
+### Mental Model
 
 A Helm chart is like a **parameterized YAML package**:
 - Think of Chart.yaml as the "package.json" (metadata)
@@ -60,7 +60,7 @@ A Helm chart is like a **parameterized YAML package**:
 
 The chart itself is **immutable** — values change, not the chart code.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Chart.yaml
 **Why it exists** — Provides metadata about the chart so Helm can identify, version, and describe what it packages.
@@ -318,7 +318,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   kubectl logs -n {{ .Release.Namespace }} -l app={{ .Chart.Name }}
 ```
 
-## Value Overriding
+### Value Overriding
 
 Values can be overridden at install/upgrade time using multiple methods (CLI highest priority):
 
@@ -342,7 +342,7 @@ helm install myapp ./mychart -f base-values.yaml -f prod-overrides.yaml
 helm install myapp ./mychart -f base-values.yaml --set replicaCount=10
 ```
 
-## Chart Development Commands
+### Chart Development Commands
 
 ### Create a New Chart
 
@@ -406,7 +406,7 @@ helm install myapp ./mychart-0.1.0.tgz
 helm install myapp https://example.com/charts/mychart-0.1.0.tgz
 ```
 
-## Common Patterns
+### Common Patterns
 
 ### Conditional Features
 
@@ -477,7 +477,7 @@ helm install myapp-prod ./mychart -f values-prod.yaml
 helm install myapp ./mychart --set environment=production --set replicas=5
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Template Syntax Error
 

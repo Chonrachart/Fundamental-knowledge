@@ -1,12 +1,12 @@
 # Admission Controllers
 
-## Overview
+### Overview
 
 **Why it exists** — Authentication proves who you are; authorization (RBAC) proves what you're allowed to do. But neither enforces organizational policy on the content of requests: "all pods must have resource limits," "images must come from approved registries," "namespaces being deleted must not have live resources." Admission controllers fill this gap — they intercept requests after auth and can modify or reject them before any object is stored.
 **What it is** — Admission controllers are plugins that run in the API server and intercept write requests (create, update, delete — not read). They run in two phases: mutating first (can modify the request), then validating (can only allow or reject). Built-in controllers handle common defaults and policy; custom logic runs via webhook admission controllers.
 **One-liner** — Admission controllers are the last line of defense in the API request pipeline — they enforce policy and inject defaults after authn/authz, before objects are written to etcd.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 kubectl apply / API client
@@ -31,7 +31,7 @@ kubectl apply / API client
   [6] Write to etcd                     ← Object is persisted
 ```
 
-## Mental Model
+### Mental Model
 
 Think of the API server pipeline as a border crossing:
 1. **Authentication** = show your passport (who are you?)
@@ -42,7 +42,7 @@ Think of the API server pipeline as a border crossing:
 
 The critical property: **mutating runs before validating**. This means a mutating controller can inject defaults (e.g. `defaultStorageClass`) and the validating controller then checks the final, mutated object.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Mutating vs Validating admission
 
@@ -136,7 +136,7 @@ vi /etc/kubernetes/manifests/kube-apiserver.yaml
 # kubelet will detect the change and restart kube-apiserver automatically
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Request rejected with "admission webhook ... denied the request"
 1. Identify which webhook fired: the error message includes the webhook name.

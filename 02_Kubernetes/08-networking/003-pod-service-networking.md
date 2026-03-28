@@ -1,11 +1,11 @@
 # Pod and Service Networking
 
-## Overview
+### Overview
 **Why it exists** — Pods are ephemeral; their IPs change on restart. Services provide a stable virtual IP and DNS name so consumers are decoupled from individual pod lifecycles.
 **What it is** — A networking layer built on top of the pod IP model. A Service gets a ClusterIP (virtual IP) that never changes; kube-proxy translates that VIP into real pod IPs using iptables or IPVS rules on every node.
 **One-liner** — Services are stable virtual IPs backed by iptables/IPVS rules that load-balance to real pod IPs.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 Kubernetes Networking Model Requirements:
@@ -33,7 +33,7 @@ Packet routed to Pod B's node via CNI
 Pod B (10.244.2.7) receives packet on port 8080
 ```
 
-## Mental Model
+### Mental Model
 
 ClusterIP is a **virtual IP that exists nowhere as an interface**. No pod and no node owns it. It only exists as an iptables DNAT rule on every node. When traffic hits the ClusterIP, iptables intercepts it in the PREROUTING chain and rewrites the destination to one of the healthy pod IPs (chosen round-robin or via IPVS).
 
@@ -46,7 +46,7 @@ Service object  →  Endpoints object  →  Pod IPs
 
 kube-proxy watches Services and Endpoints and keeps the iptables/IPVS rules on every node in sync. When a pod fails its readiness probe, it's removed from Endpoints → kube-proxy removes the DNAT rule → no more traffic to that pod.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### ClusterIP
 **Why it exists** — Pods restart and get new IPs; consumers need a stable address to target.
@@ -121,7 +121,7 @@ spec:
 | LoadBalancer | Outside via cloud LB | Built on NodePort; cloud provider creates external LB |
 | ExternalName | Inside cluster | DNS CNAME to external hostname; no proxying |
 
-## Troubleshooting
+### Troubleshooting
 
 ### Service returns "connection refused" or times out
 1. Check Endpoints are populated: `kubectl get endpoints <svc>` — empty means no matching ready pods.

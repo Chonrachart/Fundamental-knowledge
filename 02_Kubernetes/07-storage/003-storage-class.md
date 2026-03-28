@@ -1,11 +1,11 @@
 # StorageClass and Dynamic Provisioning
 
-## Overview
+### Overview
 **Why it exists** — Without StorageClass, every piece of durable storage requires an admin to manually create a PersistentVolume before a developer can use it. StorageClass enables on-demand dynamic provisioning: Kubernetes automatically creates a PV the moment a PVC requests one, with no pre-creation needed.
 **What it is** — A cluster-scoped resource that defines a storage provisioner (the plugin that creates the actual storage), parameters (disk type, IOPS, zone, etc.), and a reclaim policy. When a PVC references a StorageClass, the provisioner creates a PV automatically.
 **One-liner** — StorageClass is the blueprint that tells Kubernetes how to auto-create storage on demand.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 Static provisioning (no StorageClass)        Dynamic provisioning (with StorageClass)
@@ -30,7 +30,7 @@ Developer creates PVC ──────────────────► 
                                                   Pod mounts PVC
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 StorageClass = a template / "product catalog entry" for storage
@@ -47,7 +47,7 @@ Default StorageClass:
   StorageClass annotated as default (if one exists).
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### StorageClass Resource
 
@@ -186,7 +186,7 @@ kubectl get pv                               # see auto-created PV
 kubectl patch pv <pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### PVC stuck in Pending with dynamic provisioning
 1. `kubectl describe pvc <name>` — Events will show provisioner errors.

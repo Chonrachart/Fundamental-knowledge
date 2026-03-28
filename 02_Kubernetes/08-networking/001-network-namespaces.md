@@ -1,11 +1,11 @@
 # Network Namespaces
 
-## Overview
+### Overview
 **Why it exists** — Linux needs a way to give each pod complete network isolation without separate VMs; network namespaces provide that by letting each pod own its own IP, routing table, and interfaces.
 **What it is** — A Linux kernel primitive that creates a fully isolated network stack. Each pod gets one network namespace at creation time; processes inside see only the interfaces and routes in that namespace.
 **One-liner** — A network namespace is the kernel feature that makes every pod look like a separate machine on the network.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 Node (root netns)
@@ -29,7 +29,7 @@ Node (root netns)
 
 Each pod's `eth0` is one end of a **veth pair**; the other end lives in the root namespace and plugs into the bridge. The bridge routes between pods on the same node; the CNI handles cross-node routing.
 
-## Mental Model
+### Mental Model
 
 Pods are like separate machines on the same LAN. Each has:
 - Its own IP address (assigned by CNI from the pod CIDR)
@@ -40,7 +40,7 @@ They can reach each other directly by IP — no NAT needed — because the veth 
 
 Think of it as: the node is a physical switch rack, each pod is a server plugged into it, and the veth pairs are the patch cables.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Network Namespace
 **Why it exists** — Prevents pods from seeing or interfering with each other's network state.
@@ -100,7 +100,7 @@ crictl ps | grep pause
 crictl inspect <pause-container-id> | grep netns
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Pod has no IP / networking not working
 1. Check CNI plugin is running: `kubectl get pods -n kube-system` — look for calico/flannel/cilium pods.

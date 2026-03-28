@@ -1,6 +1,6 @@
 # Overlays and Patches
 
-## Overview
+### Overview
 
 **Why it exists** — Real applications run across multiple environments (dev, staging, prod) that differ in ways: replica counts, resource limits, environment variables, image tags, ingress hostnames, storage size. Without a system to handle these differences, teams either duplicate entire manifests (causing maintenance nightmares) or hardcode environment-specific values into base manifests (breaking reusability). Overlays and patches solve this by letting you define common base resources once, then layer environment-specific changes on top using plain YAML patches.
 
@@ -8,7 +8,7 @@
 
 **One-liner** — Overlays = base + patches = environment-specific manifests from a single source of truth.
 
-## Architecture
+### Architecture
 
 ```text
 Directory Structure (Base + Overlays Pattern):
@@ -51,7 +51,7 @@ kubectl apply -k overlays/prod/
     └─→ Send transformed YAML to API Server
 ```
 
-## Mental Model
+### Mental Model
 
 Think of overlays as "layer-by-layer customization":
 
@@ -82,7 +82,7 @@ When you run `kubectl apply -k overlays/prod/`:
 
 Key insight: **The base is never modified.** Patches are applied on top, so you can re-use the same base for unlimited overlays.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### The Base Kustomization
 
@@ -528,7 +528,7 @@ When you apply `kubectl apply -k overlays/prod/`:
 | **Best for** | Simple changes (replicas, image tags) | Complex, precise changes |
 | **Learning curve** | Low | High |
 
-## Troubleshooting
+### Troubleshooting
 
 ### Patch not being applied
 

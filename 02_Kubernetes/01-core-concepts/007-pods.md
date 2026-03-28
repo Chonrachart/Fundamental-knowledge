@@ -1,12 +1,12 @@
 # Pods
 
-## Overview
+### Overview
 
 **Why it exists** — Containers that work together (e.g. an app and its log shipper) need to share the same network and storage. The pod is the abstraction that groups them and gives them a shared context.
 **What it is** — The smallest deployable unit in Kubernetes. A pod contains one or more containers that share a network namespace (same IP, communicate via `localhost`) and can share storage volumes. Pods are ephemeral — they are created, run, and destroyed. You rarely create pods directly; Deployments, StatefulSets, and DaemonSets manage them.
 **One-liner** — A pod is a co-located group of containers that share network and storage, treated as a single scheduling unit.
 
-## Architecture
+### Architecture
 
 ```text
 ┌─── Pod (unique IP, shared network namespace) ────────────────┐
@@ -26,7 +26,7 @@
 └──────────────────────────────────────────────────────────────┘
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 Pod lifecycle:
@@ -56,7 +56,7 @@ terminationGracePeriodSeconds (default 30s)
 SIGKILL if still running
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Pod Spec Anatomy
 
@@ -193,7 +193,7 @@ kubectl get pods -w
 kubectl describe pod <name>
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Pod not receiving traffic despite being Running
 

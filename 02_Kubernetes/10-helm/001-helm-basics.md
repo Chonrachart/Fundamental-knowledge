@@ -1,13 +1,13 @@
 # Helm Basics
 
-## Overview
+### Overview
 **Why it exists** — Managing raw Kubernetes YAML gets repetitive and hard to version. You need to maintain separate config files for dev/staging/prod, handle dependencies, and deploy updates consistently. Helm packages, versions, and deploys Kubernetes applications using templated manifests and configuration management.
 
 **What it is** — A package manager for Kubernetes that bundles YAML templates with configuration values, version control, and release management. Helm acts like apt/npm but for Kubernetes applications.
 
 **One-liner** — Helm = Kubernetes package manager that templates YAML, manages releases, and enables easy upgrades and rollbacks.
 
-## Architecture (ASCII where relevant)
+### Architecture (ASCII where relevant)
 
 ```
 Helm Workflow
@@ -26,7 +26,7 @@ Helm Workflow
 6. Release Created (tracked by Helm in kube-system)
 ```
 
-## Mental Model
+### Mental Model
 
 Think of Helm as **templated package management**:
 - **Chart** = source code (template + metadata)
@@ -36,7 +36,7 @@ Think of Helm as **templated package management**:
 
 One chart can be installed many times as different releases (e.g., `nginx-prod` and `nginx-staging` from the same nginx chart).
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Chart
 **Why it exists** — Provides a standardized, reusable package format for Kubernetes applications with metadata, version control, and dependency management.
@@ -66,7 +66,7 @@ One chart can be installed many times as different releases (e.g., `nginx-prod` 
 
 **One-liner** — Values are template configuration passed to a chart at install time.
 
-## Core Commands
+### Core Commands
 
 ### Repository Management
 
@@ -172,7 +172,7 @@ helm install myapp ./mychart
 helm install myapp ./mychart-0.1.0.tgz
 ```
 
-## Overriding Values
+### Overriding Values
 
 Values can be overridden at install/upgrade time in priority order (CLI highest priority):
 
@@ -192,7 +192,7 @@ helm install myapp bitnami/nginx --set-string someKey=stringval
 helm install myapp bitnami/nginx -f base-values.yaml --set replicaCount=10
 ```
 
-## Common Patterns
+### Common Patterns
 
 ### Installing Multiple Releases from Same Chart
 
@@ -220,7 +220,7 @@ helm install myapp ./mychart -f values-prod.yaml
 helm install myapp ./mychart --set environment=production --set replicas=5
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Release Deployment Failed
 

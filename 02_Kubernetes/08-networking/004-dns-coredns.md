@@ -1,11 +1,11 @@
 # DNS and CoreDNS
 
-## Overview
+### Overview
 **Why it exists** — Pod IPs and even Service ClusterIPs can change; hardcoding IPs is fragile. CoreDNS provides in-cluster service discovery by name, so code only needs to know a stable DNS name.
 **What it is** — CoreDNS is a flexible DNS server deployed as a Deployment in `kube-system`. It watches Kubernetes Services and Pods and serves DNS records for them. Every pod is automatically configured to use CoreDNS as its resolver.
 **One-liner** — CoreDNS is the in-cluster DNS server that lets pods find Services by name instead of IP.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 Pod (any namespace)
@@ -27,7 +27,7 @@ Returns A record: 10.96.45.23   ← ClusterIP of "web" Service
 Pod connects to 10.96.45.23
 ```
 
-## Mental Model
+### Mental Model
 
 Every pod's `/etc/resolv.conf` has three things:
 1. `nameserver <CoreDNS-ClusterIP>` — where to send DNS queries
@@ -42,7 +42,7 @@ This means a pod in the `default` namespace can reach the `web` service with any
 
 Names from other namespaces need at least `<svc>.<namespace>` to be unambiguous.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### DNS Name Formats
 
@@ -136,7 +136,7 @@ kubectl exec <pod> -- cat /etc/resolv.conf
 # options ndots:5
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### DNS resolution fails inside pod
 1. Check CoreDNS pods are running: `kubectl -n kube-system get pods -l k8s-app=kube-dns`.

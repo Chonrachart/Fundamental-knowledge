@@ -1,12 +1,12 @@
 # OS Upgrades
 
-## Overview
+### Overview
 
 **Why it exists** — Nodes must occasionally be rebooted for OS patches, kernel upgrades, or hardware maintenance. Without a controlled drain sequence, pods running on that node are abruptly killed and may not recover if they lack a controller or if persistent data is lost.
 **What it is** — A process of gracefully evicting workloads off a node before taking it offline, then returning it to the cluster once the maintenance is complete.
 **One-liner** — Cordon + drain a node before OS maintenance so workloads land elsewhere safely, then uncordon to return the node to service.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 Controlled OS upgrade flow:
@@ -34,7 +34,7 @@ Controlled OS upgrade flow:
   node01: Ready (scheduler resumes placing pods here)
 ```
 
-## Mental Model
+### Mental Model
 
 Think of `cordon` as putting up a "no new guests" sign on a hotel floor, and `drain` as politely asking all current guests to pack up and move to other floors. Once maintenance is done, `uncordon` takes the sign down and the floor is open again.
 
@@ -42,7 +42,7 @@ The critical distinction: `cordon` alone does not move existing pods — it only
 
 Pods managed by a Deployment, ReplicaSet, StatefulSet, or Job will be rescheduled elsewhere automatically. Standalone (bare) pods with no controller will not — use `--force` to delete them anyway, but be aware they will not come back on their own.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### cordon
 
@@ -128,7 +128,7 @@ kubectl get nodes
 | `cordon` | Yes | No | N/A |
 | `drain` | Yes (implicit) | Yes | Yes |
 
-## Troubleshooting
+### Troubleshooting
 
 ### drain is blocked — "cannot delete pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet"
 1. You have standalone (bare) pods on the node with no controller. Drain refuses by default because evicting them means they are gone permanently.

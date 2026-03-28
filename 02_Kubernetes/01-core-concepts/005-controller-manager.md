@@ -1,12 +1,12 @@
 # kube-controller-manager
 
-## Overview
+### Overview
 
 **Why it exists** — Kubernetes is declarative: you declare desired state and something must continuously watch for drift and correct it. Without controllers, objects would be created but nothing would act on them.
 **What it is** — A single binary that runs many independent control loops (controllers) in one process. Each controller watches a specific resource type, compares desired state to actual state, and takes corrective action. Controllers never talk to each other — each only watches the API server.
 **One-liner** — The controller manager is the automation engine that keeps actual cluster state matching desired state through continuous reconciliation loops.
 
-## Architecture
+### Architecture
 
 ```text
                     ┌─────────────────────────────────────────┐
@@ -31,7 +31,7 @@
                               └───────────────┘
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 The Reconcile Loop (every controller follows this pattern):
@@ -68,7 +68,7 @@ Action:  Create 1 new pod matching the pod template
 Result:  3 pods running → reconciled
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Deployment Controller
 
@@ -123,7 +123,7 @@ kubectl delete pod myapp-abc123
 kubectl get pods   # new pod appears within seconds
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Deployment created but no pods appear
 

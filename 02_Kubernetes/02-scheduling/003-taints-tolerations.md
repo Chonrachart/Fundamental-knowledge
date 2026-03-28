@@ -1,12 +1,12 @@
 # Taints and Tolerations
 
-## Overview
+### Overview
 
 **Why it exists** — Nodes sometimes need to repel most pods: dedicated GPU nodes, nodes under memory pressure, or the control-plane node that should not run workloads. Taints let node operators mark a node as "off-limits" without modifying every pod that should stay away.
 **What it is** — A **taint** is a mark on a node with a key, an optional value, and an effect. A **toleration** on a pod is a declaration that the pod can tolerate (survive) a specific taint. Only pods with matching tolerations are permitted to schedule onto (or stay on) a tainted node.
 **One-liner** — Taints repel pods from nodes; tolerations on pods grant permission to land on tainted nodes.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 Node: node-gpu
@@ -20,13 +20,13 @@ Pod C  tolerations:
          effect: NoSchedule    ──► node-gpu   (allowed)
 ```
 
-## Mental Model
+### Mental Model
 
 Think of a taint as a "no trespassing" sign on a node, and a toleration as a VIP pass on a pod. The sign says "go away unless you have this pass." The pass does not force the pod onto that node — it just removes the restriction. To actually force a pod onto a specific node you need node affinity (or `nodeName`).
 
 Combined pattern: **taint + toleration + node affinity = dedicated nodes** (repel everyone else AND attract the right pods).
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Taint syntax
 
@@ -125,7 +125,7 @@ tolerations:
 | Node eviction on pressure | `node.kubernetes.io/memory-pressure:NoExecute` | Kubernetes-managed; evict pods |
 | Spot/preemptible nodes | `cloud.google.com/gke-spot:NoSchedule` | Only spot-tolerant workloads |
 
-## Troubleshooting
+### Troubleshooting
 
 ### Pod not scheduling — "0/3 nodes are available: 3 node(s) had untolerated taint"
 1. Identify taints: `kubectl describe node <name> | grep -A3 Taints`.

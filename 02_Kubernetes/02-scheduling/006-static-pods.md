@@ -1,12 +1,12 @@
 # Static Pods
 
-## Overview
+### Overview
 
 **Why it exists** — The Kubernetes control-plane itself (API server, etcd, controller-manager, scheduler) needs to start somewhere before any of those components are running. Static pods let the kubelet bootstrap these critical components directly from files on disk, without depending on the API server.
 **What it is** — A static pod is a pod whose definition lives as a YAML/JSON file in a directory on the node's filesystem (default: `/etc/kubernetes/manifests/`). The kubelet watches that directory and creates, updates, or deletes pods as files appear, change, or disappear — entirely without communicating with the API server.
 **One-liner** — Static pods are kubelet-managed pods defined by files in `/etc/kubernetes/manifests/` — used to bootstrap the control plane before the API server exists.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 Control-plane node filesystem:
@@ -31,7 +31,7 @@ Control-plane node filesystem:
            Name ends with node name (e.g. "-controlplane")
 ```
 
-## Mental Model
+### Mental Model
 
 Normal pods: user creates pod manifest → API server stores it → scheduler assigns it → kubelet on the assigned node creates the container.
 
@@ -41,7 +41,7 @@ The kubelet acts as a mini-control-plane for static pods. It also watches the po
 
 Once the API server is running, the kubelet registers "mirror pods" — read-only API objects that represent the static pods. You can see them with `kubectl`, but you cannot delete them via kubectl (deleting the mirror pod just recreates it; you must delete the file from disk).
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### How static pods work
 
@@ -148,7 +148,7 @@ cat /var/lib/kubelet/config.yaml
 systemctl cat kubelet | grep manifest
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Static pod not starting after dropping a file in manifests/
 1. Check kubelet logs: `journalctl -u kubelet -f` — manifest parse errors appear here.

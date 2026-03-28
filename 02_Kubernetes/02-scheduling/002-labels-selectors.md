@@ -1,12 +1,12 @@
 # Labels and Selectors
 
-## Overview
+### Overview
 
 **Why it exists** — Kubernetes objects need a flexible, decoupled way to group and target each other without hard-coded references. Labels provide loose coupling: a Service does not know the names of individual pods — it just says "give me all pods with `app=web`."
 **What it is** — Labels are arbitrary key-value pairs attached to any Kubernetes object. Selectors are queries that match objects by their label values. Together they wire Deployments to pods, Services to pods, and allow ad-hoc filtering with `kubectl`.
 **One-liner** — Labels are key-value tags on objects; selectors are the queries that match them — the glue connecting Deployments, Services, and kubectl queries to pods.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 Deployment ──selector: app=web──► Pod (app=web, env=prod)
@@ -20,13 +20,13 @@ Service    ──selector: app=web──► Pod (app=web, env=prod)   ← same p
 kubectl get pods -l app=web       ← same selector, ad-hoc query
 ```
 
-## Mental Model
+### Mental Model
 
 Labels are like tags in a filing system. You label every document (pod) with whatever attributes matter: `app=web`, `env=prod`, `tier=frontend`. Then any actor (Deployment, Service, kubectl) can select all documents matching a query without needing to know individual document names. Adding a new pod with the right labels automatically makes it a member of all matching groups.
 
 The key insight: **nothing breaks when you add a new pod** — it just picks up membership in all matching selectors automatically.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Label syntax rules
 
@@ -133,7 +133,7 @@ metadata:
     prometheus.io/scrape: "true"                           # tool-read, not selectable
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Service not routing traffic to pods
 1. Check the Service selector: `kubectl get svc <name> -o yaml | grep -A5 selector`.

@@ -1,12 +1,12 @@
 # Manual Scheduling
 
-## Overview
+### Overview
 
 **Why it exists** — Sometimes you need to pin a pod to a specific node without relying on the scheduler — for testing, debugging, or placing a workload on hardware you know it must run on.
 **What it is** — Setting `spec.nodeName` in the pod spec tells the kubelet on that node to run the pod directly; the kube-scheduler sees the field is already set and skips the pod entirely.
 **One-liner** — Setting `spec.nodeName` bypasses the scheduler and pins a pod directly to a named node.
 
-## Architecture (ASCII diagram)
+### Architecture (ASCII diagram)
 
 ```text
 Normal scheduling path:
@@ -17,13 +17,13 @@ Manual scheduling path:
                                (scheduler skipped entirely)
 ```
 
-## Mental Model
+### Mental Model
 
 Think of `nodeName` as a sticky note you put on the pod before it enters the queue. The scheduler looks at each pod, checks whether `nodeName` is already set, and if so, moves on. The kubelet on the named node polls the API server for pods assigned to it and picks up the pod directly.
 
 If you need to change the node assignment of an already-running pod, you cannot edit `nodeName` in-place. You must delete the pod and recreate it with the new value, or use a Binding object (advanced).
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### nodeName field
 
@@ -85,7 +85,7 @@ kubectl describe pod nginx-pinned | grep Node:
 kubectl get pods -o wide --all-namespaces
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Pod stuck in Pending after setting nodeName
 1. Verify the node name is correct: `kubectl get nodes` — names are case-sensitive.

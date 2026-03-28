@@ -1,11 +1,11 @@
 # Volumes
 
-## Overview
+### Overview
 **Why it exists** — Containers have ephemeral filesystems: when a container restarts, all data written to its local filesystem is lost. Volumes provide a way for data to outlive individual container restarts and to be shared between containers within the same pod.
 **What it is** — A volume is a directory (backed by some storage medium) that is mounted into one or more containers in a pod. Volumes are declared in the pod spec and exist for the lifetime of the pod, not the lifetime of any single container.
 **One-liner** — Volumes give pods a place to store and share data that survives container restarts.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 ┌─────────────────────────────────────────┐
@@ -25,7 +25,7 @@
 Volume lifecycle: tied to the Pod (not the container)
 ```
 
-## Mental Model
+### Mental Model
 
 ```text
 Container filesystem  →  ephemeral (dies with container)
@@ -38,7 +38,7 @@ Think of it like:
   PVC/PV     = external hard drive plugged into the pod
 ```
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Volume Types Overview
 
@@ -164,7 +164,7 @@ hostPath `type` options:
       claimName: my-data-pvc
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Container data lost after restart (but pod still running)
 1. Verify the container is using a volume — check `spec.volumes` and `spec.containers[].volumeMounts`.

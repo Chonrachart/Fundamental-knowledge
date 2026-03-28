@@ -1,11 +1,11 @@
 # Network Policies
 
-## Overview
+### Overview
 **Why it exists** — By default, Kubernetes applies zero network isolation: every pod can reach every other pod across all namespaces on any port. A compromised pod can freely probe databases, internal services, and other workloads. NetworkPolicies let you lock down which pods can talk to which.
 **What it is** — A namespace-scoped Kubernetes resource that acts as a firewall for pod traffic. A CNI plugin (Calico, Cilium, Weave) reads the policies and enforces them using iptables or eBPF — the kube-proxy does not participate.
 **One-liner** — NetworkPolicy = namespace firewall rules that restrict pod-to-pod and pod-to-external traffic, enforced by the CNI plugin.
 
-## Architecture (ASCII)
+### Architecture (ASCII)
 
 ```text
 ┌──── Node ─────────────────────────────────────────┐
@@ -29,7 +29,7 @@
 
 kube-proxy handles Service IP routing. NetworkPolicy handles pod-to-pod firewall — they are independent.
 
-## Mental Model
+### Mental Model
 
 ```text
 No NetworkPolicy exists
@@ -52,7 +52,7 @@ A second policy never removes what a first policy allowed
 
 The safest baseline: start with a default-deny-all policy for the namespace, then explicitly allow only the traffic that should flow. Build up permissions rather than trying to block specific paths.
 
-## Core Building Blocks
+### Core Building Blocks
 
 ### Policy Structure
 
@@ -261,7 +261,7 @@ kubectl apply -f deny-all.yaml -n production
 kubectl delete networkpolicy default-deny-ingress -n production
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 ### Pod cannot reach another pod after adding NetworkPolicy
 1. Check for a default-deny: `kubectl get networkpolicy -n <namespace>`.
