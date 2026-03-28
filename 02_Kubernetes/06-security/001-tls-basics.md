@@ -5,7 +5,7 @@
 - **What it is** — TLS (Transport Layer Security) is the protocol that provides encryption and authentication over TCP. In Kubernetes, every component acts as both a server (accepts connections) and a client (initiates connections), so each component holds both a certificate and a private key, and all certificates are signed by a shared Certificate Authority (CA).
 - **One-liner** — TLS ensures no Kubernetes component communicates over plain HTTP; every connection is encrypted and mutually authenticated via certificates.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
                     ┌──────────────────────────────────────┐

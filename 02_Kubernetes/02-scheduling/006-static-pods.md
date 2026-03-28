@@ -6,7 +6,7 @@
 - **What it is** — A static pod is a pod whose definition lives as a YAML/JSON file in a directory on the node's filesystem (default: `/etc/kubernetes/manifests/`). The kubelet watches that directory and creates, updates, or deletes pods as files appear, change, or disappear — entirely without communicating with the API server.
 - **One-liner** — Static pods are kubelet-managed pods defined by files in `/etc/kubernetes/manifests/` — used to bootstrap the control plane before the API server exists.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 Control-plane node filesystem:

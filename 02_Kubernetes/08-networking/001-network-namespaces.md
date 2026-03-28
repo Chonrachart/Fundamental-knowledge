@@ -5,7 +5,7 @@
 - **What it is** — A Linux kernel primitive that creates a fully isolated network stack. Each pod gets one network namespace at creation time; processes inside see only the interfaces and routes in that namespace.
 - **One-liner** — A network namespace is the kernel feature that makes every pod look like a separate machine on the network.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Node (root netns)

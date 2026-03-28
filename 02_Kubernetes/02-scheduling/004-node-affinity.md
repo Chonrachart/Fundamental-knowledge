@@ -6,7 +6,7 @@
 - **What it is** — Node affinity is a set of rules in `spec.affinity.nodeAffinity` that the scheduler evaluates when placing a pod. Rules can be hard (required) or soft (preferred), and use rich operators (In, NotIn, Exists, DoesNotExist, Gt, Lt) against node labels.
 - **One-liner** — Node affinity attracts pods to nodes that match label expressions — more expressive than nodeSelector, with hard and soft rule types.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 Scheduler pipeline for a pod with node affinity:

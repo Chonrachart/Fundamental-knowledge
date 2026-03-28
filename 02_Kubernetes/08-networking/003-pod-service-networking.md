@@ -5,7 +5,7 @@
 - **What it is** — A networking layer built on top of the pod IP model. A Service gets a ClusterIP (virtual IP) that never changes; kube-proxy translates that VIP into real pod IPs using iptables or IPVS rules on every node.
 - **One-liner** — Services are stable virtual IPs backed by iptables/IPVS rules that load-balance to real pod IPs.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Kubernetes Networking Model Requirements:

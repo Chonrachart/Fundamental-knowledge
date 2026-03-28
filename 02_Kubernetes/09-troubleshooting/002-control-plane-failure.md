@@ -5,7 +5,7 @@
 - **What it is** — Scenario-based guide for diagnosing control plane component failures: API server, scheduler, controller-manager, and etcd.
 - **One-liner** — Control plane components run as static pods in `kube-system`; start every investigation with `kubectl get pods -n kube-system`.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Control Plane Node
@@ -67,7 +67,7 @@ kubectl get componentstatuses
 kubectl get cs
 ```
 
-### Troubleshooting Scenarios
+# Troubleshooting
 
 ---
 

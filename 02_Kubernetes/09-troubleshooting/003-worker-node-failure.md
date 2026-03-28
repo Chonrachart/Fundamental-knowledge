@@ -5,7 +5,7 @@
 - **What it is** — Scenario-based guide for diagnosing worker node failures: NotReady status, kubelet problems, disk pressure, memory pressure, and network partition.
 - **One-liner** — Start with `kubectl get nodes`, then `kubectl describe node`, then SSH → `systemctl status kubelet`.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Control Plane                    Worker Node
@@ -75,7 +75,7 @@ Diagnose based on error:
 
 ---
 
-### Troubleshooting Scenarios
+# Troubleshooting
 
 ### 1. Node Shows NotReady
 

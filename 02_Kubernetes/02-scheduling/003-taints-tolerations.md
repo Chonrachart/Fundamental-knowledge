@@ -6,7 +6,7 @@
 - **What it is** — A **taint** is a mark on a node with a key, an optional value, and an effect. A **toleration** on a pod is a declaration that the pod can tolerate (survive) a specific taint. Only pods with matching tolerations are permitted to schedule onto (or stay on) a tainted node.
 - **One-liner** — Taints repel pods from nodes; tolerations on pods grant permission to land on tainted nodes.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 Node: node-gpu

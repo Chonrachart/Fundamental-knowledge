@@ -5,7 +5,7 @@
 - **What it is** — Two related tools: the CertificateSigningRequest (CSR) API lets you request certs signed by the cluster CA through Kubernetes itself; kubeconfig is the config file (`~/.kube/config`) that stores cluster endpoints, user credentials, and named contexts so kubectl knows who it is and which cluster it is talking to.
 - **One-liner** — CSR API = "get a cert signed by the cluster"; kubeconfig = "where is the cluster, who am I, which context am I in."
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
   CSR Workflow

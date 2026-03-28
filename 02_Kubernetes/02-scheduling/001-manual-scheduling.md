@@ -6,7 +6,7 @@
 - **What it is** — Setting `spec.nodeName` in the pod spec tells the kubelet on that node to run the pod directly; the kube-scheduler sees the field is already set and skips the pod entirely.
 - **One-liner** — Setting `spec.nodeName` bypasses the scheduler and pins a pod directly to a named node.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 Normal scheduling path:

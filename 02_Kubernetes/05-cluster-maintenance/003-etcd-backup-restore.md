@@ -6,7 +6,7 @@
 - **What it is** — A process of using `etcdctl` to snapshot the etcd key-value store to a file, and restoring from that snapshot when needed. The snapshot captures the full cluster state at a point in time.
 - **One-liner** — etcd IS the cluster; back it up with `etcdctl snapshot save` and restore with `etcdctl snapshot restore`.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 etcd data flow:

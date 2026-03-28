@@ -5,7 +5,7 @@
 - **What it is** — Ingress is a Kubernetes API object that defines HTTP routing rules. A separate **Ingress controller** (e.g., nginx-ingress, Traefik) watches these objects and configures a reverse proxy accordingly. Gateway API is the successor — more expressive, role-oriented, and supports more protocols.
 - **One-liner** — Ingress is one load balancer + one reverse proxy handling HTTP routing to many services; Gateway API is its more powerful successor.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Internet

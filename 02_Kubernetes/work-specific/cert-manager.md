@@ -236,7 +236,7 @@ Related notes: [004-services-ingress](./004-services-ingress.md), [005-configmap
 - Install via static manifest or Helm; requires CRDs to be installed first.
 ---
 
-# Troubleshooting Guide
+# Troubleshooting
 
 ### Certificate stuck in NotReady
 1. Check certificate status: `kubectl describe certificate <name>`.

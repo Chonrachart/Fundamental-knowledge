@@ -6,7 +6,7 @@
 - **What it is** — Labels are arbitrary key-value pairs attached to any Kubernetes object. Selectors are queries that match objects by their label values. Together they wire Deployments to pods, Services to pods, and allow ad-hoc filtering with `kubectl`.
 - **One-liner** — Labels are key-value tags on objects; selectors are the queries that match them — the glue connecting Deployments, Services, and kubectl queries to pods.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 Deployment ──selector: app=web──► Pod (app=web, env=prod)

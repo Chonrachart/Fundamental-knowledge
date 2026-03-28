@@ -5,7 +5,7 @@
 - **What it is** — An authorization mechanism built into the API server. It uses four object types — Role, ClusterRole, RoleBinding, ClusterRoleBinding — to define what actions (verbs) a subject (user, group, or ServiceAccount) can perform on which resources.
 - **One-liner** — RBAC maps "who" to "what they can do" using Roles and Bindings, enforcing least-privilege for every identity in the cluster.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Request arrives at API Server

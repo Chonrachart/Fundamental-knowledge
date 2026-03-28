@@ -5,7 +5,7 @@
 - **What it is** — Namespace-scoped Kubernetes objects that store key-value pairs or file content; ConfigMaps for non-sensitive config, Secrets for sensitive data; both injectable into pods as env vars or volume-mounted files.
 - **One-liner** — Decouple application configuration and credentials from the container image.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 ┌─────────────┐    ┌──────────────┐

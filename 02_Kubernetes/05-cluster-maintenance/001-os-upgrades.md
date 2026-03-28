@@ -6,7 +6,7 @@
 - **What it is** — A process of gracefully evicting workloads off a node before taking it offline, then returning it to the cluster once the maintenance is complete.
 - **One-liner** — Cordon + drain a node before OS maintenance so workloads land elsewhere safely, then uncordon to return the node to service.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 Controlled OS upgrade flow:
