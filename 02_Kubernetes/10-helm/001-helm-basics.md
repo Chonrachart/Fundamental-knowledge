@@ -1,11 +1,11 @@
 # Helm Basics
 
 ### Overview
-**Why it exists** — Managing raw Kubernetes YAML gets repetitive and hard to version. You need to maintain separate config files for dev/staging/prod, handle dependencies, and deploy updates consistently. Helm packages, versions, and deploys Kubernetes applications using templated manifests and configuration management.
+- **Why it exists** — Managing raw Kubernetes YAML gets repetitive and hard to version. You need to maintain separate config files for dev/staging/prod, handle dependencies, and deploy updates consistently. Helm packages, versions, and deploys Kubernetes applications using templated manifests and configuration management.
 
-**What it is** — A package manager for Kubernetes that bundles YAML templates with configuration values, version control, and release management. Helm acts like apt/npm but for Kubernetes applications.
+- **What it is** — A package manager for Kubernetes that bundles YAML templates with configuration values, version control, and release management. Helm acts like apt/npm but for Kubernetes applications.
 
-**One-liner** — Helm = Kubernetes package manager that templates YAML, manages releases, and enables easy upgrades and rollbacks.
+- **One-liner** — Helm = Kubernetes package manager that templates YAML, manages releases, and enables easy upgrades and rollbacks.
 
 ### Architecture (ASCII where relevant)
 
@@ -39,32 +39,32 @@ One chart can be installed many times as different releases (e.g., `nginx-prod` 
 ### Core Building Blocks
 
 ### Chart
-**Why it exists** — Provides a standardized, reusable package format for Kubernetes applications with metadata, version control, and dependency management.
+- **Why it exists** — Provides a standardized, reusable package format for Kubernetes applications with metadata, version control, and dependency management.
 
-**What it is** — A directory structure containing YAML templates, a metadata file (Chart.yaml), default configuration (values.yaml), and optional dependency charts. Charts can be packaged as .tgz archives and stored in repositories.
+- **What it is** — A directory structure containing YAML templates, a metadata file (Chart.yaml), default configuration (values.yaml), and optional dependency charts. Charts can be packaged as .tgz archives and stored in repositories.
 
-**One-liner** — A chart is a template + metadata package for a Kubernetes application.
+- **One-liner** — A chart is a template + metadata package for a Kubernetes application.
 
 ### Release
-**Why it exists** — Allows the same chart to be deployed multiple times with different configurations without conflicts or collision.
+- **Why it exists** — Allows the same chart to be deployed multiple times with different configurations without conflicts or collision.
 
-**What it is** — A named instance of a chart deployed to a cluster. Helm tracks releases in the cluster and maintains a history of revisions, enabling easy upgrades and rollbacks.
+- **What it is** — A named instance of a chart deployed to a cluster. Helm tracks releases in the cluster and maintains a history of revisions, enabling easy upgrades and rollbacks.
 
-**One-liner** — A release is a deployed instance of a chart with a unique name and version history.
+- **One-liner** — A release is a deployed instance of a chart with a unique name and version history.
 
 ### Repository
-**Why it exists** — Centralizes and distributes charts so teams can discover, share, and version application packages across organizations.
+- **Why it exists** — Centralizes and distributes charts so teams can discover, share, and version application packages across organizations.
 
-**What it is** — A collection of charts, often hosted remotely (like Bitnami, stable, etc.) or stored locally. Repositories are indexed so `helm search` can discover charts.
+- **What it is** — A collection of charts, often hosted remotely (like Bitnami, stable, etc.) or stored locally. Repositories are indexed so `helm search` can discover charts.
 
-**One-liner** — A repository is a searchable registry of Helm charts, like npm for Kubernetes.
+- **One-liner** — A repository is a searchable registry of Helm charts, like npm for Kubernetes.
 
 ### Values
-**Why it exists** — Separates configuration from templates so the same chart can be deployed across environments without modifying source YAML.
+- **Why it exists** — Separates configuration from templates so the same chart can be deployed across environments without modifying source YAML.
 
-**What it is** — YAML configuration injected into templates at install/upgrade time. Can come from default values.yaml, CLI `--set` flags, or separate YAML files.
+- **What it is** — YAML configuration injected into templates at install/upgrade time. Can come from default values.yaml, CLI `--set` flags, or separate YAML files.
 
-**One-liner** — Values are template configuration passed to a chart at install time.
+- **One-liner** — Values are template configuration passed to a chart at install time.
 
 ### Core Commands
 

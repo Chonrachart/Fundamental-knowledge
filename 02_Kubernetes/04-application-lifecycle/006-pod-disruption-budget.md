@@ -1,9 +1,9 @@
 # Pod Disruption Budget
 
 ### Overview
-**Why it exists** — Node drains, cluster upgrades, and autoscaler scale-downs can evict pods simultaneously; without a PDB, all replicas of a Deployment could be evicted at once, causing a complete outage.
-**What it is** — A namespace-scoped policy object that tells Kubernetes the minimum number of pods (or maximum number of unavailable pods) that must be maintained during voluntary disruptions.
-**One-liner** — Guarantee minimum availability during planned maintenance by limiting how many pods can be evicted at once.
+- **Why it exists** — Node drains, cluster upgrades, and autoscaler scale-downs can evict pods simultaneously; without a PDB, all replicas of a Deployment could be evicted at once, causing a complete outage.
+- **What it is** — A namespace-scoped policy object that tells Kubernetes the minimum number of pods (or maximum number of unavailable pods) that must be maintained during voluntary disruptions.
+- **One-liner** — Guarantee minimum availability during planned maintenance by limiting how many pods can be evicted at once.
 
 ### Architecture (ASCII)
 

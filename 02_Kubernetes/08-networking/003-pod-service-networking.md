@@ -1,9 +1,9 @@
 # Pod and Service Networking
 
 ### Overview
-**Why it exists** — Pods are ephemeral; their IPs change on restart. Services provide a stable virtual IP and DNS name so consumers are decoupled from individual pod lifecycles.
-**What it is** — A networking layer built on top of the pod IP model. A Service gets a ClusterIP (virtual IP) that never changes; kube-proxy translates that VIP into real pod IPs using iptables or IPVS rules on every node.
-**One-liner** — Services are stable virtual IPs backed by iptables/IPVS rules that load-balance to real pod IPs.
+- **Why it exists** — Pods are ephemeral; their IPs change on restart. Services provide a stable virtual IP and DNS name so consumers are decoupled from individual pod lifecycles.
+- **What it is** — A networking layer built on top of the pod IP model. A Service gets a ClusterIP (virtual IP) that never changes; kube-proxy translates that VIP into real pod IPs using iptables or IPVS rules on every node.
+- **One-liner** — Services are stable virtual IPs backed by iptables/IPVS rules that load-balance to real pod IPs.
 
 ### Architecture (ASCII)
 
@@ -49,9 +49,9 @@ kube-proxy watches Services and Endpoints and keeps the iptables/IPVS rules on e
 ### Core Building Blocks
 
 ### ClusterIP
-**Why it exists** — Pods restart and get new IPs; consumers need a stable address to target.
-**What it is** — A virtual IP allocated from the Service CIDR (e.g., `10.96.0.0/12`). No NIC or interface owns it; it's a iptables/IPVS rule that performs DNAT.
-**One-liner** — A stable virtual IP that iptables silently rewrites to a real pod IP.
+- **Why it exists** — Pods restart and get new IPs; consumers need a stable address to target.
+- **What it is** — A virtual IP allocated from the Service CIDR (e.g., `10.96.0.0/12`). No NIC or interface owns it; it's a iptables/IPVS rule that performs DNAT.
+- **One-liner** — A stable virtual IP that iptables silently rewrites to a real pod IP.
 
 ```bash
 # See all services and their ClusterIPs
@@ -65,9 +65,9 @@ kubectl exec -it <pod> -- curl http://<svc-name>.<namespace>
 ```
 
 ### Endpoints / EndpointSlices
-**Why it exists** — The Service needs to know which pods are currently healthy and ready to receive traffic.
-**What it is** — An Endpoints object (or the newer EndpointSlice) is automatically maintained by the Endpoints controller. It holds the list of pod IPs + ports that match the Service's selector and have passed readiness probes. kube-proxy reads this to build DNAT rules.
-**One-liner** — The live roster of pod IPs backing a Service; updated automatically as pods come and go.
+- **Why it exists** — The Service needs to know which pods are currently healthy and ready to receive traffic.
+- **What it is** — An Endpoints object (or the newer EndpointSlice) is automatically maintained by the Endpoints controller. It holds the list of pod IPs + ports that match the Service's selector and have passed readiness probes. kube-proxy reads this to build DNAT rules.
+- **One-liner** — The live roster of pod IPs backing a Service; updated automatically as pods come and go.
 
 ```bash
 # See endpoints for a service
@@ -81,9 +81,9 @@ kubectl get pods -l <selector-key>=<selector-value>
 ```
 
 ### kube-proxy
-**Why it exists** — Something must translate the virtual ClusterIP into real pod IPs on every node; kube-proxy does this by programming iptables/IPVS.
-**What it is** — A DaemonSet pod on every node that watches the API server for Service and Endpoint changes, then writes iptables rules (or IPVS entries) to implement the ClusterIP → pod IP translation.
-**One-liner** — The agent on every node that keeps iptables rules in sync with Service/Endpoint state.
+- **Why it exists** — Something must translate the virtual ClusterIP into real pod IPs on every node; kube-proxy does this by programming iptables/IPVS.
+- **What it is** — A DaemonSet pod on every node that watches the API server for Service and Endpoint changes, then writes iptables rules (or IPVS entries) to implement the ClusterIP → pod IP translation.
+- **One-liner** — The agent on every node that keeps iptables rules in sync with Service/Endpoint state.
 
 ```bash
 # Check kube-proxy is running

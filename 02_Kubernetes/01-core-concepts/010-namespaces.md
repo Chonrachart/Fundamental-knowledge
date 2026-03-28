@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — In a shared cluster, different teams and environments (dev, staging, prod) need isolation: their own resource quotas, their own access controls, and the ability to reuse names without collision.
-**What it is** — A virtual cluster within a Kubernetes cluster. Namespaces partition resources (pods, services, configmaps, etc.) into isolated groups. Most Kubernetes objects are namespace-scoped; a few (nodes, PersistentVolumes, ClusterRoles) are cluster-scoped and not confined to any namespace.
-**One-liner** — Namespaces are virtual clusters for team and environment isolation within a single Kubernetes cluster.
+- **Why it exists** — In a shared cluster, different teams and environments (dev, staging, prod) need isolation: their own resource quotas, their own access controls, and the ability to reuse names without collision.
+- **What it is** — A virtual cluster within a Kubernetes cluster. Namespaces partition resources (pods, services, configmaps, etc.) into isolated groups. Most Kubernetes objects are namespace-scoped; a few (nodes, PersistentVolumes, ClusterRoles) are cluster-scoped and not confined to any namespace.
+- **One-liner** — Namespaces are virtual clusters for team and environment isolation within a single Kubernetes cluster.
 
 ### Architecture
 
@@ -51,8 +51,8 @@ Objects in different namespaces need the full DNS name or cross-namespace refere
 
 ### Default Namespaces
 
-**Why it exists** — Kubernetes pre-creates namespaces for its own operation and provides a default workspace for user objects.
-**What it is** — Four namespaces exist in every cluster out of the box:
+- **Why it exists** — Kubernetes pre-creates namespaces for its own operation and provides a default workspace for user objects.
+- **What it is** — Four namespaces exist in every cluster out of the box:
 
 | Namespace | Purpose |
 |-----------|---------|
@@ -61,7 +61,7 @@ Objects in different namespaces need the full DNS name or cross-namespace refere
 | `kube-public` | World-readable (even unauthenticated); contains `cluster-info` ConfigMap |
 | `kube-node-lease` | Stores Node Lease objects used by kubelet for heartbeats (Node controller) |
 
-**One-liner** — Never run user workloads in `kube-system`; it belongs to Kubernetes internals.
+- **One-liner** — Never run user workloads in `kube-system`; it belongs to Kubernetes internals.
 
 ```bash
 # View all namespaces
@@ -87,8 +87,8 @@ metadata:
 
 ### Targeting a Namespace
 
-**Why it exists** — By default kubectl operates on the `default` namespace; you need explicit flags or config to work in other namespaces.
-**What it is** — Two ways to target a namespace: per-command flag (`-n`) or set a persistent default in kubeconfig context.
+- **Why it exists** — By default kubectl operates on the `default` namespace; you need explicit flags or config to work in other namespaces.
+- **What it is** — Two ways to target a namespace: per-command flag (`-n`) or set a persistent default in kubeconfig context.
 
 ```bash
 # Per-command: use -n flag
@@ -109,10 +109,10 @@ kubectl get pods --all-namespaces
 
 ### ResourceQuota
 
-**Why it exists** — Without limits, one team can consume all cluster resources and starve others.
-**What it is** — A namespace-scoped object that caps total resource consumption in that namespace. When a ResourceQuota is present, every pod must specify resource requests and limits (otherwise the quota check rejects the pod). You can quota CPU, memory, pod count, service count, PVC count, etc.
+- **Why it exists** — Without limits, one team can consume all cluster resources and starve others.
+- **What it is** — A namespace-scoped object that caps total resource consumption in that namespace. When a ResourceQuota is present, every pod must specify resource requests and limits (otherwise the quota check rejects the pod). You can quota CPU, memory, pod count, service count, PVC count, etc.
 
-**One-liner** — ResourceQuota enforces resource budget per namespace so teams don't crowd each other out.
+- **One-liner** — ResourceQuota enforces resource budget per namespace so teams don't crowd each other out.
 
 ```yaml
 apiVersion: v1
@@ -138,8 +138,8 @@ kubectl get resourcequota -n team-backend
 
 ### LimitRange
 
-**Why it exists** — ResourceQuota sets namespace totals, but individual pods with no resource spec can still grab anything up to the total. LimitRange sets per-pod defaults and maximums.
-**What it is** — Namespace-scoped policy that sets default requests/limits for containers that don't specify them, and enforces min/max bounds. Complements ResourceQuota.
+- **Why it exists** — ResourceQuota sets namespace totals, but individual pods with no resource spec can still grab anything up to the total. LimitRange sets per-pod defaults and maximums.
+- **What it is** — Namespace-scoped policy that sets default requests/limits for containers that don't specify them, and enforces min/max bounds. Complements ResourceQuota.
 
 ```yaml
 apiVersion: v1

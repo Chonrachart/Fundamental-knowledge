@@ -1,9 +1,9 @@
 # Network Namespaces
 
 ### Overview
-**Why it exists** — Linux needs a way to give each pod complete network isolation without separate VMs; network namespaces provide that by letting each pod own its own IP, routing table, and interfaces.
-**What it is** — A Linux kernel primitive that creates a fully isolated network stack. Each pod gets one network namespace at creation time; processes inside see only the interfaces and routes in that namespace.
-**One-liner** — A network namespace is the kernel feature that makes every pod look like a separate machine on the network.
+- **Why it exists** — Linux needs a way to give each pod complete network isolation without separate VMs; network namespaces provide that by letting each pod own its own IP, routing table, and interfaces.
+- **What it is** — A Linux kernel primitive that creates a fully isolated network stack. Each pod gets one network namespace at creation time; processes inside see only the interfaces and routes in that namespace.
+- **One-liner** — A network namespace is the kernel feature that makes every pod look like a separate machine on the network.
 
 ### Architecture (ASCII)
 
@@ -43,9 +43,9 @@ Think of it as: the node is a physical switch rack, each pod is a server plugged
 ### Core Building Blocks
 
 ### Network Namespace
-**Why it exists** — Prevents pods from seeing or interfering with each other's network state.
-**What it is** — A kernel object containing its own set of network interfaces, IP addresses, routing tables, iptables rules, and sockets. Processes inside a namespace can only see resources in that namespace.
-**One-liner** — The kernel fence that gives each pod its own private network stack.
+- **Why it exists** — Prevents pods from seeing or interfering with each other's network state.
+- **What it is** — A kernel object containing its own set of network interfaces, IP addresses, routing tables, iptables rules, and sockets. Processes inside a namespace can only see resources in that namespace.
+- **One-liner** — The kernel fence that gives each pod its own private network stack.
 
 ```bash
 # List all network namespaces on a node (run on the node itself)
@@ -62,9 +62,9 @@ ip netns exec <ns-name> ip route
 ```
 
 ### veth Pair
-**Why it exists** — A namespace is isolated; you need a virtual "cable" to connect it to the outside.
-**What it is** — A pair of virtual Ethernet interfaces linked at the kernel level. Traffic in one end comes out the other, crossing the namespace boundary.
-**One-liner** — Virtual patch cable connecting a pod's netns to the node's bridge.
+- **Why it exists** — A namespace is isolated; you need a virtual "cable" to connect it to the outside.
+- **What it is** — A pair of virtual Ethernet interfaces linked at the kernel level. Traffic in one end comes out the other, crossing the namespace boundary.
+- **One-liner** — Virtual patch cable connecting a pod's netns to the node's bridge.
 
 ```bash
 # On the node, see all veth interfaces
@@ -75,9 +75,9 @@ ethtool -S veth123  # shows peer_ifindex
 ```
 
 ### Bridge (cni0 / cbr0)
-**Why it exists** — Provides a single Layer-2 switch inside the node that all veth ends connect to, enabling pod-to-pod traffic on the same node without leaving the kernel.
-**What it is** — A software bridge interface. Every veth end from every pod on the node is enslaved to it. The bridge has the node-side pod-CIDR gateway IP.
-**One-liner** — The virtual switch inside the node that connects all pods.
+- **Why it exists** — Provides a single Layer-2 switch inside the node that all veth ends connect to, enabling pod-to-pod traffic on the same node without leaving the kernel.
+- **What it is** — A software bridge interface. Every veth end from every pod on the node is enslaved to it. The bridge has the node-side pod-CIDR gateway IP.
+- **One-liner** — The virtual switch inside the node that connects all pods.
 
 ```bash
 # Show bridge and its attached interfaces
@@ -88,9 +88,9 @@ ip addr show cni0
 ```
 
 ### Pause Container
-**Why it exists** — All containers in a pod must share one network namespace; the pause container holds the namespace alive for the lifetime of the pod even if app containers restart.
-**What it is** — A minimal container (does nothing but sleep) whose sole job is owning the pod's network namespace. All other containers in the pod join it via `--network=container:<pause-id>`.
-**One-liner** — The namespace anchor that keeps the pod's network alive between container restarts.
+- **Why it exists** — All containers in a pod must share one network namespace; the pause container holds the namespace alive for the lifetime of the pod even if app containers restart.
+- **What it is** — A minimal container (does nothing but sleep) whose sole job is owning the pod's network namespace. All other containers in the pod join it via `--network=container:<pause-id>`.
+- **One-liner** — The namespace anchor that keeps the pod's network alive between container restarts.
 
 ```bash
 # See pause containers on a node

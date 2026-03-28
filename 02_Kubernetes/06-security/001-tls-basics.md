@@ -1,9 +1,9 @@
 # TLS Basics in Kubernetes
 
 ### Overview
-**Why it exists** — Every component in a Kubernetes cluster communicates over a network. Without TLS, an attacker with network access could intercept traffic, steal secrets, or impersonate components. Kubernetes enforces mutual TLS (mTLS) everywhere — all component-to-component communication is encrypted and both sides verify each other's identity.
-**What it is** — TLS (Transport Layer Security) is the protocol that provides encryption and authentication over TCP. In Kubernetes, every component acts as both a server (accepts connections) and a client (initiates connections), so each component holds both a certificate and a private key, and all certificates are signed by a shared Certificate Authority (CA).
-**One-liner** — TLS ensures no Kubernetes component communicates over plain HTTP; every connection is encrypted and mutually authenticated via certificates.
+- **Why it exists** — Every component in a Kubernetes cluster communicates over a network. Without TLS, an attacker with network access could intercept traffic, steal secrets, or impersonate components. Kubernetes enforces mutual TLS (mTLS) everywhere — all component-to-component communication is encrypted and both sides verify each other's identity.
+- **What it is** — TLS (Transport Layer Security) is the protocol that provides encryption and authentication over TCP. In Kubernetes, every component acts as both a server (accepts connections) and a client (initiates connections), so each component holds both a certificate and a private key, and all certificates are signed by a shared Certificate Authority (CA).
+- **One-liner** — TLS ensures no Kubernetes component communicates over plain HTTP; every connection is encrypted and mutually authenticated via certificates.
 
 ### Architecture (ASCII)
 
@@ -43,9 +43,9 @@ Components that act as both server and client (e.g. API server) carry both.
 ### Core Building Blocks
 
 ### Certificate Authority (CA)
-**Why it exists** — A central trust anchor so every component can verify every other component's certificate without needing a per-pair configuration.
-**What it is** — A self-signed root certificate (`ca.crt`) and its private key (`ca.key`). Kubernetes has at least two CAs: one for the main cluster PKI and one dedicated to etcd. Kubeadm creates these automatically.
-**One-liner** — The CA is the single source of truth for "who is allowed to present a certificate in this cluster."
+- **Why it exists** — A central trust anchor so every component can verify every other component's certificate without needing a per-pair configuration.
+- **What it is** — A self-signed root certificate (`ca.crt`) and its private key (`ca.key`). Kubernetes has at least two CAs: one for the main cluster PKI and one dedicated to etcd. Kubeadm creates these automatically.
+- **One-liner** — The CA is the single source of truth for "who is allowed to present a certificate in this cluster."
 
 ```bash
 # Inspect the cluster CA
@@ -53,13 +53,13 @@ openssl x509 -in /etc/kubernetes/pki/ca.crt -text -noout | grep -E 'Subject:|Iss
 ```
 
 ### Client Certs vs Server Certs
-**Why it exists** — Distinguishes authentication direction: a server cert says "this is my identity when you connect to me"; a client cert says "this is my identity when I connect to you."
-**What it is** — The difference is in the X.509 Extended Key Usage field: `serverAuth` for server certs, `clientAuth` for client certs. Many Kubernetes certs carry both.
-**One-liner** — Server cert = "trust me as a server"; client cert = "trust me as a client."
+- **Why it exists** — Distinguishes authentication direction: a server cert says "this is my identity when you connect to me"; a client cert says "this is my identity when I connect to you."
+- **What it is** — The difference is in the X.509 Extended Key Usage field: `serverAuth` for server certs, `clientAuth` for client certs. Many Kubernetes certs carry both.
+- **One-liner** — Server cert = "trust me as a server"; client cert = "trust me as a client."
 
 ### Certificate Locations
-**Why it exists** — All certs are stored in a known location so kubeadm, kubelet, and kubectl can find them predictably.
-**What it is** — `/etc/kubernetes/pki/` on the control-plane node.
+- **Why it exists** — All certs are stored in a known location so kubeadm, kubelet, and kubectl can find them predictably.
+- **What it is** — `/etc/kubernetes/pki/` on the control-plane node.
 
 ```bash
 ls /etc/kubernetes/pki/

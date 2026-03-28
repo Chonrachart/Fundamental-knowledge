@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Databases, message queues, and clustered apps like Redis or Elasticsearch need stable network identities and persistent storage that survive pod restarts and rescheduling. Deployments give pods random names and transient storage — unsuitable for stateful apps.
-**What it is** — A workload controller like Deployment, but designed for stateful applications. StatefulSets give each pod a stable, ordered name (`mysql-0`, `mysql-1`, `mysql-2`), a stable DNS hostname via a headless Service, and its own PersistentVolumeClaim that persists across pod restarts and rescheduling.
-**One-liner** — A StatefulSet gives each pod a permanent identity (name, DNS, storage) that survives restarts and rescheduling.
+- **Why it exists** — Databases, message queues, and clustered apps like Redis or Elasticsearch need stable network identities and persistent storage that survive pod restarts and rescheduling. Deployments give pods random names and transient storage — unsuitable for stateful apps.
+- **What it is** — A workload controller like Deployment, but designed for stateful applications. StatefulSets give each pod a stable, ordered name (`mysql-0`, `mysql-1`, `mysql-2`), a stable DNS hostname via a headless Service, and its own PersistentVolumeClaim that persists across pod restarts and rescheduling.
+- **One-liner** — A StatefulSet gives each pod a permanent identity (name, DNS, storage) that survives restarts and rescheduling.
 
 ### Architecture
 
@@ -53,21 +53,21 @@ Key difference from Deployment:
 
 ### Stable Pod Identity
 
-**Why it exists** — Clustered apps need to identify specific members (primary vs replica, shard owner) by a stable name rather than a random hash.
-**What it is** — Pods are named `<statefulset-name>-<ordinal>` where ordinal starts at 0. The name is deterministic and never changes as long as the StatefulSet exists. Even if a pod is deleted and recreated, it gets the same name and ordinal.
-**One-liner** — StatefulSet pods have permanent names (`app-0`, `app-1`) unlike Deployment pods which have random hashes.
+- **Why it exists** — Clustered apps need to identify specific members (primary vs replica, shard owner) by a stable name rather than a random hash.
+- **What it is** — Pods are named `<statefulset-name>-<ordinal>` where ordinal starts at 0. The name is deterministic and never changes as long as the StatefulSet exists. Even if a pod is deleted and recreated, it gets the same name and ordinal.
+- **One-liner** — StatefulSet pods have permanent names (`app-0`, `app-1`) unlike Deployment pods which have random hashes.
 
 ### Ordered Creation and Deletion
 
-**Why it exists** — Many clustered apps require the first node (ordinal 0) to initialize before others join, and require graceful ordered shutdown.
-**What it is** — By default (`podManagementPolicy: OrderedReady`), pods are created one at a time in ascending order (0, 1, 2...) and each pod must be Running and Ready before the next is created. Deletion goes in reverse order (2, 1, 0). This can be changed to `Parallel` if ordering is not needed.
-**One-liner** — Ordered startup/shutdown ensures clustered apps can safely initialize and drain in sequence.
+- **Why it exists** — Many clustered apps require the first node (ordinal 0) to initialize before others join, and require graceful ordered shutdown.
+- **What it is** — By default (`podManagementPolicy: OrderedReady`), pods are created one at a time in ascending order (0, 1, 2...) and each pod must be Running and Ready before the next is created. Deletion goes in reverse order (2, 1, 0). This can be changed to `Parallel` if ordering is not needed.
+- **One-liner** — Ordered startup/shutdown ensures clustered apps can safely initialize and drain in sequence.
 
 ### Headless Service Requirement
 
-**Why it exists** — StatefulSet pods need individual DNS names so they can discover and communicate with specific peers.
-**What it is** — StatefulSets require a headless Service (`clusterIP: None`) specified in `spec.serviceName`. This Service creates a DNS A record for each pod: `<pod-name>.<service-name>.<namespace>.svc.cluster.local`. Unlike regular Services, no virtual IP is created — DNS returns the actual pod IP.
-**One-liner** — The headless Service is what gives each StatefulSet pod its own stable DNS hostname.
+- **Why it exists** — StatefulSet pods need individual DNS names so they can discover and communicate with specific peers.
+- **What it is** — StatefulSets require a headless Service (`clusterIP: None`) specified in `spec.serviceName`. This Service creates a DNS A record for each pod: `<pod-name>.<service-name>.<namespace>.svc.cluster.local`. Unlike regular Services, no virtual IP is created — DNS returns the actual pod IP.
+- **One-liner** — The headless Service is what gives each StatefulSet pod its own stable DNS hostname.
 
 ```yaml
 # Required headless service
@@ -85,9 +85,9 @@ spec:
 
 ### volumeClaimTemplates
 
-**Why it exists** — Each pod needs its own PersistentVolumeClaim so their data is separate and persists independently across restarts.
-**What it is** — A template in the StatefulSet spec that Kubernetes uses to create one PVC per pod automatically. PVC names follow the pattern `<template-name>-<pod-name>` (e.g. `data-mysql-0`). Critically, PVCs are NOT deleted when pods are deleted or when the StatefulSet is deleted — data is preserved until you manually delete the PVCs.
-**One-liner** — volumeClaimTemplates automatically provisions one dedicated PVC per pod that outlives pod restarts and deletions.
+- **Why it exists** — Each pod needs its own PersistentVolumeClaim so their data is separate and persists independently across restarts.
+- **What it is** — A template in the StatefulSet spec that Kubernetes uses to create one PVC per pod automatically. PVC names follow the pattern `<template-name>-<pod-name>` (e.g. `data-mysql-0`). Critically, PVCs are NOT deleted when pods are deleted or when the StatefulSet is deleted — data is preserved until you manually delete the PVCs.
+- **One-liner** — volumeClaimTemplates automatically provisions one dedicated PVC per pod that outlives pod restarts and deletions.
 
 ```yaml
 apiVersion: apps/v1

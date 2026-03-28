@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Every worker node needs a local agent to run pods and route Service traffic; kubelet and kube-proxy fill those two roles.
-**What it is** — kubelet ensures containers described in PodSpecs are running and healthy; kube-proxy maintains network rules so Service IPs route to the right pods.
-**One-liner** — kubelet runs your pods; kube-proxy makes Services work.
+- **Why it exists** — Every worker node needs a local agent to run pods and route Service traffic; kubelet and kube-proxy fill those two roles.
+- **What it is** — kubelet ensures containers described in PodSpecs are running and healthy; kube-proxy maintains network rules so Service IPs route to the right pods.
+- **One-liner** — kubelet runs your pods; kube-proxy makes Services work.
 
 ### Architecture
 
@@ -71,8 +71,8 @@ kube-proxy flow:
 
 ### kubelet
 
-**Why it exists** — Something on each node must be responsible for ensuring the containers described in PodSpecs are actually running and healthy — the control plane cannot do this remotely.
-**What it is** — A system-level agent (not a container itself) running on every worker node. It:
+- **Why it exists** — Something on each node must be responsible for ensuring the containers described in PodSpecs are actually running and healthy — the control plane cannot do this remotely.
+- **What it is** — A system-level agent (not a container itself) running on every worker node. It:
 - Registers the node with the API server on startup
 - Watches the API server for PodSpecs assigned to its node (`nodeName` = this node)
 - Pulls container images via the container runtime interface (CRI) — e.g. containerd
@@ -83,7 +83,7 @@ kube-proxy flow:
 
 Key fact: **kubelet is NOT containerized itself**. It runs as a systemd service (`systemctl status kubelet`). This is necessary because kubelet manages the container runtime; it cannot be inside the thing it manages.
 
-**One-liner** — kubelet is the node agent that turns PodSpecs into running containers and keeps them healthy.
+- **One-liner** — kubelet is the node agent that turns PodSpecs into running containers and keeps them healthy.
 
 ```bash
 # Check kubelet status on a node
@@ -102,12 +102,12 @@ kubectl get node <name> -o yaml | grep -A20 "status:"
 
 ### kube-proxy
 
-**Why it exists** — Pods need to reach Services by their stable ClusterIP or DNS name, but the actual backend pods change IPs constantly (restarts, scaling). Something must translate Service IPs to current pod IPs at the network level.
-**What it is** — Runs as a DaemonSet pod on every node (so it IS containerized, unlike kubelet). Watches the API server for Service and Endpoints changes. Maintains network rules on each node that intercept traffic destined for a Service ClusterIP and redirect it to one of the healthy backend pod IPs. Supports two modes:
+- **Why it exists** — Pods need to reach Services by their stable ClusterIP or DNS name, but the actual backend pods change IPs constantly (restarts, scaling). Something must translate Service IPs to current pod IPs at the network level.
+- **What it is** — Runs as a DaemonSet pod on every node (so it IS containerized, unlike kubelet). Watches the API server for Service and Endpoints changes. Maintains network rules on each node that intercept traffic destined for a Service ClusterIP and redirect it to one of the healthy backend pod IPs. Supports two modes:
 - **iptables mode** (default): uses iptables rules; random pod selection; efficient for most clusters
 - **IPVS mode**: uses Linux IPVS (IP Virtual Server); more algorithms (round-robin, least-conn), better performance at scale
 
-**One-liner** — kube-proxy turns Service ClusterIPs into real pod IPs by managing iptables rules on every node.
+- **One-liner** — kube-proxy turns Service ClusterIPs into real pod IPs by managing iptables rules on every node.
 
 ```bash
 # Check kube-proxy pods
@@ -126,9 +126,9 @@ kubectl get configmap -n kube-system kube-proxy -o yaml
 
 ### Container Runtime Interface (CRI)
 
-**Why it exists** — kubelet needs to support multiple container runtimes without being rewritten for each.
-**What it is** — A standard gRPC API between kubelet and the container runtime. kubelet calls CRI methods (`RunPodSandbox`, `CreateContainer`, `StartContainer`) and the runtime implements them. Current default runtime is **containerd**; CRI-O is also common.
-**One-liner** — CRI is the plugin interface that lets kubelet work with any compliant container runtime.
+- **Why it exists** — kubelet needs to support multiple container runtimes without being rewritten for each.
+- **What it is** — A standard gRPC API between kubelet and the container runtime. kubelet calls CRI methods (`RunPodSandbox`, `CreateContainer`, `StartContainer`) and the runtime implements them. Current default runtime is **containerd**; CRI-O is also common.
+- **One-liner** — CRI is the plugin interface that lets kubelet work with any compliant container runtime.
 
 ```bash
 # Check which runtime is in use

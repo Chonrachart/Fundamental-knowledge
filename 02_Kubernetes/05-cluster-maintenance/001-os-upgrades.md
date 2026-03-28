@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Nodes must occasionally be rebooted for OS patches, kernel upgrades, or hardware maintenance. Without a controlled drain sequence, pods running on that node are abruptly killed and may not recover if they lack a controller or if persistent data is lost.
-**What it is** — A process of gracefully evicting workloads off a node before taking it offline, then returning it to the cluster once the maintenance is complete.
-**One-liner** — Cordon + drain a node before OS maintenance so workloads land elsewhere safely, then uncordon to return the node to service.
+- **Why it exists** — Nodes must occasionally be rebooted for OS patches, kernel upgrades, or hardware maintenance. Without a controlled drain sequence, pods running on that node are abruptly killed and may not recover if they lack a controller or if persistent data is lost.
+- **What it is** — A process of gracefully evicting workloads off a node before taking it offline, then returning it to the cluster once the maintenance is complete.
+- **One-liner** — Cordon + drain a node before OS maintenance so workloads land elsewhere safely, then uncordon to return the node to service.
 
 ### Architecture (ASCII diagram)
 
@@ -46,9 +46,9 @@ Pods managed by a Deployment, ReplicaSet, StatefulSet, or Job will be reschedule
 
 ### cordon
 
-**Why it exists** — Marks a node as unschedulable so the scheduler stops placing new pods there while you prepare for maintenance. Existing pods are not touched.
-**What it is** — Sets the `spec.unschedulable: true` taint on the node. The node status shows `SchedulingDisabled`. All currently running pods keep running; only the scheduler is blocked from adding more.
-**One-liner** — `cordon` = unschedulable flag only; pods already on the node are unaffected.
+- **Why it exists** — Marks a node as unschedulable so the scheduler stops placing new pods there while you prepare for maintenance. Existing pods are not touched.
+- **What it is** — Sets the `spec.unschedulable: true` taint on the node. The node status shows `SchedulingDisabled`. All currently running pods keep running; only the scheduler is blocked from adding more.
+- **One-liner** — `cordon` = unschedulable flag only; pods already on the node are unaffected.
 
 ```bash
 # Mark node unschedulable
@@ -60,9 +60,9 @@ kubectl get nodes
 
 ### drain
 
-**Why it exists** — Safely evicts all evictable pods off a node before it goes offline, respecting PodDisruptionBudgets so availability is maintained during the eviction.
-**What it is** — Implicitly cordons the node first, then sends eviction API requests for each pod (not raw deletes — eviction respects PDB). Pods are rescheduled by their controllers on other nodes.
-**One-liner** — `drain` = cordon + evict; the safe way to empty a node before maintenance.
+- **Why it exists** — Safely evicts all evictable pods off a node before it goes offline, respecting PodDisruptionBudgets so availability is maintained during the eviction.
+- **What it is** — Implicitly cordons the node first, then sends eviction API requests for each pod (not raw deletes — eviction respects PDB). Pods are rescheduled by their controllers on other nodes.
+- **One-liner** — `drain` = cordon + evict; the safe way to empty a node before maintenance.
 
 ```bash
 # 1. Mark node unschedulable (no new pods)
@@ -83,9 +83,9 @@ kubectl drain <node> --ignore-daemonsets --delete-emptydir-data
 
 ### uncordon
 
-**Why it exists** — Returns the node to the scheduler's pool after maintenance is complete.
-**What it is** — Clears the `spec.unschedulable` flag. The scheduler can now place new pods on the node. Existing pods that were evicted are not automatically moved back — they stay where they were rescheduled.
-**One-liner** — `uncordon` re-enables scheduling on a node after maintenance.
+- **Why it exists** — Returns the node to the scheduler's pool after maintenance is complete.
+- **What it is** — Clears the `spec.unschedulable` flag. The scheduler can now place new pods on the node. Existing pods that were evicted are not automatically moved back — they stay where they were rescheduled.
+- **One-liner** — `uncordon` re-enables scheduling on a node after maintenance.
 
 ```bash
 # 3. Perform OS upgrade (SSH to node)

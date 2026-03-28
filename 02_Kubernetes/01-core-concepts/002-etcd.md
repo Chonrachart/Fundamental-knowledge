@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Kubernetes needs a single, consistent, durable store for all cluster state that works correctly even when control plane nodes fail.
-**What it is** — A distributed key-value store that uses the Raft consensus algorithm to maintain consistency across multiple replicas. It is the source of truth for every Kubernetes object: pods, deployments, secrets, configmaps, node registrations, RBAC rules, and more.
-**One-liner** — etcd is the cluster's database; if you lose it without a backup, the cluster is gone.
+- **Why it exists** — Kubernetes needs a single, consistent, durable store for all cluster state that works correctly even when control plane nodes fail.
+- **What it is** — A distributed key-value store that uses the Raft consensus algorithm to maintain consistency across multiple replicas. It is the source of truth for every Kubernetes object: pods, deployments, secrets, configmaps, node registrations, RBAC rules, and more.
+- **One-liner** — etcd is the cluster's database; if you lose it without a backup, the cluster is gone.
 
 ### Architecture
 
@@ -61,15 +61,15 @@ Controllers/Scheduler watch (via API server) and act
 
 ### Raft Consensus
 
-**Why it exists** — In a distributed system, multiple nodes must agree on the same data even if some nodes are unavailable.
-**What it is** — Raft is the consensus algorithm etcd uses. One node is elected leader; all writes go through the leader. The leader replicates entries to followers and commits once a majority (quorum) acknowledges. If the leader fails, followers elect a new leader automatically.
-**One-liner** — Raft ensures etcd is consistent and fault-tolerant as long as a majority of nodes are healthy.
+- **Why it exists** — In a distributed system, multiple nodes must agree on the same data even if some nodes are unavailable.
+- **What it is** — Raft is the consensus algorithm etcd uses. One node is elected leader; all writes go through the leader. The leader replicates entries to followers and commits once a majority (quorum) acknowledges. If the leader fails, followers elect a new leader automatically.
+- **One-liner** — Raft ensures etcd is consistent and fault-tolerant as long as a majority of nodes are healthy.
 
 ### Leader Election
 
-**Why it exists** — Only one node should accept writes at a time to prevent split-brain.
-**What it is** — On startup, etcd nodes hold an election. The winner becomes leader and handles all writes. Followers do not redirect write requests — if a client connects to a follower and attempts a write, the request is rejected; the client must retry against the leader directly. If the leader crashes or becomes unreachable, a new election is triggered within seconds.
-**One-liner** — Leader election ensures there is always exactly one writable etcd node.
+- **Why it exists** — Only one node should accept writes at a time to prevent split-brain.
+- **What it is** — On startup, etcd nodes hold an election. The winner becomes leader and handles all writes. Followers do not redirect write requests — if a client connects to a follower and attempts a write, the request is rejected; the client must retry against the leader directly. If the leader crashes or becomes unreachable, a new election is triggered within seconds.
+- **One-liner** — Leader election ensures there is always exactly one writable etcd node.
 
 ### Cluster Sizing
 

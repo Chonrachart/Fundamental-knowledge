@@ -2,11 +2,11 @@
 
 ### Overview
 
-**Why it exists** — Kubernetes YAML files are repetitive across environments. Teams use templating to avoid duplication, but templating languages (Helm's Go templates, Jinja2, etc.) add complexity and require learning new syntax. Kustomize solves this by letting you customize Kubernetes YAML without a templating language — just YAML patches on top of base YAML. It's plain Kubernetes manifests + declarative transformations, built into `kubectl` since version 1.14.
+- **Why it exists** — Kubernetes YAML files are repetitive across environments. Teams use templating to avoid duplication, but templating languages (Helm's Go templates, Jinja2, etc.) add complexity and require learning new syntax. Kustomize solves this by letting you customize Kubernetes YAML without a templating language — just YAML patches on top of base YAML. It's plain Kubernetes manifests + declarative transformations, built into `kubectl` since version 1.14.
 
-**What it is** — Kustomize is a declarative YAML transformation tool. You write base manifests and a `kustomization.yaml` file that declares what to include and how to transform it (rename resources, add labels, override images, patch fields). Running `kubectl apply -k` applies the transformed result. It's pure YAML — no Go templates, no custom syntax, no new language to learn.
+- **What it is** — Kustomize is a declarative YAML transformation tool. You write base manifests and a `kustomization.yaml` file that declares what to include and how to transform it (rename resources, add labels, override images, patch fields). Running `kubectl apply -k` applies the transformed result. It's pure YAML — no Go templates, no custom syntax, no new language to learn.
 
-**One-liner** — Kustomize = base YAML + patches + transformations = customized manifests without a templating language.
+- **One-liner** — Kustomize = base YAML + patches + transformations = customized manifests without a templating language.
 
 ### Architecture
 
@@ -82,9 +82,9 @@ Each overlay is independent — `overlays/dev` and `overlays/prod` both referenc
 
 ### kustomization.yaml Structure
 
-**Why it exists** — The `kustomization.yaml` file is the declarative manifest for transformations. Instead of writing scripts or imperative commands, you describe what to include and how to transform it.
+- **Why it exists** — The `kustomization.yaml` file is the declarative manifest for transformations. Instead of writing scripts or imperative commands, you describe what to include and how to transform it.
 
-**What it is** — A YAML file (must be named exactly `kustomization.yaml`) that declares:
+- **What it is** — A YAML file (must be named exactly `kustomization.yaml`) that declares:
 - Which resources to include (`resources`)
 - Global naming transformations (`namePrefix`, `nameSuffix`, `namespace`)
 - Global labels/annotations to add (`commonLabels`, `commonAnnotations`)
@@ -92,7 +92,7 @@ Each overlay is independent — `overlays/dev` and `overlays/prod` both referenc
 - Patches to apply (`patches`)
 - Generated content (`configMapGenerator`, `secretGenerator`)
 
-**One-liner** — `kustomization.yaml` is the recipe for transforming base YAML files.
+- **One-liner** — `kustomization.yaml` is the recipe for transforming base YAML files.
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -162,11 +162,11 @@ replacements:
 
 ### Commands: How to Use Kustomize
 
-**Why it exists** — Kustomize integrates with `kubectl`, so you don't learn new CLI tools. All the kubectl commands work with `-k` flag to specify a Kustomization.
+- **Why it exists** — Kustomize integrates with `kubectl`, so you don't learn new CLI tools. All the kubectl commands work with `-k` flag to specify a Kustomization.
 
-**What it is** — `kubectl` has built-in Kustomize support. You can apply, preview, diff, and delete using the same `kubectl` commands you know, but pointing to a directory with `kustomization.yaml` instead of a single file.
+- **What it is** — `kubectl` has built-in Kustomize support. You can apply, preview, diff, and delete using the same `kubectl` commands you know, but pointing to a directory with `kustomization.yaml` instead of a single file.
 
-**One-liner** — Use `kubectl -k` (with kustomization.yaml) instead of `kubectl -f` (with single files).
+- **One-liner** — Use `kubectl -k` (with kustomization.yaml) instead of `kubectl -f` (with single files).
 
 ```bash
 # Apply a kustomization (create or update resources)
@@ -199,15 +199,15 @@ kubectl apply -k ./ --dry-run=server
 
 ### Base and Overlay Pattern
 
-**Why it exists** — Real environments (dev, staging, prod) differ in small ways: replicas, image tags, resource limits, DNS names. Copying entire manifests creates duplication. Overlays solve this: one shared base + environment-specific patches on top.
+- **Why it exists** — Real environments (dev, staging, prod) differ in small ways: replicas, image tags, resource limits, DNS names. Copying entire manifests creates duplication. Overlays solve this: one shared base + environment-specific patches on top.
 
-**What it is** — A directory structure:
+- **What it is** — A directory structure:
 - `base/` — shared, re-usable manifests and a kustomization that includes them
 - `overlays/[env]/` — environment-specific kustomizations that reference base and apply patches
 
 Each overlay references the base, inherits all its resources, then applies environment-specific transformations. This avoids duplicating 90% of the YAML.
 
-**One-liner** — Base = common resources; overlays = environment-specific patches on top.
+- **One-liner** — Base = common resources; overlays = environment-specific patches on top.
 
 Directory structure:
 

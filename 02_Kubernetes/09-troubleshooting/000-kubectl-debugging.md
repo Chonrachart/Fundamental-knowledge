@@ -1,9 +1,9 @@
 # kubectl Debugging Commands
 
 ### Overview
-**Why it exists** — Kubernetes resources are managed through the API server; you need tools to inspect cluster state, stream container output, and interact with running containers.
-**What it is** — A reference for the core `kubectl` commands used in debugging: getting resource status, describing events, reading logs, executing into containers, forwarding ports, and checking resource usage.
-**One-liner** — The standard debugging loop is: `get` (status) → `describe` (events) → `logs` (app output) → `exec` (inspect inside).
+- **Why it exists** — Kubernetes resources are managed through the API server; you need tools to inspect cluster state, stream container output, and interact with running containers.
+- **What it is** — A reference for the core `kubectl` commands used in debugging: getting resource status, describing events, reading logs, executing into containers, forwarding ports, and checking resource usage.
+- **One-liner** — The standard debugging loop is: `get` (status) → `describe` (events) → `logs` (app output) → `exec` (inspect inside).
 
 ### Architecture (ASCII)
 
@@ -47,9 +47,9 @@ Most problems surface in one of three places:
 ### Core Building Blocks
 
 ### kubectl get
-**Why it exists** — First step in any debug; shows the current state of one or many resources at a glance.
-**What it is** — Lists resources with status columns. Supports output formats, label filters, and watch mode.
-**One-liner** — `kubectl get pods -o wide` is the first command in most debugging sessions.
+- **Why it exists** — First step in any debug; shows the current state of one or many resources at a glance.
+- **What it is** — Lists resources with status columns. Supports output formats, label filters, and watch mode.
+- **One-liner** — `kubectl get pods -o wide` is the first command in most debugging sessions.
 
 ```bash
 kubectl get pods -n production              # pods in a specific namespace
@@ -74,9 +74,9 @@ kubectl get all                             # common resources in namespace
 ---
 
 ### kubectl describe
-**Why it exists** — `get` shows current state; `describe` explains *why* the resource is in that state via the Events section.
-**What it is** — Prints full resource metadata, spec, status fields, and a chronological Events list. The Events section is the most useful place to find scheduling failures, image pull errors, and probe failures.
-**One-liner** — Always check `kubectl describe pod` before looking at logs.
+- **Why it exists** — `get` shows current state; `describe` explains *why* the resource is in that state via the Events section.
+- **What it is** — Prints full resource metadata, spec, status fields, and a chronological Events list. The Events section is the most useful place to find scheduling failures, image pull errors, and probe failures.
+- **One-liner** — Always check `kubectl describe pod` before looking at logs.
 
 ```bash
 kubectl describe pod <name> -n <namespace>  # pod detail + events
@@ -92,9 +92,9 @@ Key sections to read in `kubectl describe pod`:
 ---
 
 ### kubectl logs
-**Why it exists** — Container stdout/stderr is the primary source of application-level error information.
-**What it is** — Streams or retrieves logs from a container. For full coverage of log management, aggregation, and retention see `03-logging-monitoring/001-managing-logs.md`.
-**One-liner** — Use `--previous` after a crash to see what the container printed before it died.
+- **Why it exists** — Container stdout/stderr is the primary source of application-level error information.
+- **What it is** — Streams or retrieves logs from a container. For full coverage of log management, aggregation, and retention see `03-logging-monitoring/001-managing-logs.md`.
+- **One-liner** — Use `--previous` after a crash to see what the container printed before it died.
 
 ```bash
 kubectl logs <pod>                          # first container in pod
@@ -110,9 +110,9 @@ kubectl logs <pod> --tail=50               # last 50 lines only
 ---
 
 ### kubectl exec
-**Why it exists** — Lets you inspect the inside of a running container: check files, env vars, DNS resolution, and network connectivity.
-**What it is** — Runs a command in a container via the kubelet API. `-it` opens an interactive TTY session. `--` separates kubectl flags from the command passed to the container.
-**One-liner** — `kubectl exec -it <pod> -- sh` drops you into a shell inside the container.
+- **Why it exists** — Lets you inspect the inside of a running container: check files, env vars, DNS resolution, and network connectivity.
+- **What it is** — Runs a command in a container via the kubelet API. `-it` opens an interactive TTY session. `--` separates kubectl flags from the command passed to the container.
+- **One-liner** — `kubectl exec -it <pod> -- sh` drops you into a shell inside the container.
 
 ```bash
 kubectl exec -it <pod> -- sh                       # interactive shell (sh)
@@ -130,9 +130,9 @@ Notes:
 ---
 
 ### kubectl port-forward
-**Why it exists** — Lets you reach a pod or service on its container port from your local machine without exposing it through an Ingress or LoadBalancer.
-**What it is** — Opens a TCP tunnel from `localhost:<local-port>` to `<pod/service>:<remote-port>` through the API server and kubelet.
-**One-liner** — Forward a local port to a pod port for quick local testing without changing the service.
+- **Why it exists** — Lets you reach a pod or service on its container port from your local machine without exposing it through an Ingress or LoadBalancer.
+- **What it is** — Opens a TCP tunnel from `localhost:<local-port>` to `<pod/service>:<remote-port>` through the API server and kubelet.
+- **One-liner** — Forward a local port to a pod port for quick local testing without changing the service.
 
 ```bash
 kubectl port-forward pod/<name> 8080:80         # local 8080 → pod port 80
@@ -148,9 +148,9 @@ Notes:
 ---
 
 ### kubectl top
-**Why it exists** — Shows real-time CPU and memory usage for pods and nodes; essential for diagnosing resource pressure and OOMKilled events.
-**What it is** — Queries the metrics-server (must be installed separately) for live resource metrics.
-**One-liner** — `kubectl top pods` shows which pods are consuming the most CPU/memory right now.
+- **Why it exists** — Shows real-time CPU and memory usage for pods and nodes; essential for diagnosing resource pressure and OOMKilled events.
+- **What it is** — Queries the metrics-server (must be installed separately) for live resource metrics.
+- **One-liner** — `kubectl top pods` shows which pods are consuming the most CPU/memory right now.
 
 ```bash
 kubectl top pods                            # CPU/memory for all pods in current namespace
@@ -164,9 +164,9 @@ kubectl top nodes                           # CPU/memory usage per node
 ---
 
 ### kubectl get events
-**Why it exists** — Events are written by controllers, the scheduler, and the kubelet whenever something notable happens; they are often the fastest way to see what went wrong across a namespace.
-**What it is** — Cluster-scoped event objects that record reasons, messages, and counts for resource state changes.
-**One-liner** — `kubectl get events --sort-by=.lastTimestamp` gives a chronological view of what just happened.
+- **Why it exists** — Events are written by controllers, the scheduler, and the kubelet whenever something notable happens; they are often the fastest way to see what went wrong across a namespace.
+- **What it is** — Cluster-scoped event objects that record reasons, messages, and counts for resource state changes.
+- **One-liner** — `kubectl get events --sort-by=.lastTimestamp` gives a chronological view of what just happened.
 
 ```bash
 kubectl get events -n <namespace>                          # all events in namespace

@@ -1,9 +1,9 @@
 # Network Policies
 
 ### Overview
-**Why it exists** — By default, Kubernetes applies zero network isolation: every pod can reach every other pod across all namespaces on any port. A compromised pod can freely probe databases, internal services, and other workloads. NetworkPolicies let you lock down which pods can talk to which.
-**What it is** — A namespace-scoped Kubernetes resource that acts as a firewall for pod traffic. A CNI plugin (Calico, Cilium, Weave) reads the policies and enforces them using iptables or eBPF — the kube-proxy does not participate.
-**One-liner** — NetworkPolicy = namespace firewall rules that restrict pod-to-pod and pod-to-external traffic, enforced by the CNI plugin.
+- **Why it exists** — By default, Kubernetes applies zero network isolation: every pod can reach every other pod across all namespaces on any port. A compromised pod can freely probe databases, internal services, and other workloads. NetworkPolicies let you lock down which pods can talk to which.
+- **What it is** — A namespace-scoped Kubernetes resource that acts as a firewall for pod traffic. A CNI plugin (Calico, Cilium, Weave) reads the policies and enforces them using iptables or eBPF — the kube-proxy does not participate.
+- **One-liner** — NetworkPolicy = namespace firewall rules that restrict pod-to-pod and pod-to-external traffic, enforced by the CNI plugin.
 
 ### Architecture (ASCII)
 
@@ -98,9 +98,9 @@ spec:
 
 ### podSelector — Targeting Pods
 
-**Why it exists** — Policies are label-driven; the selector determines which pods are governed by this policy.
-**What it is** — A `matchLabels` or `matchExpressions` selector exactly like those used in Services and Deployments.
-**One-liner** — "This policy applies to pods with these labels."
+- **Why it exists** — Policies are label-driven; the selector determines which pods are governed by this policy.
+- **What it is** — A `matchLabels` or `matchExpressions` selector exactly like those used in Services and Deployments.
+- **One-liner** — "This policy applies to pods with these labels."
 
 ```yaml
 podSelector:
@@ -116,8 +116,8 @@ podSelector: {}
 
 ### Ingress Rules (Incoming Traffic)
 
-**Why it exists** — Controls which sources are allowed to send traffic to the selected pods.
-**What it is** — A list of `from` selectors. Each entry can use three selector types (alone or combined).
+- **Why it exists** — Controls which sources are allowed to send traffic to the selected pods.
+- **What it is** — A list of `from` selectors. Each entry can use three selector types (alone or combined).
 
 ```yaml
 ingress:
@@ -150,8 +150,8 @@ Selector combination rules within a single `from` entry:
 
 ### Egress Rules (Outgoing Traffic)
 
-**Why it exists** — Controls which destinations the selected pods can reach. Critical for preventing data exfiltration.
-**What it is** — A list of `to` selectors. Same selector types as ingress (`podSelector`, `namespaceSelector`, `ipBlock`).
+- **Why it exists** — Controls which destinations the selected pods can reach. Critical for preventing data exfiltration.
+- **What it is** — A list of `to` selectors. Same selector types as ingress (`podSelector`, `namespaceSelector`, `ipBlock`).
 
 ```yaml
 egress:

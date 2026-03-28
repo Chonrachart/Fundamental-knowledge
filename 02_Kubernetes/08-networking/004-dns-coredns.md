@@ -1,9 +1,9 @@
 # DNS and CoreDNS
 
 ### Overview
-**Why it exists** — Pod IPs and even Service ClusterIPs can change; hardcoding IPs is fragile. CoreDNS provides in-cluster service discovery by name, so code only needs to know a stable DNS name.
-**What it is** — CoreDNS is a flexible DNS server deployed as a Deployment in `kube-system`. It watches Kubernetes Services and Pods and serves DNS records for them. Every pod is automatically configured to use CoreDNS as its resolver.
-**One-liner** — CoreDNS is the in-cluster DNS server that lets pods find Services by name instead of IP.
+- **Why it exists** — Pod IPs and even Service ClusterIPs can change; hardcoding IPs is fragile. CoreDNS provides in-cluster service discovery by name, so code only needs to know a stable DNS name.
+- **What it is** — CoreDNS is a flexible DNS server deployed as a Deployment in `kube-system`. It watches Kubernetes Services and Pods and serves DNS records for them. Every pod is automatically configured to use CoreDNS as its resolver.
+- **One-liner** — CoreDNS is the in-cluster DNS server that lets pods find Services by name instead of IP.
 
 ### Architecture (ASCII)
 
@@ -67,9 +67,9 @@ kubectl exec -it <pod> -- cat /etc/resolv.conf
 ```
 
 ### CoreDNS Deployment
-**Why it exists** — Must run as a highly-available service so pod DNS never fails.
-**What it is** — CoreDNS runs as a Deployment (typically 2 replicas) in `kube-system`, fronted by a Service with a stable ClusterIP that kubeadm hard-codes into kubelet's `--cluster-dns` flag.
-**One-liner** — The DNS server pods behind the `kube-dns` Service in `kube-system`.
+- **Why it exists** — Must run as a highly-available service so pod DNS never fails.
+- **What it is** — CoreDNS runs as a Deployment (typically 2 replicas) in `kube-system`, fronted by a Service with a stable ClusterIP that kubeadm hard-codes into kubelet's `--cluster-dns` flag.
+- **One-liner** — The DNS server pods behind the `kube-dns` Service in `kube-system`.
 
 ```bash
 # Check CoreDNS pods
@@ -83,9 +83,9 @@ kubectl -n kube-system logs -l k8s-app=kube-dns
 ```
 
 ### CoreDNS ConfigMap
-**Why it exists** — CoreDNS behavior (forwarding, rewriting, custom zones) is driven by its Corefile config; the ConfigMap makes it editable without rebuilding the image.
-**What it is** — A ConfigMap in `kube-system` named `coredns` containing the `Corefile`. Common customizations: forward to custom upstream resolvers, stub zones for split-horizon DNS, rewrite rules.
-**One-liner** — The Corefile in this ConfigMap is what CoreDNS loads for its full configuration.
+- **Why it exists** — CoreDNS behavior (forwarding, rewriting, custom zones) is driven by its Corefile config; the ConfigMap makes it editable without rebuilding the image.
+- **What it is** — A ConfigMap in `kube-system` named `coredns` containing the `Corefile`. Common customizations: forward to custom upstream resolvers, stub zones for split-horizon DNS, rewrite rules.
+- **One-liner** — The Corefile in this ConfigMap is what CoreDNS loads for its full configuration.
 
 ```bash
 # View CoreDNS config
@@ -123,9 +123,9 @@ Example Corefile (default kubeadm):
 ```
 
 ### Search Domains and ndots
-**Why it exists** — Short names (`web` instead of `web.default.svc.cluster.local`) reduce boilerplate in config; search domains make short names resolve correctly.
-**What it is** — The `search` line in `/etc/resolv.conf` lists suffixes to append when a name doesn't have enough dots. `ndots:5` means any name with fewer than 5 dots is tried with search domains first before being sent as-is.
-**One-liner** — Search domains are why `curl web` works inside the same namespace without a full FQDN.
+- **Why it exists** — Short names (`web` instead of `web.default.svc.cluster.local`) reduce boilerplate in config; search domains make short names resolve correctly.
+- **What it is** — The `search` line in `/etc/resolv.conf` lists suffixes to append when a name doesn't have enough dots. `ndots:5` means any name with fewer than 5 dots is tried with search domains first before being sent as-is.
+- **One-liner** — Search domains are why `curl web` works inside the same namespace without a full FQDN.
 
 ```bash
 # Verify search domains in a pod

@@ -2,11 +2,11 @@
 
 ### Overview
 
-**Why it exists** — Real applications run across multiple environments (dev, staging, prod) that differ in ways: replica counts, resource limits, environment variables, image tags, ingress hostnames, storage size. Without a system to handle these differences, teams either duplicate entire manifests (causing maintenance nightmares) or hardcode environment-specific values into base manifests (breaking reusability). Overlays and patches solve this by letting you define common base resources once, then layer environment-specific changes on top using plain YAML patches.
+- **Why it exists** — Real applications run across multiple environments (dev, staging, prod) that differ in ways: replica counts, resource limits, environment variables, image tags, ingress hostnames, storage size. Without a system to handle these differences, teams either duplicate entire manifests (causing maintenance nightmares) or hardcode environment-specific values into base manifests (breaking reusability). Overlays and patches solve this by letting you define common base resources once, then layer environment-specific changes on top using plain YAML patches.
 
-**What it is** — An overlay is a Kustomization that references a base Kustomization and applies patches. A patch is a partial YAML document that merges into (or modifies) an existing resource. Kustomize supports two patch types: Strategic Merge Patches (partial YAML that layers on top) and JSON 6902 Patches (precise add/replace/remove operations). Together, they let you express environment differences declaratively without duplicating manifests.
+- **What it is** — An overlay is a Kustomization that references a base Kustomization and applies patches. A patch is a partial YAML document that merges into (or modifies) an existing resource. Kustomize supports two patch types: Strategic Merge Patches (partial YAML that layers on top) and JSON 6902 Patches (precise add/replace/remove operations). Together, they let you express environment differences declaratively without duplicating manifests.
 
-**One-liner** — Overlays = base + patches = environment-specific manifests from a single source of truth.
+- **One-liner** — Overlays = base + patches = environment-specific manifests from a single source of truth.
 
 ### Architecture
 
@@ -86,11 +86,11 @@ Key insight: **The base is never modified.** Patches are applied on top, so you 
 
 ### The Base Kustomization
 
-**Why it exists** — The base is the single source of truth. All overlays reference it, so changes to base apply across all environments. Without a defined base, overlays become fragile and maintenance-heavy.
+- **Why it exists** — The base is the single source of truth. All overlays reference it, so changes to base apply across all environments. Without a defined base, overlays become fragile and maintenance-heavy.
 
-**What it is** — A directory with a `kustomization.yaml` and manifest files (deployment.yaml, service.yaml, etc.). The kustomization declares which manifests to include. Base kustomizations don't reference anything else — they're self-contained.
+- **What it is** — A directory with a `kustomization.yaml` and manifest files (deployment.yaml, service.yaml, etc.). The kustomization declares which manifests to include. Base kustomizations don't reference anything else — they're self-contained.
 
-**One-liner** — Base = reusable YAML + kustomization that includes it.
+- **One-liner** — Base = reusable YAML + kustomization that includes it.
 
 ```yaml
 # base/kustomization.yaml
@@ -149,16 +149,16 @@ spec:
 
 ### Overlay Structure and Inheritance
 
-**Why it exists** — Each environment needs its own directory because it will have its own patches, and possibly its own config files or additional resources. Organizing overlays separately prevents confusion and makes it clear what's environment-specific.
+- **Why it exists** — Each environment needs its own directory because it will have its own patches, and possibly its own config files or additional resources. Organizing overlays separately prevents confusion and makes it clear what's environment-specific.
 
-**What it is** — A directory per environment with a `kustomization.yaml` that:
+- **What it is** — A directory per environment with a `kustomization.yaml` that:
 1. References the base with `resources: [../../base]`
 2. Defines environment-specific patches
 3. May include environment-specific resources (extra services, ingresses, etc.)
 
 Overlays inherit all base resources, labels, annotations, and transformations.
 
-**One-liner** — Each overlay = reference base + add patches + optionally add env-specific resources.
+- **One-liner** — Each overlay = reference base + add patches + optionally add env-specific resources.
 
 Example dev overlay:
 
@@ -267,14 +267,14 @@ secretGenerator:
 
 ### Patch Types and Examples
 
-**Why it exists** — Different changes need different patch types. Some changes are simple (just change replicas), others are complex (add a new field deep in the structure). Kustomize supports two patch formats for different use cases.
+- **Why it exists** — Different changes need different patch types. Some changes are simple (just change replicas), others are complex (add a new field deep in the structure). Kustomize supports two patch formats for different use cases.
 
-**What it is** — Kustomize supports two patch types:
+- **What it is** — Kustomize supports two patch types:
 
 1. **Strategic Merge Patch** — Partial YAML that merges into a full resource. Used for most cases because they're readable and straightforward.
 2. **JSON 6902 Patch** — RFC 6902 JSON Patch operations (add, replace, remove, move, copy, test). Used for precise changes at specific paths, especially when merging would be ambiguous.
 
-**One-liner** — Strategic Merge = partial YAML that layers; JSON 6902 = precise operations.
+- **One-liner** — Strategic Merge = partial YAML that layers; JSON 6902 = precise operations.
 
 #### Strategic Merge Patch (Recommended)
 
@@ -435,11 +435,11 @@ JSON 6902 operations:
 
 ### Environment-Specific ConfigMaps and Secrets
 
-**Why it exists** — Every environment needs different configuration: dev points to localhost, prod to the production database. Storing these in overlays ensures config matches the environment, and they're version-controlled in Git (with secrets managed by tools like sealed-secrets).
+- **Why it exists** — Every environment needs different configuration: dev points to localhost, prod to the production database. Storing these in overlays ensures config matches the environment, and they're version-controlled in Git (with secrets managed by tools like sealed-secrets).
 
-**What it is** — ConfigMaps and Secrets are generated per-overlay, not in base. The `configMapGenerator` and `secretGenerator` in each overlay's kustomization creates environment-specific config that gets merged into the manifests.
+- **What it is** — ConfigMaps and Secrets are generated per-overlay, not in base. The `configMapGenerator` and `secretGenerator` in each overlay's kustomization creates environment-specific config that gets merged into the manifests.
 
-**One-liner** — Generate env-specific config in overlays, not base.
+- **One-liner** — Generate env-specific config in overlays, not base.
 
 Dev config example:
 

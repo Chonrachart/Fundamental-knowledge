@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — When a pod is created, it has no node assigned. Something must decide which node is the best fit given resource availability, constraints, and policies.
-**What it is** — A control plane component that watches for pods with no `nodeName` set, filters nodes that meet the pod's requirements, scores the remaining nodes, and writes the winning `nodeName` back to the pod via the API server. It does not start the pod — kubelet does that once `nodeName` is set.
-**One-liner** — The scheduler finds the best node for each unplaced pod and assigns it.
+- **Why it exists** — When a pod is created, it has no node assigned. Something must decide which node is the best fit given resource availability, constraints, and policies.
+- **What it is** — A control plane component that watches for pods with no `nodeName` set, filters nodes that meet the pod's requirements, scores the remaining nodes, and writes the winning `nodeName` back to the pod via the API server. It does not start the pod — kubelet does that once `nodeName` is set.
+- **One-liner** — The scheduler finds the best node for each unplaced pod and assigns it.
 
 ### Architecture
 
@@ -64,28 +64,28 @@ kubelet on chosen node sees the pod → starts containers
 
 ### Filter Plugins (Predicates)
 
-**Why it exists** — Not every node can run every pod; impossible placements must be eliminated first.
-**What it is** — A set of checks run against each node. A node passes only if ALL filters pass. Common filters:
+- **Why it exists** — Not every node can run every pod; impossible placements must be eliminated first.
+- **What it is** — A set of checks run against each node. A node passes only if ALL filters pass. Common filters:
 - `NodeResourcesFit`: node has enough allocatable CPU and memory for pod's requests
 - `NodeSelector`: pod's `nodeSelector` labels match node labels
 - `TaintToleration`: pod has tolerations for all node taints
 - `PodAffinity`: inter-pod affinity/anti-affinity rules are satisfied
 - `NodeAffinity`: pod's `nodeAffinity` rules match node labels
-**One-liner** — Filters shrink the candidate set to only nodes that can physically host the pod.
+- **One-liner** — Filters shrink the candidate set to only nodes that can physically host the pod.
 
 ### Score Plugins (Priorities)
 
-**Why it exists** — Among feasible nodes, the scheduler should choose the most appropriate one (e.g. balance load, prefer locality).
-**What it is** — Each scoring plugin gives each feasible node a score 0-100. Scores are weighted and summed. The node with the highest total score wins. Example plugins:
+- **Why it exists** — Among feasible nodes, the scheduler should choose the most appropriate one (e.g. balance load, prefer locality).
+- **What it is** — Each scoring plugin gives each feasible node a score 0-100. Scores are weighted and summed. The node with the highest total score wins. Example plugins:
 - `LeastAllocated`: prefer nodes with more free resources (spread load)
 - `NodeAffinity`: bonus for nodes that match preferred affinity rules
 - `ImageLocality`: bonus if node already has the container image cached
-**One-liner** — Scores rank feasible nodes so the scheduler picks the best one, not just any valid one.
+- **One-liner** — Scores rank feasible nodes so the scheduler picks the best one, not just any valid one.
 
 ### Node Affinity and NodeSelector
 
-**Why it exists** — Some pods should run on specific hardware (GPU nodes, SSD nodes, specific regions).
-**What it is** — Two mechanisms to constrain pod placement by node labels:
+- **Why it exists** — Some pods should run on specific hardware (GPU nodes, SSD nodes, specific regions).
+- **What it is** — Two mechanisms to constrain pod placement by node labels:
 - `nodeSelector`: simple map of required label key-values (filter only)
 - `nodeAffinity`: more expressive rules with required (filter) and preferred (score) sections
 
@@ -113,9 +113,9 @@ spec:
 
 ### Taints and Tolerations (Scheduling Impact)
 
-**Why it exists** — Some nodes should repel most pods unless the pod explicitly opts in (e.g. dedicated GPU nodes, control-plane nodes).
-**What it is** — A node taint marks it as unsuitable for general pods. A pod toleration is the pod's opt-in. The scheduler's `TaintToleration` filter rejects nodes whose taints the pod doesn't tolerate.
-**One-liner** — Taints repel pods; tolerations are the pods' permission to land on tainted nodes.
+- **Why it exists** — Some nodes should repel most pods unless the pod explicitly opts in (e.g. dedicated GPU nodes, control-plane nodes).
+- **What it is** — A node taint marks it as unsuitable for general pods. A pod toleration is the pod's opt-in. The scheduler's `TaintToleration` filter rejects nodes whose taints the pod doesn't tolerate.
+- **One-liner** — Taints repel pods; tolerations are the pods' permission to land on tainted nodes.
 
 ```bash
 # Add taint to node

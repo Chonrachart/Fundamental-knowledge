@@ -1,9 +1,9 @@
 # Volumes
 
 ### Overview
-**Why it exists** — Containers have ephemeral filesystems: when a container restarts, all data written to its local filesystem is lost. Volumes provide a way for data to outlive individual container restarts and to be shared between containers within the same pod.
-**What it is** — A volume is a directory (backed by some storage medium) that is mounted into one or more containers in a pod. Volumes are declared in the pod spec and exist for the lifetime of the pod, not the lifetime of any single container.
-**One-liner** — Volumes give pods a place to store and share data that survives container restarts.
+- **Why it exists** — Containers have ephemeral filesystems: when a container restarts, all data written to its local filesystem is lost. Volumes provide a way for data to outlive individual container restarts and to be shared between containers within the same pod.
+- **What it is** — A volume is a directory (backed by some storage medium) that is mounted into one or more containers in a pod. Volumes are declared in the pod spec and exist for the lifetime of the pod, not the lifetime of any single container.
+- **One-liner** — Volumes give pods a place to store and share data that survives container restarts.
 
 ### Architecture (ASCII)
 
@@ -51,9 +51,9 @@ Think of it like:
 | persistentVolumeClaim | Cluster | Durable storage backed by a PersistentVolume |
 
 ### emptyDir
-**Why it exists** — Provides a temporary, empty directory that containers in the same pod can share. Useful for scratch space or inter-container communication via the filesystem.
-**What it is** — An empty directory created when the pod is assigned to a node. It is deleted permanently when the pod is removed from the node (deleted, evicted, or node failure).
-**One-liner** — Shared scratch space for the lifetime of the pod.
+- **Why it exists** — Provides a temporary, empty directory that containers in the same pod can share. Useful for scratch space or inter-container communication via the filesystem.
+- **What it is** — An empty directory created when the pod is assigned to a node. It is deleted permanently when the pod is removed from the node (deleted, evicted, or node failure).
+- **One-liner** — Shared scratch space for the lifetime of the pod.
 
 ```yaml
 apiVersion: v1
@@ -90,9 +90,9 @@ Optional — store in memory instead of disk (useful for sensitive temp data):
 ```
 
 ### hostPath
-**Why it exists** — Allows a pod to access files or directories on the host node's filesystem. Common use cases include reading node-level logs or accessing the Docker/containerd socket.
-**What it is** — A volume that mounts a specific path from the host node into the pod. The data persists on the node even after the pod is deleted, but it is NOT portable across nodes.
-**One-liner** — Direct window into the host node's filesystem — powerful but dangerous.
+- **Why it exists** — Allows a pod to access files or directories on the host node's filesystem. Common use cases include reading node-level logs or accessing the Docker/containerd socket.
+- **What it is** — A volume that mounts a specific path from the host node into the pod. The data persists on the node even after the pod is deleted, but it is NOT portable across nodes.
+- **One-liner** — Direct window into the host node's filesystem — powerful but dangerous.
 
 > **Security risk:** hostPath breaks pod isolation. A pod with hostPath access to `/` can read or modify any file on the node. Avoid in production workloads; use only when absolutely necessary (e.g., node agents, log collectors).
 
@@ -129,9 +129,9 @@ hostPath `type` options:
 | `Socket` | Path must be a Unix socket |
 
 ### configMap
-**Why it exists** — Allows configuration data stored in a ConfigMap to be consumed as files rather than environment variables, which is useful for config files, scripts, or certificates.
-**What it is** — Mounts ConfigMap keys as files in a directory inside the container. The content of each file is the value of the corresponding key.
-**One-liner** — ConfigMap entries projected as read-only files into a container.
+- **Why it exists** — Allows configuration data stored in a ConfigMap to be consumed as files rather than environment variables, which is useful for config files, scripts, or certificates.
+- **What it is** — Mounts ConfigMap keys as files in a directory inside the container. The content of each file is the value of the corresponding key.
+- **One-liner** — ConfigMap entries projected as read-only files into a container.
 
 ```yaml
   volumes:
@@ -141,9 +141,9 @@ hostPath `type` options:
 ```
 
 ### secret
-**Why it exists** — Safely injects sensitive data (passwords, tokens, TLS certs) as files rather than environment variables, which are easier to leak via logs.
-**What it is** — Mounts Secret keys as files. Values are base64-decoded automatically. Backed by tmpfs (in-memory) by default — never written to disk.
-**One-liner** — Secret entries projected as in-memory read-only files into a container.
+- **Why it exists** — Safely injects sensitive data (passwords, tokens, TLS certs) as files rather than environment variables, which are easier to leak via logs.
+- **What it is** — Mounts Secret keys as files. Values are base64-decoded automatically. Backed by tmpfs (in-memory) by default — never written to disk.
+- **One-liner** — Secret entries projected as in-memory read-only files into a container.
 
 ```yaml
   volumes:
@@ -153,9 +153,9 @@ hostPath `type` options:
 ```
 
 ### persistentVolumeClaim
-**Why it exists** — Connects a pod to durable external storage (cloud disk, NFS, etc.) that outlives the pod itself.
-**What it is** — References a PVC by name. Kubernetes resolves the PVC to a bound PV and mounts the underlying storage. See `002-persistent-volumes-pvc.md` for full details.
-**One-liner** — The bridge between a pod and long-lived external storage.
+- **Why it exists** — Connects a pod to durable external storage (cloud disk, NFS, etc.) that outlives the pod itself.
+- **What it is** — References a PVC by name. Kubernetes resolves the PVC to a bound PV and mounts the underlying storage. See `002-persistent-volumes-pvc.md` for full details.
+- **One-liner** — The bridge between a pod and long-lived external storage.
 
 ```yaml
   volumes:

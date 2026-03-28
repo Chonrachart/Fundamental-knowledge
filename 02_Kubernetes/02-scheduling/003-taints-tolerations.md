@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Nodes sometimes need to repel most pods: dedicated GPU nodes, nodes under memory pressure, or the control-plane node that should not run workloads. Taints let node operators mark a node as "off-limits" without modifying every pod that should stay away.
-**What it is** — A **taint** is a mark on a node with a key, an optional value, and an effect. A **toleration** on a pod is a declaration that the pod can tolerate (survive) a specific taint. Only pods with matching tolerations are permitted to schedule onto (or stay on) a tainted node.
-**One-liner** — Taints repel pods from nodes; tolerations on pods grant permission to land on tainted nodes.
+- **Why it exists** — Nodes sometimes need to repel most pods: dedicated GPU nodes, nodes under memory pressure, or the control-plane node that should not run workloads. Taints let node operators mark a node as "off-limits" without modifying every pod that should stay away.
+- **What it is** — A **taint** is a mark on a node with a key, an optional value, and an effect. A **toleration** on a pod is a declaration that the pod can tolerate (survive) a specific taint. Only pods with matching tolerations are permitted to schedule onto (or stay on) a tainted node.
+- **One-liner** — Taints repel pods from nodes; tolerations on pods grant permission to land on tainted nodes.
 
 ### Architecture (ASCII diagram)
 
@@ -30,9 +30,9 @@ Combined pattern: **taint + toleration + node affinity = dedicated nodes** (repe
 
 ### Taint syntax
 
-**Why it exists** — Provides a structured, machine-parseable format for expressing what kind of repulsion a node imposes.
-**What it is** — A taint has three parts: `key=value:effect`. The value is optional (`key:effect` is valid). The key and value follow the same naming rules as label keys/values. The effect controls what happens to pods that do not tolerate the taint.
-**One-liner** — Taint format is `key=value:effect`; value is optional; effect determines severity.
+- **Why it exists** — Provides a structured, machine-parseable format for expressing what kind of repulsion a node imposes.
+- **What it is** — A taint has three parts: `key=value:effect`. The value is optional (`key:effect` is valid). The key and value follow the same naming rules as label keys/values. The effect controls what happens to pods that do not tolerate the taint.
+- **One-liner** — Taint format is `key=value:effect`; value is optional; effect determines severity.
 
 ```bash
 # Add a taint
@@ -50,9 +50,9 @@ kubectl describe node node1 | grep -A3 Taints
 
 ### Three effects
 
-**Why it exists** — Different situations require different levels of enforcement: prevent new scheduling, prefer to avoid, or actively evict existing pods.
-**What it is** — The effect field takes one of three values that control how strictly the taint is enforced.
-**One-liner** — NoSchedule is hard block; PreferNoSchedule is soft block; NoExecute also evicts running pods.
+- **Why it exists** — Different situations require different levels of enforcement: prevent new scheduling, prefer to avoid, or actively evict existing pods.
+- **What it is** — The effect field takes one of three values that control how strictly the taint is enforced.
+- **One-liner** — NoSchedule is hard block; PreferNoSchedule is soft block; NoExecute also evicts running pods.
 
 | Effect | New pods without toleration | Running pods without toleration |
 |--------|-----------------------------|---------------------------------|
@@ -62,9 +62,9 @@ kubectl describe node node1 | grep -A3 Taints
 
 ### Toleration YAML
 
-**Why it exists** — Pods need a way to opt in to tainted nodes without being modified by the node operator.
-**What it is** — A list of toleration entries in `spec.tolerations`. Each entry must match a taint's key, operator, value, and effect. `operator: Equal` (default) requires a matching value. `operator: Exists` matches any taint with that key regardless of value. An empty key with `operator: Exists` matches ALL taints on any node — use with care.
-**One-liner** — `spec.tolerations` is the pod's list of taints it can survive; `operator: Exists` is the wildcard form.
+- **Why it exists** — Pods need a way to opt in to tainted nodes without being modified by the node operator.
+- **What it is** — A list of toleration entries in `spec.tolerations`. Each entry must match a taint's key, operator, value, and effect. `operator: Equal` (default) requires a matching value. `operator: Exists` matches any taint with that key regardless of value. An empty key with `operator: Exists` matches ALL taints on any node — use with care.
+- **One-liner** — `spec.tolerations` is the pod's list of taints it can survive; `operator: Exists` is the wildcard form.
 
 ```yaml
 spec:
@@ -92,9 +92,9 @@ spec:
 
 ### NoExecute and tolerationSeconds
 
-**Why it exists** — When a node becomes unhealthy (e.g. memory pressure, disk pressure, unreachable), Kubernetes automatically adds `NoExecute` taints to the node. Pods can declare how long they tolerate this condition before being evicted.
-**What it is** — `tolerationSeconds` only applies to `NoExecute` tolerations. It tells the node controller: "evict this pod after N seconds if the taint is still present." Without `tolerationSeconds`, the pod tolerates the `NoExecute` taint indefinitely.
-**One-liner** — `tolerationSeconds` with `NoExecute` lets pods ride out transient node issues for a grace period before eviction.
+- **Why it exists** — When a node becomes unhealthy (e.g. memory pressure, disk pressure, unreachable), Kubernetes automatically adds `NoExecute` taints to the node. Pods can declare how long they tolerate this condition before being evicted.
+- **What it is** — `tolerationSeconds` only applies to `NoExecute` tolerations. It tells the node controller: "evict this pod after N seconds if the taint is still present." Without `tolerationSeconds`, the pod tolerates the `NoExecute` taint indefinitely.
+- **One-liner** — `tolerationSeconds` with `NoExecute` lets pods ride out transient node issues for a grace period before eviction.
 
 ```yaml
 tolerations:

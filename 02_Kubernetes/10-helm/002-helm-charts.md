@@ -1,11 +1,11 @@
 # Helm Charts
 
 ### Overview
-**Why it exists** — Kubernetes applications need to be deployed across multiple environments with different configs (dev/staging/prod). Charts standardize this by providing reusable, parameterized templates so the same application package can be configured differently without duplicating YAML.
+- **Why it exists** — Kubernetes applications need to be deployed across multiple environments with different configs (dev/staging/prod). Charts standardize this by providing reusable, parameterized templates so the same application package can be configured differently without duplicating YAML.
 
-**What it is** — A structured directory containing Kubernetes YAML templates, default configuration values, metadata, and helper functions. Charts enable templating, versioning, and dependency management for Kubernetes applications.
+- **What it is** — A structured directory containing Kubernetes YAML templates, default configuration values, metadata, and helper functions. Charts enable templating, versioning, and dependency management for Kubernetes applications.
 
-**One-liner** — A chart is a Helm package that combines templates, configuration, and metadata to enable reusable Kubernetes application deployments.
+- **One-liner** — A chart is a Helm package that combines templates, configuration, and metadata to enable reusable Kubernetes application deployments.
 
 ### Architecture (ASCII where relevant)
 
@@ -63,11 +63,11 @@ The chart itself is **immutable** — values change, not the chart code.
 ### Core Building Blocks
 
 ### Chart.yaml
-**Why it exists** — Provides metadata about the chart so Helm can identify, version, and describe what it packages.
+- **Why it exists** — Provides metadata about the chart so Helm can identify, version, and describe what it packages.
 
-**What it is** — A YAML file containing chart metadata such as name, version, description, maintainers, and optional dependencies. This is the "identity card" of the chart.
+- **What it is** — A YAML file containing chart metadata such as name, version, description, maintainers, and optional dependencies. This is the "identity card" of the chart.
 
-**One-liner** — Chart.yaml defines chart metadata and versioning.
+- **One-liner** — Chart.yaml defines chart metadata and versioning.
 
 ```yaml
 apiVersion: v2                          # Helm 3 format
@@ -87,11 +87,11 @@ dependencies:                           # Chart dependencies
 ```
 
 ### values.yaml
-**Why it exists** — Provides default configuration that templates can reference, allowing charts to be used out-of-the-box while remaining customizable.
+- **Why it exists** — Provides default configuration that templates can reference, allowing charts to be used out-of-the-box while remaining customizable.
 
-**What it is** — A YAML file defining default values for all template placeholders. Can be overridden at install/upgrade time via CLI flags or additional YAML files.
+- **What it is** — A YAML file defining default values for all template placeholders. Can be overridden at install/upgrade time via CLI flags or additional YAML files.
 
-**One-liner** — values.yaml provides default configuration injected into templates.
+- **One-liner** — values.yaml provides default configuration injected into templates.
 
 ```yaml
 # values.yaml - Default values for templates
@@ -134,11 +134,11 @@ autoscaling:
 ```
 
 ### templates/ Directory
-**Why it exists** — Separates template definitions from configuration, enabling the same chart to deploy across multiple environments by injecting different values.
+- **Why it exists** — Separates template definitions from configuration, enabling the same chart to deploy across multiple environments by injecting different values.
 
-**What it is** — A directory containing Kubernetes YAML manifest templates with placeholders (`{{ }}` syntax) for values injection. When `helm install` runs, values are injected into these templates to produce final YAML.
+- **What it is** — A directory containing Kubernetes YAML manifest templates with placeholders (`{{ }}` syntax) for values injection. When `helm install` runs, values are injected into these templates to produce final YAML.
 
-**One-liner** — templates/ contains parameterized Kubernetes manifests.
+- **One-liner** — templates/ contains parameterized Kubernetes manifests.
 
 #### Templates Syntax Building Blocks
 
@@ -226,11 +226,11 @@ spec:
 ```
 
 ### _helpers.tpl
-**Why it exists** — Defines reusable template snippets to avoid duplication of common patterns across multiple manifests.
+- **Why it exists** — Defines reusable template snippets to avoid duplication of common patterns across multiple manifests.
 
-**What it is** — A template file (not rendered directly to Kubernetes) containing helper functions and partial templates that other templates include via `{{ include }}`.
+- **What it is** — A template file (not rendered directly to Kubernetes) containing helper functions and partial templates that other templates include via `{{ include }}`.
 
-**One-liner** — _helpers.tpl provides reusable template functions to avoid duplication.
+- **One-liner** — _helpers.tpl provides reusable template functions to avoid duplication.
 
 ```yaml
 # templates/_helpers.tpl
@@ -287,11 +287,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 ```
 
 ### NOTES.txt
-**Why it exists** — Provides post-installation instructions and helpful information printed to the user after `helm install` or `helm upgrade` completes.
+- **Why it exists** — Provides post-installation instructions and helpful information printed to the user after `helm install` or `helm upgrade` completes.
 
-**What it is** — A template file (supports the same `{{ }}` syntax) that outputs text instructions. Helm displays this after successful installation.
+- **What it is** — A template file (supports the same `{{ }}` syntax) that outputs text instructions. Helm displays this after successful installation.
 
-**One-liner** — NOTES.txt displays post-installation instructions to the user.
+- **One-liner** — NOTES.txt displays post-installation instructions to the user.
 
 ```
 # templates/NOTES.txt

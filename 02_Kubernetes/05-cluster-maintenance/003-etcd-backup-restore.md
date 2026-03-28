@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — etcd is the single source of truth for all cluster state: every object, every secret, every config. If etcd data is corrupted or lost without a backup, the cluster state is irrecoverable — you cannot reconstruct what was running, what secrets existed, or what policies were in place. Regular backups are the only safety net.
-**What it is** — A process of using `etcdctl` to snapshot the etcd key-value store to a file, and restoring from that snapshot when needed. The snapshot captures the full cluster state at a point in time.
-**One-liner** — etcd IS the cluster; back it up with `etcdctl snapshot save` and restore with `etcdctl snapshot restore`.
+- **Why it exists** — etcd is the single source of truth for all cluster state: every object, every secret, every config. If etcd data is corrupted or lost without a backup, the cluster state is irrecoverable — you cannot reconstruct what was running, what secrets existed, or what policies were in place. Regular backups are the only safety net.
+- **What it is** — A process of using `etcdctl` to snapshot the etcd key-value store to a file, and restoring from that snapshot when needed. The snapshot captures the full cluster state at a point in time.
+- **One-liner** — etcd IS the cluster; back it up with `etcdctl snapshot save` and restore with `etcdctl snapshot restore`.
 
 ### Architecture (ASCII diagram)
 
@@ -39,9 +39,9 @@ The most common exam trap: forgetting `ETCDCTL_API=3`. Without it, the v2 API is
 
 ### ETCDCTL_API environment variable
 
-**Why it exists** — `etcdctl` supports both v2 and v3 APIs. The default is v2. Kubernetes uses etcd v3. Snapshot save/restore commands only exist in the v3 API.
-**What it is** — An environment variable that forces `etcdctl` to use the v3 API for all commands in the session.
-**One-liner** — Always set `ETCDCTL_API=3` before any `etcdctl` command.
+- **Why it exists** — `etcdctl` supports both v2 and v3 APIs. The default is v2. Kubernetes uses etcd v3. Snapshot save/restore commands only exist in the v3 API.
+- **What it is** — An environment variable that forces `etcdctl` to use the v3 API for all commands in the session.
+- **One-liner** — Always set `ETCDCTL_API=3` before any `etcdctl` command.
 
 ```bash
 # Set inline per command
@@ -54,8 +54,8 @@ etcdctl <command>
 
 ### Certificate paths
 
-**Why it exists** — etcd uses mutual TLS; every client (including `etcdctl`) must present a valid certificate signed by the etcd CA. Without the certs, the connection is refused.
-**What it is** — Three files under `/etc/kubernetes/pki/etcd/`:
+- **Why it exists** — etcd uses mutual TLS; every client (including `etcdctl`) must present a valid certificate signed by the etcd CA. Without the certs, the connection is refused.
+- **What it is** — Three files under `/etc/kubernetes/pki/etcd/`:
 
 | Flag | File | Purpose |
 |------|------|---------|
@@ -72,9 +72,9 @@ ls /etc/kubernetes/pki/etcd/
 
 ### Backup — snapshot save
 
-**Why it exists** — Creates a consistent, point-in-time snapshot of all etcd data that can be restored later.
-**What it is** — `etcdctl snapshot save` connects to the etcd endpoint and writes the current state to a `.db` file. The snapshot is self-contained and portable.
-**One-liner** — `etcdctl snapshot save` writes a full cluster state snapshot to a file.
+- **Why it exists** — Creates a consistent, point-in-time snapshot of all etcd data that can be restored later.
+- **What it is** — `etcdctl snapshot save` connects to the etcd endpoint and writes the current state to a `.db` file. The snapshot is self-contained and portable.
+- **One-liner** — `etcdctl snapshot save` writes a full cluster state snapshot to a file.
 
 ```bash
 ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-backup.db \
@@ -96,9 +96,9 @@ ETCDCTL_API=3 etcdctl snapshot status /tmp/etcd-backup.db --write-out=table
 
 ### Restore — snapshot restore
 
-**Why it exists** — Recovers cluster state from a backup after data corruption, accidental deletion, or disaster recovery.
-**What it is** — A multi-step process: stop the API server (so nothing writes to etcd during restore), restore the snapshot to a new data directory, reconfigure the etcd manifest to point to the new directory, then restart.
-**One-liner** — Restore writes snapshot data to a new dir, then etcd is pointed to that dir via manifest update.
+- **Why it exists** — Recovers cluster state from a backup after data corruption, accidental deletion, or disaster recovery.
+- **What it is** — A multi-step process: stop the API server (so nothing writes to etcd during restore), restore the snapshot to a new data directory, reconfigure the etcd manifest to point to the new directory, then restart.
+- **One-liner** — Restore writes snapshot data to a new dir, then etcd is pointed to that dir via manifest update.
 
 ```bash
 # 1. Stop kube-apiserver (move manifest out of static pod dir)

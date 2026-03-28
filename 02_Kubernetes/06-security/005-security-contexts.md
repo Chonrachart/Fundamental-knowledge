@@ -1,9 +1,9 @@
 # Security Contexts
 
 ### Overview
-**Why it exists** — Container runtimes run as root by default and have broad Linux capabilities. A compromised container that runs as root with no restrictions can escape to the host, read sensitive files, or overwrite system binaries. Security contexts let you strip away privileges the container never needed — defense in depth at the workload level.
-**What it is** — A set of fields on a Pod (`spec.securityContext`) or on an individual container (`spec.containers[].securityContext`) that control the Linux security attributes of that pod or container: UID/GID, Linux capabilities, filesystem write access, and privilege escalation.
-**One-liner** — Security contexts let you run containers with the minimum Linux privileges they need, reducing blast radius if a container is compromised.
+- **Why it exists** — Container runtimes run as root by default and have broad Linux capabilities. A compromised container that runs as root with no restrictions can escape to the host, read sensitive files, or overwrite system binaries. Security contexts let you strip away privileges the container never needed — defense in depth at the workload level.
+- **What it is** — A set of fields on a Pod (`spec.securityContext`) or on an individual container (`spec.containers[].securityContext`) that control the Linux security attributes of that pod or container: UID/GID, Linux capabilities, filesystem write access, and privilege escalation.
+- **One-liner** — Security contexts let you run containers with the minimum Linux privileges they need, reducing blast radius if a container is compromised.
 
 ### Architecture (ASCII)
 
@@ -56,9 +56,9 @@ Two levels:
 ---
 
 ### runAsUser / runAsGroup
-**Why it exists** — Images often default to running as root (UID 0). Running as a known non-root UID limits damage if the container is compromised.
-**What it is** — Overrides the `USER` directive in the Dockerfile at runtime.
-**One-liner** — "Run this process as UID X, not root."
+- **Why it exists** — Images often default to running as root (UID 0). Running as a known non-root UID limits damage if the container is compromised.
+- **What it is** — Overrides the `USER` directive in the Dockerfile at runtime.
+- **One-liner** — "Run this process as UID X, not root."
 
 ```yaml
 securityContext:
@@ -69,9 +69,9 @@ securityContext:
 ---
 
 ### runAsNonRoot
-**Why it exists** — Catches images that were not built with a non-root USER; fails fast at admission rather than silently running as root.
-**What it is** — If the container's effective UID would be 0, kubelet refuses to start the container.
-**One-liner** — "Reject the container if it would run as root."
+- **Why it exists** — Catches images that were not built with a non-root USER; fails fast at admission rather than silently running as root.
+- **What it is** — If the container's effective UID would be 0, kubelet refuses to start the container.
+- **One-liner** — "Reject the container if it would run as root."
 
 ```yaml
 securityContext:
@@ -81,9 +81,9 @@ securityContext:
 ---
 
 ### readOnlyRootFilesystem
-**Why it exists** — Attackers who compromise a container often write payloads, modify binaries, or install tools. A read-only filesystem prevents writes.
-**What it is** — Mounts the container's root filesystem as read-only. Writable paths (logs, temp files) must be explicitly mounted as `emptyDir` volumes.
-**One-liner** — "The container cannot write to its own filesystem."
+- **Why it exists** — Attackers who compromise a container often write payloads, modify binaries, or install tools. A read-only filesystem prevents writes.
+- **What it is** — Mounts the container's root filesystem as read-only. Writable paths (logs, temp files) must be explicitly mounted as `emptyDir` volumes.
+- **One-liner** — "The container cannot write to its own filesystem."
 
 ```yaml
 securityContext:
@@ -93,9 +93,9 @@ securityContext:
 ---
 
 ### allowPrivilegeEscalation
-**Why it exists** — Setuid/setgid binaries (like `sudo`, `ping`) can silently grant a process more privileges than its parent. Setting `no_new_privs` closes this path.
-**What it is** — Maps to the Linux `no_new_privs` process attribute. When false, child processes cannot acquire new privileges through setuid/setgid binaries.
-**One-liner** — "This process cannot gain more privileges than it started with."
+- **Why it exists** — Setuid/setgid binaries (like `sudo`, `ping`) can silently grant a process more privileges than its parent. Setting `no_new_privs` closes this path.
+- **What it is** — Maps to the Linux `no_new_privs` process attribute. When false, child processes cannot acquire new privileges through setuid/setgid binaries.
+- **One-liner** — "This process cannot gain more privileges than it started with."
 
 ```yaml
 securityContext:
@@ -105,9 +105,9 @@ securityContext:
 ---
 
 ### capabilities
-**Why it exists** — Linux capabilities break root privileges into discrete units. A container that only needs to bind to port 80 doesn't need `CAP_SYS_ADMIN`. Dropping capabilities limits what an attacker can do with a compromised container.
-**What it is** — The container runtime applies a default set of capabilities. You can `drop` from that set (or drop ALL), then `add` back only what is needed.
-**One-liner** — "Drop everything, then add back only the capabilities this container genuinely needs."
+- **Why it exists** — Linux capabilities break root privileges into discrete units. A container that only needs to bind to port 80 doesn't need `CAP_SYS_ADMIN`. Dropping capabilities limits what an attacker can do with a compromised container.
+- **What it is** — The container runtime applies a default set of capabilities. You can `drop` from that set (or drop ALL), then `add` back only what is needed.
+- **One-liner** — "Drop everything, then add back only the capabilities this container genuinely needs."
 
 ```yaml
 securityContext:
@@ -132,9 +132,9 @@ Common capabilities and their meaning:
 ---
 
 ### privileged
-**Why it exists** — Exists for containers that genuinely need full host access (e.g. node-level agents, device plugins). Should never be used for normal workloads.
-**What it is** — Grants the container the same capabilities as a process running directly on the host node. Can see all host processes, devices, and network interfaces.
-**One-liner** — "Full host access — avoid unless you have a very specific reason."
+- **Why it exists** — Exists for containers that genuinely need full host access (e.g. node-level agents, device plugins). Should never be used for normal workloads.
+- **What it is** — Grants the container the same capabilities as a process running directly on the host node. Can see all host processes, devices, and network interfaces.
+- **One-liner** — "Full host access — avoid unless you have a very specific reason."
 
 ```yaml
 securityContext:

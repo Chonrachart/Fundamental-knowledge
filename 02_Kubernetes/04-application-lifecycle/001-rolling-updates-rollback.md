@@ -1,9 +1,9 @@
 # Rolling Updates and Rollback
 
 ### Overview
-**Why it exists** — Deploying new versions without downtime requires gradually replacing old pods with new ones; rolling back instantly when something goes wrong requires keeping the previous state readily available.
-**What it is** — A Deployment update strategy that incrementally swaps old pods for new ones, controlled by `maxSurge` and `maxUnavailable`, backed by preserved old ReplicaSets for rollback.
-**One-liner** — Zero-downtime deploys with instant rollback via Deployment-managed ReplicaSet revisions.
+- **Why it exists** — Deploying new versions without downtime requires gradually replacing old pods with new ones; rolling back instantly when something goes wrong requires keeping the previous state readily available.
+- **What it is** — A Deployment update strategy that incrementally swaps old pods for new ones, controlled by `maxSurge` and `maxUnavailable`, backed by preserved old ReplicaSets for rollback.
+- **One-liner** — Zero-downtime deploys with instant rollback via Deployment-managed ReplicaSet revisions.
 
 ### Architecture (ASCII)
 
@@ -65,7 +65,7 @@ Rollback reuses the old ReplicaSet by scaling it back up. It creates a **new rev
 
 **Why they exist** — They let you tune the speed/safety tradeoff: more surge = faster rollout but higher resource cost; less unavailable = safer but slower.
 **What they are** — `maxSurge` is the maximum number of extra pods above desired count; `maxUnavailable` is the maximum number of pods that can be unavailable during the update. Both accept absolute numbers or percentages.
-**One-liner** — `maxSurge` controls how many new pods to add; `maxUnavailable` controls how many old pods to remove before replacements are ready.
+- **One-liner** — `maxSurge` controls how many new pods to add; `maxUnavailable` controls how many old pods to remove before replacements are ready.
 
 ```yaml
 spec:
@@ -82,7 +82,7 @@ spec:
 
 ### kubectl rollout status
 
-**Why it exists** — Lets CI/CD pipelines block until a rollout finishes, catching failures before marking a deploy as successful.
+- **Why it exists** — Lets CI/CD pipelines block until a rollout finishes, catching failures before marking a deploy as successful.
 
 ```bash
 kubectl rollout status deployment/myapp              # block until complete
@@ -92,7 +92,7 @@ kubectl get deployment myapp                         # see READY, UP-TO-DATE col
 
 ### kubectl rollout history
 
-**Why it exists** — Provides an audit trail of changes and exposes revision numbers needed for targeted rollback.
+- **Why it exists** — Provides an audit trail of changes and exposes revision numbers needed for targeted rollback.
 
 ```bash
 kubectl rollout history deployment/myapp             # list all revisions
@@ -104,7 +104,7 @@ kubectl rollout history deployment/myapp --revision=2 # detail for revision 2
 
 ### kubectl rollout undo
 
-**Why it exists** — One-command rollback when a deploy goes bad; avoids manually re-applying old manifests.
+- **Why it exists** — One-command rollback when a deploy goes bad; avoids manually re-applying old manifests.
 
 ```bash
 kubectl rollout undo deployment/myapp                # roll back to previous revision
@@ -116,7 +116,7 @@ kubectl rollout undo deployment/myapp --to-revision=2 # roll back to specific re
 
 ### kubectl rollout pause / resume
 
-**Why it exists** — Lets you batch multiple spec changes into a single rollout rather than triggering one rollout per change.
+- **Why it exists** — Lets you batch multiple spec changes into a single rollout rather than triggering one rollout per change.
 
 ```bash
 kubectl rollout pause deployment/myapp     # freeze; apply multiple changes

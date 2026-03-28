@@ -1,9 +1,9 @@
 # Control Plane Failure Troubleshooting
 
 ### Overview
-**Why it exists** — If the control plane is degraded, nothing else works correctly: pods stop scheduling, controllers stop reconciling, and `kubectl` itself may become unresponsive.
-**What it is** — Scenario-based guide for diagnosing control plane component failures: API server, scheduler, controller-manager, and etcd.
-**One-liner** — Control plane components run as static pods in `kube-system`; start every investigation with `kubectl get pods -n kube-system`.
+- **Why it exists** — If the control plane is degraded, nothing else works correctly: pods stop scheduling, controllers stop reconciling, and `kubectl` itself may become unresponsive.
+- **What it is** — Scenario-based guide for diagnosing control plane component failures: API server, scheduler, controller-manager, and etcd.
+- **One-liner** — Control plane components run as static pods in `kube-system`; start every investigation with `kubectl get pods -n kube-system`.
 
 ### Architecture (ASCII)
 
@@ -47,9 +47,9 @@ All control plane components run as **static pods**. The kubelet on the control 
 ### Core Building Blocks
 
 ### Static Pods (Control Plane Components)
-**Why it exists** — Control plane components must run even before the cluster API is available; static pods are managed directly by the kubelet without going through the API server.
-**What it is** — Pod manifests placed in `/etc/kubernetes/manifests/`; the kubelet watches this directory and runs the pods directly.
-**One-liner** — Edit the YAML in `/etc/kubernetes/manifests/` to change control plane component configuration.
+- **Why it exists** — Control plane components must run even before the cluster API is available; static pods are managed directly by the kubelet without going through the API server.
+- **What it is** — Pod manifests placed in `/etc/kubernetes/manifests/`; the kubelet watches this directory and runs the pods directly.
+- **One-liner** — Edit the YAML in `/etc/kubernetes/manifests/` to change control plane component configuration.
 
 ```bash
 ls /etc/kubernetes/manifests/
@@ -57,9 +57,9 @@ ls /etc/kubernetes/manifests/
 ```
 
 ### kubectl get componentstatuses
-**Why it exists** — Quick health check for scheduler, controller-manager, and etcd.
-**What it is** — Deprecated but still functional in many clusters; queries health endpoints of control plane components.
-**One-liner** — `kubectl get cs` gives a fast overview of control plane component health.
+- **Why it exists** — Quick health check for scheduler, controller-manager, and etcd.
+- **What it is** — Deprecated but still functional in many clusters; queries health endpoints of control plane components.
+- **One-liner** — `kubectl get cs` gives a fast overview of control plane component health.
 
 ```bash
 kubectl get componentstatuses

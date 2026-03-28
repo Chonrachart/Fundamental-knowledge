@@ -1,9 +1,9 @@
 # HPA, VPA, and Autoscaling
 
 ### Overview
-**Why it exists** — Manual replica scaling cannot react fast enough to traffic spikes and wastes resources during off-peak hours; autoscaling adjusts capacity automatically in response to real demand.
-**What it is** — HPA (Horizontal Pod Autoscaler) scales replica count up/down based on CPU, memory, or custom metrics; VPA (Vertical Pod Autoscaler) adjusts the requests/limits of existing pods instead of changing replica count.
-**One-liner** — HPA scales out (more pods); VPA scales up (bigger pods) — both remove the need for manual intervention.
+- **Why it exists** — Manual replica scaling cannot react fast enough to traffic spikes and wastes resources during off-peak hours; autoscaling adjusts capacity automatically in response to real demand.
+- **What it is** — HPA (Horizontal Pod Autoscaler) scales replica count up/down based on CPU, memory, or custom metrics; VPA (Vertical Pod Autoscaler) adjusts the requests/limits of existing pods instead of changing replica count.
+- **One-liner** — HPA scales out (more pods); VPA scales up (bigger pods) — both remove the need for manual intervention.
 
 ### Architecture (ASCII)
 
@@ -51,9 +51,9 @@ Load drops:
 
 ### How HPA Works
 
-**Why it exists** — Eliminates the need to manually adjust replicas as traffic fluctuates; reacts within seconds to sustained metric changes.
-**What it is** — A control loop running in the controller-manager that polls metrics every 15 seconds, computes the desired replica count, and patches the target Deployment (or StatefulSet).
-**One-liner** — Control loop that polls metrics every 15s and adjusts replica count within configured bounds.
+- **Why it exists** — Eliminates the need to manually adjust replicas as traffic fluctuates; reacts within seconds to sustained metric changes.
+- **What it is** — A control loop running in the controller-manager that polls metrics every 15 seconds, computes the desired replica count, and patches the target Deployment (or StatefulSet).
+- **One-liner** — Control loop that polls metrics every 15s and adjusts replica count within configured bounds.
 
 Key points:
 - HPA requires `metrics-server` for CPU/memory metrics (or a custom metrics adapter for anything else)
@@ -119,9 +119,9 @@ For custom metrics, deploy an adapter such as the Prometheus adapter or KEDA.
 
 ### VPA Overview
 
-**Why it exists** — Some workloads (batch jobs, stateful apps) cannot scale horizontally; VPA right-sizes their resource requests/limits based on historical usage so they are neither starved nor over-provisioned.
-**What it is** — A separate controller (not built into Kubernetes) that watches pod metrics over time and recommends — or automatically applies — updated requests/limits to containers.
-**One-liner** — Automatically right-sizes container resource requests/limits based on observed usage.
+- **Why it exists** — Some workloads (batch jobs, stateful apps) cannot scale horizontally; VPA right-sizes their resource requests/limits based on historical usage so they are neither starved nor over-provisioned.
+- **What it is** — A separate controller (not built into Kubernetes) that watches pod metrics over time and recommends — or automatically applies — updated requests/limits to containers.
+- **One-liner** — Automatically right-sizes container resource requests/limits based on observed usage.
 
 VPA operates in three modes:
 

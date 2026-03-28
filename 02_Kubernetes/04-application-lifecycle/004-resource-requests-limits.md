@@ -1,9 +1,9 @@
 # Resource Requests and Limits
 
 ### Overview
-**Why it exists** — Without resource constraints, a single noisy-neighbor pod can exhaust a node's CPU or memory and starve or kill every other pod on it; requests and limits provide fair allocation and protection.
-**What it is** — Per-container declarations that tell the scheduler how much CPU/memory to reserve (requests) and cap how much the runtime allows the container to consume (limits).
-**One-liner** — Requests reserve capacity for scheduling; limits cap usage at runtime.
+- **Why it exists** — Without resource constraints, a single noisy-neighbor pod can exhaust a node's CPU or memory and starve or kill every other pod on it; requests and limits provide fair allocation and protection.
+- **What it is** — Per-container declarations that tell the scheduler how much CPU/memory to reserve (requests) and cap how much the runtime allows the container to consume (limits).
+- **One-liner** — Requests reserve capacity for scheduling; limits cap usage at runtime.
 
 ### Architecture (ASCII)
 
@@ -47,9 +47,9 @@ CPU behaves differently:
 
 ### Requests and Limits Syntax
 
-**Why it exists** — Provides the scheduler and kubelet with the numbers they need to place and constrain containers.
-**What it is** — Two optional sub-sections under `resources` in a container spec; both accept CPU (cores or millicores) and memory (bytes with SI suffixes).
-**One-liner** — Declare per-container CPU and memory reservation and cap.
+- **Why it exists** — Provides the scheduler and kubelet with the numbers they need to place and constrain containers.
+- **What it is** — Two optional sub-sections under `resources` in a container spec; both accept CPU (cores or millicores) and memory (bytes with SI suffixes).
+- **One-liner** — Declare per-container CPU and memory reservation and cap.
 
 ```yaml
 resources:
@@ -77,9 +77,9 @@ resources:
 
 ### QoS Classes
 
-**Why it exists** — Kubernetes needs an eviction priority when a node runs low on memory; QoS class is the tie-breaker.
-**What it is** — A class automatically assigned to each pod based on how requests and limits are set across all its containers.
-**One-liner** — Determines which pods are evicted first under node memory pressure.
+- **Why it exists** — Kubernetes needs an eviction priority when a node runs low on memory; QoS class is the tie-breaker.
+- **What it is** — A class automatically assigned to each pod based on how requests and limits are set across all its containers.
+- **One-liner** — Determines which pods are evicted first under node memory pressure.
 
 | QoS Class | Condition | Eviction order |
 |---|---|---|
@@ -94,9 +94,9 @@ kubectl get pod <name> -o jsonpath='{.status.qosClass}'
 
 ### ResourceQuota (Namespace-level caps)
 
-**Why it exists** — Prevents a single team's namespace from monopolizing cluster resources; enforces capacity governance across teams.
-**What it is** — A namespace-scoped object that caps the total sum of requests and limits across all pods, and optionally limits counts of objects (PVCs, Services, etc.).
-**One-liner** — Namespace-wide ceiling on total resource consumption.
+- **Why it exists** — Prevents a single team's namespace from monopolizing cluster resources; enforces capacity governance across teams.
+- **What it is** — A namespace-scoped object that caps the total sum of requests and limits across all pods, and optionally limits counts of objects (PVCs, Services, etc.).
+- **One-liner** — Namespace-wide ceiling on total resource consumption.
 
 ```yaml
 apiVersion: v1
@@ -118,9 +118,9 @@ spec:
 
 ### LimitRange (Per-container defaults and bounds)
 
-**Why it exists** — Without defaults, pods created without explicit requests/limits in a quota-enforced namespace are rejected; LimitRange provides automatic defaults and enforces min/max bounds.
-**What it is** — A namespace-scoped object that sets default requests/limits injected into containers that omit them, and defines allowed min/max ranges.
-**One-liner** — Auto-inject default requests/limits and enforce per-container min/max bounds.
+- **Why it exists** — Without defaults, pods created without explicit requests/limits in a quota-enforced namespace are rejected; LimitRange provides automatic defaults and enforces min/max bounds.
+- **What it is** — A namespace-scoped object that sets default requests/limits injected into containers that omit them, and defines allowed min/max ranges.
+- **One-liner** — Auto-inject default requests/limits and enforce per-container min/max bounds.
 
 ```yaml
 apiVersion: v1

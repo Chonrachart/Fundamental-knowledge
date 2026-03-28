@@ -1,9 +1,9 @@
 # RBAC (Role-Based Access Control)
 
 ### Overview
-**Why it exists** — By default, any authenticated identity in a Kubernetes cluster can attempt any operation. RBAC enforces least-privilege: pods and users receive only the permissions they actually need. A compromised pod that has no API permissions cannot escalate to delete namespaces or read secrets from other workloads.
-**What it is** — An authorization mechanism built into the API server. It uses four object types — Role, ClusterRole, RoleBinding, ClusterRoleBinding — to define what actions (verbs) a subject (user, group, or ServiceAccount) can perform on which resources.
-**One-liner** — RBAC maps "who" to "what they can do" using Roles and Bindings, enforcing least-privilege for every identity in the cluster.
+- **Why it exists** — By default, any authenticated identity in a Kubernetes cluster can attempt any operation. RBAC enforces least-privilege: pods and users receive only the permissions they actually need. A compromised pod that has no API permissions cannot escalate to delete namespaces or read secrets from other workloads.
+- **What it is** — An authorization mechanism built into the API server. It uses four object types — Role, ClusterRole, RoleBinding, ClusterRoleBinding — to define what actions (verbs) a subject (user, group, or ServiceAccount) can perform on which resources.
+- **One-liner** — RBAC maps "who" to "what they can do" using Roles and Bindings, enforcing least-privilege for every identity in the cluster.
 
 ### Architecture (ASCII)
 
@@ -62,9 +62,9 @@ Key distinction:
 ### Core Building Blocks
 
 ### Role (namespace-scoped)
-**Why it exists** — Grants permissions within a single namespace without touching the rest of the cluster.
-**What it is** — A namespaced object that holds a list of `rules`. Each rule specifies `apiGroups`, `resources`, and `verbs`.
-**One-liner** — "In namespace X, you may do [verbs] on [resources]."
+- **Why it exists** — Grants permissions within a single namespace without touching the rest of the cluster.
+- **What it is** — A namespaced object that holds a list of `rules`. Each rule specifies `apiGroups`, `resources`, and `verbs`.
+- **One-liner** — "In namespace X, you may do [verbs] on [resources]."
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -87,9 +87,9 @@ kubectl create role pod-reader \
 ```
 
 ### ClusterRole (cluster-wide)
-**Why it exists** — Some resources are cluster-scoped (nodes, PersistentVolumes, namespaces) and cannot be accessed with a namespaced Role.
-**What it is** — Same structure as Role but without a namespace field. Can also be used as a template referenced by RoleBindings in specific namespaces.
-**One-liner** — "Anywhere in the cluster, you may do [verbs] on [resources]."
+- **Why it exists** — Some resources are cluster-scoped (nodes, PersistentVolumes, namespaces) and cannot be accessed with a namespaced Role.
+- **What it is** — Same structure as Role but without a namespace field. Can also be used as a template referenced by RoleBindings in specific namespaces.
+- **One-liner** — "Anywhere in the cluster, you may do [verbs] on [resources]."
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -137,9 +137,9 @@ kubectl create clusterrole node-reader \
 ---
 
 ### RoleBinding
-**Why it exists** — A Role alone grants nothing; a binding connects the role to a subject.
-**What it is** — Namespaced object that binds a Role (or ClusterRole) to one or more subjects within one namespace.
-**One-liner** — "Subject X has Role Y in namespace Z."
+- **Why it exists** — A Role alone grants nothing; a binding connects the role to a subject.
+- **What it is** — Namespaced object that binds a Role (or ClusterRole) to one or more subjects within one namespace.
+- **One-liner** — "Subject X has Role Y in namespace Z."
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -171,9 +171,9 @@ kubectl create rolebinding pod-reader-binding \
 ```
 
 ### ClusterRoleBinding
-**Why it exists** — Grants cluster-wide access; needed for cluster-scoped resources or for cluster-admin access.
-**What it is** — Same as RoleBinding but binds a ClusterRole and applies across the entire cluster.
-**One-liner** — "Subject X has ClusterRole Y everywhere."
+- **Why it exists** — Grants cluster-wide access; needed for cluster-scoped resources or for cluster-admin access.
+- **What it is** — Same as RoleBinding but binds a ClusterRole and applies across the entire cluster.
+- **One-liner** — "Subject X has ClusterRole Y everywhere."
 
 ```bash
 kubectl create clusterrolebinding node-reader-binding \
@@ -184,9 +184,9 @@ kubectl create clusterrolebinding node-reader-binding \
 ---
 
 ### ServiceAccounts as Pod Identity
-**Why it exists** — Pods need to call the Kubernetes API (e.g. to list pods, update ConfigMaps). ServiceAccounts provide a namespaced identity for that.
-**What it is** — A namespaced resource. Every namespace has a `default` SA. The kubelet mounts a short-lived token for the SA into every pod at `/var/run/secrets/kubernetes.io/serviceaccount/token`.
-**One-liner** — The identity a pod uses when talking to the API server.
+- **Why it exists** — Pods need to call the Kubernetes API (e.g. to list pods, update ConfigMaps). ServiceAccounts provide a namespaced identity for that.
+- **What it is** — A namespaced resource. Every namespace has a `default` SA. The kubelet mounts a short-lived token for the SA into every pod at `/var/run/secrets/kubernetes.io/serviceaccount/token`.
+- **One-liner** — The identity a pod uses when talking to the API server.
 
 ```yaml
 apiVersion: v1

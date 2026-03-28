@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Running a single pod is fragile; if it crashes, it's gone. You need a controller to maintain the desired number of replicas and a higher-level abstraction to manage updates safely.
-**What it is** — A ReplicaSet ensures N copies of a pod are always running by watching and reconciling pod count. A Deployment owns and manages ReplicaSets, providing declarative updates, history tracking, and the ability to scale or roll back. In practice you always create Deployments, never ReplicaSets directly.
-**One-liner** — A Deployment manages ReplicaSets; a ReplicaSet manages pods; together they keep your app running at the desired scale.
+- **Why it exists** — Running a single pod is fragile; if it crashes, it's gone. You need a controller to maintain the desired number of replicas and a higher-level abstraction to manage updates safely.
+- **What it is** — A ReplicaSet ensures N copies of a pod are always running by watching and reconciling pod count. A Deployment owns and manages ReplicaSets, providing declarative updates, history tracking, and the ability to scale or roll back. In practice you always create Deployments, never ReplicaSets directly.
+- **One-liner** — A Deployment manages ReplicaSets; a ReplicaSet manages pods; together they keep your app running at the desired scale.
 
 ### Architecture
 
@@ -48,13 +48,13 @@ ReplicaSet controller sees 2 running (desired: 3)
 
 ### ReplicaSet
 
-**Why it exists** — Pods are mortal; they crash, get evicted, or their node fails. A ReplicaSet ensures the desired count is always maintained.
-**What it is** — A controller that keeps exactly N pods matching a label selector running at all times. It uses a pod template to create new pods when count drops, and deletes pods when count exceeds desired. The ReplicaSet's selector must match the pod template's labels.
+- **Why it exists** — Pods are mortal; they crash, get evicted, or their node fails. A ReplicaSet ensures the desired count is always maintained.
+- **What it is** — A controller that keeps exactly N pods matching a label selector running at all times. It uses a pod template to create new pods when count drops, and deletes pods when count exceeds desired. The ReplicaSet's selector must match the pod template's labels.
 - You rarely create ReplicaSets directly — Deployments manage them.
 - ReplicaSet names include a hash of the pod template (e.g. `myapp-7d9f8b4c6`).
 - Deleting a ReplicaSet deletes all its pods unless you use `--cascade=orphan`.
 
-**One-liner** — A ReplicaSet is the "N pods must always run" controller.
+- **One-liner** — A ReplicaSet is the "N pods must always run" controller.
 
 ```bash
 # See ReplicaSets for a deployment
@@ -70,15 +70,15 @@ kubectl describe rs <rs-name>
 
 ### Deployment
 
-**Why it exists** — You need more than just "keep N pods running" — you need to update them safely, roll back on failure, and track history.
-**What it is** — A higher-level controller that manages ReplicaSets. When you change the pod template (new image, env var, etc.), the Deployment controller creates a new ReplicaSet and transitions traffic to it according to the configured strategy. Old ReplicaSets are kept (scaled to 0) for rollback up to `revisionHistoryLimit` (default 10).
+- **Why it exists** — You need more than just "keep N pods running" — you need to update them safely, roll back on failure, and track history.
+- **What it is** — A higher-level controller that manages ReplicaSets. When you change the pod template (new image, env var, etc.), the Deployment controller creates a new ReplicaSet and transitions traffic to it according to the configured strategy. Old ReplicaSets are kept (scaled to 0) for rollback up to `revisionHistoryLimit` (default 10).
 
 Key properties:
 - Declarative: `kubectl apply` is idempotent — re-applying the same YAML makes no changes
 - Revision tracking: each pod template change increments the revision number
 - Rollback: `kubectl rollout undo` reverts to the previous ReplicaSet
 
-**One-liner** — A Deployment adds update strategy, revision history, and rollback capability on top of ReplicaSets.
+- **One-liner** — A Deployment adds update strategy, revision history, and rollback capability on top of ReplicaSets.
 
 ```yaml
 apiVersion: apps/v1
@@ -108,9 +108,9 @@ spec:
 
 ### Scaling
 
-**Why it exists** — Traffic and load change; you need to adjust the number of replicas without recreating the Deployment.
-**What it is** — Changing `spec.replicas` either via `kubectl scale` or by editing the manifest. The ReplicaSet controller reconciles immediately. Scaling does not trigger a new ReplicaSet — only pod template changes do.
-**One-liner** — Scaling changes how many pods run without touching the pod template or creating a new revision.
+- **Why it exists** — Traffic and load change; you need to adjust the number of replicas without recreating the Deployment.
+- **What it is** — Changing `spec.replicas` either via `kubectl scale` or by editing the manifest. The ReplicaSet controller reconciles immediately. Scaling does not trigger a new ReplicaSet — only pod template changes do.
+- **One-liner** — Scaling changes how many pods run without touching the pod template or creating a new revision.
 
 ```bash
 # Scale imperatively
@@ -130,8 +130,8 @@ kubectl get pods -l app=myapp -w
 
 ### Update Strategies
 
-**Why it exists** — Different applications have different tolerance for downtime and over-provisioning during updates. The strategy controls how the Deployment transitions from the old ReplicaSet to the new one.
-**What it is** — Two strategies are available, configured via `spec.strategy.type`.
+- **Why it exists** — Different applications have different tolerance for downtime and over-provisioning during updates. The strategy controls how the Deployment transitions from the old ReplicaSet to the new one.
+- **What it is** — Two strategies are available, configured via `spec.strategy.type`.
 
 **RollingUpdate** (default) — Replaces pods incrementally. Controls the pace with two parameters:
 - `maxSurge`: maximum number of pods that can be created above the desired count during the update (default: 25%). Use to allow new pods to start before old ones are killed.
@@ -185,7 +185,7 @@ kubectl rollout pause deployment/myapp
 kubectl rollout resume deployment/myapp
 ```
 
-**One-liner** — RollingUpdate replaces pods gradually (zero-downtime); Recreate kills all pods first (brief downtime, simpler).
+- **One-liner** — RollingUpdate replaces pods gradually (zero-downtime); Recreate kills all pods first (brief downtime, simpler).
 
 ### Relationship: Deployment → ReplicaSet → Pod
 

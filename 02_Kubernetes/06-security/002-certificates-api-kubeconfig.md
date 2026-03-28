@@ -1,9 +1,9 @@
 # Certificates API and kubeconfig
 
 ### Overview
-**Why it exists** — Clusters need a way to issue signed certificates for new users and components without exposing the CA private key. Separately, every kubectl user needs a portable, structured way to carry cluster address, credentials, and context.
-**What it is** — Two related tools: the CertificateSigningRequest (CSR) API lets you request certs signed by the cluster CA through Kubernetes itself; kubeconfig is the config file (`~/.kube/config`) that stores cluster endpoints, user credentials, and named contexts so kubectl knows who it is and which cluster it is talking to.
-**One-liner** — CSR API = "get a cert signed by the cluster"; kubeconfig = "where is the cluster, who am I, which context am I in."
+- **Why it exists** — Clusters need a way to issue signed certificates for new users and components without exposing the CA private key. Separately, every kubectl user needs a portable, structured way to carry cluster address, credentials, and context.
+- **What it is** — Two related tools: the CertificateSigningRequest (CSR) API lets you request certs signed by the cluster CA through Kubernetes itself; kubeconfig is the config file (`~/.kube/config`) that stores cluster endpoints, user credentials, and named contexts so kubectl knows who it is and which cluster it is talking to.
+- **One-liner** — CSR API = "get a cert signed by the cluster"; kubeconfig = "where is the cluster, who am I, which context am I in."
 
 ### Architecture (ASCII)
 
@@ -53,9 +53,9 @@
 
 ### CertificateSigningRequest (CSR) API
 
-**Why it exists** — Provides a controlled, audited way to issue certificates without distributing the CA private key.
-**What it is** — A Kubernetes resource (`certificates.k8s.io/v1`) that wraps a PEM-encoded CSR and carries an approval status.
-**One-liner** — Submit a CSR object, get it approved, retrieve a signed cert.
+- **Why it exists** — Provides a controlled, audited way to issue certificates without distributing the CA private key.
+- **What it is** — A Kubernetes resource (`certificates.k8s.io/v1`) that wraps a PEM-encoded CSR and carries an approval status.
+- **One-liner** — Submit a CSR object, get it approved, retrieve a signed cert.
 
 #### Step-by-step workflow
 
@@ -112,9 +112,9 @@ openssl x509 -in alice.crt -text -noout | grep Subject
 
 ### kubeconfig
 
-**Why it exists** — Without a standard config file, every kubectl command would need `--server`, `--certificate-authority`, `--client-certificate`, and `--client-key` flags. kubeconfig bundles all of this into named, switchable contexts.
-**What it is** — A YAML file (default `~/.kube/config`, override with `KUBECONFIG` env var) with three top-level lists: `clusters`, `users`, and `contexts`.
-**One-liner** — A portable credential + cluster address store that kubectl reads on every invocation.
+- **Why it exists** — Without a standard config file, every kubectl command would need `--server`, `--certificate-authority`, `--client-certificate`, and `--client-key` flags. kubeconfig bundles all of this into named, switchable contexts.
+- **What it is** — A YAML file (default `~/.kube/config`, override with `KUBECONFIG` env var) with three top-level lists: `clusters`, `users`, and `contexts`.
+- **One-liner** — A portable credential + cluster address store that kubectl reads on every invocation.
 
 #### Viewing and switching contexts
 

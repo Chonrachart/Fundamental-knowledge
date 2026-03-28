@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Kubernetes supports two ways of interacting with the cluster. Understanding the distinction is critical for knowing when quick one-liners are appropriate vs when you need version-controlled manifests.
-**What it is** — Imperative commands tell Kubernetes exactly what to do step by step (`kubectl run`, `kubectl expose`, `kubectl delete`). Declarative commands describe the desired end state and let Kubernetes figure out how to reach it (`kubectl apply -f`). The reconciliation loop is built around the declarative model.
-**One-liner** — Imperative = tell it what to do; declarative = tell it what you want and let it converge.
+- **Why it exists** — Kubernetes supports two ways of interacting with the cluster. Understanding the distinction is critical for knowing when quick one-liners are appropriate vs when you need version-controlled manifests.
+- **What it is** — Imperative commands tell Kubernetes exactly what to do step by step (`kubectl run`, `kubectl expose`, `kubectl delete`). Declarative commands describe the desired end state and let Kubernetes figure out how to reach it (`kubectl apply -f`). The reconciliation loop is built around the declarative model.
+- **One-liner** — Imperative = tell it what to do; declarative = tell it what you want and let it converge.
 
 ### Architecture
 
@@ -52,9 +52,9 @@ Declarative (state description):
 
 ### Imperative Commands
 
-**Why it exists** — Quick operations, learning, debugging, and one-off tasks don't need a full manifest file.
-**What it is** — Direct kubectl commands that create, update, or delete resources immediately. Each command is a single API call. Results are not stored as a file; the next person to manage the cluster may not know how the resource was created.
-**One-liner** — Imperative commands are fast but leave no record of intent — use for learning and quick fixes only.
+- **Why it exists** — Quick operations, learning, debugging, and one-off tasks don't need a full manifest file.
+- **What it is** — Direct kubectl commands that create, update, or delete resources immediately. Each command is a single API call. Results are not stored as a file; the next person to manage the cluster may not know how the resource was created.
+- **One-liner** — Imperative commands are fast but leave no record of intent — use for learning and quick fixes only.
 
 Common imperative commands:
 ```bash
@@ -80,9 +80,9 @@ kubectl delete -f manifest.yaml    # delete what's in the file
 
 ### Declarative Approach
 
-**Why it exists** — Production systems need reproducibility, auditability, and GitOps workflows where YAML files are the single source of truth.
-**What it is** — Writing YAML manifests that describe desired state, then applying them with `kubectl apply`. The command is idempotent: applying the same file twice makes no changes. Applying an updated file converges to the new desired state. Files live in Git, enabling code review, history, and rollback.
-**One-liner** — Declarative manifests are the production-grade approach: version-controlled, reviewable, repeatable.
+- **Why it exists** — Production systems need reproducibility, auditability, and GitOps workflows where YAML files are the single source of truth.
+- **What it is** — Writing YAML manifests that describe desired state, then applying them with `kubectl apply`. The command is idempotent: applying the same file twice makes no changes. Applying an updated file converges to the new desired state. Files live in Git, enabling code review, history, and rollback.
+- **One-liner** — Declarative manifests are the production-grade approach: version-controlled, reviewable, repeatable.
 
 ```bash
 # Apply (create or update — idempotent)
@@ -114,9 +114,9 @@ kubectl delete -f deployment.yaml
 
 ### The `--dry-run=client -o yaml` Trick
 
-**Why it exists** — Writing YAML from scratch is tedious and error-prone. You can generate valid YAML from imperative commands.
-**What it is** — Running an imperative command with `--dry-run=client -o yaml` prints the YAML that would be applied without actually creating the resource. This is the fastest way to bootstrap a manifest.
-**One-liner** — Use `--dry-run=client -o yaml` to generate YAML from imperative commands, then save and customize it.
+- **Why it exists** — Writing YAML from scratch is tedious and error-prone. You can generate valid YAML from imperative commands.
+- **What it is** — Running an imperative command with `--dry-run=client -o yaml` prints the YAML that would be applied without actually creating the resource. This is the fastest way to bootstrap a manifest.
+- **One-liner** — Use `--dry-run=client -o yaml` to generate YAML from imperative commands, then save and customize it.
 
 ```bash
 # Generate deployment YAML

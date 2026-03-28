@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — `nodeSelector` is too blunt for many real-world requirements: "schedule on nodes in zone us-east-1a OR us-east-1b, preferring nodes with SSD storage." Node affinity provides expressive, multi-operator rules that attract pods to nodes based on node labels, while still allowing soft (preferred) rules that do not block scheduling.
-**What it is** — Node affinity is a set of rules in `spec.affinity.nodeAffinity` that the scheduler evaluates when placing a pod. Rules can be hard (required) or soft (preferred), and use rich operators (In, NotIn, Exists, DoesNotExist, Gt, Lt) against node labels.
-**One-liner** — Node affinity attracts pods to nodes that match label expressions — more expressive than nodeSelector, with hard and soft rule types.
+- **Why it exists** — `nodeSelector` is too blunt for many real-world requirements: "schedule on nodes in zone us-east-1a OR us-east-1b, preferring nodes with SSD storage." Node affinity provides expressive, multi-operator rules that attract pods to nodes based on node labels, while still allowing soft (preferred) rules that do not block scheduling.
+- **What it is** — Node affinity is a set of rules in `spec.affinity.nodeAffinity` that the scheduler evaluates when placing a pod. Rules can be hard (required) or soft (preferred), and use rich operators (In, NotIn, Exists, DoesNotExist, Gt, Lt) against node labels.
+- **One-liner** — Node affinity attracts pods to nodes that match label expressions — more expressive than nodeSelector, with hard and soft rule types.
 
 ### Architecture (ASCII diagram)
 
@@ -43,9 +43,9 @@ Contrast with taints/tolerations: taints **push** pods away from nodes (node's c
 
 ### nodeSelector (simpler alternative)
 
-**Why it exists** — The simplest scheduling constraint; no YAML nesting required. Fine for basic cases.
-**What it is** — A map of key-value pairs in `spec.nodeSelector`. The pod only schedules on nodes that have ALL the listed labels with exact matching values. No operators, no OR, no preferences. Functionally equivalent to a single required node affinity with `In` operators.
-**One-liner** — `nodeSelector` is a flat key=value map for simple node targeting — no operators or preferences.
+- **Why it exists** — The simplest scheduling constraint; no YAML nesting required. Fine for basic cases.
+- **What it is** — A map of key-value pairs in `spec.nodeSelector`. The pod only schedules on nodes that have ALL the listed labels with exact matching values. No operators, no OR, no preferences. Functionally equivalent to a single required node affinity with `In` operators.
+- **One-liner** — `nodeSelector` is a flat key=value map for simple node targeting — no operators or preferences.
 
 ```yaml
 spec:
@@ -62,9 +62,9 @@ kubectl label nodes node1 kubernetes.io/arch=amd64
 
 ### requiredDuringSchedulingIgnoredDuringExecution
 
-**Why it exists** — Some constraints are non-negotiable: a GPU workload cannot run on a CPU-only node; a compliance-sensitive workload must stay in a specific region.
-**What it is** — The hard form of node affinity. The pod will not be scheduled if no node satisfies the rule. The "IgnoredDuringExecution" part means if a node's labels change after a pod is already running, the pod is NOT evicted — the rule is only checked at schedule time. Multiple `nodeSelectorTerms` entries are ORed; multiple `matchExpressions` within a term are ANDed.
-**One-liner** — `required...` is the hard filter: pod stays Pending if no matching node exists; only evaluated at schedule time.
+- **Why it exists** — Some constraints are non-negotiable: a GPU workload cannot run on a CPU-only node; a compliance-sensitive workload must stay in a specific region.
+- **What it is** — The hard form of node affinity. The pod will not be scheduled if no node satisfies the rule. The "IgnoredDuringExecution" part means if a node's labels change after a pod is already running, the pod is NOT evicted — the rule is only checked at schedule time. Multiple `nodeSelectorTerms` entries are ORed; multiple `matchExpressions` within a term are ANDed.
+- **One-liner** — `required...` is the hard filter: pod stays Pending if no matching node exists; only evaluated at schedule time.
 
 ```yaml
 spec:
@@ -87,9 +87,9 @@ spec:
 
 ### preferredDuringSchedulingIgnoredDuringExecution
 
-**Why it exists** — Not all scheduling preferences should block a pod from running. "Prefer zone A but schedule anywhere" is a common production pattern.
-**What it is** — The soft form of node affinity. Each entry has a `weight` (1-100) and a preference expression. The scheduler adds the weight to the score of nodes that match. The pod always schedules even if no node matches the preference. Multiple preferences accumulate — a node matching more preferences scores higher.
-**One-liner** — `preferred...` adds weight to matching nodes' scores — pod always schedules, even with zero matches.
+- **Why it exists** — Not all scheduling preferences should block a pod from running. "Prefer zone A but schedule anywhere" is a common production pattern.
+- **What it is** — The soft form of node affinity. Each entry has a `weight` (1-100) and a preference expression. The scheduler adds the weight to the score of nodes that match. The pod always schedules even if no node matches the preference. Multiple preferences accumulate — a node matching more preferences scores higher.
+- **One-liner** — `preferred...` adds weight to matching nodes' scores — pod always schedules, even with zero matches.
 
 ```yaml
 spec:

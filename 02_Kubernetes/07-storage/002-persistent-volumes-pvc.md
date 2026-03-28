@@ -1,9 +1,9 @@
 # Persistent Volumes and PersistentVolumeClaims
 
 ### Overview
-**Why it exists** — Decouples storage provisioning from storage consumption. Cluster admins provision (or configure auto-provisioning of) PersistentVolumes; developers simply claim the storage they need via PersistentVolumeClaims without knowing the underlying infrastructure.
-**What it is** — A PersistentVolume (PV) is a cluster-scoped resource representing a piece of real storage (cloud disk, NFS share, local disk). A PersistentVolumeClaim (PVC) is a namespaced request for storage that gets bound to a matching PV.
-**One-liner** — PV is the storage unit; PVC is the request — they meet in the middle so devs and admins work independently.
+- **Why it exists** — Decouples storage provisioning from storage consumption. Cluster admins provision (or configure auto-provisioning of) PersistentVolumes; developers simply claim the storage they need via PersistentVolumeClaims without knowing the underlying infrastructure.
+- **What it is** — A PersistentVolume (PV) is a cluster-scoped resource representing a piece of real storage (cloud disk, NFS share, local disk). A PersistentVolumeClaim (PVC) is a namespaced request for storage that gets bound to a matching PV.
+- **One-liner** — PV is the storage unit; PVC is the request — they meet in the middle so devs and admins work independently.
 
 ### Architecture (ASCII)
 
@@ -59,9 +59,9 @@ PVC deleted → reclaim policy decides fate of PV
 
 ### PersistentVolume (PV)
 
-**Why it exists** — Represents a concrete piece of storage in the cluster, independent of any pod or namespace.
-**What it is** — A cluster-scoped object that wraps a real storage backend (AWS EBS, GCP PD, NFS, hostPath for dev, etc.). Contains capacity, access modes, reclaim policy, and optionally a storage class name.
-**One-liner** — The storage unit that admins provision and Kubernetes manages.
+- **Why it exists** — Represents a concrete piece of storage in the cluster, independent of any pod or namespace.
+- **What it is** — A cluster-scoped object that wraps a real storage backend (AWS EBS, GCP PD, NFS, hostPath for dev, etc.). Contains capacity, access modes, reclaim policy, and optionally a storage class name.
+- **One-liner** — The storage unit that admins provision and Kubernetes manages.
 
 ```yaml
 apiVersion: v1
@@ -103,9 +103,9 @@ Retained    PV kept with old data; must be manually reclaimed (Retain policy)
 
 ### PersistentVolumeClaim (PVC)
 
-**Why it exists** — Allows developers to request storage without knowing the underlying infrastructure details.
-**What it is** — A namespaced object that specifies desired size, access mode, and optionally storage class. Kubernetes finds (or creates) a matching PV and binds them together.
-**One-liner** — The developer's request ticket for storage.
+- **Why it exists** — Allows developers to request storage without knowing the underlying infrastructure details.
+- **What it is** — A namespaced object that specifies desired size, access mode, and optionally storage class. Kubernetes finds (or creates) a matching PV and binds them together.
+- **One-liner** — The developer's request ticket for storage.
 
 ```yaml
 apiVersion: v1

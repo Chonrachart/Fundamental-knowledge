@@ -1,9 +1,9 @@
 # ConfigMaps and Secrets
 
 ### Overview
-**Why it exists** — Hardcoding configuration and credentials into container images makes them inflexible and insecure; ConfigMaps and Secrets let you decouple config from the image so the same image runs in dev, staging, and production with different values.
-**What it is** — Namespace-scoped Kubernetes objects that store key-value pairs or file content; ConfigMaps for non-sensitive config, Secrets for sensitive data; both injectable into pods as env vars or volume-mounted files.
-**One-liner** — Decouple application configuration and credentials from the container image.
+- **Why it exists** — Hardcoding configuration and credentials into container images makes them inflexible and insecure; ConfigMaps and Secrets let you decouple config from the image so the same image runs in dev, staging, and production with different values.
+- **What it is** — Namespace-scoped Kubernetes objects that store key-value pairs or file content; ConfigMaps for non-sensitive config, Secrets for sensitive data; both injectable into pods as env vars or volume-mounted files.
+- **One-liner** — Decouple application configuration and credentials from the container image.
 
 ### Architecture (ASCII)
 
@@ -44,9 +44,9 @@ ConfigMaps and Secrets must live in the **same namespace** as the pod that refer
 
 ### ConfigMap
 
-**Why it exists** — Stores non-sensitive configuration so pods can receive different settings without rebuilding the image.
-**What it is** — A key-value store where values can be plain strings or multi-line file content (e.g., full YAML/INI files).
-**One-liner** — Named bag of non-sensitive key-value or file-content config.
+- **Why it exists** — Stores non-sensitive configuration so pods can receive different settings without rebuilding the image.
+- **What it is** — A key-value store where values can be plain strings or multi-line file content (e.g., full YAML/INI files).
+- **One-liner** — Named bag of non-sensitive key-value or file-content config.
 
 Creation methods:
 
@@ -75,9 +75,9 @@ data:
 
 ### Secret
 
-**Why it exists** — Sensitive values (passwords, tokens, TLS keys) need separate handling from plain config — restricted RBAC, encryption at rest, and audit logging.
-**What it is** — Same structure as ConfigMap but values are base64-encoded in the API; access is gated by RBAC; can be encrypted at rest via EncryptionConfiguration.
-**One-liner** — Named bag of sensitive data stored base64-encoded with tighter access controls.
+- **Why it exists** — Sensitive values (passwords, tokens, TLS keys) need separate handling from plain config — restricted RBAC, encryption at rest, and audit logging.
+- **What it is** — Same structure as ConfigMap but values are base64-encoded in the API; access is gated by RBAC; can be encrypted at rest via EncryptionConfiguration.
+- **One-liner** — Named bag of sensitive data stored base64-encoded with tighter access controls.
 
 > **Important:** base64 is encoding, NOT encryption. Anyone who can read the Secret object sees the plaintext. Enable encryption at rest and restrict RBAC for real security.
 

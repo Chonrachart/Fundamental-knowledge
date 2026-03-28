@@ -1,9 +1,9 @@
 # Worker Node Failure Troubleshooting
 
 ### Overview
-**Why it exists** — When a worker node fails, all pods scheduled to it become unavailable; diagnosing the root cause quickly minimizes downtime.
-**What it is** — Scenario-based guide for diagnosing worker node failures: NotReady status, kubelet problems, disk pressure, memory pressure, and network partition.
-**One-liner** — Start with `kubectl get nodes`, then `kubectl describe node`, then SSH → `systemctl status kubelet`.
+- **Why it exists** — When a worker node fails, all pods scheduled to it become unavailable; diagnosing the root cause quickly minimizes downtime.
+- **What it is** — Scenario-based guide for diagnosing worker node failures: NotReady status, kubelet problems, disk pressure, memory pressure, and network partition.
+- **One-liner** — Start with `kubectl get nodes`, then `kubectl describe node`, then SSH → `systemctl status kubelet`.
 
 ### Architecture (ASCII)
 
@@ -61,9 +61,9 @@ Diagnose based on error:
 ### Core Building Blocks
 
 ### Node Conditions
-**Why it exists** — The kubelet continuously reports node health to the API server via Conditions; each condition signals a specific type of pressure or failure.
-**What it is** — A set of boolean status fields on the Node object that indicate resource pressure and readiness.
-**One-liner** — `kubectl describe node` → Conditions section tells you exactly what is wrong.
+- **Why it exists** — The kubelet continuously reports node health to the API server via Conditions; each condition signals a specific type of pressure or failure.
+- **What it is** — A set of boolean status fields on the Node object that indicate resource pressure and readiness.
+- **One-liner** — `kubectl describe node` → Conditions section tells you exactly what is wrong.
 
 | Condition | Normal Value | Meaning when True |
 |-----------|-------------|------------------|

@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — The Kubernetes control-plane itself (API server, etcd, controller-manager, scheduler) needs to start somewhere before any of those components are running. Static pods let the kubelet bootstrap these critical components directly from files on disk, without depending on the API server.
-**What it is** — A static pod is a pod whose definition lives as a YAML/JSON file in a directory on the node's filesystem (default: `/etc/kubernetes/manifests/`). The kubelet watches that directory and creates, updates, or deletes pods as files appear, change, or disappear — entirely without communicating with the API server.
-**One-liner** — Static pods are kubelet-managed pods defined by files in `/etc/kubernetes/manifests/` — used to bootstrap the control plane before the API server exists.
+- **Why it exists** — The Kubernetes control-plane itself (API server, etcd, controller-manager, scheduler) needs to start somewhere before any of those components are running. Static pods let the kubelet bootstrap these critical components directly from files on disk, without depending on the API server.
+- **What it is** — A static pod is a pod whose definition lives as a YAML/JSON file in a directory on the node's filesystem (default: `/etc/kubernetes/manifests/`). The kubelet watches that directory and creates, updates, or deletes pods as files appear, change, or disappear — entirely without communicating with the API server.
+- **One-liner** — Static pods are kubelet-managed pods defined by files in `/etc/kubernetes/manifests/` — used to bootstrap the control plane before the API server exists.
 
 ### Architecture (ASCII diagram)
 
@@ -45,9 +45,9 @@ Once the API server is running, the kubelet registers "mirror pods" — read-onl
 
 ### How static pods work
 
-**Why it exists** — Bootstrapping: kubeadm uses static pods to install `etcd`, `kube-apiserver`, `kube-controller-manager`, and `kube-scheduler` before any of those services are available to schedule workloads.
-**What it is** — The kubelet's `--pod-manifest-path` flag (or `staticPodPath` in the kubelet config) points to a directory. The kubelet uses inotify to watch that directory. Any valid pod spec file dropped there is immediately created. Changes to the file cause the kubelet to recreate the pod. Deleting the file causes the kubelet to stop and remove the pod.
-**One-liner** — Drop a pod YAML into `/etc/kubernetes/manifests/` and the kubelet creates it immediately; remove the file to delete the pod.
+- **Why it exists** — Bootstrapping: kubeadm uses static pods to install `etcd`, `kube-apiserver`, `kube-controller-manager`, and `kube-scheduler` before any of those services are available to schedule workloads.
+- **What it is** — The kubelet's `--pod-manifest-path` flag (or `staticPodPath` in the kubelet config) points to a directory. The kubelet uses inotify to watch that directory. Any valid pod spec file dropped there is immediately created. Changes to the file cause the kubelet to recreate the pod. Deleting the file causes the kubelet to stop and remove the pod.
+- **One-liner** — Drop a pod YAML into `/etc/kubernetes/manifests/` and the kubelet creates it immediately; remove the file to delete the pod.
 
 ```bash
 # Default manifests directory on most clusters (set in kubelet config)
@@ -89,9 +89,9 @@ rm /etc/kubernetes/manifests/my-static-pod.yaml
 
 ### Mirror pods
 
-**Why it exists** — Cluster operators need visibility into all running pods, including static pods, through the standard API. Mirror pods provide that without giving the API server control over static pods.
-**What it is** — When the API server is running, the kubelet creates a "mirror pod" — a read-only copy of each static pod — in the API server. Mirror pods appear in `kubectl get pods` and `kubectl describe pod`, but any attempt to delete them via kubectl just recreates the mirror. To actually stop a static pod, you must delete the source file from the manifests directory.
-**One-liner** — Mirror pods are read-only API representations of static pods — `kubectl delete` on them has no lasting effect.
+- **Why it exists** — Cluster operators need visibility into all running pods, including static pods, through the standard API. Mirror pods provide that without giving the API server control over static pods.
+- **What it is** — When the API server is running, the kubelet creates a "mirror pod" — a read-only copy of each static pod — in the API server. Mirror pods appear in `kubectl get pods` and `kubectl describe pod`, but any attempt to delete them via kubectl just recreates the mirror. To actually stop a static pod, you must delete the source file from the manifests directory.
+- **One-liner** — Mirror pods are read-only API representations of static pods — `kubectl delete` on them has no lasting effect.
 
 ```bash
 # Mirror pods are visible in kube-system

@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Kubernetes is declarative: you declare desired state and something must continuously watch for drift and correct it. Without controllers, objects would be created but nothing would act on them.
-**What it is** — A single binary that runs many independent control loops (controllers) in one process. Each controller watches a specific resource type, compares desired state to actual state, and takes corrective action. Controllers never talk to each other — each only watches the API server.
-**One-liner** — The controller manager is the automation engine that keeps actual cluster state matching desired state through continuous reconciliation loops.
+- **Why it exists** — Kubernetes is declarative: you declare desired state and something must continuously watch for drift and correct it. Without controllers, objects would be created but nothing would act on them.
+- **What it is** — A single binary that runs many independent control loops (controllers) in one process. Each controller watches a specific resource type, compares desired state to actual state, and takes corrective action. Controllers never talk to each other — each only watches the API server.
+- **One-liner** — The controller manager is the automation engine that keeps actual cluster state matching desired state through continuous reconciliation loops.
 
 ### Architecture
 
@@ -72,27 +72,27 @@ Result:  3 pods running → reconciled
 
 ### Deployment Controller
 
-**Why it exists** — Deployments need to manage ReplicaSets and orchestrate rolling updates without manual intervention.
-**What it is** — Watches Deployment objects. When a Deployment is created, it creates a ReplicaSet. When the pod template changes (new image, env var, etc.), it creates a new ReplicaSet and manages the transition (scaling new RS up, old RS down) according to the rollout strategy.
-**One-liner** — The Deployment controller manages the lifecycle of ReplicaSets on behalf of Deployments.
+- **Why it exists** — Deployments need to manage ReplicaSets and orchestrate rolling updates without manual intervention.
+- **What it is** — Watches Deployment objects. When a Deployment is created, it creates a ReplicaSet. When the pod template changes (new image, env var, etc.), it creates a new ReplicaSet and manages the transition (scaling new RS up, old RS down) according to the rollout strategy.
+- **One-liner** — The Deployment controller manages the lifecycle of ReplicaSets on behalf of Deployments.
 
 ### ReplicaSet Controller
 
-**Why it exists** — The declared number of pod replicas must always be maintained, even as pods crash or nodes fail.
-**What it is** — Watches ReplicaSet objects. Continuously checks that the number of running pods matching the selector equals `spec.replicas`. If a pod is missing, creates one. If there are too many, deletes the excess.
-**One-liner** — The ReplicaSet controller is the "N pods must always run" enforcer.
+- **Why it exists** — The declared number of pod replicas must always be maintained, even as pods crash or nodes fail.
+- **What it is** — Watches ReplicaSet objects. Continuously checks that the number of running pods matching the selector equals `spec.replicas`. If a pod is missing, creates one. If there are too many, deletes the excess.
+- **One-liner** — The ReplicaSet controller is the "N pods must always run" enforcer.
 
 ### Node Controller
 
-**Why it exists** — The cluster must know when nodes become unhealthy and pods need to be rescheduled.
-**What it is** — Monitors node health by watching heartbeats from kubelet. If a node stops reporting in, the node controller marks it `NotReady` (after ~40s). It then adds the `node.kubernetes.io/not-ready:NoExecute` taint with `tolerationSeconds: 300`. Pods that do not tolerate this taint are evicted after 300s (5 min) so they can be rescheduled elsewhere. This is taint-based eviction (the default since Kubernetes 1.18).
-**One-liner** — The node controller detects dead nodes and triggers pod eviction.
+- **Why it exists** — The cluster must know when nodes become unhealthy and pods need to be rescheduled.
+- **What it is** — Monitors node health by watching heartbeats from kubelet. If a node stops reporting in, the node controller marks it `NotReady` (after ~40s). It then adds the `node.kubernetes.io/not-ready:NoExecute` taint with `tolerationSeconds: 300`. Pods that do not tolerate this taint are evicted after 300s (5 min) so they can be rescheduled elsewhere. This is taint-based eviction (the default since Kubernetes 1.18).
+- **One-liner** — The node controller detects dead nodes and triggers pod eviction.
 
 ### Endpoint Controller (and EndpointSlice Controller)
 
-**Why it exists** — Services need an up-to-date list of healthy pod IPs so kube-proxy can route traffic correctly.
-**What it is** — Watches Services and Pods. When pods matching a Service's selector become Ready or NotReady, it updates the Endpoints (or EndpointSlice) object with the current list of pod IPs and ports. kube-proxy then reads this to update iptables rules.
-**One-liner** — The endpoint controller keeps the Service-to-pod IP mapping current.
+- **Why it exists** — Services need an up-to-date list of healthy pod IPs so kube-proxy can route traffic correctly.
+- **What it is** — Watches Services and Pods. When pods matching a Service's selector become Ready or NotReady, it updates the Endpoints (or EndpointSlice) object with the current list of pod IPs and ports. kube-proxy then reads this to update iptables rules.
+- **One-liner** — The endpoint controller keeps the Service-to-pod IP mapping current.
 
 ### Other Notable Controllers
 

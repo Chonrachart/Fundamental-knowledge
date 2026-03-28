@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Authentication proves who you are; authorization (RBAC) proves what you're allowed to do. But neither enforces organizational policy on the content of requests: "all pods must have resource limits," "images must come from approved registries," "namespaces being deleted must not have live resources." Admission controllers fill this gap — they intercept requests after auth and can modify or reject them before any object is stored.
-**What it is** — Admission controllers are plugins that run in the API server and intercept write requests (create, update, delete — not read). They run in two phases: mutating first (can modify the request), then validating (can only allow or reject). Built-in controllers handle common defaults and policy; custom logic runs via webhook admission controllers.
-**One-liner** — Admission controllers are the last line of defense in the API request pipeline — they enforce policy and inject defaults after authn/authz, before objects are written to etcd.
+- **Why it exists** — Authentication proves who you are; authorization (RBAC) proves what you're allowed to do. But neither enforces organizational policy on the content of requests: "all pods must have resource limits," "images must come from approved registries," "namespaces being deleted must not have live resources." Admission controllers fill this gap — they intercept requests after auth and can modify or reject them before any object is stored.
+- **What it is** — Admission controllers are plugins that run in the API server and intercept write requests (create, update, delete — not read). They run in two phases: mutating first (can modify the request), then validating (can only allow or reject). Built-in controllers handle common defaults and policy; custom logic runs via webhook admission controllers.
+- **One-liner** — Admission controllers are the last line of defense in the API request pipeline — they enforce policy and inject defaults after authn/authz, before objects are written to etcd.
 
 ### Architecture (ASCII diagram)
 
@@ -50,7 +50,7 @@ The critical property: **mutating runs before validating**. This means a mutatin
 **What they are:**
 - **Mutating admission controllers** can read AND modify the request object. They run first. Used for injecting defaults, adding sidecar containers, normalizing fields.
 - **Validating admission controllers** can only read the request and return allow/deny. They run second (after mutation). Used for policy enforcement.
-**One-liner** — Mutating controllers modify objects first; validating controllers approve or reject the final result.
+- **One-liner** — Mutating controllers modify objects first; validating controllers approve or reject the final result.
 
 | Aspect | Mutating | Validating |
 |--------|----------|------------|
@@ -80,7 +80,7 @@ The critical property: **mutating runs before validating**. This means a mutatin
 
 **Why they exist** — Built-in controllers cover common cases, but organizations need custom policy: "all pods must have an `owner` label," "no `latest` image tags," "inject an Istio sidecar." Webhooks make admission extensible without forking the API server.
 **What they are** — A webhook admission controller calls an external HTTPS server (the webhook) and passes the request object. The webhook returns `allowed: true/false` (and optionally a JSON Patch for mutating). Kubernetes provides `MutatingWebhookConfiguration` and `ValidatingWebhookConfiguration` resources to register webhooks.
-**One-liner** — Webhook admission controllers call external HTTPS services for custom mutation/validation — making admission extensible without modifying the API server.
+- **One-liner** — Webhook admission controllers call external HTTPS services for custom mutation/validation — making admission extensible without modifying the API server.
 
 ```yaml
 # Example ValidatingWebhookConfiguration

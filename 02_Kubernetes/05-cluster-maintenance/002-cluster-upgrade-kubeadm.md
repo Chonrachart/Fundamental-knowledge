@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Kubernetes releases security patches and new features on a regular cadence. Running an outdated cluster exposes workloads to known CVEs and prevents access to newer API versions. kubeadm provides a structured, reproducible path for upgrading cluster components without re-provisioning nodes.
-**What it is** — A two-phase process: first upgrade the control plane (API server, controller-manager, scheduler, etcd), then upgrade each worker node one at a time. kubeadm handles the ordering and component config regeneration; you manage the OS-level package installation.
-**One-liner** — kubeadm upgrades the control plane first, then workers are drained, upgraded, and uncordoned one at a time.
+- **Why it exists** — Kubernetes releases security patches and new features on a regular cadence. Running an outdated cluster exposes workloads to known CVEs and prevents access to newer API versions. kubeadm provides a structured, reproducible path for upgrading cluster components without re-provisioning nodes.
+- **What it is** — A two-phase process: first upgrade the control plane (API server, controller-manager, scheduler, etcd), then upgrade each worker node one at a time. kubeadm handles the ordering and component config regeneration; you manage the OS-level package installation.
+- **One-liner** — kubeadm upgrades the control plane first, then workers are drained, upgraded, and uncordoned one at a time.
 
 ### Architecture (ASCII diagram)
 
@@ -36,8 +36,8 @@ The key insight: `kubeadm upgrade apply` only touches control plane static pod m
 
 ### Version skew policy
 
-**Why it exists** — Kubernetes components communicate via APIs that change between versions. If components are too far apart in version, API incompatibilities cause subtle failures.
-**What it is** — The supported skew rules:
+- **Why it exists** — Kubernetes components communicate via APIs that change between versions. If components are too far apart in version, API incompatibilities cause subtle failures.
+- **What it is** — The supported skew rules:
 
 | Component pair | Max skew |
 |---------------|----------|
@@ -46,7 +46,7 @@ The key insight: `kubeadm upgrade apply` only touches control plane static pod m
 | kube-apiserver vs kubelet | ±2 minor versions |
 | kube-apiserver vs kubectl | ±1 minor version |
 
-**One-liner** — Control plane must be upgraded before workers; no component should be more than 1 minor version behind the API server.
+- **One-liner** — Control plane must be upgraded before workers; no component should be more than 1 minor version behind the API server.
 
 ### Checking current versions
 
@@ -66,9 +66,9 @@ kubeadm upgrade plan
 
 ### Control plane upgrade
 
-**Why it exists** — The API server is the single point of truth for the cluster; upgrading it first ensures all newer API resources are available before workers switch over.
-**What it is** — Install the new kubeadm binary, run `upgrade plan` to preview changes, then `upgrade apply` to replace static pod manifests under `/etc/kubernetes/manifests/`. Then upgrade kubelet and kubectl on the same node.
-**One-liner** — `kubeadm upgrade apply` rewrites control plane manifests; then kubelet is upgraded and restarted.
+- **Why it exists** — The API server is the single point of truth for the cluster; upgrading it first ensures all newer API resources are available before workers switch over.
+- **What it is** — Install the new kubeadm binary, run `upgrade plan` to preview changes, then `upgrade apply` to replace static pod manifests under `/etc/kubernetes/manifests/`. Then upgrade kubelet and kubectl on the same node.
+- **One-liner** — `kubeadm upgrade apply` rewrites control plane manifests; then kubelet is upgraded and restarted.
 
 ```bash
 # On control plane node
@@ -82,9 +82,9 @@ systemctl daemon-reload && systemctl restart kubelet
 
 ### Worker node upgrade
 
-**Why it exists** — Worker kubelets run pods; they must be updated to match the new API server. Draining first ensures in-flight workloads are not interrupted by a mid-request kubelet restart.
-**What it is** — For each worker: drain from the control plane, install new kubeadm + run `kubeadm upgrade node` (syncs the node's kubeadm config), install new kubelet, restart, then uncordon.
-**One-liner** — Drain → upgrade kubeadm → `kubeadm upgrade node` → upgrade kubelet → restart → uncordon.
+- **Why it exists** — Worker kubelets run pods; they must be updated to match the new API server. Draining first ensures in-flight workloads are not interrupted by a mid-request kubelet restart.
+- **What it is** — For each worker: drain from the control plane, install new kubeadm + run `kubeadm upgrade node` (syncs the node's kubeadm config), install new kubelet, restart, then uncordon.
+- **One-liner** — Drain → upgrade kubeadm → `kubeadm upgrade node` → upgrade kubelet → restart → uncordon.
 
 ```bash
 # On control plane — drain worker

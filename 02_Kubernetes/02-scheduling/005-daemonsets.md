@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Cluster infrastructure needs run on every node: log collectors need to read every node's `/var/log`, network plugins need to configure every node's networking stack, monitoring agents need to expose every node's metrics. You do not want to calculate replica counts manually — you want exactly one pod per node, automatically, as nodes come and go.
-**What it is** — A DaemonSet is a workload controller that ensures exactly one pod (matching the pod template) runs on every node (or every node matching a node selector/affinity). When a node joins the cluster, the DaemonSet controller creates a pod on it. When a node leaves, its DaemonSet pod is garbage-collected.
-**One-liner** — A DaemonSet runs exactly one pod per matching node — pod count tracks node count, not a replica field.
+- **Why it exists** — Cluster infrastructure needs run on every node: log collectors need to read every node's `/var/log`, network plugins need to configure every node's networking stack, monitoring agents need to expose every node's metrics. You do not want to calculate replica counts manually — you want exactly one pod per node, automatically, as nodes come and go.
+- **What it is** — A DaemonSet is a workload controller that ensures exactly one pod (matching the pod template) runs on every node (or every node matching a node selector/affinity). When a node joins the cluster, the DaemonSet controller creates a pod on it. When a node leaves, its DaemonSet pod is garbage-collected.
+- **One-liner** — A DaemonSet runs exactly one pod per matching node — pod count tracks node count, not a replica field.
 
 ### Architecture (ASCII diagram)
 
@@ -31,9 +31,9 @@ Unlike a Deployment, there is no `replicas` field. Scaling up means adding nodes
 
 ### DaemonSet spec
 
-**Why it exists** — Provides the template and targeting rules for which nodes get a daemon pod.
-**What it is** — Very similar to a Deployment spec, but without `replicas`. Key fields: `selector` (label selector for pod management), `template` (pod template), `updateStrategy`, and optionally `nodeSelector` / `affinity` / `tolerations` to narrow down which nodes receive a pod.
-**One-liner** — DaemonSet spec is a Deployment without `replicas`; pod count = matching node count.
+- **Why it exists** — Provides the template and targeting rules for which nodes get a daemon pod.
+- **What it is** — Very similar to a Deployment spec, but without `replicas`. Key fields: `selector` (label selector for pod management), `template` (pod template), `updateStrategy`, and optionally `nodeSelector` / `affinity` / `tolerations` to narrow down which nodes receive a pod.
+- **One-liner** — DaemonSet spec is a Deployment without `replicas`; pod count = matching node count.
 
 ```yaml
 apiVersion: apps/v1
@@ -78,16 +78,16 @@ spec:
 ### Bypassing normal scheduling
 
 **Why it matters** — Normal pods go through the scheduler's filter/score/bind pipeline. DaemonSet pods have historically bypassed some of this.
-**What it is** — In modern Kubernetes (1.12+), DaemonSet pods do go through the scheduler, but the DaemonSet controller pre-sets `spec.nodeName` on the pod before submitting it — so the scheduler sees an already-assigned pod and just admits or rejects it based on resource fit. This means DaemonSet pods respect taints/tolerations and resource limits, but the scheduling target is determined by the controller, not by the scheduler's scoring.
-**One-liner** — The DaemonSet controller sets `nodeName` directly, so the scheduler validates but does not choose the node.
+- **What it is** — In modern Kubernetes (1.12+), DaemonSet pods do go through the scheduler, but the DaemonSet controller pre-sets `spec.nodeName` on the pod before submitting it — so the scheduler sees an already-assigned pod and just admits or rejects it based on resource fit. This means DaemonSet pods respect taints/tolerations and resource limits, but the scheduling target is determined by the controller, not by the scheduler's scoring.
+- **One-liner** — The DaemonSet controller sets `nodeName` directly, so the scheduler validates but does not choose the node.
 
 ### Update strategy
 
-**Why it exists** — Updating a node-level daemon (e.g. a new version of fluentd) requires care — you don't want all log collectors restarting simultaneously.
-**What it is** — Two strategies:
+- **Why it exists** — Updating a node-level daemon (e.g. a new version of fluentd) requires care — you don't want all log collectors restarting simultaneously.
+- **What it is** — Two strategies:
 - `RollingUpdate` (default): updates pods one node at a time; `maxUnavailable` controls how many pods can be down simultaneously (default: 1).
 - `OnDelete`: pods are only updated when you manually delete them; gives full control over rollout timing.
-**One-liner** — `RollingUpdate` replaces DaemonSet pods one at a time; `OnDelete` waits for manual deletion.
+- **One-liner** — `RollingUpdate` replaces DaemonSet pods one at a time; `OnDelete` waits for manual deletion.
 
 ```yaml
 spec:

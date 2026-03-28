@@ -1,9 +1,9 @@
 # StorageClass and Dynamic Provisioning
 
 ### Overview
-**Why it exists** — Without StorageClass, every piece of durable storage requires an admin to manually create a PersistentVolume before a developer can use it. StorageClass enables on-demand dynamic provisioning: Kubernetes automatically creates a PV the moment a PVC requests one, with no pre-creation needed.
-**What it is** — A cluster-scoped resource that defines a storage provisioner (the plugin that creates the actual storage), parameters (disk type, IOPS, zone, etc.), and a reclaim policy. When a PVC references a StorageClass, the provisioner creates a PV automatically.
-**One-liner** — StorageClass is the blueprint that tells Kubernetes how to auto-create storage on demand.
+- **Why it exists** — Without StorageClass, every piece of durable storage requires an admin to manually create a PersistentVolume before a developer can use it. StorageClass enables on-demand dynamic provisioning: Kubernetes automatically creates a PV the moment a PVC requests one, with no pre-creation needed.
+- **What it is** — A cluster-scoped resource that defines a storage provisioner (the plugin that creates the actual storage), parameters (disk type, IOPS, zone, etc.), and a reclaim policy. When a PVC references a StorageClass, the provisioner creates a PV automatically.
+- **One-liner** — StorageClass is the blueprint that tells Kubernetes how to auto-create storage on demand.
 
 ### Architecture (ASCII)
 
@@ -51,9 +51,9 @@ Default StorageClass:
 
 ### StorageClass Resource
 
-**Why it exists** — Centralizes storage configuration so developers only need to name a class (e.g., `fast-ssd`, `standard`) rather than specify provisioner details in every PVC.
-**What it is** — A cluster-scoped object with a provisioner name, optional parameters, reclaim policy, and volume binding mode. Created once by admins; consumed by PVCs.
-**One-liner** — The storage policy definition that the provisioner uses to create PVs on demand.
+- **Why it exists** — Centralizes storage configuration so developers only need to name a class (e.g., `fast-ssd`, `standard`) rather than specify provisioner details in every PVC.
+- **What it is** — A cluster-scoped object with a provisioner name, optional parameters, reclaim policy, and volume binding mode. Created once by admins; consumed by PVCs.
+- **One-liner** — The storage policy definition that the provisioner uses to create PVs on demand.
 
 ```yaml
 apiVersion: storage.k8s.io/v1
@@ -74,9 +74,9 @@ allowVolumeExpansion: true
 
 ### Provisioner Field
 
-**Why it exists** — Tells Kubernetes which plugin (in-tree or CSI driver) is responsible for creating and deleting the actual storage backend.
-**What it is** — A string identifier for the provisioner. Cloud providers ship CSI drivers that implement the provisioner interface.
-**One-liner** — The driver name that does the actual disk creation.
+- **Why it exists** — Tells Kubernetes which plugin (in-tree or CSI driver) is responsible for creating and deleting the actual storage backend.
+- **What it is** — A string identifier for the provisioner. Cloud providers ship CSI drivers that implement the provisioner interface.
+- **One-liner** — The driver name that does the actual disk creation.
 
 Common provisioner values:
 
@@ -115,9 +115,9 @@ kubectl get sc                      # shorthand alias
 
 ### volumeBindingMode
 
-**Why it exists** — Controls when the PV is provisioned and bound, which matters for zone-aware scheduling.
-**What it is** — A field on StorageClass with two values.
-**One-liner** — Controls whether volumes are created immediately or only once a pod is scheduled.
+- **Why it exists** — Controls when the PV is provisioned and bound, which matters for zone-aware scheduling.
+- **What it is** — A field on StorageClass with two values.
+- **One-liner** — Controls whether volumes are created immediately or only once a pod is scheduled.
 
 | Mode | Behavior |
 |------|----------|

@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Pods are ephemeral and get new IP addresses every time they restart or are rescheduled. Clients cannot reliably connect to a moving target. A Service provides a stable DNS name and virtual IP that never changes, regardless of which pods are behind it.
-**What it is** — A stable network endpoint that load-balances traffic to a set of pods matching a label selector. The Service gets a ClusterIP (virtual IP) and a DNS name; kube-proxy maintains iptables rules on every node that redirect traffic from the ClusterIP to actual pod IPs. When pods come and go, kube-proxy updates the rules automatically.
-**One-liner** — A Service is a stable, named entry point that routes traffic to healthy pods via label selectors.
+- **Why it exists** — Pods are ephemeral and get new IP addresses every time they restart or are rescheduled. Clients cannot reliably connect to a moving target. A Service provides a stable DNS name and virtual IP that never changes, regardless of which pods are behind it.
+- **What it is** — A stable network endpoint that load-balances traffic to a set of pods matching a label selector. The Service gets a ClusterIP (virtual IP) and a DNS name; kube-proxy maintains iptables rules on every node that redirect traffic from the ClusterIP to actual pod IPs. When pods come and go, kube-proxy updates the rules automatically.
+- **One-liner** — A Service is a stable, named entry point that routes traffic to healthy pods via label selectors.
 
 ### Architecture
 
@@ -54,9 +54,9 @@ Response returns to caller
 
 ### Label Selector
 
-**Why it exists** — Services need to dynamically track which pods are currently running and healthy without being manually updated.
-**What it is** — A map of key-value pairs in `spec.selector`. Kubernetes watches for pods whose labels match all entries in the selector. The Endpoint controller maintains the Endpoints object with the IPs of matching, Ready pods. When pods are scaled, restarted, or fail readiness, Endpoints updates automatically.
-**One-liner** — The label selector is the glue between a Service and its backend pods.
+- **Why it exists** — Services need to dynamically track which pods are currently running and healthy without being manually updated.
+- **What it is** — A map of key-value pairs in `spec.selector`. Kubernetes watches for pods whose labels match all entries in the selector. The Endpoint controller maintains the Endpoints object with the IPs of matching, Ready pods. When pods are scaled, restarted, or fail readiness, Endpoints updates automatically.
+- **One-liner** — The label selector is the glue between a Service and its backend pods.
 
 ```yaml
 apiVersion: v1
@@ -108,8 +108,8 @@ spec:
 
 ### DNS Name Format
 
-**Why it exists** — Pods need to discover Services without knowing IP addresses; DNS provides a stable naming convention.
-**What it is** — CoreDNS (runs in `kube-system`) automatically creates DNS records for every Service. The full DNS name follows a predictable pattern. Shorter forms work within the same namespace.
+- **Why it exists** — Pods need to discover Services without knowing IP addresses; DNS provides a stable naming convention.
+- **What it is** — CoreDNS (runs in `kube-system`) automatically creates DNS records for every Service. The full DNS name follows a predictable pattern. Shorter forms work within the same namespace.
 
 ```text
 Full name:   <service-name>.<namespace>.svc.cluster.local
@@ -130,9 +130,9 @@ kubectl get pods -n kube-system -l k8s-app=kube-dns
 
 ### Endpoints
 
-**Why it exists** — kube-proxy needs a list of current healthy pod IPs to write iptables rules.
-**What it is** — An automatically maintained object that tracks the IPs and ports of pods matching a Service's selector AND passing their readiness probe. kube-proxy watches Endpoints and updates node networking rules accordingly. You can inspect Endpoints to debug routing issues.
-**One-liner** — Endpoints is the live list of pod IPs that back a Service right now.
+- **Why it exists** — kube-proxy needs a list of current healthy pod IPs to write iptables rules.
+- **What it is** — An automatically maintained object that tracks the IPs and ports of pods matching a Service's selector AND passing their readiness probe. kube-proxy watches Endpoints and updates node networking rules accordingly. You can inspect Endpoints to debug routing issues.
+- **One-liner** — Endpoints is the live list of pod IPs that back a Service right now.
 
 ```bash
 # Check which pods are backing a Service
@@ -146,9 +146,9 @@ kubectl describe pod <name>   # is readiness probe passing?
 
 ### Headless Services
 
-**Why it exists** — Some applications (StatefulSets, service discovery tools) need to get all pod IPs directly rather than through a virtual IP load balancer.
-**What it is** — A Service with `clusterIP: None`. No virtual IP is created. Instead, DNS returns individual A records for each matching pod IP. Used by StatefulSets so each pod gets a stable DNS name (`pod-0.svc.ns.svc.cluster.local`).
-**One-liner** — A headless Service returns raw pod IPs via DNS instead of routing through a virtual IP.
+- **Why it exists** — Some applications (StatefulSets, service discovery tools) need to get all pod IPs directly rather than through a virtual IP load balancer.
+- **What it is** — A Service with `clusterIP: None`. No virtual IP is created. Instead, DNS returns individual A records for each matching pod IP. Used by StatefulSets so each pod gets a stable DNS name (`pod-0.svc.ns.svc.cluster.local`).
+- **One-liner** — A headless Service returns raw pod IPs via DNS instead of routing through a virtual IP.
 
 ```yaml
 spec:

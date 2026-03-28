@@ -2,9 +2,9 @@
 
 ### Overview
 
-**Why it exists** — Sometimes you need to pin a pod to a specific node without relying on the scheduler — for testing, debugging, or placing a workload on hardware you know it must run on.
-**What it is** — Setting `spec.nodeName` in the pod spec tells the kubelet on that node to run the pod directly; the kube-scheduler sees the field is already set and skips the pod entirely.
-**One-liner** — Setting `spec.nodeName` bypasses the scheduler and pins a pod directly to a named node.
+- **Why it exists** — Sometimes you need to pin a pod to a specific node without relying on the scheduler — for testing, debugging, or placing a workload on hardware you know it must run on.
+- **What it is** — Setting `spec.nodeName` in the pod spec tells the kubelet on that node to run the pod directly; the kube-scheduler sees the field is already set and skips the pod entirely.
+- **One-liner** — Setting `spec.nodeName` bypasses the scheduler and pins a pod directly to a named node.
 
 ### Architecture (ASCII diagram)
 
@@ -27,9 +27,9 @@ If you need to change the node assignment of an already-running pod, you cannot 
 
 ### nodeName field
 
-**Why it exists** — Provides an escape hatch from the scheduler for cases where you must control placement exactly.
-**What it is** — A string field in `spec` that holds the name of the node the pod should run on. When set, the scheduler skips the pod, and the kubelet on the named node picks it up. It is the lowest-level scheduling mechanism — no filtering, no scoring, no resource checks enforced by the scheduler (the kubelet will still enforce local resource limits).
-**One-liner** — The `nodeName` field is the simplest, most direct way to assign a pod to a node.
+- **Why it exists** — Provides an escape hatch from the scheduler for cases where you must control placement exactly.
+- **What it is** — A string field in `spec` that holds the name of the node the pod should run on. When set, the scheduler skips the pod, and the kubelet on the named node picks it up. It is the lowest-level scheduling mechanism — no filtering, no scoring, no resource checks enforced by the scheduler (the kubelet will still enforce local resource limits).
+- **One-liner** — The `nodeName` field is the simplest, most direct way to assign a pod to a node.
 
 ```yaml
 apiVersion: v1
@@ -49,9 +49,9 @@ spec:
 
 ### Binding Object (advanced — already-running pods)
 
-**Why it exists** — The Binding API is what the scheduler itself uses internally to assign a node to a pod. You can POST a Binding object directly to assign a node to a pod that is already `Pending` without deleting and recreating it.
-**What it is** — A `Binding` resource (under `v1`) that maps a pod name to a node name. Posting it to the API server has the same effect as the scheduler setting `nodeName`.
-**One-liner** — A Binding object is the API-level equivalent of the scheduler's final bind step, usable directly for already-pending pods.
+- **Why it exists** — The Binding API is what the scheduler itself uses internally to assign a node to a pod. You can POST a Binding object directly to assign a node to a pod that is already `Pending` without deleting and recreating it.
+- **What it is** — A `Binding` resource (under `v1`) that maps a pod name to a node name. Posting it to the API server has the same effect as the scheduler setting `nodeName`.
+- **One-liner** — A Binding object is the API-level equivalent of the scheduler's final bind step, usable directly for already-pending pods.
 
 ```yaml
 apiVersion: v1
