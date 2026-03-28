@@ -5,7 +5,7 @@
 - **What it is** — CoreDNS is a flexible DNS server deployed as a Deployment in `kube-system`. It watches Kubernetes Services and Pods and serves DNS records for them. Every pod is automatically configured to use CoreDNS as its resolver.
 - **One-liner** — CoreDNS is the in-cluster DNS server that lets pods find Services by name instead of IP.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Pod (any namespace)
@@ -45,6 +45,9 @@ Names from other namespaces need at least `<svc>.<namespace>` to be unambiguous.
 # Core Building Blocks
 
 ### DNS Name Formats
+- **Why it exists** — Different resource types (Services, StatefulSet pods, bare pods) need distinct, predictable name patterns so clients can construct the right DNS query without knowing IPs.
+- **What it is** — The set of naming conventions CoreDNS uses to answer queries: Service names follow `<svc>.<ns>.svc.cluster.local`, headless StatefulSet pods get individual records, and pods can be reached by their dashed IP.
+- **One-liner** — Knowing the correct DNS name format is what lets you construct a reliable in-cluster hostname for any resource.
 
 | Resource | Format | Example |
 |----------|--------|---------|

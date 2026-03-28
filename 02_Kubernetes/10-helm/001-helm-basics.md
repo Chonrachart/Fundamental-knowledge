@@ -7,7 +7,7 @@
 
 - **One-liner** — Helm = Kubernetes package manager that templates YAML, manages releases, and enables easy upgrades and rollbacks.
 
-### Architecture (ASCII where relevant)
+# Architecture
 
 ```
 Helm Workflow
@@ -67,8 +67,14 @@ One chart can be installed many times as different releases (e.g., `nginx-prod` 
 - **One-liner** — Values are template configuration passed to a chart at install time.
 
 ### Core Commands
+- **Why it exists** — Helm's value comes from being operable entirely from the CLI; a concise set of commands covers the full lifecycle from search to uninstall.
+- **What it is** — The primary Helm CLI verbs: `install`, `upgrade`, `rollback`, `uninstall`, `list`, `status`, `get`, and `history` — each maps to a release lifecycle action.
+- **One-liner** — Core commands let you install, update, inspect, and roll back Helm releases without touching raw kubectl.
 
 ### Repository Management
+- **Why it exists** — Charts live in remote registries; you need to register, cache, and search those registries before you can install anything from them.
+- **What it is** — Commands (`helm repo add`, `helm repo update`, `helm repo list`, `helm search repo`) that manage the local index of remote chart repositories, equivalent to `apt update` in Debian.
+- **One-liner** — Repository management keeps your local chart index fresh so `helm install` can resolve charts by name.
 
 ```bash
 # Add a chart repository

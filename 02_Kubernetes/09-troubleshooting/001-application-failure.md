@@ -5,6 +5,35 @@
 - **What it is** — Scenario-based guide covering the most common pod failure modes: each scenario is symptom → check commands → likely cause → fix.
 - **One-liner** — Start with `kubectl get pods`, move to `kubectl describe pod` Events, then `kubectl logs --previous`.
 
+# Architecture
+
+```text
+Symptom observed (pod not ready / traffic failing)
+      |
+      v
+kubectl get pods  ──────────────────────────────────────────────┐
+  Running? → check Service/Endpoints                            │
+  Pending? → scheduler problem (resources, taints, affinity)   │
+  CrashLoopBackOff? → app error, bad config, missing secret     │
+  ImagePullBackOff? → image name/tag wrong, missing pull secret │
+      |                                                          │
+      v                                                          │
+kubectl describe pod  ←─────────────────────────────────────────┘
+  Events section → pull errors, probe failures, OOMKilled
+      |
+      v
+kubectl logs --previous
+  App-level errors, stack traces, missing config
+      |
+      v
+kubectl exec -it -- sh
+  Verify files, env vars, DNS resolution, port connectivity
+      |
+      v
+kubectl get events --sort-by=.lastTimestamp
+  Namespace-wide timeline for cross-resource context
+```
+
 # Mental Model
 
 ```text
@@ -26,7 +55,24 @@ kubectl exec -it -- sh ──→ Check files, env vars, connectivity inside cont
 kubectl get events --sort-by=.lastTimestamp ──→ Namespace-wide timeline
 ```
 
-### Troubleshooting Scenarios
+# Core Building Blocks
+
+### kubectl describe
+- **Why it exists** — `get` only shows current state; `describe` surfaces the Events history that explains *why* a pod is in that state.
+- **What it is** — Prints full resource metadata, spec, status fields, and a chronological Events list covering scheduler decisions, image pull status, probe failures, and OOMKilled notices.
+- **One-liner** — Always run `kubectl describe pod <name>` before looking at logs.
+
+### kubectl logs
+- **Why it exists** — Container stdout/stderr is the primary source of application-level error output and crash details.
+- **What it is** — Retrieves or streams log output from a running or terminated container. The `--previous` flag returns logs from the last crashed instance, which is essential when the current container hasn't yet produced output.
+- **One-liner** — Use `kubectl logs --previous <pod>` immediately after a crash to see the exit output.
+
+### kubectl get events
+- **Why it exists** — Events are written by the scheduler, controllers, and kubelet whenever something notable happens; they provide a namespace-wide timeline that spans multiple resources simultaneously.
+- **What it is** — Cluster-scoped event objects recording reasons, messages, and repeat counts for resource state changes. Sorting by `lastTimestamp` gives a chronological view of what just happened across the whole namespace.
+- **One-liner** — `kubectl get events --sort-by=.lastTimestamp` is the fastest way to see correlated failures across pods, nodes, and controllers.
+
+# Troubleshooting
 
 ---
 

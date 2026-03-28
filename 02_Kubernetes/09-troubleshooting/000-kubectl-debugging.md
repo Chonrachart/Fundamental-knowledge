@@ -5,7 +5,7 @@
 - **What it is** — A reference for the core `kubectl` commands used in debugging: getting resource status, describing events, reading logs, executing into containers, forwarding ports, and checking resource usage.
 - **One-liner** — The standard debugging loop is: `get` (status) → `describe` (events) → `logs` (app output) → `exec` (inspect inside).
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 kubectl CLI
@@ -181,3 +181,29 @@ kubectl get events --field-selector involvedObject.name=<pod>  # events for one 
 | `MESSAGE` | Human-readable detail |
 | `COUNT` | How many times this event fired |
 | `LAST SEEN` | When it last occurred |
+
+# Troubleshooting
+
+### Pod is Running but application is not responding
+1. Check whether the pod is actually Ready: `kubectl get pods -o wide` — look at the READY column (e.g. `0/1` means container is up but not ready).
+2. Inspect readiness probe failures: `kubectl describe pod <name>` — Events will show `Readiness probe failed` with the HTTP status or command exit code.
+3. Port-forward directly to the pod to bypass the Service: `kubectl port-forward pod/<name> 8080:80` — then `curl localhost:8080` to confirm the app itself responds.
+4. If the app responds via port-forward but not via Service, check the Service selector: `kubectl describe svc <name>` and compare the `Selector:` field against actual pod labels (`kubectl get pods --show-labels`).
+
+### kubectl exec fails — "error: unable to upgrade connection"
+1. Confirm the target pod is Running: `kubectl get pod <name>` — exec requires the container to be in a running state.
+2. Check that the node hosting the pod is Ready: `kubectl get nodes` — if the node is `NotReady`, kubelet cannot serve exec requests.
+3. Verify network connectivity between your machine and the node's kubelet port (10250): this is required for exec and logs tunneling.
+4. If the container has no shell binary, use an ephemeral debug container instead: `kubectl debug -it <pod> --image=busybox --target=<container>`.
+
+### Logs show nothing / kubectl logs returns empty output
+1. The container may have just started or crashed before writing anything — check `kubectl describe pod <name>` Events for the exit code.
+2. Use `--previous` to read the last terminated instance: `kubectl logs --previous <pod>`.
+3. If the pod is in `Init:x/y` state, the main container hasn't started — read init container logs: `kubectl logs <pod> -c <init-container-name>`.
+4. Some apps write to files rather than stdout — exec into the container and check common log paths: `kubectl exec <pod> -- ls /var/log/` or the app's configured log directory.
+
+### Node resource pressure — pods evicted or OOMKilled
+1. Check node conditions: `kubectl describe node <name>` — look for `MemoryPressure`, `DiskPressure`, or `PIDPressure` in the Conditions table.
+2. Identify the heaviest consumers: `kubectl top pods -A --sort-by=memory` and `kubectl top nodes`.
+3. Review evicted pod events: `kubectl get events -A | grep Evict` to identify which pods were removed and from which node.
+4. Remediate by adding resource `requests`/`limits` to pods that lack them, enabling LimitRange defaults in the namespace, or cordoning the pressured node (`kubectl cordon <node>`) and draining it (`kubectl drain <node> --ignore-daemonsets`) before investigating disk or memory usage.
