@@ -145,9 +145,9 @@ helm install myapp bitnami/nginx -f base-values.yaml --set replicaCount=10
 # Troubleshooting
 
 ### Release Deployment Failed
-- Check release state: `helm list` and `helm status my-nginx`
-- Inspect what was applied: `helm get manifest my-nginx`
-- Check Kubernetes pod events:
+1. Check release state: `helm list` and `helm status my-nginx`
+2. Inspect what was applied: `helm get manifest my-nginx`
+3. Check Kubernetes pod events:
   ```bash
   kubectl get pods -n default
   kubectl describe pod <pod-name>
@@ -156,19 +156,19 @@ helm install myapp bitnami/nginx -f base-values.yaml --set replicaCount=10
 - Validate first next time: `helm install my-nginx bitnami/nginx --dry-run --debug`
 
 ### Template Rendering Issues
-- Render locally to see the output: `helm template my-nginx bitnami/nginx`
-- Render with specific values: `helm template my-nginx bitnami/nginx -f custom-values.yaml`
-- Check for lint errors: `helm lint mychart`
+1. Render locally to see the output: `helm template my-nginx bitnami/nginx`
+2. Render with specific values: `helm template my-nginx bitnami/nginx -f custom-values.yaml`
+3. Check for lint errors: `helm lint mychart`
 
 ### Need to Revert to Previous Release
-- View history: `helm history my-nginx`
-- Roll back: `helm rollback my-nginx 1`
-- Confirm: `helm status my-nginx`
+1. View history: `helm history my-nginx`
+2. Roll back: `helm rollback my-nginx 1`
+3. Confirm: `helm status my-nginx`
 
 ### Values Not Taking Effect After Upgrade
-- Check what the release sees: `helm get values my-nginx`
-- Compare against chart defaults: `helm show values bitnami/nginx`
-- Re-upgrade with explicit values:
+1. Check what the release sees: `helm get values my-nginx`
+2. Compare against chart defaults: `helm show values bitnami/nginx`
+3. Re-upgrade with explicit values:
   ```bash
   helm upgrade my-nginx bitnami/nginx --set replicaCount=5 --set image.tag=1.2.3
   ```

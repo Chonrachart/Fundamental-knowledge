@@ -222,20 +222,20 @@ resources:
 # Troubleshooting
 
 ### Template Renders Blank or Unexpected Output
-- Render with debug to see the value tree: `helm template mychart --debug`
-- Check the exact value path: confirm `.Values.image.tag` matches the key in values.yaml
-- Whitespace trimming side effects: add or remove `{{-` / `-}}` dashes carefully
+1. Render with debug to see the value tree: `helm template mychart --debug`
+2. Check the exact value path: confirm `.Values.image.tag` matches the key in values.yaml
+3. Whitespace trimming side effects: add or remove `{{-` / `-}}` dashes carefully
 
 ### Values Override Not Applying
-- Check priority: `--set` beats `-f file` beats values.yaml
-- Inspect merged values used in the render:
+1. Check priority: `--set` beats `-f file` beats values.yaml
+2. Inspect merged values used in the render:
   ```bash
   helm template mychart -f custom-values.yaml --debug 2>&1 | head -30
   ```
 - Verify key path matches exactly (YAML is case-sensitive)
 
 ### YAML Indentation Errors After toYaml
-- Always pair `toYaml` with `nindent` matching the current indentation level:
+1. Always pair `toYaml` with `nindent` matching the current indentation level:
   ```yaml
   resources:
     {{- toYaml .Values.resources | nindent 4 }}   # top-level key = 4 spaces
@@ -243,6 +243,6 @@ resources:
 - Use `helm template mychart | kubectl apply -f - --dry-run=client` to catch YAML structure errors
 
 ### Conditional Block Always Renders / Never Renders
-- Test the value directly: `helm template mychart --set ingress.enabled=true`
-- Remember: empty string `""`, `0`, `false`, and `null` are all falsy in Go templates
-- Use `{{- if .Values.someKey }}` for existence checks, not equality — use `{{- if eq .Values.someKey "value" }}` for equality
+1. Test the value directly: `helm template mychart --set ingress.enabled=true`
+2. Remember: empty string `""`, `0`, `false`, and `null` are all falsy in Go templates
+3. Use `{{- if .Values.someKey }}` for existence checks, not equality — use `{{- if eq .Values.someKey "value" }}` for equality

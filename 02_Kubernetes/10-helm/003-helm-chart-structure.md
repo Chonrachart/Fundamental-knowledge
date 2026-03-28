@@ -240,30 +240,30 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 # Troubleshooting
 
 ### Template Syntax Error
-- Validate chart structure: `helm lint mychart`
-- Render with debug output to see the error location: `helm template mychart --debug`
-- Common causes: missing spaces around `}}`, wrong variable path, undefined helper name
+1. Validate chart structure: `helm lint mychart`
+2. Render with debug output to see the error location: `helm template mychart --debug`
+3. Common causes: missing spaces around `}}`, wrong variable path, undefined helper name
 
 ### Values Not Being Injected Into Templates
-- Debug-render to see injected values: `helm template mychart --debug`
-- Check default values in the chart: `helm show values ./mychart`
-- Test a specific override: `helm template mychart --set replicaCount=5` and confirm it appears in output
+1. Debug-render to see injected values: `helm template mychart --debug`
+2. Check default values in the chart: `helm show values ./mychart`
+3. Test a specific override: `helm template mychart --set replicaCount=5` and confirm it appears in output
 
 ### Chart Installation Fails
-- Dry-run to see what would be sent to the API server: `helm install myapp ./mychart --dry-run --debug`
-- Check for missing dependencies:
-  ```bash
+1. Dry-run to see what would be sent to the API server: `helm install myapp ./mychart --dry-run --debug`
+2. Check for missing dependencies:
+```bash
   helm dependency list ./mychart
   helm dependency update ./mychart
-  ```
+```
 - Validate rendered YAML against the cluster:
-  ```bash
+```bash
   helm template myapp ./mychart > rendered.yaml
   kubectl apply -f rendered.yaml --dry-run=client
-  ```
+```
 
 ### Chart Dependencies Not Downloading
-- List declared dependencies: `helm dependency list ./mychart`
-- Fetch them into charts/: `helm dependency update ./mychart`
-- Confirm charts/ is populated: `ls -la ./mychart/charts/`
-- Reinstall after fetching: `helm install myapp ./mychart`
+1. List declared dependencies: `helm dependency list ./mychart`
+2. Fetch them into charts/: `helm dependency update ./mychart`
+3. Confirm charts/ is populated: `ls -la ./mychart/charts/`
+4. Reinstall after fetching: `helm install myapp ./mychart`

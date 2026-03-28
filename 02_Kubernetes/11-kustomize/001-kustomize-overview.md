@@ -227,10 +227,10 @@ commonLabels:
 
 ### `kubectl apply -k` returns "error: must be exactly one"
 
-- The directory doesn't have a `kustomization.yaml` file (or it's named wrong)
-- Check the directory path: `ls -la overlays/prod/` — does it have `kustomization.yaml`?
-- Verify the exact filename: must be `kustomization.yaml` (not `kustomization.yml`, not `Kustomization.yaml`)
-- Move up the directory tree to find the right one: `find . -name kustomization.yaml`
+1. The directory doesn't have a `kustomization.yaml` file (or it's named wrong)
+2. Check the directory path: `ls -la overlays/prod/` — does it have `kustomization.yaml`?
+3. Verify the exact filename: must be `kustomization.yaml` (not `kustomization.yml`, not `Kustomization.yaml`)
+4. Move up the directory tree to find the right one: `find . -name kustomization.yaml`
 
 ### Image override not working
 
@@ -271,6 +271,6 @@ resources:
 
 ### namePrefix applied but pods still collide across environments
 
-- Verify `namespace` is also set per overlay — name prefix alone doesn't isolate namespaces
-- Check that selectors were updated: `kubectl kustomize overlays/dev/ | grep -A5 "selector:"`
-- `commonLabels` updates selectors automatically; manually written selectors in patches may not update
+1. Verify `namespace` is also set per overlay — name prefix alone doesn't isolate namespaces
+2. Check that selectors were updated: `kubectl kustomize overlays/dev/ | grep -A5 "selector:"`
+3. `commonLabels` updates selectors automatically; manually written selectors in patches may not update

@@ -88,19 +88,19 @@ helm install myapp bitnami/nginx --set replicaCount=5 --set image.tag=1.2.3
 # Troubleshooting
 
 ### Chart Not Found in Repository
-- List configured repositories: `helm repo list`
-- Update the local index: `helm repo update`
-- Search again: `helm search repo nginx`
-- If still missing, add the repository:
+1. List configured repositories: `helm repo list`
+2. Update the local index: `helm repo update`
+3. Search again: `helm search repo nginx`
+4. If still missing, add the repository:
   ```bash
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm repo update
   ```
 
 ### Release Deployment Failed
-- Check whether the release exists: `helm list` and `helm status my-nginx`
-- Review deployed manifest: `helm get manifest my-nginx`
-- Inspect pod events:
+1. Check whether the release exists: `helm list` and `helm status my-nginx`
+2. Review deployed manifest: `helm get manifest my-nginx`
+3. Inspect pod events:
   ```bash
   kubectl get pods -n default
   kubectl describe pod <pod-name>
@@ -109,14 +109,14 @@ helm install myapp bitnami/nginx --set replicaCount=5 --set image.tag=1.2.3
 - Validate before re-deploying: `helm install my-nginx bitnami/nginx --dry-run --debug`
 
 ### Need to Revert to Previous Release
-- View revision history: `helm history my-nginx`
-- Roll back: `helm rollback my-nginx 1`
-- Verify: `helm status my-nginx` and `helm get manifest my-nginx`
+1. View revision history: `helm history my-nginx`
+2. Roll back: `helm rollback my-nginx 1`
+3. Verify: `helm status my-nginx` and `helm get manifest my-nginx`
 
 ### Values Not Being Applied
-- Check what the release currently has: `helm get values my-nginx`
-- Compare against chart defaults: `helm show values bitnami/nginx`
-- Re-upgrade with the correct values:
+1. Check what the release currently has: `helm get values my-nginx`
+2. Compare against chart defaults: `helm show values bitnami/nginx`
+3. Re-upgrade with the correct values:
   ```bash
   helm upgrade my-nginx bitnami/nginx --set replicaCount=5 --set image.tag=1.2.3
   ```

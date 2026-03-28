@@ -279,9 +279,9 @@ configMapGenerator:
 
 ### Overlay not inheriting base resources
 
-- Check that the `resources` path in the overlay `kustomization.yaml` correctly points to base
-- Path is relative to the overlay directory, so `../../base` means "go up two levels, then into base/"
-- Verify: `kubectl kustomize overlays/dev/` — if base resources are missing, the path is wrong
+1. Check that the `resources` path in the overlay `kustomization.yaml` correctly points to base
+2. Path is relative to the overlay directory, so `../../base` means "go up two levels, then into base/"
+3. Verify: `kubectl kustomize overlays/dev/` — if base resources are missing, the path is wrong
 
 ```yaml
 # Wrong: absolute path from repo root
@@ -295,14 +295,14 @@ resources:
 
 ### Changes to base not appearing in overlay output
 
-- Confirm you're re-running `kubectl kustomize` after editing base files
-- Check that the base `kustomization.yaml` includes the modified file in its `resources` list
-- Render and inspect: `kubectl kustomize overlays/prod/ > /tmp/out.yaml && grep -A20 "kind: Deployment" /tmp/out.yaml`
+1. Confirm you're re-running `kubectl kustomize` after editing base files
+2. Check that the base `kustomization.yaml` includes the modified file in its `resources` list
+3. Render and inspect: `kubectl kustomize overlays/prod/ > /tmp/out.yaml && grep -A20 "kind: Deployment" /tmp/out.yaml`
 
 ### Overlay-specific resources (PDB, HPA) not being applied
 
-- These files must be listed in the overlay `kustomization.yaml` under `resources`, not just present in the directory
-- Kustomize only processes files explicitly declared in `kustomization.yaml`
+1. These files must be listed in the overlay `kustomization.yaml` under `resources`, not just present in the directory
+2. Kustomize only processes files explicitly declared in `kustomization.yaml`
 
 ```yaml
 # overlays/prod/kustomization.yaml
@@ -314,6 +314,6 @@ resources:
 
 ### namePrefix collision between environments in same cluster
 
-- Each overlay should set both `namePrefix` and `namespace` to fully isolate environments
-- `namePrefix` alone is not enough if both overlays target the same namespace
-- Verify namespaces are different: `kubectl kustomize overlays/dev/ | grep "namespace:"` vs `kubectl kustomize overlays/prod/ | grep "namespace:"`
+1. Each overlay should set both `namePrefix` and `namespace` to fully isolate environments
+2. `namePrefix` alone is not enough if both overlays target the same namespace
+3. Verify namespaces are different: `kubectl kustomize overlays/dev/ | grep "namespace:"` vs `kubectl kustomize overlays/prod/ | grep "namespace:"`
