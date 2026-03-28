@@ -1,11 +1,11 @@
 # Application Failure Troubleshooting
 
-### Overview
+# Overview
 - **Why it exists** — Application pods fail for predictable, recurring reasons; knowing the symptom-to-cause mapping cuts debug time dramatically.
 - **What it is** — Scenario-based guide covering the most common pod failure modes: each scenario is symptom → check commands → likely cause → fix.
 - **One-liner** — Start with `kubectl get pods`, move to `kubectl describe pod` Events, then `kubectl logs --previous`.
 
-### Mental Model
+# Mental Model
 
 ```text
 Pod issue reported

@@ -1,6 +1,6 @@
 # Kustomize Basics
 
-### Overview
+# Overview
 
 - **Why it exists** — Kubernetes YAML files are repetitive across environments. Teams use templating to avoid duplication, but templating languages (Helm's Go templates, Jinja2, etc.) add complexity and require learning new syntax. Kustomize solves this by letting you customize Kubernetes YAML without a templating language — just YAML patches on top of base YAML. It's plain Kubernetes manifests + declarative transformations, built into `kubectl` since version 1.14.
 
@@ -8,7 +8,7 @@
 
 - **One-liner** — Kustomize = base YAML + patches + transformations = customized manifests without a templating language.
 
-### Architecture
+# Architecture
 
 ```text
 Declarative YAML Transformation:
@@ -51,7 +51,7 @@ Lightweight                          Full package manager
 Composition via overlays             Composition via dependencies
 ```
 
-### Mental Model
+# Mental Model
 
 Think of Kustomize as "layered YAML assembly":
 
@@ -78,7 +78,7 @@ When you run `kubectl apply -k overlays/prod/`:
 
 Each overlay is independent — `overlays/dev` and `overlays/prod` both reference the same base but apply different transformations.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### kustomization.yaml Structure
 
@@ -344,7 +344,7 @@ kubectl diff -k overlays/prod/
 | **Good for** | Internal tools, multi-env | Shared software (operators) | Simple, static manifests |
 | **Complexity** | Medium (patches, overlays) | High (templating, state) | Low (no abstraction) |
 
-### Troubleshooting
+# Troubleshooting
 
 ### `kubectl apply -k` returns "error: must be exactly one"
 

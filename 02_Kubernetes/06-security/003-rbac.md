@@ -1,6 +1,6 @@
 # RBAC (Role-Based Access Control)
 
-### Overview
+# Overview
 - **Why it exists** — By default, any authenticated identity in a Kubernetes cluster can attempt any operation. RBAC enforces least-privilege: pods and users receive only the permissions they actually need. A compromised pod that has no API permissions cannot escalate to delete namespaces or read secrets from other workloads.
 - **What it is** — An authorization mechanism built into the API server. It uses four object types — Role, ClusterRole, RoleBinding, ClusterRoleBinding — to define what actions (verbs) a subject (user, group, or ServiceAccount) can perform on which resources.
 - **One-liner** — RBAC maps "who" to "what they can do" using Roles and Bindings, enforcing least-privilege for every identity in the cluster.
@@ -32,7 +32,7 @@ Request arrives at API Server
 4. Persist to etcd (accepted)
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 User / ServiceAccount  ──authenticates──►  API Server
@@ -59,7 +59,7 @@ Key distinction:
 - **ClusterRole + ClusterRoleBinding** — cluster-wide. Use for nodes, PersistentVolumes, or cross-namespace access.
 - A RoleBinding can reference a ClusterRole — this scopes the ClusterRole's permissions down to the binding's namespace.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Role (namespace-scoped)
 - **Why it exists** — Grants permissions within a single namespace without touching the rest of the cluster.
@@ -243,7 +243,7 @@ kubectl auth can-i --list -n dev
 kubectl auth whoami          # requires Kubernetes v1.27+
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Pod gets 403 Forbidden from API server
 1. Find the SA: `kubectl get pod <name> -o jsonpath='{.spec.serviceAccountName}'`.

@@ -1,6 +1,6 @@
 # Resource Requests and Limits
 
-### Overview
+# Overview
 - **Why it exists** — Without resource constraints, a single noisy-neighbor pod can exhaust a node's CPU or memory and starve or kill every other pod on it; requests and limits provide fair allocation and protection.
 - **What it is** — Per-container declarations that tell the scheduler how much CPU/memory to reserve (requests) and cap how much the runtime allows the container to consume (limits).
 - **One-liner** — Requests reserve capacity for scheduling; limits cap usage at runtime.
@@ -27,7 +27,7 @@ Node Allocatable Resources
 └──────────────────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Pod with requests=64Mi, limits=128Mi on a node with 1Gi free
@@ -43,7 +43,7 @@ CPU behaves differently:
   Usage hits 200m → container is throttled (slowed), NOT killed
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Requests and Limits Syntax
 
@@ -155,7 +155,7 @@ kubectl describe limitrange -n <ns>       # configured defaults and bounds
 kubectl describe pod <name>               # see Requests and Limits in container spec
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Pod OOMKilled
 1. Confirm: `kubectl describe pod <name>` — Last State shows `Reason: OOMKilled`

@@ -1,12 +1,12 @@
 # Dockerfile
 
-### Overview
+# Overview
 
 - **Why it exists** — You need a reproducible, version-controlled recipe that turns source code plus dependencies into a portable image anyone can build and run identically. A shell script is not portable; a Dockerfile is.
 - **What it is** — A text file named `Dockerfile` containing ordered instructions. `docker build` reads them top-to-bottom, executes each one, and stacks the results as a series of read-only layers to produce the final image. Each instruction that changes the filesystem creates a new layer; metadata instructions (`CMD`, `ENV`, `EXPOSE`) update the image config without adding a layer.
 - **One-liner** — A Dockerfile is a declarative, layer-by-layer recipe that `docker build` turns into a reproducible image.
 
-### Architecture
+# Architecture
 
 ```text
 Dockerfile instructions          Image layers (content-hashed, cached)
@@ -22,7 +22,7 @@ CMD ["nginx", "-g",           →  image config   (no layer)
 docker build -t myapp:1.0 .   →  Final image = stacked layers + config
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 docker build -t myapp:1.0 .
@@ -50,7 +50,7 @@ docker build -t myapp:1.0 .
 - Instructions execute top-to-bottom; a cache miss at instruction N rebuilds N and everything after.
 - Put the slowest, most stable instructions first (system packages) and the most frequently changing last (application code).
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### FROM — Base Image
 
@@ -196,7 +196,7 @@ EXPOSE 3000
 CMD ["node", "dist/index.js"]
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Build fails with "COPY failed: file not found"
 

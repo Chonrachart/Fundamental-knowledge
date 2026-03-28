@@ -1,12 +1,12 @@
 # Docker Overview
 
-### Overview
+# Overview
 
 - **Why it exists** — Teams need a reproducible way to package applications with all their dependencies and run them identically in development, CI, and production.
 - **What it is** — Docker is a platform built on the container runtime stack (dockerd → containerd → runc) that provides image building via Dockerfiles, image distribution via registries, and container execution via the Docker CLI and daemon.
 - **One-liner** — Docker turns a Dockerfile into a runnable container through a layered image format, a content-addressable registry, and a client-server runtime.
 
-### Architecture
+# Architecture
 
 ```text
   docker CLI  ──REST API──▶  dockerd (Docker daemon)
@@ -24,7 +24,7 @@
 - `containerd` — Container lifecycle manager; pulls images, creates snapshots, starts/stops containers.
 - `runc` — OCI-compliant low-level runtime; calls Linux `clone`/`unshare` to create namespaced processes.
 
-### Mental Model
+# Mental Model
 
 ```text
 Dockerfile ──build──▶ Image ──run──▶ Container
@@ -41,7 +41,7 @@ Dockerfile ──build──▶ Image ──run──▶ Container
 - `docker run` creates a new container (writable layer) from an image and starts the main process.
 - Each container is isolated: its own filesystem view, network namespace, and process tree.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Image
 
@@ -134,7 +134,7 @@ docker pull registry.company.com/team/myapp:1.0
 Related notes:
 - [006-registry-tagging-push-pull](./006-registry-tagging-push-pull.md)
 
-### Troubleshooting
+# Troubleshooting
 
 ### Image not found when running container
 

@@ -1,12 +1,12 @@
 # etcd
 
-### Overview
+# Overview
 
 - **Why it exists** — Kubernetes needs a single, consistent, durable store for all cluster state that works correctly even when control plane nodes fail.
 - **What it is** — A distributed key-value store that uses the Raft consensus algorithm to maintain consistency across multiple replicas. It is the source of truth for every Kubernetes object: pods, deployments, secrets, configmaps, node registrations, RBAC rules, and more.
 - **One-liner** — etcd is the cluster's database; if you lose it without a backup, the cluster is gone.
 
-### Architecture
+# Architecture
 
 ```text
 Control Plane (HA setup — 3 or 5 etcd members)
@@ -33,7 +33,7 @@ Control Plane (HA setup — 3 or 5 etcd members)
   Quorum requires majority: 3-node needs 2, 5-node needs 3
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 kubectl apply -f pod.yaml
@@ -57,7 +57,7 @@ API Server returns 200 OK to kubectl
 Controllers/Scheduler watch (via API server) and act
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Raft Consensus
 
@@ -116,7 +116,7 @@ ETCDCTL_API=3 etcdctl endpoint health \
 - Running pods on worker nodes continue running temporarily (kubelet keeps them alive), but the control plane cannot manage them.
 - Recovery requires restoring from a snapshot. See `05-cluster-maintenance/003-etcd-backup-restore.md` for backup/restore procedures.
 
-### Troubleshooting
+# Troubleshooting
 
 ### etcd pod not starting
 

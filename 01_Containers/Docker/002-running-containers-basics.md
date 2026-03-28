@@ -1,12 +1,12 @@
 # Running Containers Basics
 
-### Overview
+# Overview
 
 - **Why it exists** — An image sitting in a registry does nothing. You need a runtime command that takes that image, adds a writable layer, wires up networking, and starts the process — that is `docker run`.
 - **What it is** — `docker run` is the primary command for creating and starting containers. It combines pull (if needed), create, and start into one step. Flags control detached mode, naming, port publishing, and cleanup. Supporting commands (`docker ps`, `docker logs`, `docker exec`, `docker stop`, `docker rm`) manage the container through its lifecycle.
 - **One-liner** — `docker run` turns an image into a live, running container; the supporting commands let you observe and control it.
 
-### Architecture
+# Architecture
 
 ```text
 ┌─── docker CLI ──────────────────────────────────────────────────┐
@@ -34,7 +34,7 @@
                     Container process (PID 1 inside container)
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 docker run nginx:alpine
@@ -63,7 +63,7 @@ docker run nginx:alpine
 - Detached mode (`-d`) is the normal choice for long-running services.
 - The container lives until PID 1 exits; `docker stop` triggers a graceful shutdown (SIGTERM → SIGKILL).
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Running a Container
 
@@ -170,7 +170,7 @@ docker run --rm alpine echo "hello"
 | 5 | `docker stop web` | Gracefully stop the container |
 | 6 | `docker rm web` | Remove the stopped container |
 
-### Troubleshooting
+# Troubleshooting
 
 ### Container exits immediately after `docker run -d`
 

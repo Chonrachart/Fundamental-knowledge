@@ -1,12 +1,12 @@
 # Services
 
-### Overview
+# Overview
 
 - **Why it exists** — Pods are ephemeral and get new IP addresses every time they restart or are rescheduled. Clients cannot reliably connect to a moving target. A Service provides a stable DNS name and virtual IP that never changes, regardless of which pods are behind it.
 - **What it is** — A stable network endpoint that load-balances traffic to a set of pods matching a label selector. The Service gets a ClusterIP (virtual IP) and a DNS name; kube-proxy maintains iptables rules on every node that redirect traffic from the ClusterIP to actual pod IPs. When pods come and go, kube-proxy updates the rules automatically.
 - **One-liner** — A Service is a stable, named entry point that routes traffic to healthy pods via label selectors.
 
-### Architecture
+# Architecture
 
 ```text
 ClusterIP (internal only)     NodePort (external via node)    LoadBalancer (cloud LB)
@@ -28,7 +28,7 @@ Label Selector matching:
          └── pod3 (labels: app=db)              ✗ not matched
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 DNS lookup: curl http://web-svc.default.svc.cluster.local/api
@@ -50,7 +50,7 @@ Packet forwarded to pod (e.g. 10.244.1.7:8080)
 Response returns to caller
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Label Selector
 
@@ -159,7 +159,7 @@ spec:
   - port: 3306
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Service returns "connection refused"
 

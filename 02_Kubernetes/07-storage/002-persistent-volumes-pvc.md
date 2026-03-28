@@ -1,6 +1,6 @@
 # Persistent Volumes and PersistentVolumeClaims
 
-### Overview
+# Overview
 - **Why it exists** — Decouples storage provisioning from storage consumption. Cluster admins provision (or configure auto-provisioning of) PersistentVolumes; developers simply claim the storage they need via PersistentVolumeClaims without knowing the underlying infrastructure.
 - **What it is** — A PersistentVolume (PV) is a cluster-scoped resource representing a piece of real storage (cloud disk, NFS share, local disk). A PersistentVolumeClaim (PVC) is a namespaced request for storage that gets bound to a matching PV.
 - **One-liner** — PV is the storage unit; PVC is the request — they meet in the middle so devs and admins work independently.
@@ -30,7 +30,7 @@ Admin side                           Developer side
 └──────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Admin creates StorageClass (or PV manually)
@@ -55,7 +55,7 @@ PVC deleted → reclaim policy decides fate of PV
   Delete  → PV and underlying storage deleted automatically
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### PersistentVolume (PV)
 
@@ -221,7 +221,7 @@ spec:
 
 This creates PVCs named `data-db-0`, `data-db-1`, `data-db-2` — one per pod.
 
-### Troubleshooting
+# Troubleshooting
 
 ### PVC stuck in Pending
 1. `kubectl describe pvc <name> -n <ns>` — read the Events section.

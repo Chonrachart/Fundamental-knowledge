@@ -1,12 +1,12 @@
 # Docker Compose Basics
 
-### Overview
+# Overview
 
 - **Why it exists** — Running multiple containers that must work together (app, database, cache) by hand with individual `docker run` commands is error-prone and hard to share; Compose codifies the entire multi-container setup as a single versioned file.
 - **What it is** — A tool that reads a `docker-compose.yml` (or `compose.yaml`) YAML file and manages the full lifecycle of a multi-service application — creating networks, volumes, and containers in the correct order with a single command.
 - **One-liner** — Compose is `docker run` for multi-container apps, expressed as declarative YAML and executed with `docker compose up`.
 
-### Architecture
+# Architecture
 
 ```text
 docker-compose.yml
@@ -28,7 +28,7 @@ docker-compose.yml
   └─────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 compose.yaml ──parse──▶  Project
@@ -48,7 +48,7 @@ compose.yaml ──parse──▶  Project
 - Compose creates one bridge network per project automatically — services reach each other by name without exposing ports to the host.
 - `docker compose up` is idempotent — run it again and Compose only recreates changed services.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### YAML Structure (services / networks / volumes)
 
@@ -214,7 +214,7 @@ docker compose up -d --build
 docker compose stop
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### "service web depends on db which is undefined"
 

@@ -1,12 +1,12 @@
 # ReplicaSets and Deployments
 
-### Overview
+# Overview
 
 - **Why it exists** — Running a single pod is fragile; if it crashes, it's gone. You need a controller to maintain the desired number of replicas and a higher-level abstraction to manage updates safely.
 - **What it is** — A ReplicaSet ensures N copies of a pod are always running by watching and reconciling pod count. A Deployment owns and manages ReplicaSets, providing declarative updates, history tracking, and the ability to scale or roll back. In practice you always create Deployments, never ReplicaSets directly.
 - **One-liner** — A Deployment manages ReplicaSets; a ReplicaSet manages pods; together they keep your app running at the desired scale.
 
-### Architecture
+# Architecture
 
 ```text
 Deployment (desired state: image, replicas, strategy)
@@ -22,7 +22,7 @@ Ownership chain:
   Deployment ──ownerRef──► ReplicaSet ──ownerRef──► Pod
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 kubectl apply -f deployment.yaml   (3 replicas of nginx:alpine)
@@ -44,7 +44,7 @@ ReplicaSet controller sees 2 running (desired: 3)
 → creates a replacement pod immediately
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### ReplicaSet
 
@@ -208,7 +208,7 @@ kubectl get deployment myapp
 # myapp   3/3     3            3           5m
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Deployment created but no pods appear
 

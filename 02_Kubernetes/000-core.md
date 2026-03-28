@@ -1,12 +1,12 @@
 # Kubernetes
 
-### Overview
+# Overview
 
 - **Why it exists** — Running containers at scale across many machines requires automated scheduling, self-healing, service discovery, and configuration management that cannot be done by hand.
 - **What it is** — Kubernetes is a container orchestration platform with a control plane that makes decisions and worker nodes that run workloads. You declare desired state in YAML; Kubernetes continuously reconciles actual state to match.
 - **One-liner** — Kubernetes is a declarative system where you describe what you want and controllers make it happen across a cluster of nodes.
 
-### Architecture
+# Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@
 └───────────────┘  └───────────────┘  └───────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 You write YAML (desired state)
@@ -58,7 +58,7 @@ kubelet on Node pulls image → starts container
 - Controllers run in a continuous loop comparing actual state to desired state and acting to close the gap.
 - You never tell Kubernetes how to do things — you tell it what you want.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Control Plane
 
@@ -138,7 +138,7 @@ kubelet on Node pulls image → starts container
 - [11-kustomize/002-overlays-patches](./11-kustomize/002-overlays-patches.md) — Overlays and patch strategies
 - [work-specific/cert-manager](./work-specific/cert-manager.md) — cert-manager for TLS automation
 
-### Troubleshooting
+# Troubleshooting
 
 ### Pod stuck in Pending
 1. Check events: `kubectl describe pod <name>`.

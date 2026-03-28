@@ -1,6 +1,6 @@
 # HPA, VPA, and Autoscaling
 
-### Overview
+# Overview
 - **Why it exists** — Manual replica scaling cannot react fast enough to traffic spikes and wastes resources during off-peak hours; autoscaling adjusts capacity automatically in response to real demand.
 - **What it is** — HPA (Horizontal Pod Autoscaler) scales replica count up/down based on CPU, memory, or custom metrics; VPA (Vertical Pod Autoscaler) adjusts the requests/limits of existing pods instead of changing replica count.
 - **One-liner** — HPA scales out (more pods); VPA scales up (bigger pods) — both remove the need for manual intervention.
@@ -29,7 +29,7 @@
             └──────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Scenario: Deployment with HPA (min=2, max=10, target CPU=70%)
@@ -47,7 +47,7 @@ Load drops:
   → prevents flapping when load is intermittent
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### How HPA Works
 
@@ -157,7 +157,7 @@ kubectl top pods      # per-pod CPU and memory
 
 Without metrics-server, HPA remains in an `<unknown>` state and does not scale.
 
-### Troubleshooting
+# Troubleshooting
 
 ### HPA not scaling — replicas stay at minimum
 1. Check metrics-server: `kubectl get pods -n kube-system | grep metrics-server`

@@ -1,6 +1,6 @@
 # Cluster Architecture
 
-### Overview
+# Overview
 
 - **Why it exists** — Running containers at scale across many machines requires automated scheduling, self-healing, and configuration management that cannot be done by hand.
 - **What it is** — Kubernetes is a container orchestration platform with a control plane that makes decisions and worker nodes that run workloads. You declare desired state in YAML; Kubernetes continuously reconciles actual state to match.
@@ -41,7 +41,7 @@
     └───────────────────────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 User writes YAML  ──apply──▶  API Server  ──store──▶  etcd
@@ -63,7 +63,7 @@ User writes YAML  ──apply──▶  API Server  ──store──▶  etcd
 5. kubelet on the chosen node sees the PodSpec, pulls the image, starts containers via containerd
 6. Controller Manager watches for drift — if a pod dies, the ReplicaSet controller creates a replacement
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### API Server
 
@@ -118,7 +118,7 @@ kubectl get pods -v=8
 - **What it is** — The software that actually runs containers (e.g. `containerd`, `CRI-O`). kubelet talks to it via the Container Runtime Interface (CRI). Docker was historically used but is no longer directly supported.
 - **One-liner** — The container runtime is the low-level engine that starts and stops containers on a node.
 
-### Troubleshooting
+# Troubleshooting
 
 ### Cannot connect to cluster
 

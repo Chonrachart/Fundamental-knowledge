@@ -1,12 +1,12 @@
 # Docker Networking and Volumes
 
-### Overview
+# Overview
 
 - **Why it exists** — Containers are isolated by default; networking modes and volume types give you precise control over how containers communicate with each other, the host, and the outside world, and how data persists beyond a container's lifetime.
 - **What it is** — Docker networking provides several drivers (bridge, host, none, user-defined) that determine how a container's network namespace connects to the host or other containers. Docker volumes provide three storage types (named volume, bind mount, tmpfs) that determine where and how data lives.
 - **One-liner** — Networking controls who a container can talk to; volumes control where a container's data lives.
 
-### Architecture
+# Architecture
 
 ```text
 ┌────────────────────────────────────────────────────────────────────┐
@@ -43,7 +43,7 @@
 └────────────────────────────────────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Container starts
@@ -82,7 +82,7 @@ What volume type?
 - Named volumes survive `docker rm`; bind mounts are just a directory on the host — Docker does not manage them.
 - `-p 8080:80` means "listen on host port 8080, forward to container port 80".
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Bridge Network (Default)
 
@@ -226,7 +226,7 @@ docker run --tmpfs /tmp:size=64m myapp
 docker run --mount type=tmpfs,destination=/tmp,tmpfs-size=67108864 myapp
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Container cannot reach another container by name
 

@@ -1,12 +1,12 @@
 # Docker Compose Production Patterns
 
-### Overview
+# Overview
 
 - **Why it exists** — A bare `docker-compose.yml` written for local development is not safe or flexible enough for production; override files, healthchecks, profiles, and variable substitution fill those gaps without duplicating the whole file.
 - **What it is** — A set of patterns — override file merging, healthcheck-gated startup, `--scale`, profiles, and `.env`/`env_file` variable substitution — that make Compose configs environment-aware and production-resilient on a single host.
 - **One-liner** — Production Compose patterns layer environment-specific config on top of a base file instead of duplicating it.
 
-### Architecture
+# Architecture
 
 ```text
 .env (variable substitution)
@@ -26,7 +26,7 @@ docker compose -f compose.yaml -f docker-compose.prod.yml up -d
       └─ Start services in depends_on + healthcheck order
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 compose.yaml (base)
@@ -53,7 +53,7 @@ docker-compose.prod.yml (overrides)
 - Healthchecks turn `depends_on` from "container started" into "service ready".
 - Profiles keep optional services (debug tools, seeders) out of the default `up`.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Compose in Production vs Kubernetes
 
@@ -286,7 +286,7 @@ FEATURE_FLAGS=payments,notifications
 - Override a single variable without editing `.env`: `TAG=2.0.0 docker compose up -d`.
 - Never commit `.env` files containing real secrets; commit a `.env.example` with placeholder values.
 
-### Troubleshooting
+# Troubleshooting
 
 ### Override file not being applied
 

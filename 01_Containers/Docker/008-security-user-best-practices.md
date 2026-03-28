@@ -1,12 +1,12 @@
 # Container Security Best Practices
 
-### Overview
+# Overview
 
 - **Why it exists** — Containers share the host kernel, so a misconfigured or compromised container can escalate privileges to the host or laterally to neighbouring containers; layered controls reduce the blast radius of any single failure.
 - **What it is** — A set of defence-in-depth practices — non-root users, secret hygiene, read-only filesystems, capability dropping, resource limits, minimal base images, and continuous image scanning — applied at build time, runtime, and registry level.
 - **One-liner** — Secure containers by shrinking attack surface at every layer: image, runtime flags, kernel capabilities, and supply chain.
 
-### Architecture
+# Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
@@ -40,7 +40,7 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Dockerfile build                   docker run
@@ -62,7 +62,7 @@ Image scanning (CI)                │
 - A read-only filesystem prevents attackers from writing payloads or modifying binaries inside the running container.
 - Scanning images in CI catches known vulnerabilities before they reach production.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Non-Root User (USER Directive)
 
@@ -247,7 +247,7 @@ snyk container test myapp:latest --severity-threshold=high
   - Registry access controlled; only CI/CD pipeline can push
   - Base images rebuilt and re-scanned on a regular schedule
 
-### Troubleshooting
+# Troubleshooting
 
 ### Container exits with "permission denied"
 

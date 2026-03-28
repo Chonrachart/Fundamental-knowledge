@@ -1,12 +1,12 @@
 # kube-apiserver
 
-### Overview
+# Overview
 
 - **Why it exists** — Every Kubernetes component (scheduler, controllers, kubelet, kubectl, CI pipelines) needs to read and modify cluster state. Without a single entry point, components would conflict and bypass security controls.
 - **What it is** — The API server is the single front door for all cluster operations. Nothing bypasses it — not the scheduler, not the controller manager, not kubelet. It validates requests, authenticates callers, authorizes actions via RBAC, then persists objects to etcd. It exposes a REST API over HTTPS on port 6443.
 - **One-liner** — The API server is the cluster's gatekeeper: every read, write, and watch goes through it.
 
-### Architecture
+# Architecture
 
 ```text
                     ┌───────────────────────────────────┐
@@ -27,7 +27,7 @@ other components ──►         port 6443 (HTTPS)          │
                            (only path to cluster state)
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 kubectl apply -f deploy.yaml
@@ -58,7 +58,7 @@ Persist to etcd → return 200/201 to caller
 Controllers and scheduler watch changes via API server
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Authentication
 
@@ -124,7 +124,7 @@ kubectl describe pod -n kube-system kube-apiserver-<node>
 - **What it is** — Clients (scheduler, controllers, kubelet) open long-lived HTTP watch connections. The API server streams change events (ADDED, MODIFIED, DELETED) as etcd data changes. This is how the entire reconciliation loop works efficiently.
 - **One-liner** — Watches are the mechanism that makes Kubernetes event-driven rather than poll-based.
 
-### Troubleshooting
+# Troubleshooting
 
 ### kubectl returns "connection refused" or times out
 

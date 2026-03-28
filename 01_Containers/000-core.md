@@ -1,12 +1,12 @@
 # Containers
 
-### Overview
+# Overview
 
 - **Why it exists** — Applications need a consistent, isolated environment to run regardless of host OS differences, without the overhead of full virtual machines.
 - **What it is** — A lightweight, isolated runtime environment that packages an application with its dependencies, using Linux namespaces for isolation and cgroups for resource limits, sharing the host kernel.
 - **One-liner** — Containers are isolated processes on a shared kernel — portable, fast to start, and far lighter than VMs.
 
-### Architecture
+# Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -42,7 +42,7 @@ vs VM:
               Host OS
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Dockerfile  ──build──▶  Image  ──run──▶  Container
@@ -58,7 +58,7 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 - Containers are ephemeral; state not in a volume is lost on removal.
 - `docker push` / `docker pull` move images between host and registry.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Namespaces
 
@@ -129,7 +129,7 @@ Related notes:
 Related notes:
 - [Docker/000-core](./Docker/000-core.md) — Docker overview, key commands, topic map
 
-### Troubleshooting
+# Troubleshooting
 
 ### Container exits immediately
 

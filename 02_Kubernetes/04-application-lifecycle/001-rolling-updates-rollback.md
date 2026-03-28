@@ -1,6 +1,6 @@
 # Rolling Updates and Rollback
 
-### Overview
+# Overview
 - **Why it exists** — Deploying new versions without downtime requires gradually replacing old pods with new ones; rolling back instantly when something goes wrong requires keeping the previous state readily available.
 - **What it is** — A Deployment update strategy that incrementally swaps old pods for new ones, controlled by `maxSurge` and `maxUnavailable`, backed by preserved old ReplicaSets for rollback.
 - **One-liner** — Zero-downtime deploys with instant rollback via Deployment-managed ReplicaSet revisions.
@@ -27,7 +27,7 @@ Rolling Update (maxSurge:1, maxUnavailable:0):
   v1: _    v2: ███     ← complete
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 kubectl apply (new image tag)
@@ -52,7 +52,7 @@ for rollback within revisionHistoryLimit
 
 Rollback reuses the old ReplicaSet by scaling it back up. It creates a **new revision** pointing at the old pod template rather than reverting history.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### RollingUpdate vs Recreate Strategy
 
@@ -138,7 +138,7 @@ kubectl rollout status deployment/myapp              # watch progress
 kubectl rollout undo deployment/myapp                # rollback if needed
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Rollout stuck — new pods not becoming Ready
 1. Check pod status: `kubectl get pods` — look for `Pending`, `CrashLoopBackOff`, `ImagePullBackOff`

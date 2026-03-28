@@ -1,6 +1,6 @@
 # Helm Charts
 
-### Overview
+# Overview
 - **Why it exists** — Kubernetes applications need to be deployed across multiple environments with different configs (dev/staging/prod). Charts standardize this by providing reusable, parameterized templates so the same application package can be configured differently without duplicating YAML.
 
 - **What it is** — A structured directory containing Kubernetes YAML templates, default configuration values, metadata, and helper functions. Charts enable templating, versioning, and dependency management for Kubernetes applications.
@@ -50,7 +50,7 @@ Render final YAML
 Apply to cluster with kubectl
 ```
 
-### Mental Model
+# Mental Model
 
 A Helm chart is like a **parameterized YAML package**:
 - Think of Chart.yaml as the "package.json" (metadata)
@@ -60,7 +60,7 @@ A Helm chart is like a **parameterized YAML package**:
 
 The chart itself is **immutable** — values change, not the chart code.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Chart.yaml
 - **Why it exists** — Provides metadata about the chart so Helm can identify, version, and describe what it packages.
@@ -477,7 +477,7 @@ helm install myapp-prod ./mychart -f values-prod.yaml
 helm install myapp ./mychart --set environment=production --set replicas=5
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Template Syntax Error
 

@@ -1,12 +1,12 @@
 # docker run — Advanced Flags
 
-### Overview
+# Overview
 
 - **Why it exists** — A container's isolation, resource consumption, security posture, networking, and data persistence must all be configured at startup because the container's environment is immutable once running.
 - **What it is** — `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]` creates and starts a new container. Each flag maps to a Linux kernel mechanism: namespaces for isolation, cgroups for resource limits, capabilities for privilege control, and bind mounts or volumes for data.
 - **One-liner** — `docker run` flags are the dials that tune exactly how much isolation, resources, and access a container gets.
 
-### Architecture
+# Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -30,7 +30,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 docker run [OPTIONS] IMAGE [CMD]
@@ -56,7 +56,7 @@ docker run [OPTIONS] IMAGE [CMD]
 - Capabilities control which kernel operations a process may perform; dropping them follows least-privilege.
 - Volumes and bind mounts are the only way to persist data beyond the container's lifetime.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Detach and Auto-Remove (-d / --rm)
 
@@ -261,7 +261,7 @@ docker run --rm --entrypoint python myapp script.py
 | `--tmpfs` | | Mount in-memory tmpfs at path |
 | `--entrypoint` | | Override image ENTRYPOINT |
 
-### Troubleshooting
+# Troubleshooting
 
 ### Container is OOM-killed immediately or after a short time
 

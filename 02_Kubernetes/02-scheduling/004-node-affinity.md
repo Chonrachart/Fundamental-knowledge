@@ -1,6 +1,6 @@
 # Node Affinity
 
-### Overview
+# Overview
 
 - **Why it exists** — `nodeSelector` is too blunt for many real-world requirements: "schedule on nodes in zone us-east-1a OR us-east-1b, preferring nodes with SSD storage." Node affinity provides expressive, multi-operator rules that attract pods to nodes based on node labels, while still allowing soft (preferred) rules that do not block scheduling.
 - **What it is** — Node affinity is a set of rules in `spec.affinity.nodeAffinity` that the scheduler evaluates when placing a pod. Rules can be hard (required) or soft (preferred), and use rich operators (In, NotIn, Exists, DoesNotExist, Gt, Lt) against node labels.
@@ -29,7 +29,7 @@ All nodes in cluster
   Bind to highest-scoring node that passed the filter
 ```
 
-### Mental Model
+# Mental Model
 
 Think of node affinity in two layers:
 - **required** = hard filter (if no node matches, pod stays Pending)
@@ -39,7 +39,7 @@ A common pattern is: use `required` to enforce zone or hardware constraints, and
 
 Contrast with taints/tolerations: taints **push** pods away from nodes (node's choice). Node affinity **pulls** pods toward nodes (pod's choice). For dedicated nodes, you often need both: taint to repel unwanted pods AND affinity to attract desired pods.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### nodeSelector (simpler alternative)
 
@@ -165,7 +165,7 @@ These two mechanisms solve complementary problems and are often used together.
 | Typical use | Dedicate nodes, protect control-plane, handle node pressure | Zone/arch constraints, hardware preferences |
 | Combined use | Taint to repel all others + affinity to attract desired pods | Same — both needed for dedicated nodes |
 
-### Troubleshooting
+# Troubleshooting
 
 ### Pod stuck in Pending — "0/3 nodes are available: ... node(s) didn't match Pod's node affinity"
 1. Check the node affinity rules: `kubectl get pod <name> -o yaml | grep -A20 nodeAffinity`.

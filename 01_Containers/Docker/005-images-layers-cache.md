@@ -1,12 +1,12 @@
 # Images, Layers, and Cache
 
-### Overview
+# Overview
 
 - **Why it exists** — Building images from scratch on every change would be slow and wasteful; a layered, cacheable system lets Docker reuse unchanged work and share common layers across images to save time and disk space.
 - **What it is** — A Docker image is an ordered stack of read-only layers, one per Dockerfile instruction that changes the filesystem. At runtime a thin writable layer is added on top. Docker's build cache maps each layer to a content hash so unchanged instructions are skipped. Multi-stage builds and BuildKit extend this with advanced cache control and secrets handling.
 - **One-liner** — Images are immutable layer stacks where Docker reuses cached layers for fast, incremental builds.
 
-### Architecture
+# Architecture
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
@@ -41,7 +41,7 @@
 └──────────────────────────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 docker build .
@@ -74,7 +74,7 @@ only modified files are copied up to the writable layer
 - Multi-stage builds use multiple `FROM` statements; only the final stage is shipped, so build tools never reach production.
 - BuildKit is the modern builder (default since Docker 23) — it parallelises independent stages and unlocks `--mount` cache and secret flags.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Image Layers (Read-Only Stack)
 
@@ -210,7 +210,7 @@ docker build -t myapp .
 | Default since Docker 23    | No              | Yes          |
 | Dockerfile syntax version  | Implicit        | `# syntax=`  |
 
-### Troubleshooting
+# Troubleshooting
 
 ### Cache not being reused — every build runs all instructions
 

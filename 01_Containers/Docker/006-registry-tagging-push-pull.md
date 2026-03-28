@@ -1,12 +1,12 @@
 # Docker Registries, Tagging, Push & Pull
 
-### Overview
+# Overview
 
 - **Why it exists** — Container images need a central place to be stored, versioned, and distributed so any machine or team member can pull the exact same image.
 - **What it is** — A registry is a server that stores and serves Docker image layers and manifests. Images are referenced by a full name: `registry/repository:tag@digest`. You interact with registries using `docker tag`, `docker push`, and `docker pull`.
 - **One-liner** — Registries are the package repositories of the container world: build once, push once, pull anywhere.
 
-### Architecture
+# Architecture
 
 ```text
 ┌──────────────────────────────────────────────────────────────────┐
@@ -35,7 +35,7 @@
               └─────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Full image reference:   registry / repository : tag @ digest
@@ -54,7 +54,7 @@ docker pull   ──▶  downloads layers + manifest from registry
 - If no registry is specified, Docker defaults to `docker.io` (Docker Hub).
 - If no tag is specified, Docker defaults to `:latest`.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Registry
 
@@ -183,7 +183,7 @@ gcloud auth configure-docker us-central1-docker.pkg.dev
 docker logout docker.io
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### `denied: requested access to the resource is denied` on push
 

@@ -1,12 +1,12 @@
 # kube-scheduler
 
-### Overview
+# Overview
 
 - **Why it exists** — When a pod is created, it has no node assigned. Something must decide which node is the best fit given resource availability, constraints, and policies.
 - **What it is** — A control plane component that watches for pods with no `nodeName` set, filters nodes that meet the pod's requirements, scores the remaining nodes, and writes the winning `nodeName` back to the pod via the API server. It does not start the pod — kubelet does that once `nodeName` is set.
 - **One-liner** — The scheduler finds the best node for each unplaced pod and assigns it.
 
-### Architecture
+# Architecture
 
 ```text
                     ┌─────────────────────────────────┐
@@ -30,7 +30,7 @@ Scheduling cycle for one pod:
   All nodes ──[Filter]──► Feasible nodes ──[Score]──► Ranked nodes ──► Best node
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Pod created (no nodeName):
@@ -60,7 +60,7 @@ Bind — scheduler writes nodeName to pod via API server
 kubelet on chosen node sees the pod → starts containers
 ```
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Filter Plugins (Predicates)
 
@@ -147,7 +147,7 @@ kubectl get pods --field-selector=status.phase=Pending
 kubectl logs -n kube-system -l component=kube-scheduler
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Pod stays in Pending — 0/N nodes are available
 

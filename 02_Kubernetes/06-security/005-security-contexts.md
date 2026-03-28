@@ -1,6 +1,6 @@
 # Security Contexts
 
-### Overview
+# Overview
 - **Why it exists** — Container runtimes run as root by default and have broad Linux capabilities. A compromised container that runs as root with no restrictions can escape to the host, read sensitive files, or overwrite system binaries. Security contexts let you strip away privileges the container never needed — defense in depth at the workload level.
 - **What it is** — A set of fields on a Pod (`spec.securityContext`) or on an individual container (`spec.containers[].securityContext`) that control the Linux security attributes of that pod or container: UID/GID, Linux capabilities, filesystem write access, and privilege escalation.
 - **One-liner** — Security contexts let you run containers with the minimum Linux privileges they need, reducing blast radius if a container is compromised.
@@ -28,7 +28,7 @@
   Pod-level fields apply to all containers that don't override them.
 ```
 
-### Mental Model
+# Mental Model
 
 Think of a freshly-started container as an employee with a master key to every room. Security contexts are the policy that says: "Actually, you only need access to room 42. Here is a key only for room 42, and we've removed your ability to copy keys." The employee can still do their job, but a break-in through that employee's credentials causes far less damage.
 
@@ -36,7 +36,7 @@ Two levels:
 - **Pod-level** (`spec.securityContext`) — shared settings for the whole pod, mainly around user/group identity and volume permissions.
 - **Container-level** (`spec.containers[].securityContext`) — per-container settings, mainly around capabilities and filesystem access. Overrides pod-level when both are set.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Key Fields Reference
 
@@ -203,7 +203,7 @@ spec:
 | `privileged` | No | Yes | Container-only |
 | `seccompProfile` | Yes | Yes | Container overrides pod |
 
-### Troubleshooting
+# Troubleshooting
 
 ### Container fails to start: "container has runAsNonRoot and image will run as root"
 1. The image's Dockerfile has `USER root` or no `USER` directive.

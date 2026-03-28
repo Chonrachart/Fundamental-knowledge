@@ -1,6 +1,6 @@
 # TLS Basics in Kubernetes
 
-### Overview
+# Overview
 - **Why it exists** — Every component in a Kubernetes cluster communicates over a network. Without TLS, an attacker with network access could intercept traffic, steal secrets, or impersonate components. Kubernetes enforces mutual TLS (mTLS) everywhere — all component-to-component communication is encrypted and both sides verify each other's identity.
 - **What it is** — TLS (Transport Layer Security) is the protocol that provides encryption and authentication over TCP. In Kubernetes, every component acts as both a server (accepts connections) and a client (initiates connections), so each component holds both a certificate and a private key, and all certificates are signed by a shared Certificate Authority (CA).
 - **One-liner** — TLS ensures no Kubernetes component communicates over plain HTTP; every connection is encrypted and mutually authenticated via certificates.
@@ -30,7 +30,7 @@
   kubectl    ──── mTLS ────► API Server   (via kubeconfig client cert)
 ```
 
-### Mental Model
+# Mental Model
 
 Think of the cluster CA as the company's HR department. HR prints ID badges (certificates). When two employees (components) meet, each shows their badge. Because both badges were issued by the same HR office, each employee trusts the other without having met before. If the badge was not issued by HR, access is denied.
 
@@ -40,7 +40,7 @@ Two roles per cert:
 
 Components that act as both server and client (e.g. API server) carry both.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Certificate Authority (CA)
 - **Why it exists** — A central trust anchor so every component can verify every other component's certificate without needing a per-pair configuration.
@@ -107,7 +107,7 @@ kubeadm certs check-expiration
 kubeadm certs renew all
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Unable to connect: x509 certificate signed by unknown authority
 1. The client does not have the correct CA cert configured.

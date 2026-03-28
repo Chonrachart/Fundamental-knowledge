@@ -1,6 +1,6 @@
 # Helm Basics
 
-### Overview
+# Overview
 - **Why it exists** — Managing raw Kubernetes YAML gets repetitive and hard to version. You need to maintain separate config files for dev/staging/prod, handle dependencies, and deploy updates consistently. Helm packages, versions, and deploys Kubernetes applications using templated manifests and configuration management.
 
 - **What it is** — A package manager for Kubernetes that bundles YAML templates with configuration values, version control, and release management. Helm acts like apt/npm but for Kubernetes applications.
@@ -26,7 +26,7 @@ Helm Workflow
 6. Release Created (tracked by Helm in kube-system)
 ```
 
-### Mental Model
+# Mental Model
 
 Think of Helm as **templated package management**:
 - **Chart** = source code (template + metadata)
@@ -36,7 +36,7 @@ Think of Helm as **templated package management**:
 
 One chart can be installed many times as different releases (e.g., `nginx-prod` and `nginx-staging` from the same nginx chart).
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Chart
 - **Why it exists** — Provides a standardized, reusable package format for Kubernetes applications with metadata, version control, and dependency management.
@@ -220,7 +220,7 @@ helm install myapp ./mychart -f values-prod.yaml
 helm install myapp ./mychart --set environment=production --set replicas=5
 ```
 
-### Troubleshooting
+# Troubleshooting
 
 ### Release Deployment Failed
 

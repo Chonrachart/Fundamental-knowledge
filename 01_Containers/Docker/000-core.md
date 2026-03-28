@@ -1,12 +1,12 @@
 # Docker
 
-### Overview
+# Overview
 
 - **Why it exists** — Developers need a single platform to build, ship, and run containerized applications consistently across laptops, CI, and production.
 - **What it is** — A client-server platform where the Docker CLI sends commands to the Docker daemon (`dockerd`), which manages images, containers, networks, and volumes through `containerd` and `runc`.
 - **One-liner** — Docker is the toolchain that wraps the container runtime stack into a developer-friendly build, ship, and run workflow.
 
-### Architecture
+# Architecture
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -23,7 +23,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Mental Model
+# Mental Model
 
 ```text
 Dockerfile  ──build──▶  Image  ──run──▶  Container
@@ -38,7 +38,7 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 - Images are immutable artifacts stored in registries; containers are the running instances.
 - `docker compose` orchestrates multiple containers on a single host using a YAML definition.
 
-### Core Building Blocks
+# Core Building Blocks
 
 ### Key Commands Reference
 
@@ -86,7 +86,7 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 | [009-compose-basics](./009-compose-basics.md) | Compose file structure, services, networks, volumes |
 | [010-compose-production-patterns](./010-compose-production-patterns.md) | Healthchecks, profiles, scale, override files |
 
-### Troubleshooting
+# Troubleshooting
 
 ### "Cannot connect to the Docker daemon"
 
