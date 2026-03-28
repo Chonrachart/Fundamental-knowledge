@@ -1,5 +1,10 @@
 # Managing Logs in Kubernetes
 
+# Overview
+- **Why it exists** — Containers are ephemeral; when a pod restarts or is deleted, container stdout/stderr is lost unless captured by a persistent logging system.
+- **What it is** — A set of tools and patterns for collecting, viewing, and persisting container logs — from `kubectl logs` for local debugging to DaemonSet-based log aggregation for production clusters.
+- **One-liner** — `kubectl logs` for debugging; cluster-level logging agent for production persistence.
+
 - Containers are ephemeral; when a pod is deleted or restarted, container stdout/stderr is lost unless captured.
 - `kubectl logs` retrieves container stdout/stderr from the kubelet on the node where the pod runs.
 - Cluster-level logging requires a separate system (DaemonSet agent, sidecar, or direct backend integration) to persist logs beyond pod lifetime.
@@ -56,6 +61,10 @@ Scenario: Debugging an app that crashed
 # Core Building Blocks
 
 ### kubectl logs -- Retrieve Container Logs
+
+- **Why it exists** — Developers need a quick way to inspect what a container wrote to stdout/stderr without shelling into the node or setting up a full logging pipeline.
+- **What it is** — A kubectl subcommand that retrieves container logs from the kubelet on the node where the pod runs; supports filtering by container, following live output, tailing lines, time ranges, and fetching logs from a previously crashed container instance.
+- **One-liner** — `kubectl logs` is the first-stop debugging tool for reading container stdout/stderr directly from the kubelet.
 
 - Reads from kubelet on the node; default reads from first container in pod.
 - Use `-c <container>` for multi-container pods; `--previous` for crashed instances.
@@ -181,7 +190,7 @@ Related notes: [006-kubectl-debugging](../006-kubectl-debugging.md), [002-pods-l
 
 ---
 
-# Troubleshooting Guide
+# Troubleshooting
 
 ### Pod logs unavailable or showing "no logs yet"
 1. Pod may not be running: `kubectl get pod <name>` — verify status.

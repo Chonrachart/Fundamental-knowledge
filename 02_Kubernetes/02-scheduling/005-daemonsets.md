@@ -6,7 +6,7 @@
 - **What it is** — A DaemonSet is a workload controller that ensures exactly one pod (matching the pod template) runs on every node (or every node matching a node selector/affinity). When a node joins the cluster, the DaemonSet controller creates a pod on it. When a node leaves, its DaemonSet pod is garbage-collected.
 - **One-liner** — A DaemonSet runs exactly one pod per matching node — pod count tracks node count, not a replica field.
 
-### Architecture (ASCII diagram)
+# Architecture
 
 ```text
 DaemonSet "node-exporter"
@@ -77,7 +77,7 @@ spec:
 
 ### Bypassing normal scheduling
 
-**Why it matters** — Normal pods go through the scheduler's filter/score/bind pipeline. DaemonSet pods have historically bypassed some of this.
+- **Why it exists** — Normal pods go through the scheduler's filter/score/bind pipeline. DaemonSet pods have historically bypassed some of this.
 - **What it is** — In modern Kubernetes (1.12+), DaemonSet pods do go through the scheduler, but the DaemonSet controller pre-sets `spec.nodeName` on the pod before submitting it — so the scheduler sees an already-assigned pod and just admits or rejects it based on resource fit. This means DaemonSet pods respect taints/tolerations and resource limits, but the scheduling target is determined by the controller, not by the scheduler's scoring.
 - **One-liner** — The DaemonSet controller sets `nodeName` directly, so the scheduler validates but does not choose the node.
 
