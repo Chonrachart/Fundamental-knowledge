@@ -5,7 +5,7 @@
 - **What it is** — HPA (Horizontal Pod Autoscaler) scales replica count up/down based on CPU, memory, or custom metrics; VPA (Vertical Pod Autoscaler) adjusts the requests/limits of existing pods instead of changing replica count.
 - **One-liner** — HPA scales out (more pods); VPA scales up (bigger pods) — both remove the need for manual intervention.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
                     ┌───────────────┐
@@ -62,6 +62,10 @@ Key points:
 
 ### kubectl autoscale (Imperative)
 
+- **Why it exists** — Provides a fast one-liner to create an HPA without writing YAML, useful for quick testing or initial setup.
+- **What it is** — The imperative `kubectl autoscale` command that creates an HPA resource targeting a Deployment with CPU utilisation, min, and max replica bounds.
+- **One-liner** — Create an HPA in one command without a manifest.
+
 ```bash
 kubectl autoscale deployment myapp --cpu-percent=70 --min=2 --max=10
 kubectl get hpa
@@ -69,6 +73,10 @@ kubectl describe hpa myapp
 ```
 
 ### HPA YAML Spec
+
+- **Why it exists** — The declarative YAML form of HPA supports advanced configuration (multiple metrics, scale-up/down behaviour policies) that the imperative command cannot express.
+- **What it is** — A `HorizontalPodAutoscaler` manifest using `autoscaling/v2` that declares target metrics, replica bounds, and optional stabilisation and rate-limiting behaviour.
+- **One-liner** — Declarative HPA with full control over metrics, replica bounds, and scale behaviour policies.
 
 ```yaml
 apiVersion: autoscaling/v2
@@ -107,6 +115,10 @@ spec:
 ```
 
 ### CPU / Memory / Custom Metrics
+
+- **Why it exists** — CPU and memory alone are insufficient for workloads that scale on queue depth, request rate, or external signals; the metrics taxonomy explains which adapter to use for each scenario.
+- **What it is** — The four HPA metric source types (`Resource`, `Pods`, `Object`, `External`) and the adapter or component that must supply each one.
+- **One-liner** — Pick the right metric type and adapter based on whether you scale on CPU, per-pod rate, a K8s object, or an external signal.
 
 | Metric type | Source | Example use case |
 |---|---|---|

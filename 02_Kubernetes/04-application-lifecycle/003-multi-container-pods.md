@@ -5,7 +5,7 @@
 - **What it is** — A pod that declares more than one container; all containers share the pod's network namespace (same IP, same localhost), and can share volumes explicitly defined in the pod spec.
 - **One-liner** — Co-locate tightly coupled helper processes with the main app so they share network and storage.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 ┌─────────────────────── Pod ──────────────────────────┐
@@ -130,6 +130,10 @@ Example: legacy app exposes metrics as CSV on port 9090; adapter sidecar reads t
 
 ### Pattern Comparison
 
+- **Why it exists** — With four distinct patterns available, a quick reference table clarifies when to reach for each one and prevents misapplication.
+- **What it is** — A side-by-side comparison of the Sidecar, Init container, Ambassador, and Adapter patterns across key dimensions.
+- **One-liner** — Choose the right multi-container pattern by comparing lifecycle, data-flow direction, and primary purpose.
+
 | Pattern | Runs when | Direction | Primary purpose |
 |---|---|---|---|
 | Sidecar | Alongside main (entire pod life) | Both | Enhance/extend main app (logging, proxy) |
@@ -138,6 +142,10 @@ Example: legacy app exposes metrics as CSV on port 9090; adapter sidecar reads t
 | Adapter | Alongside main | Inbound normalization | Standardize main app output |
 
 ### Two Containers Sharing a Volume (Full Example)
+
+- **Why it exists** — A concrete end-to-end example demonstrates exactly how to wire up a shared `emptyDir` volume between two containers, which is the most common multi-container coordination mechanism.
+- **What it is** — A complete Pod manifest with two containers (`writer` and `reader`) both mounting the same `emptyDir` volume, showing the minimal YAML needed to share data within a pod.
+- **One-liner** — Full working example of two containers reading and writing a shared in-pod volume.
 
 ```yaml
 apiVersion: v1

@@ -5,7 +5,7 @@
 - **What it is** — A Deployment update strategy that incrementally swaps old pods for new ones, controlled by `maxSurge` and `maxUnavailable`, backed by preserved old ReplicaSets for rollback.
 - **One-liner** — Zero-downtime deploys with instant rollback via Deployment-managed ReplicaSet revisions.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Deployment (desired state: image, replicas, strategy)
@@ -56,6 +56,10 @@ Rollback reuses the old ReplicaSet by scaling it back up. It creates a **new rev
 
 ### RollingUpdate vs Recreate Strategy
 
+- **Why it exists** — Different applications have different tolerance for running two versions simultaneously; Kubernetes exposes both strategies so you can choose the right availability tradeoff.
+- **What it is** — The `strategy.type` field on a Deployment that controls whether pods are replaced gradually (`RollingUpdate`) or all at once (`Recreate`).
+- **One-liner** — Choose `RollingUpdate` for zero-downtime deploys, `Recreate` when only one version can run at a time.
+
 | Strategy | Behavior | Downtime? | Use case |
 |---|---|---|---|
 | `RollingUpdate` (default) | Gradually replace pods; old and new run in parallel | No | Production apps requiring availability |
@@ -63,8 +67,8 @@ Rollback reuses the old ReplicaSet by scaling it back up. It creates a **new rev
 
 ### maxSurge and maxUnavailable
 
-**Why they exist** — They let you tune the speed/safety tradeoff: more surge = faster rollout but higher resource cost; less unavailable = safer but slower.
-**What they are** — `maxSurge` is the maximum number of extra pods above desired count; `maxUnavailable` is the maximum number of pods that can be unavailable during the update. Both accept absolute numbers or percentages.
+- **Why it exists** — They let you tune the speed/safety tradeoff: more surge = faster rollout but higher resource cost; less unavailable = safer but slower.
+- **What it is** — `maxSurge` is the maximum number of extra pods above desired count; `maxUnavailable` is the maximum number of pods that can be unavailable during the update. Both accept absolute numbers or percentages.
 - **One-liner** — `maxSurge` controls how many new pods to add; `maxUnavailable` controls how many old pods to remove before replacements are ready.
 
 ```yaml
@@ -126,6 +130,10 @@ kubectl rollout resume deployment/myapp   # single rollout applies all changes
 ```
 
 ### How Rollback Works
+
+- **Why it exists** — Gives operators a fast, low-risk escape hatch when a new release is broken, without needing to re-apply old manifests manually.
+- **What it is** — The mechanism by which Kubernetes scales the previous ReplicaSet back up (using the same rolling strategy) and scales the current one down to zero, recording the result as a new revision.
+- **One-liner** — Rollback reuses the old ReplicaSet as a new revision rather than reverting history.
 
 1. `kubectl rollout undo` finds the target revision's ReplicaSet
 2. Deployment scales that ReplicaSet back up (using the same rolling strategy)

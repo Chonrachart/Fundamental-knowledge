@@ -5,7 +5,7 @@
 - **What it is** — Per-container declarations that tell the scheduler how much CPU/memory to reserve (requests) and cap how much the runtime allows the container to consume (limits).
 - **One-liner** — Requests reserve capacity for scheduling; limits cap usage at runtime.
 
-### Architecture (ASCII)
+# Architecture
 
 ```text
 Node Allocatable Resources
@@ -67,6 +67,10 @@ resources:
 - Limits must be >= requests when both are set
 
 ### CPU Throttle vs Memory OOMKill
+
+- **Why it exists** — CPU and memory enforce limits through fundamentally different kernel mechanisms with very different operational impact; understanding the difference prevents misdiagnosis of latency and crash issues.
+- **What it is** — A comparison of how the Linux CFS scheduler throttles CPU-over-limit containers (slows them, no kill) versus how the kernel OOM-killer terminates memory-over-limit containers (hard kill, kubelet restarts).
+- **One-liner** — CPU over-limit = throttled (slowed); memory over-limit = OOMKilled (container restarted).
 
 | Resource | Over-request behavior | Over-limit behavior | Recovery |
 |---|---|---|---|
@@ -145,6 +149,10 @@ spec:
 ```
 
 ### Observability Commands
+
+- **Why it exists** — Without visibility into actual usage versus configured requests/limits, diagnosing throttling, OOMKills, and quota exhaustion requires guesswork.
+- **What it is** — A set of `kubectl` commands that surface live resource consumption, quota utilisation, and configured limits across pods, nodes, and namespaces.
+- **One-liner** — Commands to inspect live CPU/memory usage and compare against configured requests, limits, and quotas.
 
 ```bash
 kubectl top pods                          # CPU/memory usage (requires metrics-server)
