@@ -1,40 +1,35 @@
 # Heading1
-## Heading2
+
+# Overview
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
+
+# Architecture
+
+# Core Building Blocks
+
 ### Heading3
-- use # ## ### to create heading
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
-# Code Block
-- it will syntax highlight
-    ```bash
-    git status
-    git add . 
-    use ```language
-        code
-        ```
-    ```
-# Inline Code
-    use `code`
-
-# Bold
-  press ctrl+b  or ** two**
-# List
-    - use <-> to create bullet point
-# Links
-      [Name_to_show](https://git-scm.com/docs)
-[Name_to_show](https://git-scm.com/docs)
-
-# Table
 ### | Command    |         Purpose | aaaaa  |
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
+
 ### | :--------- | --------------: | :----: |
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
+
 ### | git add    |      stage file |   b    |
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
+
 ### | git commit | create snapshot | fsdfsd |
-press alt+shift+f to auto adjust
-
-
-| Command    |         Purpose | aaaaa  |
-| :--------- | --------------: | :----: |
-| git add    |      stage file |   b    |
-| git commit | create snapshot | fsdfsd |
-
-# PIC
-    ![Name_of_pic](path_of_pic)
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —

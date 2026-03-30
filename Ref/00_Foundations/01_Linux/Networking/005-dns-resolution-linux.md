@@ -1,0 +1,124 @@
+# DNS Resolution on Linux
+
+- Linux resolves hostnames to IP addresses through a configurable chain of resolution sources
+- Resolution order is governed by `/etc/nsswitch.conf`; actual DNS queries use `/etc/resolv.conf` or `systemd-resolved`
+- `systemd-resolved` provides caching, per-link DNS config, and a local stub listener on `127.0.0.53`
+
+# Architecture
+
+```text
+ Application (getaddrinfo)
+        |
+        v
+ +----- nsswitch.conf -----+
+ |  hosts: files dns       |
+ +---+----------------+----+
+     |                |
+     v                v
+ /etc/hosts      DNS resolver
+ (static map)        |
+                     v
+          +--------------------+
+          | /etc/resolv.conf   |   <-- may be symlink to systemd-resolved stub
+          | nameserver x.x.x.x|
+          | search example.com |
+          +--------------------+
+                     |
+                     v
+          +--------------------+
+          | systemd-resolved   |   <-- optional, caching stub resolver
+          | 127.0.0.53:53      |
+          +--------+-----------+
+                   |
+                   v
+           Upstream DNS servers
+```
+
+# Mental Model
+
+```text
+1. App calls getaddrinfo("web.example.com")
+2. glibc reads /etc/nsswitch.conf  -->  hosts: files dns
+3. "files" source  -->  search /etc/hosts
+   - Found?  Return IP immediately
+4. "dns" source    -->  read /etc/resolv.conf for nameserver
+   - If resolv.conf points to 127.0.0.53  -->  systemd-resolved handles query
+   - Otherwise  -->  query nameserver directly
+5. DNS response returned to application (may be cached by systemd-resolved)
+```
+
+```bash
+# Example: resolve "web" with search domain appended
+# /etc/resolv.conf contains: search example.com
+# glibc expands "web" to "web.example.com" before querying DNS
+getent hosts web
+```
+
+# Core Building Blocks
+
+### nsswitch.conf — Resolution Order
+
+- `/etc/nsswitch.conf` defines which sources are queried and in what order
+- The `hosts:` line controls hostname resolution
+
+```bash
+# Typical hosts line
+hosts: files dns
+
+# With mDNS and systemd-resolved
+hosts: files mdns4_minimal [NOTFOUND=return] resolve dns
+```
+
+| Source            | Description                              |
+| :---------------- | :--------------------------------------- |
+| `files`          | `/etc/hosts` static mappings             |
+| `dns`            | Traditional DNS via `/etc/resolv.conf`   |
+| `mdns4_minimal`  | mDNS for `.local` domains               |
+| `resolve`        | systemd-resolved (via D-Bus)             |
+- `nsswitch.conf` `hosts:` line controls resolution order -- typically `files dns`
+- `/etc/hosts` is checked first when `files` precedes `dns`
+- `getent hosts` follows the full nsswitch chain; `dig`/`nslookup` query DNS directly
+
+Related notes: [005-dns-resolution-linux](./005-dns-resolution-linux.md), [004-DNS](../../Networking/004-DNS.md)
+
+### /etc/hosts — Static Mappings
+
+- Checked before DNS when `files` precedes `dns` in nsswitch.conf
+- Simple `IP hostname` format, one entry per line
+
+```text
+127.0.0.1   localhost
+192.168.1.10   myserver.local
+```
+
+Related notes: [004-DNS](../../Networking/004-DNS.md)
+
+### /etc/resolv.conf — DNS Client Config
+
+- Configures nameservers and search domains for traditional DNS resolution
+- When `systemd-resolved` is active, this file is often a symlink to its stub (`/run/systemd/resolve/stub-resolv.conf`)
+- Do not edit directly if managed by systemd-resolved; use `resolvectl` instead
+
+```text
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+search example.com
+```
+
+- `nameserver` -- IP of upstream DNS resolver (max 3)
+- `search` -- domain appended to short/unqualified names (e.g., `web` becomes `web.example.com`)
+- `/etc/resolv.conf` supports up to 3 `nameserver` entries
+- `search` domain auto-appends to unqualified hostnames
+
+Related notes: [004-DNS](../../Networking/004-DNS.md)
+- When systemd-resolved manages resolv.conf, edit DNS via `resolvectl` not the file
+
+### systemd-resolved — Caching Stub Resolver
+Related notes: [001-Network-interface](./001-Network-interface.md)
+- Systemd's built-in DNS resolver; caches results, supports per-link upstream servers
+- Listens on `127.0.0.53` as a local stub; manages `/etc/resolv.conf` via symlink
+- Configuration files:
+  - Main: `/etc/systemd/resolved.conf`
+  - Per-link: `/etc/systemd/network/*.network` or via `resolvectl dns <iface> <server>`
+- `systemd-resolved` listens on `127.0.0.53` and caches DNS responses
+- `resolvectl flush-caches` clears the local DNS cache

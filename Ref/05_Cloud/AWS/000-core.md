@@ -1,0 +1,98 @@
+# AWS (Amazon Web Services)
+
+- Cloud platform with 200+ services spanning compute, storage, networking, databases, security, and more.
+- For cloud regions, availability zones, and edge locations, see [../000-core](../000-core.md)
+- For the Shared Responsibility Model, see [../000-core](../000-core.md)
+
+# Architecture
+
+```text
+AWS Global Infrastructure
+├── Region (us-east-1, eu-west-1, ap-southeast-1)
+│     ├── Availability Zone (us-east-1a)
+│     │     └── Data Center(s) — isolated power, networking, cooling
+│     ├── Availability Zone (us-east-1b)
+│     └── Availability Zone (us-east-1c)
+│
+└── Edge Locations (CloudFront CDN, Route 53 DNS)
+
+Your Account
+├── VPC (virtual network per region)
+│     ├── Public Subnet (IGW → internet)
+│     │     ├── EC2 instances, NAT Gateway, ALB
+│     │     └── Security Group (stateful firewall)
+│     └── Private Subnet (NAT → outbound only)
+│           ├── EC2, RDS, Lambda
+│           └── Security Group
+├── IAM (global — users, roles, policies)
+├── S3 (global namespace — object storage)
+└── CloudWatch (monitoring and logs)
+```
+
+# Mental Model
+
+```text
+1. Choose Region (latency, compliance, cost)
+2. Create VPC with subnets across AZs (high availability)
+3. Set up IAM roles (least privilege, no long-lived keys)
+4. Deploy compute (EC2, ECS, Lambda)
+5. Store data (S3, EBS, RDS)
+6. Expose (ALB, Route 53, CloudFront)
+7. Monitor (CloudWatch metrics, logs, alarms)
+```
+
+# Core Building Blocks
+
+### Compute
+
+- **EC2**: Virtual machines; choose instance type, AMI, and storage.
+- **ECS/EKS**: Container orchestration (Docker, Kubernetes).
+- **Lambda**: Serverless functions; event-driven; no servers to manage.
+
+Related notes: [004-ec2](./004-ec2.md), [008-ecs-eks](./008-ecs-eks.md), [009-lambda-serverless](./009-lambda-serverless.md)
+
+### Networking
+
+- **VPC**: Isolated virtual network; subnets, route tables, gateways.
+- **Security Group**: Stateful firewall at instance level.
+- **NACL**: Stateless firewall at subnet level.
+- **ALB/NLB**: Load balancing across targets.
+- **Route 53**: DNS service.
+- Default VPC exists in every region; custom VPCs are recommended for production.
+
+Related notes: [003-vpc-networking](./003-vpc-networking.md) for SG/NACL details, [007-elb-auto-scaling](./007-elb-auto-scaling.md)
+
+### Storage
+
+- **S3**: Object storage; durability 11 nines; lifecycle policies.
+- **EBS**: Block storage attached to EC2; snapshots for backup.
+- S3 bucket names are globally unique; objects are region-specific.
+
+Related notes: [005-s3](./005-s3.md), [004-ec2](./004-ec2.md)
+
+### Database
+
+- **RDS**: Managed relational DB (MySQL, PostgreSQL, etc.); Multi-AZ for HA.
+- **DynamoDB**: Managed NoSQL; key-value; serverless mode available.
+
+Related notes: [006-rds-databases](./006-rds-databases.md)
+
+### Security and Identity
+
+- **IAM**: Users, groups, roles, policies; global service.
+- IAM is global; most other services are regional.
+- Always use IAM roles (temporary credentials) over IAM users (long-lived keys).
+- For the Shared Responsibility Model, see [../000-core](../000-core.md)
+
+Related notes: [002-iam](./002-iam.md)
+# Topic Map (basic → advanced)
+
+- [001-aws-overview](./001-aws-overview.md) — Regions, AZs, service categories, global infrastructure
+- [002-iam](./002-iam.md) — Users, groups, roles, policies, best practices
+- [003-vpc-networking](./003-vpc-networking.md) — VPC, subnets, routing, IGW, NAT, SG, NACL, peering
+- [004-ec2](./004-ec2.md) — Instances, AMI, EBS, user data, instance profiles, lifecycle
+- [005-s3](./005-s3.md) — Buckets, objects, storage classes, versioning, lifecycle, policies
+- [006-rds-databases](./006-rds-databases.md) — RDS, Multi-AZ, read replicas, backups, Aurora
+- [007-elb-auto-scaling](./007-elb-auto-scaling.md) — ALB, NLB, target groups, Auto Scaling Groups
+- [008-ecs-eks](./008-ecs-eks.md) — ECS, Fargate, EKS, container orchestration on AWS
+- [009-lambda-serverless](./009-lambda-serverless.md) — Lambda, API Gateway, event-driven patterns

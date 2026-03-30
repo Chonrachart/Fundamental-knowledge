@@ -1,99 +1,47 @@
 # Ansible Core Overview
 
-- Agentless automation for configuration, deployment, and orchestration.
-- Control node pushes work over SSH (Linux) or WinRM (Windows) — no agent on managed nodes.
-- Playbooks describe desired state; modules enforce it idempotently.
-- For detailed concepts, architecture, and first playbook: see [001-ansible-overview](./001-ansible-overview.md).
+# Overview
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
 # Architecture
-
-```text
-Control Node
-  ansible.cfg + inventory + playbooks + roles
-                    |
-            SSH / WinRM (no agent)
-                    |
-   ┌────────────────┼────────────────┐
-Managed Node A  Managed Node B  Managed Node C
- (web-01)        (db-01)         (app-01)
-```
-
-- Inventory tells Ansible *which* hosts exist; playbooks tell it *what* to do on them.
-- Modules are copied to managed nodes, executed, and then removed automatically.
-
 
 # Core Building Blocks
 
 ### Inventory (Who)
-
-- List of hosts + groups + connection variables (INI, YAML, or dynamic plugins).
-- `group_vars/<group>.yml` for group variables; `host_vars/<host>.yml` for host overrides.
-
-```bash
-ansible-inventory -i <inventory> --graph
-```
-
-Related notes:
-- [002-inventory-and-ansible-cfg](./002-inventory-and-ansible-cfg.md)
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
 ### Playbooks and Tasks (What)
-
-- Playbook = YAML with plays; play = `hosts` + `tasks` (or `roles`).
-- Task = call a module with named arguments.
-
-```bash
-ansible-playbook -i <inventory> site.yml
-ansible-playbook -i <inventory> site.yml --check --diff   # dry-run
-```
-
-Related notes:
-- [001-ansible-overview](./001-ansible-overview.md)
-- [003-playbooks-tasks-handlers](./003-playbooks-tasks-handlers.md)
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
 ### Modules (How)
-
-- Unit of work: `package`, `file`, `service`, `template`, `copy`, `command`.
-- Prefer built-in modules over `shell`/`command` for idempotency.
-
-```bash
-ansible <pattern> -i <inventory> -m <module> [-a "<args>"] [--become]
-```
-
-Related notes:
-- [003-playbooks-tasks-handlers](./003-playbooks-tasks-handlers.md)
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
 ### Variables and Templates (Values)
-
-- Precedence (low to high): role defaults, group_vars, host_vars, extra-vars (`-e`).
-- Jinja2 templates (`.j2`) combine static config with dynamic values.
-- Ansible Vault encrypts secrets at rest.
-
-Related notes:
-- [004-variables-facts-templating](./004-variables-facts-templating.md)
-- [008-vault-secrets](./008-vault-secrets.md)
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
 ### Roles and Collections (Reuse)
-
-- Role = self-contained unit: `tasks/`, `handlers/`, `defaults/`, `templates/`, `files/`.
-- Collection = bundle of roles + modules + plugins via Ansible Galaxy.
-
-Related notes:
-- [006-roles-collections-galaxy](./006-roles-collections-galaxy.md)
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
 ### Control Flow (Logic)
+- **Why it exists** —
+- **What it is** —
+- **One-liner** —
 
-- `loop` iterates a task; `when` adds conditions; `block`/`rescue`/`always` handles errors.
-
-Related notes:
-- [005-loops-conditions-blocks](./005-loops-conditions-blocks.md)
-
-
-- Idempotent = running the same playbook twice produces the same result without extra changes.
-- Handlers run **once** at end of play, not once per `notify`.
-- `--check` never changes anything; useful for pre-flight validation.
-- Exit code `0` = all tasks ok/skipped; non-zero = at least one failure.
-- Vault password required at runtime: `--vault-password-file` or `--ask-vault-pass`.
 # Topic Map
+
+
 
 - [001-ansible-overview](./001-ansible-overview.md) — concepts, terms, first playbook
 - [002-inventory-and-ansible-cfg](./002-inventory-and-ansible-cfg.md) — inventory, groups, `ansible.cfg`

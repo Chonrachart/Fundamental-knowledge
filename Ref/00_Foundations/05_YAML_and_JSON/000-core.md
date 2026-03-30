@@ -1,0 +1,92 @@
+# YAML and JSON
+
+- YAML and JSON are human-readable data serialization formats used to represent structured data as text.
+- DevOps tools (Ansible, Kubernetes, Docker Compose, Terraform, CI/CD pipelines) rely on these formats for configuration, manifests, and API communication.
+- YAML is a superset of JSON -- every valid JSON document is also valid YAML.
+
+# Architecture
+
+```text
++------------------------------------------------------------------+
+|                     Human / Developer                            |
+|             writes config file (YAML or JSON)                    |
++------------------------------------------------------------------+
+                          |
+                          v
++------------------------------------------------------------------+
+|                       Parser                                     |
+|    yamllint / yq / jq / language library (PyYAML, json)          |
+|    validates syntax, resolves anchors/aliases                    |
++------------------------------------------------------------------+
+                          |
+                          v
++------------------------------------------------------------------+
+|                Internal Data Structure                           |
+|         dict / list / scalar  (language-native objects)           |
++------------------------------------------------------------------+
+                          |
+                          v
++------------------------------------------------------------------+
+|                     Execution Engine                             |
+|   Ansible  |  kubectl  |  docker compose  |  terraform           |
+|   reads structured data --> takes action on infrastructure       |
++------------------------------------------------------------------+
+```
+
+# Mental Model
+
+```text
+DevOps config lifecycle:
+
+  [1] Author    -->  write YAML/JSON in editor (with schema validation)
+  [2] Lint      -->  yamllint / jsonlint catches syntax errors early
+  [3] Commit    -->  version control (git diff works well with YAML)
+  [4] Parse     -->  tool reads file into internal data structures
+  [5] Execute   -->  tool applies desired state to infrastructure
+  [6] Output    -->  API responses and tool output often come back as JSON
+```
+
+```bash
+# round-trip example: write YAML, validate, convert to JSON
+cat <<'YAML' > deploy.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 3
+YAML
+
+yamllint deploy.yml                  # lint the YAML
+yq -o=json deploy.yml               # convert YAML to JSON
+```
+
+# Core Building Blocks
+
+### YAML Syntax
+
+- YAML uses indentation (spaces only) to represent structure, with scalars, sequences (lists), and mappings (dicts).
+- Supports comments, multi-line strings, anchors/aliases, and multiple documents in one file.
+- Common pitfalls: boolean coercion (`yes`/`no`), tab characters, unquoted colons.
+
+Related notes: [001-yaml-syntax](./001-yaml-syntax.md)
+
+### JSON Syntax
+
+- JSON uses braces `{}` for objects, brackets `[]` for arrays, and strict quoting rules.
+- No comments, no trailing commas -- stricter than YAML but unambiguous.
+- Primary format for REST APIs, logging, and machine-to-machine communication.
+
+Related notes: [002-json-syntax](./002-json-syntax.md)
+
+### Tools and Validation
+Related notes: [003-tools-and-validation](./003-tools-and-validation.md)
+- `yamllint` lints YAML files; `jq` queries and transforms JSON; `yq` does the same for YAML.
+- `python3 -m json.tool` pretty-prints JSON; `yaml.safe_load()` parses YAML safely in Python.
+- IDE extensions provide real-time schema validation for Kubernetes, Ansible, Docker Compose files.
+- `yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' base.yml override.yml` -- merge two YAML files with override.
+# Topic Map
+
+- [001-yaml-syntax](./001-yaml-syntax.md) -- YAML scalars, collections, multi-line, anchors, gotchas
+- [002-json-syntax](./002-json-syntax.md) -- JSON objects, arrays, comparison with YAML, jq basics
+- [003-tools-and-validation](./003-tools-and-validation.md) -- yamllint, yq, jq, python, IDE support, conversion
