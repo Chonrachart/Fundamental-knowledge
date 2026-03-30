@@ -2,9 +2,35 @@
 
 # Overview
 - **What it is** — Log is record of what system or program did. Use log to debug, audit, and monitor system. Logs are usually text file or systemd journal.
+- Modern Linux uses two parallel systems: classic text files in `/var/log/` and the systemd binary journal (read via `journalctl`).
+- Log rotation (`logrotate`) prevents logs from filling the disk.
 
 # Architecture
 
+```text
+Something broke — where is the log?
+        |
+        v
+Is it a systemd service? (systemctl status <service> shows recent lines)
+  → yes: journalctl -u <service> -n 100
+        |
+        v
+Is there a /var/log/<service>/ directory?
+  → yes: tail -f /var/log/<service>/error.log
+        |
+        v
+Kernel / hardware issue?
+  → dmesg -T | tail -50
+  → journalctl -k -b
+        |
+        v
+Auth / SSH / sudo events?
+  → /var/log/auth.log (Ubuntu) or /var/log/secure (RHEL)
+        |
+        v
+General system events?
+  → /var/log/syslog (Ubuntu) or /var/log/messages (RHEL)
+```
 # Core Building Blocks
 
 ### Log File Locations
@@ -63,10 +89,21 @@ journalctl -u <service> -p err
 
 ### Time and Timezone
 
+```bash
+timedatectl                         # show current time, timezone, NTP status
+timedatectl set-timezone Asia/Bangkok
+timedatectl set-ntp true            # enable NTP sync
+```
+
+- Wrong timezone makes log timestamps misleading and breaks TLS/auth cert validation.
+- Keep NTP enabled; all servers in a cluster must be time-synced for log correlation.
+- Always check timezone with `timedatectl` when logs seem to be from the wrong time.
+
 ### Log Rotation (logrotate)
 - **What it is** — `logrotate` rotate, compress and clean old log file. Log file will grow forever if not rotated.
 
 Config file:
+
 ```bash
 cat /etc/logrotate.conf
 ls /etc/logrotate.d/
