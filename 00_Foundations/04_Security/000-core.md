@@ -1,67 +1,32 @@
 # Security Foundations
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
 # Core Building Blocks
 
 ### CIA Triad
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Authentication
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Authorization
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Non-repudiation
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Encryption
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Hashing
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Digital Signature
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Certificates
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Multi-Factor Authentication (MFA)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Incident Response
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
-
-
 
 - [001-cryptography](./001-cryptography.md) — Encryption, decryption, keys, block cipher modes
 - [002-hashing](./002-hashing.md) — Hash functions, salt, collision, bcrypt, Argon2

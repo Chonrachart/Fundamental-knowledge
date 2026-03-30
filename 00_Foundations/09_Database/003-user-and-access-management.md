@@ -10,14 +10,8 @@
 # Core Building Blocks
 
 ### Creating Users
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Granting and Revoking Permissions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Authentication Methods
 - **Why it exists** —

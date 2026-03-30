@@ -1,9 +1,6 @@
 # Git Setup
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 

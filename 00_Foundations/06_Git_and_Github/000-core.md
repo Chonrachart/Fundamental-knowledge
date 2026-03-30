@@ -1,32 +1,18 @@
 # Git and GitHub
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
 # Core Building Blocks
 
 ### Git (the tool)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### GitHub (the platform)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Three Git Areas
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
-
-
 
 - [001-git-setup](./001-git-setup.md) -- init, config, three areas, .gitignore
 - [002-git-interaction](./002-git-interaction.md) -- amend, diff, reset, revert, restore

@@ -20,39 +20,18 @@
 - **One-liner** —
 
 ### REPL
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Indentation and Syntax
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Variables and Types
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Control Flow
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Functions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Data Structures
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### I/O and Files
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Errors and Exceptions
 - **Why it exists** —
@@ -75,8 +54,6 @@
 - **One-liner** —
 
 # Topic Map
-
-
 
 - [001-variables-and-types](./001-variables-and-types.md) -- Variables, types, dynamic typing
 - [002-control-flow](./002-control-flow.md) -- if, for, while, match

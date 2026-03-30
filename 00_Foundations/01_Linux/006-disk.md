@@ -1,17 +1,12 @@
 # Disk, Storage, and LVM
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
 # Core Building Blocks
 
 ### Partitioning
-- **Why it exists** —
-- **What it is** —
 
 ### Swap
 - **What it is** — Swap is virtual memory on disk. Used when RAM is full. Slower than RAM.

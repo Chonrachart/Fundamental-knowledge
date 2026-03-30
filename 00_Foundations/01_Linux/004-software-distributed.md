@@ -1,9 +1,6 @@
 # Software and Package Management
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 - Common package formats:
   - `.deb` → Debian / Ubuntu based systems

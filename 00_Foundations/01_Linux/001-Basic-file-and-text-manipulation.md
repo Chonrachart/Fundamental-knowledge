@@ -1,9 +1,6 @@
 # Basic File and Text Manipulation
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
@@ -54,7 +51,6 @@ pwd
 - Default is to home directory
 
 ### Creating and Removing
-- **What it is** — `mkdir` creates a new inode and updates parent directory mapping. `touch` creates a new empty file if it does not exist.
 
 ```bash
 mkdir <directory_name>
@@ -71,7 +67,6 @@ rm <file>
 - `rm -f` force the operation.
 
 ### Copying and Moving
-- **What it is** — `cp` duplicates file content. Creates a new inode for the destination file. `mv` renames or moves (may just update directory entry).
 
 ```bash
 cp <source> <dest>

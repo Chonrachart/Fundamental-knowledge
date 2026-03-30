@@ -1,47 +1,24 @@
 # Linux Core Overview
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
 # Core Building Blocks
 
 ### Filesystem and Storage
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Process Model
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Users, Groups, and Permissions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Networking Fundamentals
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Software and Package Management
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Observability and Logs
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
-
-
 
 - [001-Basic-file-and-text-manipulation](./001-Basic-file-and-text-manipulation.md) -- ls, cp, mv, rm, cat, grep, find, file operations
 - [002-Advance-text-manipulation](./002-Advance-text-manipulation%20copy.md) -- sed, awk, cut, sort, uniq, tr, text processing pipelines

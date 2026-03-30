@@ -1,9 +1,6 @@
 # Advanced Text Manipulation
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 

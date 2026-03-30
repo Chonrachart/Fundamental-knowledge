@@ -15,19 +15,10 @@
 - **One-liner** —
 
 ### Status Codes
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Headers
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### URL Structure
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Idempotency
 - **Why it exists** —

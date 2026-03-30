@@ -15,9 +15,6 @@
 - **One-liner** —
 
 ### SQL Essentials
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### User and Access Management
 - **Why it exists** —
@@ -45,8 +42,6 @@
 - **One-liner** —
 
 # Topic Map
-
-
 
 - [001-database-concepts](./001-database-concepts.md) -- relational model, NoSQL, ACID, indexes, schemas
 - [002-sql-essentials](./002-sql-essentials.md) -- CRUD, joins, filtering, aggregation

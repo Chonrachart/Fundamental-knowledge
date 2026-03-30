@@ -71,8 +71,6 @@ Ctrl + C
 - Ctrl + C Send SIGINT(interrupt) to foreground process, which typically terminates it.
 
 ### Exit Codes
-- **Why it exists** —
-- **What it is** —
 
 ### Resource Monitoring
 
@@ -126,9 +124,5 @@ lscpu
   - `Logical CPUs = sockets × cores per socket × threads per core`
 
 ### Resource Limits and OOM
-- **Why it exists** —
-- **What it is** —
 
 ### cgroups
-- **Why it exists** —
-- **What it is** —

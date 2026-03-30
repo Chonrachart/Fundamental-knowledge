@@ -1,52 +1,26 @@
 # Linux Networking Overview
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
 # Core Building Blocks
 
 ### Socket API
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Transport Layer (TCP/UDP)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### IP Layer and Routing
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Netfilter (Firewall)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Network Interfaces
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### DNS Resolution
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Network Namespaces
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
-
-
 
 - [001-Network-interface](./001-Network-interface.md) — Physical vs virtual interfaces
 - [002-ip-command](./002-ip-command.md) — `ip` configuration tool

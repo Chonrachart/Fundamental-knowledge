@@ -1,9 +1,6 @@
 # Git Pull Request
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
@@ -25,21 +22,11 @@
 6. Open a Pull Request from your fork to the original repository.
 
 ### Code Review Process
-- **Why it exists** —
-- **What it is** —
 
 ### Draft PRs
-- **Why it exists** —
-- **What it is** —
 
 ### Merge Strategies on GitHub
-- **Why it exists** —
-- **What it is** —
 
 ### Keeping Fork in Sync
-- **Why it exists** —
-- **What it is** —
 
 ### PR Best Practices
-- **Why it exists** —
-- **What it is** —

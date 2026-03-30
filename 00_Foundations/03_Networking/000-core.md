@@ -1,87 +1,40 @@
 # Networking
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
 # Core Building Blocks
 
 ### Layered Models
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Link Layer and Ethernet
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Addressing and Routing
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### DHCP
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Transport Protocols
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### DNS
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Firewalls
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### HTTP and HTTPS
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### TLS and Certificates
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Proxy and Load Balancing
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### VPN Technologies
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Multicast and Broadcast
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Dynamic Routing
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Overlay Networks and VXLAN
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
-
-
 
 - [001-network-models](./001-network-models.md) — OSI, TCP/IP, encapsulation
 - [002-link-layer-and-ethernet](./002-link-layer-and-ethernet.md) — Ethernet, MAC, ARP, VLAN, MTU

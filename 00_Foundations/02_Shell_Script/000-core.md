@@ -1,77 +1,36 @@
 # Shell Scripting (Bash)
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
 # Core Building Blocks
 
 ### Shebang and Execution
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Bash vs sh
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Quoting
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Command Substitution
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Variables and Expansion
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Control Flow
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Functions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### I/O and Redirection
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Error Handling and Exit Codes
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Strings and Arrays
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Process Substitution and Subshells
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Practical Patterns
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
-
-
 
 - [001-variables-and-expansion](./001-variables-and-expansion.md) -- Variables, expansion, parameter expansion
 - [002-control-flow](./002-control-flow.md) -- if, case, for, while

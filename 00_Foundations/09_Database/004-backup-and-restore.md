@@ -15,14 +15,8 @@
 - **One-liner** —
 
 ### MySQL Backup (mysqldump)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### PostgreSQL Backup (pg_dump / pg_dumpall)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Physical Backups
 - **Why it exists** —

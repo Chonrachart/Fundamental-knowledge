@@ -59,8 +59,6 @@ systemctl suspend
     - [install-openvswitch-create-service.sh](../Shell-script/Install/openvswitch/install-openvswitch-create-service.sh)
 
 ### Unit Dependencies
-- **Why it exists** —
-- **What it is** —
 
 ### AppArmor (security profiles)
 - **Why it exists** — restricts what a program (service or application) is allowed to access on the system.

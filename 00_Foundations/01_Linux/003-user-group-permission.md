@@ -1,9 +1,6 @@
 # Users, Groups, and Permissions
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Architecture
 
@@ -112,13 +109,7 @@ chmod o+r file
 - Without x on directory, you cannot cd into it.
 
 ### umask
-- **Why it exists** —
-- **What it is** —
 
 ### Special Permissions
-- **Why it exists** —
-- **What it is** —
 
 ### ACL (Access Control List)
-- **Why it exists** —
-- **What it is** —

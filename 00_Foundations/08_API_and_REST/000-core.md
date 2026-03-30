@@ -20,13 +20,8 @@
 - **One-liner** —
 
 ### curl and Practical API Usage
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
-
-
 
 - [001-rest-concepts](./001-rest-concepts.md) -- REST principles, HTTP methods, status codes, headers
 - [002-authentication](./002-authentication.md) -- API keys, bearer tokens, OAuth 2.0, cloud provider auth
