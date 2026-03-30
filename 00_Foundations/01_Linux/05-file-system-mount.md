@@ -7,30 +7,30 @@
 
 ```
 Boot step
-1️⃣ Power On
-2️⃣ BIOS / UEFI initializes hardware
+1. Power On
+2️. BIOS / UEFI initializes hardware
 → Initializes CPU, RAM, storage, selects boot device
-3️⃣ Bootloader loads (GRUB)
+3️. Bootloader loads (GRUB)
 → Loads Linux kernel and passes boot parameters
-4️⃣ Kernel loads into memory
+4️. Kernel loads into memory
 → Kernel initializes core system functions and drivers
-5️⃣ initramfs loads
+5️. initramfs loads
 → Temporary minimal filesystem prepares real root filesystem
-6️⃣ Root filesystem mounted as read-only (ro)
+6️. Root filesystem mounted as read-only (ro)
 → Root mounted safely to prevent corruption before check
-7️⃣ fsck runs (based on fstab pass value)
+7️. fsck runs (based on fstab pass value)
 → Check root filesystem integrity
-8️⃣ If root OK → remount root as read-write (rw)
+8️. If root OK → remount root as read-write (rw)
 → Switch root to writable mode after successful check
-9️⃣ Other filesystems (pass=2) checked
+9️. Other filesystems (pass=2) checked
 → Check other filesystems listed in fstab
-🔟 Other filesystems mounted
+10. Other filesystems mounted
 → Attach /home, /data, etc. to directory tree
-1️⃣1️⃣ Start init system (systemd)
+11. Start init system (systemd)
 → System manager takes control of startup process
-1️⃣2️⃣ systemd starts services
+12. systemd starts services
 → Launch networking, SSH, logging, cron, etc.
-1️⃣3️⃣ Login prompt appears
+13. Login prompt appears
 ```
 
 # Core Building Blocks
@@ -58,20 +58,28 @@ Boot step
 - Data integrity verification (checksums).
 - Common usage: Backup servers, Storage servers
 
+| Type  | Best For                | Notes                                                 |
+| ----- | ----------------------- | ----------------------------------------------------- |
+| ext4  | General-purpose Linux   | Default on most distros; stable, widely supported     |
+| xfs   | Large files, high I/O   | Default on RHEL; grows online; good for databases     |
+| zfs   | Data integrity, backups | Built-in RAID + checksums + snapshots; high RAM usage |
+| tmpfs | Temp data in RAM        | Fast; data lost on reboot; used for `/tmp`, `/run`    |
+| nfs   | Network-shared storage  | Remote filesystem over network                        |
+
+- `tmpfs` mounts live in RAM — data is lost on reboot (correct for `/tmp`).
+- Root mounts read-only at boot first to allow fsck to check for corruption.
+
+
 ### Disk Partitions
 - **What it is** — Partition divides a physical disk into logical sections. Each partition can contain its own file system. Partitioning is required before formatting and mounting.
 
 ```bash
-lsblk
-fdisk /dev/sdX
-parted /dev/sdX
+lsblk               # show disks and partitions in tree view
+lsblk -f            # include filesystem type and UUID
+fdisk -l            # list all disks and partitions (MBR)
+parted -l           # list all disks (MBR + GPT)
+blkid               # show UUID and filesystem type per device
 ```
-
-- `lsblk` Show disks and partitions.
-- `lsblk -f` Show file system type.
-- `fdisk` Create or manage partitions (MBR).
-- `fdisk -l` list all disk and their partitions.
-- `parted` Advanced partition tool (supports GPT).
 
 #### Partition Table Types
 
@@ -86,31 +94,30 @@ parted /dev/sdX
 ### Create Filesystem
 
 ```bash
-mkfs -t <type> <partition>
-mkfs.ext4 <partition>
-mkfs.xfs <partition>
+mkfs.ext4 /dev/sdb1         # format partition as ext4
+mkfs.xfs  /dev/sdb1         # format partition as xfs
+mkfs -t ext4 /dev/sdb1      # generic form
 ```
 
-- `mkfs` make file system.
-- `<type>` specify file system type (ext4, xfs, etc.).
-- `<partition>` example: `/dev/sdb1`
+- Formatting destroys existing data on the partition — confirm device name first.
 
 ### Mounting
 - **Why it exists** — Without mounting, the partition cannot be accessed.
 - **What it is** — Mount attaches a file system to a directory. The directory used is called a mount point.
 
-```bash
-mount <partition> <mount_point>
-umount <mount_point>
-```
-Example:
+### Mounting
 
 ```bash
-mount /dev/sdb1 /mnt
+mount /dev/sdb1 /mnt            # mount partition to /mnt
+mount -t xfs /dev/sdb1 /data    # specify filesystem type explicitly
+umount /mnt                     # unmount (fails if anything is using it)
+findmnt                         # show all currently mounted filesystems
+df -h                           # show mounted filesystem usage
 ```
 
-- `/dev/sdb1` → partition
-- `/mnt` → mount point or path that want to mount (must already exist)
+- Mount point directory must exist before mounting.
+- `umount` fails if the mount point is busy — find the process with `lsof +D /mnt`.
+- `df -h` shows space usage; `df -i` shows inode usage — both can hit 100%.
 
 ### Permanent Mounting (/etc/fstab)
 - **Why it exists** — To mount **automatically after reboot**.
@@ -123,8 +130,10 @@ configure in /etc/fstab
 - add this format
 
 ```bash
+# Format:
 <device> <mount_point> <filesystem_type> <options> <dump> <pass>
-Example
+
+# Examples:
 /dev/sdb1   /data   ext4   defaults   0   2
 UUID=abcd-1234   /data   ext4   defaults   0   2
 ```
@@ -146,8 +155,11 @@ UUID=abcd-1234   /data   ext4   defaults   0   2
 
 #### Test fstab (Important)
 - After editing:
+  
 ```bash
-mount -a
+mount -a        # mount all fstab entries; errors show immediately
+findmnt --verify
 ```
+
 - If no error → configuration is correct.
 - If error → fix before reboot.
