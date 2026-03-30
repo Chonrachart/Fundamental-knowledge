@@ -2,11 +2,27 @@
 
 # Overview
 
-- Common package formats:
-  - `.deb` → Debian / Ubuntu based systems
-  - `.rpm` → Red Hat / CentOS / Fedora based systems
+- Linux software is distributed as packages (`.deb` for Debian/Ubuntu, `.rpm` for RHEL/CentOS) or archives (`.tar.gz`).
+- High-level managers (`apt`, `yum`/`dnf`) resolve dependencies automatically; low-level tools (`dpkg`, `rpm`) do not.
+- The installation layer stack: download → extract → low-level install → high-level manage.
 
 # Architecture
+
+```text
+apt install nginx
+        ↓
+Read package lists (apt update fetches these from /etc/apt/sources.list)
+        ↓
+Resolve dependencies (find all required packages)
+        ↓
+Download .deb files to /var/cache/apt/archives/
+        ↓
+Call dpkg to install each .deb
+        ↓
+Run post-install scripts (create users, enable service, etc.)
+        ↓
+Package marked as installed in dpkg database (/var/lib/dpkg/status)
+```
 
 - Layer 1 → wget (download)
 - Layer 2 → tar (extract)

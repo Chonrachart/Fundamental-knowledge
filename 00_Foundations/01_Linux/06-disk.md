@@ -1,8 +1,30 @@
 # Disk, Storage, and LVM
 
 # Overview
+- Linux storage is abstracted in layers: physical disks → partitions → (optional) LVM logical volumes → filesystem.
+- LVM adds a flexible management layer between partitions and filesystems, enabling resize and snapshots without downtime.
+- RAID combines multiple disks for performance (RAID 0), redundancy (RAID 1/5/6), or both (RAID 10).
 
 # Architecture
+
+```text
+Application  (read/write files)
+        |
+        v
+Filesystem   (ext4, xfs — organises data)
+        |
+        v
+Block device (LV or raw partition — /dev/mapper/vg-lv or /dev/sdb1)
+        |
+        v
+LVM          (optional: PV → VG → LV)
+        |
+        v
+RAID / mdadm (optional: stripes/mirrors across physical disks)
+        |
+        v
+Physical disk (/dev/sda, /dev/sdb, /dev/nvme0n1)
+```
 
 # Core Building Blocks
 
@@ -12,23 +34,17 @@
 - **What it is** — Swap is virtual memory on disk. Used when RAM is full. Slower than RAM.
 
 ```bash
-free -h
-swapon --show
+free -h                     # show RAM and swap usage
+swapon --show               # show active swap devices
+
+mkswap /dev/sdX1            # prepare partition as swap
+swapon /dev/sdX1            # enable swap
+swapoff /dev/sdX1           # disable swap
 ```
 
-- `free -h` show RAM and swap usage.
-- `swapon --show` show active swap.
-
-#### Create and Disable Swap
-
-```bash
-mkswap /dev/sdX1
-swapon /dev/sdX1
-swapoff /dev/sdX1
-```
-- `mkswap` prepare partition as swap.
-- `swapon` enable swap.
-- `swapoff` disable swap.
+- Swap is virtual memory on disk — used when RAM is exhausted.
+- Add to `/etc/fstab` for permanent swap: `UUID=... none swap sw 0 0`
+- Swap on SSD is fast but wears the drive — prefer adding RAM over heavy swap usage.
 
 ### Links
 - **What it is** — Link creates another reference to a file. Two types: Hard Link and Soft Link (Symbolic Link).
@@ -61,11 +77,12 @@ ln -s <source_file> <hard_link_name>
 ### Disk Usage
 
 ```bash
-du -h [dir]
-df -h
+df -h                       # filesystem usage (space per mount point)
+df -i                       # inode usage
+du -sh <dir>                # size of directory
+du -sh * | sort -rh | head  # top directories by size
 ```
-- `du -h [dir]` check disk usage of directory.
-- `df -h` check free disk space.
+- `df -h` shows space; `df -i` shows inodes — both can independently reach 100%.
 
 ### LVM (Logical Volume Manager)
 - **Why it exists** — Resize partitions easily. Combine multiple disks into one volume. Take snapshots. Better flexibility than traditional partitions.
@@ -84,22 +101,31 @@ df -h
 
 #### How to Check LVM
 ```bash
-pvs
-vgs
-lvs
-pvdisplay
-vgdisplay
-lvdisplay
+# inspect
+pvs                         # physical volumes summary
+vgs                         # volume groups summary
+lvs                         # logical volumes summary
+pvdisplay                   # physical volumes detailed view
+vgdisplay                   # volume groups detailed view
+lvdisplay                   # logical volumes detailed view
 ```
 
-#### Create LVM
+#### Create LVM or Extend
+
 ```bash
-pvcreate [partition-prepare-for-LVM]
-vgcreate [vg-name] [partiion]
-lvcreate -L 5G -n [lv_name] [vg_name]
+pvcreate [partition-prepare-for-LVM]    # initialise partition as PV
+vgcreate [vg-name] [partiion]           # create VG from PV
+lvcreate -L 5G -n [lv_name] [vg_name]   # create 10G LV named lv_data
+
+# extend
+vgextend vg_data /dev/sdc1
+lvextend -L +5G /dev/vg_data/lv_data
+resize2fs /dev/vg_data/lv_data      # ext4
+xfs_growfs /mountpoint              # xfs (mounted)
 ```
-- `-L` size
-- `-n` name
+
+- LVM resize workflow: `pvcreate → vgextend → lvextend → resize2fs/xfs_growfs`.
+- `xfs_growfs` requires the filesystem to be mounted; `resize2fs` works unmounted.
 
 #### To resize the existing LVM disk
 
