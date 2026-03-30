@@ -1,9 +1,27 @@
 # Basic File and Text Manipulation
 
 # Overview
+- Linux treats everything as a file: regular files, directories, devices, and pipes all share the same `open/read/write` interface.
+- Every process has three default file descriptors: `stdin (0)`, `stdout (1)`, `stderr (2)` — redirection and pipes rewire these.
+- Commands are composable: pipe `|` chains stdout of one process to stdin of the next.
 
 # Architecture
+```text
+stdin  (0) ─────► Process ─────► stdout (1)
+                     │
+                     └──────────► stderr (2)
 
+Pipeline:
+  cmd1 | cmd2 | cmd3
+  stdout(cmd1) → stdin(cmd2) → stdin(cmd3)
+
+Redirection:
+  cmd > file       stdout → file (overwrite)
+  cmd >> file      stdout → file (append)
+  cmd < file       file   → stdin
+  cmd 2> err.log   stderr → file
+  cmd > /dev/null 2>&1    discard both stdout and stderr
+```
 # Core Building Blocks
 
 ### Navigating Files and Directories
@@ -111,6 +129,8 @@ cmd > /dev/null
   - `-i` case-insensitive
   - `-q` quite mode
   - `-w` whole match
+  - `-v` show line Not matching pattern
+  - `-r` recursive search entire directory
   - `.` acts as wild card that matches any single character
   - `^` an anchor character that matches the beginning of line.
   - `$` an anchor that matches the end of a line.
