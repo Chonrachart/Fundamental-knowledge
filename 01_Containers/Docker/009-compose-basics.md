@@ -213,31 +213,3 @@ docker compose up -d --build
 # Stop services without removing them
 docker compose stop
 ```
-
-# Troubleshooting
-
-### "service web depends on db which is undefined"
-
-1. Check indentation in YAML — `depends_on` must be at the service level, not nested inside another key.
-2. Verify the service name in `depends_on` matches exactly (case-sensitive) a key under `services:`.
-3. Run `docker compose config` to see the fully resolved configuration and spot YAML parse errors.
-
-### Containers start but app cannot connect to DB
-
-1. `depends_on` only waits for the container to start, not for the database to accept connections.
-2. Add a `healthcheck` on the `db` service and `condition: service_healthy` under `depends_on` in the app.
-3. As a fallback, use `wait-for-it.sh db:5432` or a retry loop in the entrypoint script.
-4. Confirm the hostname used in the connection string matches the service name exactly: `db` not `localhost`.
-
-### "network xxx not found" after down/up
-
-1. Run `docker compose down` to clean up stale networks before bringing the stack back up.
-2. Then `docker compose up -d` to recreate networks and containers.
-3. Check for orphan containers from a previous run: `docker compose down --remove-orphans`.
-
-### Volume data lost after docker compose down
-
-1. `docker compose down` removes containers and networks but NOT named volumes — named volume data is safe.
-2. `docker compose down -v` removes named volumes — avoid unless you intend to reset data.
-3. Verify you are using a named volume (`dbdata:/var/lib/...`) and not an anonymous volume; anonymous volumes may be pruned.
-4. Check the `volumes:` top-level key declares the named volume; without it Compose treats it as anonymous.

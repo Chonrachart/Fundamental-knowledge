@@ -182,32 +182,3 @@ gcloud auth configure-docker us-central1-docker.pkg.dev
 # Logout
 docker logout docker.io
 ```
-
-# Troubleshooting
-
-### `denied: requested access to the resource is denied` on push
-
-1. Confirm you are logged in: `docker login <registry>`.
-2. Verify the image tag includes your username or org: `myuser/myapp:tag`, not just `myapp:tag`.
-3. For ECR, the token expires after 12 hours — re-run `aws ecr get-login-password | docker login ...`.
-4. Verify you have write permission on the repository in the registry UI or IAM policy.
-
-### `manifest unknown` or `pull access denied`
-
-1. Check the full image name for typos: `docker pull registry/repo:tag`.
-2. Verify the tag exists on the registry: `docker buildx imagetools inspect <image>`.
-3. If the repository is private, confirm you are logged in with the correct account.
-4. For ECR, confirm the repository exists: `aws ecr describe-repositories`.
-
-### Image push is slow or fails mid-transfer
-
-1. Check available disk space: `docker system df`.
-2. Retry — layer uploads are resumable; already-uploaded layers are skipped.
-3. Check proxy settings: `docker info | grep -i proxy`; set `HTTP_PROXY`/`HTTPS_PROXY` in `/etc/docker/daemon.json` if needed.
-4. Reduce image size with multi-stage builds to minimize layer count.
-
-### Tag points to a different image than expected after pull
-
-1. Tags are mutable — another push may have moved the tag to a newer image.
-2. Use digest pinning for reproducibility: `docker pull myimage@sha256:...`.
-3. Record the digest at build time: `docker inspect --format='{{index .RepoDigests 0}}' myimage:tag`.

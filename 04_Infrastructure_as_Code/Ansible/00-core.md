@@ -93,19 +93,6 @@ Related notes:
 - `--check` never changes anything; useful for pre-flight validation.
 - Exit code `0` = all tasks ok/skipped; non-zero = at least one failure.
 - Vault password required at runtime: `--vault-password-file` or `--ask-vault-pass`.
-# Troubleshooting Guide
-
-### Task fails or behaves unexpectedly
-
-1. Re-run with `--check --diff` to see what would change.
-2. Add `-vvv` to see SSH connection, module args, and raw output.
-3. Insert a debug task to print vars/facts mid-play.
-4. Check inventory with `ansible-inventory --graph` or `--list`.
-5. Check variable precedence (extra-vars win; role defaults lose).
-6. Run the ad-hoc module directly on one host.
-7. Fix and re-run; verify idempotency (second run should be all ok).
-
-
 # Topic Map
 
 - [001-ansible-overview](./001-ansible-overview.md) — concepts, terms, first playbook

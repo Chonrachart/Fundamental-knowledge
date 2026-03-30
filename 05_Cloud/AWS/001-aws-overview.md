@@ -78,22 +78,3 @@ Related notes: [002-iam](./002-iam.md)
 - Use tags for cost allocation, automation, and access control.
 
 Related notes: [004-ec2](./004-ec2.md), [009-lambda-serverless](./009-lambda-serverless.md)
-
----
-
-# Troubleshooting Guide
-
-### AWS CLI "Unable to locate credentials"
-1. Check `aws configure` has been run: `cat ~/.aws/credentials`.
-2. Check env vars: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`.
-3. On EC2: check instance profile is attached (uses IMDS for credentials).
-
-### Service not available in region
-1. Not all services are in every region; check AWS Regional Services list.
-2. Some services are global: IAM, Route 53, CloudFront, S3 (namespace).
-3. Switch region with `--region` flag or `AWS_DEFAULT_REGION`.
-
-### Unexpected charges
-1. Check for running EC2 instances, NAT Gateways, and unattached Elastic IPs.
-2. Use AWS Cost Explorer or Billing Dashboard.
-3. Enable AWS Budgets for alerts.

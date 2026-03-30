@@ -162,20 +162,3 @@ kubectl describe resourcequota -n <ns>    # quota used vs hard limits
 kubectl describe limitrange -n <ns>       # configured defaults and bounds
 kubectl describe pod <name>               # see Requests and Limits in container spec
 ```
-
-# Troubleshooting
-
-### Pod OOMKilled
-1. Confirm: `kubectl describe pod <name>` — Last State shows `Reason: OOMKilled`
-2. Increase memory limit or fix the memory leak in the application
-3. Check QoS class — `BestEffort` pods are evicted first under node pressure, which may appear similar
-
-### Pod rejected by ResourceQuota — "exceeded quota"
-1. Check current usage: `kubectl describe resourcequota -n <namespace>`
-2. Either increase the quota (if capacity allows) or reduce requests on the pod
-3. Ensure every pod has requests and limits set when a quota is active
-
-### CPU throttling causing slow responses
-1. Check if a CPU limit is set too low: `kubectl describe pod <name>`
-2. Consider removing the CPU limit (keep the request) to eliminate throttling
-3. Monitor actual usage: `kubectl top pod <name>` (requires metrics-server)

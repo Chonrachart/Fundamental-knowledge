@@ -209,36 +209,3 @@ docker build -t myapp .
 | `--mount=type=secret`      | No              | Yes          |
 | Default since Docker 23    | No              | Yes          |
 | Dockerfile syntax version  | Implicit        | `# syntax=`  |
-
-# Troubleshooting
-
-### Cache not being reused — every build runs all instructions
-
-1. Check if `--no-cache` is set in your CI build command — remove it for incremental builds.
-2. Confirm instruction order: any instruction that changes (especially `COPY . .`) busts all layers below it — move stable instructions (dependency install) above volatile ones (source copy).
-3. For `COPY`/`ADD`, verify that `.dockerignore` is not excluding files the instruction depends on, causing spurious content changes.
-
-### Image is unexpectedly large
-
-1. Run `docker image history <image>` — identify which layers contribute the most size.
-2. Check for files downloaded and not deleted in the same `RUN` layer: `RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*`.
-3. Confirm multi-stage builds are used — the final `FROM` should be a minimal base (`alpine`, `distroless`, `-slim`).
-4. Run `docker run --rm -it <image> du -sh /*` to find large directories inside the image.
-
-### Secret visible in image layer
-
-1. Run `docker image history --no-trunc <image>` — look for the secret value in `RUN` commands.
-2. If found: the secret was passed as a build arg (`ARG`) or plain `ENV` — these are baked into the layer. Rebuild using `--mount=type=secret` with BuildKit.
-3. Rotate the leaked secret immediately; the old image tags must be deleted from the registry.
-
-### Build context is too large — build is slow even before first instruction executes
-
-1. The size is printed on the first line of `docker build` output — if it is large, add a `.dockerignore`.
-2. Common culprits: `node_modules`, `.git`, `__pycache__`, test fixtures, build artifacts.
-3. Add them to `.dockerignore` and re-run; the context size should drop immediately.
-
-### Multi-stage build: `COPY --from` fails with "not found"
-
-1. Verify the source stage name matches exactly: `FROM node:18 AS builder` and `COPY --from=builder`.
-2. Confirm the file exists in the source stage at that path: `docker build --target builder -t debug . && docker run --rm debug ls /app/dist`.
-3. Check that the source stage did not fail silently — add `RUN ls /app/dist` at the end of the builder stage to assert the artifact was created.

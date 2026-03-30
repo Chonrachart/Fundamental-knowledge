@@ -225,30 +225,3 @@ docker run --tmpfs /tmp:size=64m myapp
 # Using --mount syntax
 docker run --mount type=tmpfs,destination=/tmp,tmpfs-size=67108864 myapp
 ```
-
-# Troubleshooting
-
-### Container cannot reach another container by name
-
-1. Confirm both containers are on the same user-defined network: `docker inspect <container> --format '{{.NetworkSettings.Networks}}'`.
-2. If on the default bridge, DNS by name is not available — create a user-defined network and reconnect: `docker network create app && docker network connect app <container>`.
-3. Verify embedded DNS is responding: `docker exec <container> cat /etc/resolv.conf` — should show `nameserver 127.0.0.11`.
-
-### Port mapping not reachable from outside the host
-
-1. Confirm the container is running: `docker ps`.
-2. Verify the port rule exists: `docker port <container>`.
-3. Check host firewall: `iptables -t nat -L DOCKER` or `ufw status`.
-4. If mapped to `127.0.0.1:port`, it is loopback-only — change to `0.0.0.0:port` for external access.
-
-### Volume data missing after container remove
-
-1. Check what mounts were used: `docker inspect <container> --format '{{.Mounts}}'`.
-2. Anonymous volumes (no explicit name) are removed with `docker rm -v` — always use named volumes for important data.
-3. List existing volumes: `docker volume ls` — if the volume is absent, data was never in a named volume.
-
-### Permission denied writing to a mounted volume
-
-1. Check if the mount was created read-only (`:ro` suffix): `docker inspect <container> --format '{{.Mounts}}'`.
-2. Check file ownership inside the container: `docker exec <container> ls -la /data` — if root-owned but the process runs as another user, add `chown` in the Dockerfile or pass `--user`.
-3. For bind mounts, check the host directory permissions: `ls -la /host/path`.

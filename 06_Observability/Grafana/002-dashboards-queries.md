@@ -141,15 +141,3 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - Annotations overlay events (deploys, incidents) on time series for correlation.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md), [../Zabbix/001-zabbix-overview](../Zabbix/001-zabbix-overview.md)
-
----
-
-# Troubleshooting Guide
-
-### Panel shows unexpected or missing data
-
-1. Check the query in Explore: copy query, run in Explore with same time range. No data means metric does not exist or labels are wrong; data looks correct means problem is in panel config, skip to step 3.
-2. Verify metric and labels: in Explore, type metric name, check autocomplete for available labels. Metric missing means target not scraped, check Prometheus targets page. Label mismatch means fix label selector in query.
-3. Check transforms: disable transforms one by one to isolate the issue. Transform removes data means fix filter condition or field name.
-4. Check variables: switch variable dropdown to a known-good value. Works with specific value means variable regex or query is wrong.
-5. Check visualization settings: field mappings, unit, decimals, thresholds, axis range. Values exist but display wrong means fix override or unit config.

@@ -159,19 +159,3 @@ Related notes: [004-authentication](./004-authentication.md)
 | HMAC               | SHA-256                  | Keyed hash for message authentication|
 
 Related notes: [001-cryptography](./001-cryptography.md), [003-symmetric-vs-asymmetric](./003-symmetric-vs-asymmetric.md)
-
-# Troubleshooting Guide
-
-```text
-Hash mismatch?
-  │
-  ├─ File corrupted in transit? ──▶ Re-download + re-check sha256sum
-  │
-  ├─ Wrong algorithm? ──▶ Ensure sender and verifier use same hash function
-  │
-  ├─ Encoding issue? ──▶ Check for trailing newline (echo vs echo -n)
-  │
-  ├─ Passwords not matching? ──▶ Verify salt is stored and applied correctly
-  │
-  └─ Using MD5/SHA-1? ──▶ Upgrade to SHA-256 or SHA-3 (deprecated for security)
-```

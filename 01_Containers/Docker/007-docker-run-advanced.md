@@ -260,33 +260,3 @@ docker run --rm --entrypoint python myapp script.py
 | `--mount` | | Explicit mount (bind/volume/tmpfs) |
 | `--tmpfs` | | Mount in-memory tmpfs at path |
 | `--entrypoint` | | Override image ENTRYPOINT |
-
-# Troubleshooting
-
-### Container is OOM-killed immediately or after a short time
-
-1. Confirm OOM kill: `docker inspect <ctr> | grep OOMKilled` — look for `true`.
-2. Increase the memory limit: `-m 1g` (or higher).
-3. Check application memory usage: `docker stats <ctr>` while it runs.
-4. Set `--memory-swap` equal to `--memory` to prevent swap use masking the real problem.
-
-### Container keeps restarting (restart loop)
-
-1. Check restart policy: `docker inspect <ctr> --format '{{.HostConfig.RestartPolicy.Name}}'`.
-2. Inspect crash reason: `docker logs --tail 50 <ctr>`.
-3. Run without restart policy to see the failure interactively: `docker run --rm -it IMAGE`.
-4. Switch from `always` to `on-failure:3` to cap retries while debugging.
-
-### Environment variable not present inside container
-
-1. Verify the variable was injected: `docker exec <ctr> env | grep <VAR>`.
-2. Check `-e` syntax — no spaces around `=`: `-e KEY=value` not `-e KEY = value`.
-3. For `--env-file`, confirm the file uses `KEY=value` lines with no surrounding quotes.
-4. Variables set after the image name as `KEY=value` are treated as commands, not environment — use `-e`.
-
-### Port not reachable from host
-
-1. Verify the port mapping exists: `docker port <ctr>`.
-2. Check that `-p` was specified — without it, the port is only reachable inside the Docker network.
-3. If using `-p 127.0.0.1:8080:80`, the port is only accessible from localhost, not external IPs.
-4. Check if the application inside the container is listening on `0.0.0.0`, not `127.0.0.1`.

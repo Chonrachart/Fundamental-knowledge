@@ -153,23 +153,3 @@ Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
 | Evaluation | All rules | Top-to-bottom, first match |
 
 Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
-
----
-
-# Troubleshooting Guide
-
-### Traffic blocked unexpectedly
-1. Identify where the block is: `traceroute` to see how far packets get.
-2. Check host firewall: `iptables -L -n -v` or `nft list ruleset` — look for DROP/REJECT rules.
-3. Check perimeter firewall rules and logs for denied traffic.
-4. Test with firewall temporarily disabled (in a safe environment) to confirm it's the cause.
-
-### Stateful vs stateless confusion
-1. Symptom: outbound works but responses are blocked (common with stateless firewalls/NACLs).
-2. Stateless requires explicit rules for return traffic (ephemeral ports 1024-65535).
-3. Stateful handles this automatically — check if conntrack is enabled.
-
-### Zone misconfiguration
-1. Symptom: servers in DMZ can reach internal LAN (should be denied).
-2. Check inter-zone policies: is there an unintended allow rule?
-3. Verify interface-to-zone assignments: is the interface in the correct zone?

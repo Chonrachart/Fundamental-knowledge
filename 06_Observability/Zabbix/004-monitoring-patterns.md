@@ -131,14 +131,3 @@ Related notes: [002-items-triggers](./002-items-triggers.md)
 - Cascade pattern: Host down -> Service down -> Application error; only the root cause fires.
 
 Related notes: [002-items-triggers](./002-items-triggers.md) for trigger expressions and dependencies
-
----
-
-# Troubleshooting Guide
-
-### Data collection not working for a specific pattern
-
-1. Which collection method is configured? Check item type in Configuration > Hosts > Items. Agent (passive) --> can server reach agent port 10050? `zabbix_get -s <host> -k <key>`; Agent (active) --> is agent connecting to server port 10051? Check agent log: `/var/log/zabbix/zabbix_agent2.log`, verify `ServerActive=` in agent config; SNMP --> can server reach device on UDP 161? `snmpget -v2c -c <community> <host> <oid>`; HTTP --> does the URL respond? `curl -v <url>`.
-2. Is the item in "Not supported" state? Check item info column in Latest data -- key error --> fix key name or parameters; preprocessing error --> check preprocessing steps.
-3. For dependent items: is the master item collecting? Check master item value in Latest data -- no data --> fix master item first; data present --> check preprocessing (JSONPath, regex).
-4. For LLD: are prototypes creating items? Configuration > Hosts > Discovery rules -- check discovered items -- no items --> discovery rule not returning data; test key manually.

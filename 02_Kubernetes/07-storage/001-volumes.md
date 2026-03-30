@@ -167,19 +167,3 @@ hostPath `type` options:
     persistentVolumeClaim:
       claimName: my-data-pvc
 ```
-
-# Troubleshooting
-
-### Container data lost after restart (but pod still running)
-1. Verify the container is using a volume — check `spec.volumes` and `spec.containers[].volumeMounts`.
-2. If using `emptyDir`, data survives container restarts within the same pod but NOT pod deletion.
-3. For data that must survive pod deletion, switch to a PVC.
-
-### Volume not mounting — pod stuck in ContainerCreating
-1. `kubectl describe pod <name>` — check Events for volume-related errors.
-2. For `configMap` / `secret` volumes, confirm the referenced resource exists in the same namespace.
-3. For `hostPath`, verify the path exists on the node (or use `DirectoryOrCreate`).
-
-### hostPath data only visible on one node
-1. hostPath is node-local — if the pod reschedules to a different node, the data on the original node is inaccessible.
-2. Use a `persistentVolumeClaim` backed by network storage for portable data.

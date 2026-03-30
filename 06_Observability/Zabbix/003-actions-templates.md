@@ -121,14 +121,3 @@ Related notes: [004-monitoring-patterns](./004-monitoring-patterns.md)
 - Unlink removes the template association; unlink-and-clear also deletes inherited objects from the host.
 
 Related notes: [../000-core](../000-core.md), [001-zabbix-overview](./001-zabbix-overview.md), [002-items-triggers](./002-items-triggers.md), [004-monitoring-patterns](./004-monitoring-patterns.md), [../Grafana/001-grafana-overview](../Grafana/001-grafana-overview.md)
----
-
-# Troubleshooting Guide
-
-### Action not sending notifications
-
-1. Is the action enabled? Configuration > Actions -- check status column -- disabled --> enable the action.
-2. Do conditions match the trigger event? Check: severity, host group, tags, time period -- mismatch --> adjust conditions or create new action.
-3. Is the media type configured and working? Administration > Media types -- test the media type -- test fails --> check webhook URL / SMTP settings / credentials.
-4. Does the user have media configured? Administration > Users > Media tab -- no media --> add email/Slack/webhook to user profile.
-5. Check action log for errors: Reports > Action log -- shows sent/failed per event. Also check `/var/log/zabbix/zabbix_server.log` for detailed errors.

@@ -97,29 +97,3 @@ Related notes: [OpenTelemetry overview](../OpenTelemetry/001-opentelemetry-overv
 - Use `KafkaTopic` CRD to declaratively manage topics alongside your GitOps workflow
 
 Related notes: [../000-core](../000-core.md)
-
-# Troubleshooting Guide
-
-### Consumer Lag Keeps Growing
-
-1. Check current lag per partition: `kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group <group> --describe`
-2. Identify which partitions have the highest lag -- this points to a slow or stuck consumer instance
-3. Verify the consumer application logs for errors (e.g., Loki returning 429 rate-limit or OOM kills)
-4. Scale up consumer instances (must not exceed partition count -- extra consumers sit idle)
-5. If a single partition is hot, check your partitioning key; consider repartitioning to spread load
-
-### Broker Not Responding
-
-1. Check broker pod status: `kubectl get pods -n kafka` -- look for CrashLoopBackOff or pending state
-2. Inspect broker logs: `kubectl logs <broker-pod> -n kafka` -- look for disk full, OOM, or leader election failures
-3. Verify persistent volume is bound and has free space: `kubectl exec <broker-pod> -- df -h /var/lib/kafka`
-4. Check network policies or service mesh configs blocking inter-broker communication on ports 9091-9093
-5. If using KRaft, verify controller quorum: `kafka-metadata.sh --snapshot /var/lib/kafka/data/__cluster_metadata-0/00000000000000000000.log --cluster-id <id>`
-
-### Topic Not Receiving Data
-
-1. Verify the producer can reach the bootstrap server: `kafka-broker-api-versions.sh --bootstrap-server localhost:9092`
-2. Check that the topic exists and is not marked for deletion: `kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic <topic>`
-3. Confirm the OTel Collector Kafka exporter config: correct `brokers`, `topic`, `protocol_version`, and `encoding` fields
-4. Produce a test message manually to isolate whether the issue is the producer or the cluster
-5. Check broker logs for authorization errors if ACLs or SASL are enabled

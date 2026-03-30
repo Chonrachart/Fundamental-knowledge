@@ -335,37 +335,3 @@ db.fsyncUnlock()
 ```
 
 Related notes: [006-disk](./006-disk.md)
-
-# Troubleshooting Guide
-
-### LVM snapshot fills up and becomes invalid
-
-1. Check usage: `lvs -o lv_name,snap_percent` — if 100%, snapshot is broken.
-2. Remove invalid snapshot: `lvremove /dev/vg0/snap_name`.
-3. Recreate with larger size: allocate 20-30% of origin volume.
-4. Monitor during use: `watch lvs -o snap_percent` to track growth.
-5. For long-lived snapshots: consider Btrfs or ZFS instead (no size limit).
-
-### VM snapshot causing performance degradation
-
-1. Check snapshot chain length: `virsh snapshot-list myvm --tree`.
-2. Long chains (>3 snapshots deep) cause significant I/O slowdown.
-3. Consolidate: delete intermediate snapshots to flatten the chain.
-4. Rule: never keep VM snapshots longer than 72 hours.
-5. For long-term backup: export/clone the VM instead of keeping snapshots.
-
-### EBS snapshot taking too long
-
-1. First snapshot is always slower (copies all used blocks).
-2. Subsequent snapshots are incremental (faster).
-3. Check volume size and used blocks: `df -h` on the mounted volume.
-4. Snapshot runs in background — volume is usable during snapshot.
-5. For large volumes: schedule snapshots during low-I/O periods.
-
-### Database snapshot is inconsistent (corrupt after restore)
-
-1. Verify the database was quiesced before filesystem snapshot.
-2. Use database-native tools: `pg_basebackup`, `mysqldump --single-transaction`.
-3. For filesystem snapshots: call freeze/lock before, unfreeze/unlock after.
-4. Test restores regularly — don't assume snapshots are valid.
-5. For cloud databases: use managed snapshot features (RDS, Azure SQL) which handle consistency.

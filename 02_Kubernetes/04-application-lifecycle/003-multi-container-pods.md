@@ -170,20 +170,3 @@ spec:
   - name: shared-data
     emptyDir: {}   # lives as long as the pod; wiped on pod deletion
 ```
-
-# Troubleshooting
-
-### Init container keeps restarting — main app never starts
-1. Check init container logs: `kubectl logs <pod> -c <init-container-name>`
-2. Check init container status: `kubectl describe pod <pod>` — look at `Init Containers` section
-3. Common causes: dependency not yet reachable, wrong command, missing volume or ConfigMap
-
-### Sidecar container crashes, main app still running
-1. Pod stays Running as long as main app runs (init containers are done)
-2. Check sidecar logs: `kubectl logs <pod> -c <sidecar-name>`
-3. Sidecar crash does not kill the pod unless `restartPolicy: Never` and the container exits
-
-### Containers cannot communicate over localhost
-1. All containers in a pod share the same network namespace — localhost works by design
-2. Verify the target container is actually listening on the expected port: `kubectl exec <pod> -c <container> -- netstat -tlnp`
-3. Check for port conflicts between containers in the same pod

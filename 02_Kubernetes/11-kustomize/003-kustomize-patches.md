@@ -259,13 +259,6 @@ patches:
       labelSelector: "env=production"
 ```
 
-# Troubleshooting
-
-### Patch not being applied
-
-- Check that the resource name in the patch matches the actual resource name exactly
-
-```yaml
 # Base resource: metadata.name: myapp
 # Wrong: patch for different resource
 metadata:

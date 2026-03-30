@@ -147,27 +147,3 @@ cat /etc/kubernetes/manifests/etcd.yaml | grep -E "data-dir|cert|key|trusted"
 # Or inspect the running etcd pod
 kubectl describe pod etcd-<controlplane> -n kube-system | grep -A5 "Command:"
 ```
-
-# Troubleshooting
-
-### etcdctl snapshot save: "context deadline exceeded" or connection refused
-1. Verify etcd is running: `kubectl get pods -n kube-system | grep etcd`.
-2. Confirm the endpoint: default is `https://127.0.0.1:2379`; check the etcd manifest for `--advertise-client-urls`.
-3. Confirm cert paths are correct — copy exact paths from the etcd manifest: `cat /etc/kubernetes/manifests/etcd.yaml`.
-4. Ensure you are running on the control plane node, not a worker.
-
-### Restore: API server not coming back after moving manifest back
-1. Check if the etcd pod is actually running with the new data dir: `crictl ps | grep etcd`.
-2. Check etcd logs: `crictl logs <etcd-container-id>` or `kubectl logs etcd-<node> -n kube-system`.
-3. Common cause: the `hostPath` volume in the etcd manifest still points to the old directory. Both `--data-dir` flag and the `volumes.hostPath.path` must be updated.
-4. If the API server manifest was moved back too quickly, wait for etcd to finish initializing first.
-
-### After restore, objects created after the backup are missing
-1. This is expected behavior — the restore sets cluster state back to the backup point in time.
-2. Any objects created after the backup snapshot was taken will not exist.
-3. To minimize data loss, take backups frequently and before any critical operations.
-
-### etcdctl snapshot status shows 0 keys or tiny file size
-1. The snapshot file may be corrupt or from a partial write. Do not use it for restore.
-2. Retake the backup: verify etcd is healthy first with the endpoint health check.
-3. Check available disk space before saving: `df -h /tmp`.

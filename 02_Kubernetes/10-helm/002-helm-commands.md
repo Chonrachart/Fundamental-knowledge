@@ -141,34 +141,3 @@ helm install myapp bitnami/nginx -f base-values.yaml -f prod-overrides.yaml
 # Combine file + CLI (CLI takes precedence over file)
 helm install myapp bitnami/nginx -f base-values.yaml --set replicaCount=10
 ```
-
-# Troubleshooting
-
-### Release Deployment Failed
-1. Check release state: `helm list` and `helm status my-nginx`
-2. Inspect what was applied: `helm get manifest my-nginx`
-3. Check Kubernetes pod events:
-  ```bash
-  kubectl get pods -n default
-  kubectl describe pod <pod-name>
-  kubectl logs <pod-name>
-  ```
-- Validate first next time: `helm install my-nginx bitnami/nginx --dry-run --debug`
-
-### Template Rendering Issues
-1. Render locally to see the output: `helm template my-nginx bitnami/nginx`
-2. Render with specific values: `helm template my-nginx bitnami/nginx -f custom-values.yaml`
-3. Check for lint errors: `helm lint mychart`
-
-### Need to Revert to Previous Release
-1. View history: `helm history my-nginx`
-2. Roll back: `helm rollback my-nginx 1`
-3. Confirm: `helm status my-nginx`
-
-### Values Not Taking Effect After Upgrade
-1. Check what the release sees: `helm get values my-nginx`
-2. Compare against chart defaults: `helm show values bitnami/nginx`
-3. Re-upgrade with explicit values:
-  ```bash
-  helm upgrade my-nginx bitnami/nginx --set replicaCount=5 --set image.tag=1.2.3
-  ```

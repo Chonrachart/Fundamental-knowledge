@@ -189,30 +189,3 @@ Ctrl + R         # reverse search through history (repeat to go further back)
 !!               # repeat last command
 !<n>             # repeat command number n
 ```
-
-
-
-
-# Troubleshooting Guide
-
-### "command not found"
-
-1. Check if it is installed and in PATH: `which <cmd>` / `type <cmd>`.
-
-### "Permission denied" on file
-
-1. Check permission bits and owner: `ls -l <file>`.
-
-### "No space left on device" during file write
-
-1. Check filesystem usage: `df -h`.
-2. Find large directories: `du -sh * | sort -rh | head`.
-
-### grep returns no output
-
-1. Check pattern quoting, try `-i` for case, verify file path.
-
-### Pipe produces unexpected output
-
-1. Run each stage individually to isolate where data changes.
-

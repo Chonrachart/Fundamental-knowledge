@@ -99,20 +99,3 @@ crictl ps | grep pause
 # Inspect a pod's network namespace path
 crictl inspect <pause-container-id> | grep netns
 ```
-
-# Troubleshooting
-
-### Pod has no IP / networking not working
-1. Check CNI plugin is running: `kubectl get pods -n kube-system` — look for calico/flannel/cilium pods.
-2. Check CNI config: `ls /etc/cni/net.d/` on the node.
-3. Check kubelet logs for CNI errors: `journalctl -u kubelet | grep -i cni`.
-
-### Pod can't reach another pod on the same node
-1. Check veth pair is up: `ip link show type veth` on the node — look for `state DOWN`.
-2. Check bridge forwarding: `bridge fwd show`.
-3. Check pod's default route: `kubectl exec <pod> -- ip route`.
-
-### Pod can't reach pods on other nodes
-1. This is a CNI routing issue — check CNI plugin logs.
-2. Check node-to-node routes: `ip route show` on each node.
-3. For VXLAN-based CNIs, check VXLAN interface is up: `ip link show vxlan`.

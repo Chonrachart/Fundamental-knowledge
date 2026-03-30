@@ -84,16 +84,3 @@ kubectl describe pod nginx-pinned | grep Node:
 # Watch all pods and their nodes
 kubectl get pods -o wide --all-namespaces
 ```
-
-# Troubleshooting
-
-### Pod stuck in Pending after setting nodeName
-1. Verify the node name is correct: `kubectl get nodes` — names are case-sensitive.
-2. Check node conditions: `kubectl describe node <node01>` — look for `Ready: False` or taints.
-3. Check pod events: `kubectl describe pod <name>` — the kubelet on the target node logs the reason.
-4. If the node is cordoned (`SchedulingDisabled`), manually-scheduled pods with `nodeName` are still accepted by the kubelet (cordon only blocks the scheduler).
-
-### Need to move a manually-scheduled pod to a different node
-1. You cannot edit `nodeName` on a running pod in-place (`nodeName` is immutable after creation for most controllers).
-2. Delete the pod and recreate it with the new `nodeName`.
-3. If managed by a Deployment/ReplicaSet, the controller will reschedule normally — remove the `nodeName` from the pod template so the scheduler takes over.

@@ -232,22 +232,3 @@ spec:
 ```
 
 This creates PVCs named `data-db-0`, `data-db-1`, `data-db-2` — one per pod.
-
-# Troubleshooting
-
-### PVC stuck in Pending
-1. `kubectl describe pvc <name> -n <ns>` — read the Events section.
-2. No matching PV: verify capacity, access mode, and `storageClassName` match an Available PV.
-3. Dynamic provisioning: check `kubectl get storageclass` and ensure the provisioner pod is running.
-4. `WaitForFirstConsumer` binding mode: PVC stays Pending until a pod using it is scheduled — this is expected behavior.
-
-### Pod stuck in ContainerCreating / Pending due to volume
-1. `kubectl describe pod <name>` — look for `FailedAttachVolume` or `FailedMount` in Events.
-2. PVC not bound: fix PVC first (see above).
-3. Multi-attach error: RWO volume already attached to another node — check if old pod is still terminating.
-4. Node zone mismatch: PV is in a different availability zone than the node the pod scheduled to — use `WaitForFirstConsumer`.
-
-### Data lost after pod restart
-1. Check volume type: `emptyDir` is ephemeral — data is gone when the pod is deleted.
-2. Check reclaim policy: if `Delete`, the PV and data are destroyed when the PVC is deleted.
-3. StatefulSet: PVCs survive pod restarts, but if the PVC was manually deleted, data is gone.

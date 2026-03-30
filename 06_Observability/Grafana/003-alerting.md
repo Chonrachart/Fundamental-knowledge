@@ -126,16 +126,3 @@ Related notes: [001-grafana-overview](./001-grafana-overview.md)
 - No Data handling: configurable per rule -- alert, OK, keep last state, or no data state.
 
 Related notes: [002-dashboards-queries](./002-dashboards-queries.md), [../Zabbix/001-zabbix-overview](../Zabbix/001-zabbix-overview.md)
-
----
-
-# Troubleshooting Guide
-
-### Alert not firing or not delivering notifications
-
-1. Is the alert rule evaluating? Alerting > Alert Rules > check state and last evaluation time. State = Normal means condition not met, verify query in Explore. State = Error means query syntax error or data source issue.
-2. Is the alert stuck in Pending? Yes means "for" duration not elapsed yet, or condition is flapping (true then false before "for" completes).
-3. Is the alert Firing but no notification received? Check Notification Policy: does a matcher route this alert? No matching route means alert goes to default policy, check default contact point.
-4. Is the contact point configured correctly? Test the contact point from Alerting > Contact Points > Test. Test fails means check credentials, URLs, network connectivity.
-5. Is a Silence active for this alert? Alerting > Silences > check matchers and time window. Silence active means wait for expiry or remove the silence.
-6. Check Grafana server logs for delivery errors: `grep "alerting" /var/log/grafana/grafana.log`.

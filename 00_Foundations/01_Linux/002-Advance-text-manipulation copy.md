@@ -153,24 +153,3 @@ awk 'BEGIN { print "Start" } { print $0 } END { print "Done" }' file
 
 Related notes:
 - [01-Basic-file-and-text-manipulation](./01-Basic-file-and-text-manipulation.md)
-
-
----
-
-# Troubleshooting Guide
-
-### sed substitution makes no change
-
-1. Test without `-i` first: `sed 's/old/new/g' file | head`.
-2. Check quoting — use single quotes to prevent shell expansion of pattern.
-
-### awk prints wrong fields or empty output
-
-1. Check delimiter: default is any whitespace run; use `-F` to set explicit delimiter.
-2. Print `$0` to see full raw line, then narrow down field number.
-
-### sed -i destroyed file
-
-1. Check for `.bkp` backup if `-i.bkp` was used.
-2. Restore from git: `git checkout -- <file>`.
-

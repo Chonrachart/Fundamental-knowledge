@@ -214,25 +214,3 @@ spec:
 | `capabilities` | No | Yes | Container-only |
 | `privileged` | No | Yes | Container-only |
 | `seccompProfile` | Yes | Yes | Container overrides pod |
-
-# Troubleshooting
-
-### Container fails to start: "container has runAsNonRoot and image will run as root"
-1. The image's Dockerfile has `USER root` or no `USER` directive.
-2. Either fix the image to use a non-root user, or set `runAsUser: <non-zero>` in the security context to override the image default.
-3. Verify: `docker inspect <image> | grep -A5 '"User"'`.
-
-### Permission denied writing to files inside the container
-1. `readOnlyRootFilesystem: true` is set. The container needs a writable path.
-2. Mount an `emptyDir` volume at the path the app writes to (`/tmp`, log dirs, cache dirs).
-3. Check also that `runAsUser` matches the file ownership inside the image.
-
-### Operation not permitted — capability missing
-1. `capabilities.drop: [ALL]` was set, but the app needs a specific capability.
-2. Identify which capability is needed (check app docs or use `strace`/`ausearch`).
-3. Add it back: `capabilities.add: ["NET_BIND_SERVICE"]`.
-4. Avoid adding `SYS_ADMIN` — it is nearly as powerful as `privileged: true`.
-
-### fsGroup not taking effect on volume
-1. `fsGroup` only applies to volumes of type `emptyDir`, `secret`, `configMap`, and persistent volumes. It does not apply to `hostPath`.
-2. Verify the volume type; for `hostPath` you must ensure ownership at the host level.

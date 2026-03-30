@@ -106,20 +106,3 @@ kubeadm certs check-expiration
 # Renew all certs
 kubeadm certs renew all
 ```
-
-# Troubleshooting
-
-### Unable to connect: x509 certificate signed by unknown authority
-1. The client does not have the correct CA cert configured.
-2. Check `--certificate-authority` or `certificate-authority-data` in the kubeconfig.
-3. Verify the cert was signed by the cluster CA: `openssl verify -CAfile /etc/kubernetes/pki/ca.crt <cert.crt>`.
-
-### x509: certificate has expired
-1. Run `kubeadm certs check-expiration` to see which certs are expired.
-2. Renew: `kubeadm certs renew all`.
-3. Restart static pods: move manifests out of `/etc/kubernetes/manifests/` and back in (kubelet auto-restarts them).
-
-### TLS handshake error in API server logs
-1. Check that the SAN (Subject Alternative Name) on the server cert includes the hostname/IP being used.
-2. `openssl x509 -in apiserver.crt -text -noout | grep -A1 'Subject Alternative'`.
-3. Re-issue the cert with the correct SANs if missing.

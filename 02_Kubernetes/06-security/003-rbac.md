@@ -242,22 +242,3 @@ kubectl auth can-i --list -n dev
 # Who am I?
 kubectl auth whoami          # requires Kubernetes v1.27+
 ```
-
-# Troubleshooting
-
-### Pod gets 403 Forbidden from API server
-1. Find the SA: `kubectl get pod <name> -o jsonpath='{.spec.serviceAccountName}'`.
-2. Find bindings: `kubectl get rolebindings,clusterrolebindings -A | grep <sa-name>`.
-3. Test directly: `kubectl auth can-i <verb> <resource> --as=system:serviceaccount:<ns>:<sa>`.
-4. Missing binding: create a RoleBinding or ClusterRoleBinding for the SA.
-
-### User cannot access resources in namespace
-1. Check identity: `kubectl auth whoami` or inspect the kubeconfig CN.
-2. List bindings: `kubectl get rolebindings -n <namespace> -o wide`.
-3. Test: `kubectl auth can-i list pods -n <namespace> --as=<username>`.
-4. Create RoleBinding if missing; verify `subjects[].name` matches the user CN exactly.
-
-### ServiceAccount token not mounted
-1. Check `automountServiceAccountToken` on both the SA spec and the Pod spec.
-2. Pod-level setting overrides SA-level setting.
-3. Verify: `kubectl exec <pod> -- ls /var/run/secrets/kubernetes.io/serviceaccount/`.

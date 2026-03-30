@@ -73,22 +73,3 @@ jobs:
 - `secrets.GITHUB_TOKEN` is auto-injected per run; scoped to the current repo.
 
 Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [004-secrets-cache](./004-secrets-cache.md), [005-real-world-examples](./005-real-world-examples.md)
-
----
-
-# Troubleshooting Guide
-
-### Workflow file not detected
-1. Verify file is in `.github/workflows/` directory (exact path).
-2. Check YAML syntax: `yamllint` or GitHub Actions linter.
-3. File must have `.yml` or `.yaml` extension.
-
-### Steps run but produce no output
-1. Check `run:` command — ensure it prints to stdout.
-2. Check `if:` condition on the step — it may be skipped silently.
-3. Use `echo "::debug::message"` for debug output in logs.
-
-### Action `uses:` fails with "not found"
-1. Check action name and version: `owner/repo@version` (e.g. `actions/checkout@v4`).
-2. Private actions: must be in the same repo or accessible; use `actions/checkout` first.
-3. Check if action was deprecated or renamed.

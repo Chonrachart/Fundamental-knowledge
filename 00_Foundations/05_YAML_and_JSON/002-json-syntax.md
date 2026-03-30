@@ -247,35 +247,3 @@ jq 'keys' config.json
 # merge two JSON objects
 jq -s '.[0] * .[1]' base.json override.json
 ```
-
----
-
-# Troubleshooting Guide
-
-```text
-Problem: JSON file has syntax errors or jq query returns unexpected results
-    |
-    v
-[1] Is the JSON valid?
-    python3 -m json.tool < file.json
-    |
-    +-- "Expecting ',' delimiter" --> missing comma or trailing comma
-    +-- "Expecting property name" --> trailing comma before }
-    +-- "Invalid control character" --> unescaped newline in string
-    |
-    v
-[2] Does jq return null unexpectedly?
-    jq '.' file.json   # verify structure first
-    |
-    +-- key name typo --> check exact key names with: jq 'keys'
-    +-- wrong nesting level --> walk the path step by step
-    |
-    v
-[3] jq returns quoted string but you need raw?
-    use jq -r (raw output) to strip quotes
-    |
-    v
-[4] jq filter returns nothing from array?
-    jq '.items[]' to iterate, then add | select(...) to filter
-    verify field values with: jq '.items[0]'
-```

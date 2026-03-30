@@ -249,21 +249,6 @@ Related notes: [Grafana/001-grafana-overview](./Grafana/001-grafana-overview.md)
 - Zabbix uses items to collect data, triggers to evaluate conditions, and actions to send notifications or run scripts.
 
 Related notes: [Zabbix/001-zabbix-overview](./Zabbix/001-zabbix-overview.md)
-
----
-
-# Troubleshooting Guide
-
-### Service degradation or outage detected
-
-1. Check alert details: which metric breached? which service? Grafana alert / Zabbix trigger.
-2. Dashboard review: is it a spike or gradual trend? Grafana dashboard / Zabbix graphs.
-3. Drill into metrics: error rate, latency, saturation? PromQL: `rate(http_requests_total{status=~"5.."}[5m])`.
-4. Correlate with logs: errors around the same timestamp? Loki/Elasticsearch: filter by service + time range.
-5. Trace the request: where does latency or failure occur? Jaeger/Tempo: search by trace ID from logs.
-6. Infrastructure check: host resources, network, dependencies? Zabbix: CPU/memory/disk items, Prometheus: `node_exporter`.
-7. Root cause identified, apply fix, verify SLO recovery.
-
 # Topic Map
 
 - [Prometheus/001-prometheus-overview](./Prometheus/001-prometheus-overview.md) — TSDB, scrape config, targets, service discovery, federation, PromQL

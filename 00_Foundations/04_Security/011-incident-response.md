@@ -265,27 +265,3 @@ Related notes: [006-secrets-management](./006-secrets-management.md)
 - **Share findings** (appropriately): team learns from incidents. Sanitized summaries help the broader organization.
 
 Related notes: [009-network-security](./009-network-security.md)
-
----
-
-# Troubleshooting Guide
-
-### Can't determine scope of compromise
-1. Start with the known compromised system: check auth logs, process list, network connections.
-2. Search for the attacker's IoCs (IPs, file hashes, user accounts) across all systems: `grep -r "attacker_ip" /var/log/`.
-3. Check lateral movement: did the compromised account access other systems? `ausearch -ua compromised_user`.
-4. Check SIEM/log aggregation for the attacker's source IP across all services.
-5. If scope is still unclear, assume worst case and contain broadly — you can release systems as you clear them.
-
-### Logs missing or rotated
-1. Check log rotation config: `cat /etc/logrotate.d/*` — are logs being rotated too aggressively?
-2. Check if the attacker cleared logs: look for gaps in timestamps or truncated files.
-3. Check remote log destinations: if logs are shipped to a SIEM or remote syslog, the attacker may not have reached those.
-4. Check journal persistence: `journalctl --disk-usage` — is journald configured for persistent storage?
-5. Prevention: ship logs to a remote system the attacker can't easily access; set `Storage=persistent` in journald.
-
-### Unclear if system is clean after eradication
-1. Do not trust a "cleaned" compromised system — rebuild from a known-good image.
-2. If rebuild is not immediately possible: run integrity check (`aide --check`), scan for rootkits (`rkhunter --check`), verify all binaries against package manager (`rpm -Va` or `debsums`).
-3. Check for persistence: cron jobs, systemd services, SSH authorized_keys, bashrc modifications, SUID binaries.
-4. Monitor the system closely for 48-72 hours after recovery — watch for callbacks, unusual network traffic, new processes.

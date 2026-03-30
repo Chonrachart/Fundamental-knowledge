@@ -298,15 +298,6 @@ configMapGenerator:
       - EXTRA_KEY=overlay-value
 ```
 
-# Troubleshooting
-
-### ConfigMapGenerator creates multiple ConfigMaps with different hashes
-
-- After a config change and re-apply, a new ConfigMap is created and the old one remains (it was referenced by previously running pods)
-- The old ConfigMap is safe to delete once all pods have rolled over to the new one
-
-```bash
-kubectl get configmap
 # app-config-abc123   (old, no longer referenced by any pod)
 # app-config-def456   (new, in use)
 

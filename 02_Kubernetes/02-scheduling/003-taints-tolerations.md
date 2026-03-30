@@ -124,24 +124,3 @@ tolerations:
 | Dedicated team node | `team=payments:NoSchedule` | Isolate node for one team |
 | Node eviction on pressure | `node.kubernetes.io/memory-pressure:NoExecute` | Kubernetes-managed; evict pods |
 | Spot/preemptible nodes | `cloud.google.com/gke-spot:NoSchedule` | Only spot-tolerant workloads |
-
-# Troubleshooting
-
-### Pod not scheduling — "0/3 nodes are available: 3 node(s) had untolerated taint"
-1. Identify taints: `kubectl describe node <name> | grep -A3 Taints`.
-2. Check pod tolerations: `kubectl get pod <name> -o yaml | grep -A10 tolerations`.
-3. Add the missing toleration to the pod spec or DaemonSet template.
-
-### DaemonSet pod not appearing on control-plane node
-1. Control-plane nodes have `node-role.kubernetes.io/control-plane:NoSchedule`.
-2. Add toleration to the DaemonSet: `operator: Exists` with that key, or use the wildcard `operator: Exists` with no key.
-
-### Pods unexpectedly evicted from a node
-1. Check for `NoExecute` taints: `kubectl describe node <name> | grep Taint`.
-2. Built-in taints like `not-ready` are added automatically on node failure.
-3. Check `tolerationSeconds` on pods — may be set too short.
-
-### Taint is set but pods still land on the node
-1. Verify taint spelling exactly: `kubectl describe node <name>` — key, value, and effect all must match.
-2. Check pod tolerations for wildcard: `operator: Exists` with no key matches everything.
-3. `PreferNoSchedule` is soft — pods still land if no better node is available.

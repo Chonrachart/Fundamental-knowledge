@@ -112,28 +112,6 @@ Related notes: [AWS/002-iam](./AWS/002-iam.md)
 Related notes: [AWS/001-aws-overview](./AWS/001-aws-overview.md), [AWS/005-s3](./AWS/005-s3.md)
 
 
-# Troubleshooting Guide
-
-### Wrong region selected
-1. Check current region in console or CLI: `aws configure get region`.
-2. Verify resources exist in expected region: `aws ec2 describe-instances --region <region>`.
-3. Resources are region-scoped — creating in wrong region means they won't appear in the expected one.
-
-### Connectivity issues (firewall / security groups)
-1. Check security group inbound rules: `aws ec2 describe-security-groups --group-ids <sg-id>`.
-2. Verify NACL rules on the subnet allow traffic in both directions.
-3. Confirm route table has a route to the internet gateway (for public subnets) or NAT gateway (for private subnets).
-4. Test connectivity: `curl -v http://<endpoint>` or `telnet <ip> <port>`.
-
-### Permission denied (IAM / resource policies)
-1. Check which identity is being used: `aws sts get-caller-identity`.
-2. Review attached IAM policies for the user/role.
-3. Look for explicit deny in resource-based policies (S3 bucket policy, KMS key policy).
-4. Use IAM Policy Simulator to test permissions: `aws iam simulate-principal-policy`.
-
-
----
-
 # Topic Map (basic -> advanced)
 
 ### AWS

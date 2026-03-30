@@ -275,15 +275,6 @@ configMapGenerator:
       - LOG_LEVEL=INFO
 ```
 
-# Troubleshooting
-
-### Overlay not inheriting base resources
-
-1. Check that the `resources` path in the overlay `kustomization.yaml` correctly points to base
-2. Path is relative to the overlay directory, so `../../base` means "go up two levels, then into base/"
-3. Verify: `kubectl kustomize overlays/dev/` — if base resources are missing, the path is wrong
-
-```yaml
 # Wrong: absolute path from repo root
 resources:
   - k8s/base

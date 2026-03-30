@@ -130,23 +130,3 @@ kubectl delete pod myapp-abc123
 # ReplicaSet controller immediately creates a replacement
 kubectl get pods   # new pod appears within seconds
 ```
-
-# Troubleshooting
-
-### Deployment created but no pods appear
-
-1. Check if ReplicaSet was created: `kubectl get rs` — if missing, Deployment controller may have an issue.
-2. Check events: `kubectl describe deployment <name>` — Events section.
-3. Check controller-manager logs: `kubectl logs -n kube-system -l component=kube-controller-manager`.
-
-### Pods not being replaced after node failure
-
-1. Check if Node controller has marked node NotReady: `kubectl get nodes`.
-2. Node eviction has a grace period (default ~5 min after NotReady) — pods may not evict immediately.
-3. Check pod tolerations — pods with `tolerationSeconds` set may wait longer before eviction.
-
-### controller-manager not running
-
-1. `kubectl get pods -n kube-system -l component=kube-controller-manager`.
-2. Kubernetes still schedules pods (scheduler is separate) but no reconciliation happens.
-3. New deployments won't get ReplicaSets; crashed pods won't be replaced.

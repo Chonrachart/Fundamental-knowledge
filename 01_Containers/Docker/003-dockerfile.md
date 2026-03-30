@@ -195,30 +195,3 @@ COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 3000
 CMD ["node", "dist/index.js"]
 ```
-
-# Troubleshooting
-
-### Build fails with "COPY failed: file not found"
-
-1. Verify the file exists in the build context: `ls <file>` from the directory you run `docker build` in.
-2. Check `.dockerignore` — it may be excluding the file unintentionally.
-3. Confirm the path is relative to the build context root, not to the `Dockerfile`'s location.
-
-### Build cache not working — rebuilds every time
-
-1. Identify the first instruction that misses cache: any change to a file copied before a `RUN` invalidates that `RUN` and everything after.
-2. Fix instruction order: `COPY package*.json ./` and `RUN npm ci` before `COPY . .`.
-3. Check that `--no-cache` is not being passed in the build command.
-
-### CMD not running / container exits immediately
-
-1. Shell form (`CMD command`) spawns `/bin/sh -c` — if the base image has no shell (e.g. distroless), use exec form.
-2. Exec form must be a valid JSON array with double quotes: `CMD ["node", "index.js"]`.
-3. If `ENTRYPOINT` is also set, `CMD` becomes its arguments — make sure they are compatible.
-
-### Image too large
-
-1. Check the base image: switch from `ubuntu` to `alpine` or `distroless`.
-2. Apply a multi-stage build: compile in stage 1, copy only the binary/dist to stage 2.
-3. Ensure `RUN` cleans up in the same layer: `RUN apt install pkg && rm -rf /var/lib/apt/lists/*`.
-4. Use `docker history <image>` to identify which layer is large and target it.

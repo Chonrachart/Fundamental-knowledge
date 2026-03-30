@@ -179,30 +179,3 @@ curl --http3 -sI https://example.com | head -1
 ```
 
 Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md), [005-transport-layer](./005-transport-layer.md)
-
----
-
-# Troubleshooting Guide
-
-```text
-Cannot reach HTTPS site?
-  |
-  +--> DNS resolves? --> dig example.com
-  |       |
-  |       +--> no --> DNS issue (see 006-dns)
-  |
-  +--> TCP connects? --> curl -v https://example.com (check "Connected to")
-  |       |
-  |       +--> no --> firewall / port 443 blocked / server down
-  |
-  +--> TLS handshake succeeds?
-  |       |
-  |       +--> certificate error --> check cert validity, chain, CN/SAN match
-  |       +--> protocol mismatch --> check supported TLS versions
-  |
-  +--> HTTP response code?
-          |
-          +--> 4xx --> client-side issue (auth, path, method)
-          +--> 5xx --> server-side issue (check server logs)
-          +--> 3xx --> follow redirects with curl -L
-```

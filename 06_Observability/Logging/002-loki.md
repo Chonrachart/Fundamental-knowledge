@@ -233,23 +233,3 @@ Related notes: [001-logging-overview](./001-logging-overview.md)
 - Choose ELK for complex analysis and unstructured logs
 
 Related notes: [001-logging-overview](./001-logging-overview.md)
-
----
-
-# Troubleshooting Guide
-
-### Logs not arriving in Loki
-
-1. Is the log agent running? `kubectl get pods -n monitoring -l app=alloy` or check agent status. Not running means start it.
-2. Can the agent reach Loki? `curl -v http://loki:3100/ready`. Connection refused means check firewall, Loki address, port.
-3. Are logs arriving at Loki? `curl http://loki:3100/loki/api/v1/label` or Grafana Explore: query `{job="app"}`. Empty result means check label config in agent.
-4. Check agent logs for errors: `kubectl logs -n monitoring <agent-pod> -f`. Debug invalid JSON parsing, label cardinality, network errors.
-5. Check Loki resource usage: `kubectl top pod -n monitoring -l app=loki` and `curl http://loki:3100/loki/api/v1/status`. Disk full or memory exhausted means increase limits or reduce retention.
-
-### LogQL query returns no results
-
-1. Does the label exist in Loki? `curl http://loki:3100/loki/api/v1/label | jq '.data[]'`. Missing label means check agent pipeline stages.
-2. Check label values: `curl 'http://loki:3100/loki/api/v1/label/job/values' | jq '.data[]'`. Value not present means logs not shipped yet or different value.
-3. Try simpler query first: `{job="app"}` (stream selector only). No results means no logs from that job; results means add filters one by one.
-4. Check time range. Grafana: change time picker to "Last 24 hours". API: verify start/end unix timestamps are correct.
-5. Check line filters and JSON parsing: `{job="app"} | json | level="ERROR"`. Parse error means verify JSON format in logs and check pipeline.

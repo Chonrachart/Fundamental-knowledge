@@ -202,23 +202,3 @@ KUBECONFIG=~/.kube/config:~/.kube/dev-config kubectl get nodes
 # Flatten and write to a single file
 kubectl config view --flatten > ~/.kube/merged-config
 ```
-
-# Troubleshooting
-
-### kubectl: no configuration has been provided
-1. `KUBECONFIG` env var is unset and `~/.kube/config` does not exist.
-2. Copy the admin kubeconfig from the control plane: `scp control-plane:/etc/kubernetes/admin.conf ~/.kube/config`.
-3. Or set `export KUBECONFIG=/path/to/config`.
-
-### Error: You must be logged in to the server (Unauthorized)
-1. The client cert in kubeconfig may be expired. Check: `openssl x509 -in <cert> -noout -enddate`.
-2. The CN in the client cert may not map to any RBAC subject. Verify with `kubectl auth can-i list pods --as=alice`.
-3. Re-issue the cert via the CSR API if expired.
-
-### CSR stays in Pending forever
-1. An admin must explicitly run `kubectl certificate approve <name>`.
-2. Check if any controller is auto-approving (some cluster setups do this for kubelet CSRs).
-
-### context not found
-1. Run `kubectl config get-contexts` to see available contexts.
-2. Context name is case-sensitive — verify spelling.

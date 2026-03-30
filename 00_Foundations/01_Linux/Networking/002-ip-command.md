@@ -156,22 +156,3 @@ ip netns del myns
 
 Related notes: [007-Network-namespace](./007-Network-namespace.md)
 - Manage network namespaces: create, delete, execute commands inside them
-
-
----
-
-# Troubleshooting Guide
-
-```text
-Network not working after ip configuration?
-  │
-  ├─ IP assigned? ──── ip addr show <iface> ──── Missing? → ip addr add ...
-  │
-  ├─ Interface UP? ──── ip link show <iface> ──── DOWN? → ip link set <iface> up
-  │
-  ├─ Route exists? ──── ip route show ──── No default? → ip route add default via ...
-  │
-  ├─ ARP resolving? ──── ip neigh show ──── FAILED? → check L2 connectivity / ip neigh flush all
-  │
-  └─ Settings lost after reboot? ──── ip changes are runtime-only → use netplan/NetworkManager/ifupdown
-```

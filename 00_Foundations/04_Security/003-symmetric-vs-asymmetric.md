@@ -172,23 +172,3 @@ Related notes: [001-cryptography](./001-cryptography.md)
 2. **Symmetric phase**: encrypt actual application data with the derived symmetric key
 Related notes: [001-cryptography](./001-cryptography.md), [000-core](./000-core.md)
 - This combines the security of asymmetric (no pre-shared secret needed) with the speed of symmetric
-
-# Troubleshooting Guide
-
-```text
-Encryption/signing issue?
-  │
-  ├─ "wrong key" error? ──▶ Verify key pair matches (public ↔ private)
-  │                         openssl rsa -in priv.pem -check
-  │
-  ├─ Signature invalid? ──▶ Ensure same hash algorithm on sign and verify
-  │                         └─ Data modified after signing? ──▶ Re-sign
-  │
-  ├─ RSA "data too large"? ──▶ RSA encrypts max (keysize - padding) bytes
-  │                             └─ Use hybrid: RSA wraps AES key, AES encrypts data
-  │
-  ├─ Key size too small? ──▶ RSA minimum 2048-bit; EC minimum 256-bit
-  │
-  └─ Performance slow? ──▶ Switch to ECDSA/ECDH (smaller keys, faster math)
-                           └─ Use symmetric for bulk data, asymmetric only for handshake
-```

@@ -126,24 +126,3 @@ Warm invocation: reuse existing container
 - Provisioned concurrency eliminates cold starts but costs per pre-warmed instance.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [002-iam](./002-iam.md), [006-rds-databases](./006-rds-databases.md)
-
----
-
-# Troubleshooting Guide
-
-### Lambda function timing out
-1. Check timeout setting (default 3s); increase if operation takes longer.
-2. Check if function is in VPC without NAT Gateway — can't reach internet/AWS services.
-3. Check external dependencies (DB, API) response times.
-4. Check for infinite loops or blocking calls.
-
-### "Task timed out after 3.00 seconds"
-1. Default timeout is 3 seconds; most functions need 10-30 seconds.
-2. Set appropriate timeout in function configuration.
-3. API Gateway has its own timeout (29 seconds max for REST API).
-
-### Lambda cannot access RDS in private subnet
-1. Lambda must be configured to run in the same VPC.
-2. Lambda security group must allow outbound to RDS port.
-3. RDS security group must allow inbound from Lambda security group.
-4. Lambda execution role needs `ec2:CreateNetworkInterface` for VPC access.

@@ -124,15 +124,3 @@ Related notes: [003-actions-templates](./003-actions-templates.md)
 - Dependency is on the trigger object, not on the item; configured in the trigger settings.
 
 Related notes: [004-monitoring-patterns](./004-monitoring-patterns.md)
-
----
-
-# Troubleshooting Guide
-
-### Item shows "Not supported" or no data
-
-1. Is the item key valid on the agent? `zabbix_get -s <host-ip> -k <item-key>` -- "ZBX_NOTSUPPORTED" --> key does not exist or wrong parameters; timeout --> agent unreachable (check network / firewall).
-2. Check item configuration in frontend. Is the key spelled correctly? Is the type correct (agent vs SNMP vs HTTP)? Is the host interface configured for this type?
-3. Is preprocessing failing? Administration > Queue -- check if item is queued. Check item "Info" column for preprocessing errors.
-4. For triggers not firing: check expression syntax in trigger config; verify item is collecting expected values (Latest data); check trigger dependencies -- is a parent trigger suppressing it?
-5. Check logs for detailed errors: `/var/log/zabbix/zabbix_server.log` and `/var/log/zabbix/zabbix_agent2.log`.

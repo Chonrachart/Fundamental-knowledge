@@ -133,15 +133,3 @@ Related notes: [002-dashboards-queries](./002-dashboards-queries.md)
 - Plugins extend data sources and panel types; installed from the catalog.
 
 Related notes: [001-grafana-overview](./001-grafana-overview.md)
-
----
-
-# Troubleshooting Guide
-
-### Grafana dashboard shows "No Data"
-
-1. Is the data source configured and reachable? Settings > Data Sources > Test. Test fails means check URL, auth, network/firewall.
-2. Does the query return data in Explore? Copy panel query into Explore, run it. No results means wrong metric name, label filter, or time range.
-3. Is the time range correct? Check dashboard time picker (top right). Too narrow or future means adjust range to match data retention.
-4. Panel configuration issue: check visualization type, field mappings, and transform steps. Wrong field selected means fix field override or transform.
-5. Check Grafana server logs: `journalctl -u grafana-server -f` or `docker logs grafana`.

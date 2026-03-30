@@ -145,21 +145,3 @@ kubectl set image deployment/myapp web=nginx:1.25    # triggers rolling update
 kubectl rollout status deployment/myapp              # watch progress
 kubectl rollout undo deployment/myapp                # rollback if needed
 ```
-
-# Troubleshooting
-
-### Rollout stuck — new pods not becoming Ready
-1. Check pod status: `kubectl get pods` — look for `Pending`, `CrashLoopBackOff`, `ImagePullBackOff`
-2. Check events: `kubectl describe deployment <name>` and `kubectl describe pod <new-pod>`
-3. Common causes: bad image tag, missing ConfigMap/Secret, failing readiness probe
-4. Rollback immediately: `kubectl rollout undo deployment/<name>`
-
-### Rolling update causes downtime
-1. Check `maxUnavailable` — if too high, too many old pods are killed before new ones are ready
-2. Set `maxUnavailable: 0` and `maxSurge: 1` for zero-downtime deployments
-3. Ensure a readiness probe is configured — without it Kubernetes sends traffic to unready pods
-
-### Cannot rollback — "no rollout history"
-1. Check `revisionHistoryLimit` — if set to 0, old ReplicaSets are deleted immediately
-2. List available history: `kubectl rollout history deployment/<name>`
-3. If history is gone, re-apply the old manifest from source control

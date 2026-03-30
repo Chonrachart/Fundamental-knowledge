@@ -164,21 +164,3 @@ These two mechanisms solve complementary problems and are often used together.
 | Can guarantee placement? | No — toleration allows but doesn't force | required+nodeName needed for that |
 | Typical use | Dedicate nodes, protect control-plane, handle node pressure | Zone/arch constraints, hardware preferences |
 | Combined use | Taint to repel all others + affinity to attract desired pods | Same — both needed for dedicated nodes |
-
-# Troubleshooting
-
-### Pod stuck in Pending — "0/3 nodes are available: ... node(s) didn't match Pod's node affinity"
-1. Check the node affinity rules: `kubectl get pod <name> -o yaml | grep -A20 nodeAffinity`.
-2. Check node labels: `kubectl get nodes --show-labels`.
-3. If using `required`, no node currently has the required labels — either label a node or relax to `preferred`.
-4. Check for typos: label keys and values are case-sensitive.
-
-### Pod scheduled on wrong node despite affinity
-1. `preferred` affinity is a hint, not a guarantee — if the preferred node is full, the pod lands elsewhere.
-2. Use `required` if placement is non-negotiable.
-3. Check node scores: `kubectl get events --field-selector reason=Scheduled` for placement details.
-
-### Node labels changed but pods still running there
-1. This is by design — "IgnoredDuringExecution" means running pods are not re-evaluated.
-2. A future type (`requiredDuringSchedulingRequiredDuringExecution`) would evict on label change, but it is not yet GA.
-3. To force re-scheduling: delete pods so they reschedule under the new rules.

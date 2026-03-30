@@ -127,27 +127,3 @@ kubectl get nodes
 |--------|--------------|---------------------|-------------|
 | `cordon` | Yes | No | N/A |
 | `drain` | Yes (implicit) | Yes | Yes |
-
-# Troubleshooting
-
-### drain is blocked — "cannot delete pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet"
-1. You have standalone (bare) pods on the node with no controller. Drain refuses by default because evicting them means they are gone permanently.
-2. Verify which pods are bare: `kubectl get pods -o wide --all-namespaces | grep <node>` then `kubectl get pod <name> -o yaml | grep ownerReferences`.
-3. If you accept the loss, rerun with `--force`: `kubectl drain <node> --ignore-daemonsets --delete-emptydir-data --force`.
-
-### drain is blocked — PodDisruptionBudget violation
-1. A PDB prevents the eviction because it would drop the available replica count below `minAvailable`.
-2. Check which PDB is blocking: `kubectl get pdb --all-namespaces`.
-3. Options: wait for another replica to become available elsewhere, or temporarily scale up the Deployment, then drain.
-4. Last resort: `kubectl delete pdb <name>` — only if you understand the availability impact.
-
-### Node shows "NotReady" after uncordon
-1. The node may still be rebooting: `kubectl get nodes -w` to watch status.
-2. Check kubelet status on the node: `systemctl status kubelet`.
-3. Check node events: `kubectl describe node <node>` — look for disk pressure, memory pressure, or PID pressure.
-4. If kubelet failed to start after OS upgrade, check logs: `journalctl -u kubelet -n 100`.
-
-### Pod was evicted but is still in Terminating state
-1. Pod may be stuck on a finalizer: `kubectl describe pod <name>` — look for finalizers.
-2. Force-delete if stuck: `kubectl delete pod <name> --grace-period=0 --force`.
-3. Check if the node is actually offline — the apiserver may not have received the termination confirmation.

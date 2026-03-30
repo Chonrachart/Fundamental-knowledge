@@ -168,20 +168,3 @@ volumes:
 By default, Secrets are stored in etcd as base64 plaintext. Enable `EncryptionConfiguration` on the API server to encrypt Secret data at rest using AES-GCM or other providers. In managed clusters (EKS, GKE, AKS) this is typically a one-checkbox option.
 
 For production workloads prefer external secret management: `sealed-secrets`, `external-secrets-operator`, or HashiCorp Vault with the CSI provider.
-
-# Troubleshooting
-
-### Env var from ConfigMap/Secret is empty in pod
-1. Verify the object exists: `kubectl get configmap <name>` / `kubectl get secret <name>`
-2. Check key spelling: `kubectl describe configmap <name>` — key names are case-sensitive
-3. Env vars are set at pod start — after updating the ConfigMap, restart the pod for changes to take effect
-
-### Mounted ConfigMap file not updating
-1. Volume-mounted ConfigMaps auto-update with ~1 min kubelet sync delay — wait and re-check
-2. `subPath` mounts do NOT auto-update — must restart the pod
-3. Verify current content: `kubectl exec <pod> -- cat /etc/config/<key>`
-
-### "Secret not found" when pod is created
-1. Secret must exist in the **same namespace** as the pod
-2. Check: `kubectl get secret <name> -n <namespace>`
-3. For `imagePullSecrets` the Secret type must be `kubernetes.io/dockerconfigjson`

@@ -130,27 +130,3 @@ kubectl version --short
 | 1.27 → 1.28 | Yes — one minor version |
 | 1.27 → 1.29 | No — must go 1.27 → 1.28 → 1.29 |
 | 1.28.0 → 1.28.5 | Yes — patch version bump only |
-
-# Troubleshooting
-
-### kubeadm upgrade plan shows "no available upgrades"
-1. The apt package cache may be stale: `apt-get update`.
-2. The repository may only have certain versions pinned. Check available versions: `apt-cache madison kubeadm`.
-3. Ensure you are not trying to skip a minor version — kubeadm enforces sequential upgrades.
-
-### kubelet not starting after upgrade
-1. Check kubelet logs: `journalctl -u kubelet -n 50 --no-pager`.
-2. Common cause: kubelet config API version mismatch. Run `kubeadm upgrade node` again on the worker to regenerate the kubelet config.
-3. Verify the kubelet binary version matches what was installed: `kubelet --version`.
-4. Check for broken service file: `systemctl status kubelet` — look for failed ExecStart.
-
-### Node stays in NotReady after uncordon
-1. Kubelet may still be restarting: give it 30–60 seconds, then `kubectl get nodes -w`.
-2. Check node conditions: `kubectl describe node <worker>` — look for NetworkPluginNotReady or container runtime errors.
-3. If using containerd/cri-o, verify the container runtime is running: `systemctl status containerd`.
-
-### Control plane upgrade fails mid-way ("kubeadm upgrade apply" errors out)
-1. Do not panic — kubeadm is designed to be idempotent. Fix the reported error and rerun `kubeadm upgrade apply v1.X.Y`.
-2. Check if static pod manifests are in a partially updated state: `ls -la /etc/kubernetes/manifests/`.
-3. Review kubeadm logs carefully — the error message usually pinpoints the component (etcd, apiserver, etc.).
-4. If the API server is down, check `/var/log/pods/kube-system_kube-apiserver*/` for container logs.

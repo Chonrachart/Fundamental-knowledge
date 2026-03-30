@@ -152,23 +152,3 @@ chmod 700 /path/to/job.sh           # only owner can read/execute
 # Do NOT put plain-text secrets in crontab
 # Use a secrets file with restricted permissions instead
 ```
-
-
----
-
-# Troubleshooting Guide
-
-### Cron job not running
-
-1. Check if cron service is running: `systemctl status cron` (or `crond`).
-2. Confirm job is actually in crontab: `crontab -l`.
-3. Test schedule expression at crontab.guru or run manually.
-4. Run command manually as the cron user to check it works.
-5. Check execution log: `journalctl -u cron -f` or `grep CRON /var/log/syslog`.
-
-### Job runs but does nothing / produces errors
-
-1. Capture all output: redirect with `command >> /tmp/job.log 2>&1`.
-2. Check PATH: add full absolute paths to command and script.
-3. Check script is executable: `chmod +x /path/to/job.sh`.
-

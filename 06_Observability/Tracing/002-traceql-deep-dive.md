@@ -82,19 +82,3 @@ Related notes: [001-tempo-overview](./001-tempo-overview.md)
 - Aggregates return metrics from traces — useful for service-level performance analysis
 
 Related notes: [001-tempo-overview](./001-tempo-overview.md)
-
-# Troubleshooting Guide
-
-### TraceQL query returns no results
-
-1. Check service name exists: Grafana Explore → Tempo → Service Name dropdown.
-2. Verify attribute names: use `span.http.status_code` not `span.status_code` (check OTel semantic conventions).
-3. Check time range — Tempo retention may be limited.
-4. Try simpler query first: `{resource.service.name="api"}` without filters to verify data exists.
-
-### TraceQL query is slow
-
-1. Add `resource.service.name` filter — it's the primary index.
-2. Narrow time range.
-3. Avoid broad structural queries (`>>`) without resource filters.
-4. Check Tempo query-frontend limits and timeout settings.

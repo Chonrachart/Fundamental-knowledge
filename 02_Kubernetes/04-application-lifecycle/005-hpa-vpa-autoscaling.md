@@ -168,21 +168,3 @@ kubectl top pods      # per-pod CPU and memory
 ```
 
 Without metrics-server, HPA remains in an `<unknown>` state and does not scale.
-
-# Troubleshooting
-
-### HPA not scaling — replicas stay at minimum
-1. Check metrics-server: `kubectl get pods -n kube-system | grep metrics-server`
-2. Check HPA status: `kubectl describe hpa <name>` — look at `Conditions` and `Current Metrics`
-3. Verify pods have `requests` set — HPA cannot compute utilization without them
-4. Confirm `kubectl top pods` returns data (not `<unknown>`)
-
-### HPA flapping — scales up and down repeatedly
-1. Increase `stabilizationWindowSeconds` in `behavior.scaleDown` (default 300s may not be enough)
-2. Add a scale-down policy: max N pods per minute
-3. Check if the metric itself is noisy; consider using a custom metric with smoothing or KEDA
-
-### HPA shows `<unknown>` for metrics
-1. metrics-server not installed or not ready
-2. Pod has no resource requests set (HPA cannot calculate utilization)
-3. Container image / app not exposing metrics on expected endpoint

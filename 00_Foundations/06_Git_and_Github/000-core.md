@@ -69,26 +69,6 @@ Related notes: [004-git-remote-repository](./004-git-remote-repository.md), [005
 - Commits are immutable snapshots identified by SHA-1 hashes.
 - Three areas: Working Tree, Staging Area (Index), Repository (.git/).
 - `git add` stages; `git commit` records; `git push` shares.
----
-
-# Troubleshooting Guide
-
-```text
-Problem unclear?
-  |
-  +--> git status          --> see file states (untracked / modified / staged)
-  |
-  +--> git log --oneline   --> check recent commit history
-  |
-  +--> git diff            --> what changed but not staged?
-  |
-  +--> git diff --staged   --> what is staged but not committed?
-  |
-  +--> Accidentally committed? --> git revert <hash> (safe) or git reset (local only)
-  |
-  +--> Wrong branch?       --> git stash, git switch <branch>, git stash pop
-```
-
 # Topic Map
 
 - [001-git-setup](./001-git-setup.md) -- init, config, three areas, .gitignore

@@ -165,25 +165,3 @@ SG: web-server
 - VPC Peering is non-transitive; use Transit Gateway for hub-and-spoke.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [004-ec2](./004-ec2.md), [007-elb-auto-scaling](./007-elb-auto-scaling.md)
-
----
-
-# Troubleshooting Guide
-
-### Instance not reachable from internet
-1. Check subnet route table: `0.0.0.0/0 → igw-xxx` present?
-2. Check instance has public IP or Elastic IP.
-3. Check Security Group: inbound rule for the required port from `0.0.0.0/0`.
-4. Check NACL: allows inbound on port AND outbound on ephemeral ports (1024-65535).
-
-### Private instance cannot reach internet
-1. Check NAT Gateway exists in public subnet and is active.
-2. Check private subnet route: `0.0.0.0/0 → nat-xxx`.
-3. Check NAT Gateway's subnet has route `0.0.0.0/0 → igw-xxx`.
-4. Check Security Group allows outbound traffic.
-
-### VPC Peering not working
-1. Check both VPCs have routes to each other's CIDR via peering connection.
-2. Check Security Groups allow traffic from peer VPC CIDR.
-3. Check CIDRs don't overlap.
-4. Check peering connection is in "Active" state (both sides must accept).

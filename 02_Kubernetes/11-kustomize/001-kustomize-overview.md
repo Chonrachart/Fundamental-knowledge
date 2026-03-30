@@ -223,20 +223,6 @@ commonLabels:
   env: development
 ```
 
-# Troubleshooting
-
-### `kubectl apply -k` returns "error: must be exactly one"
-
-1. The directory doesn't have a `kustomization.yaml` file (or it's named wrong)
-2. Check the directory path: `ls -la overlays/prod/` — does it have `kustomization.yaml`?
-3. Verify the exact filename: must be `kustomization.yaml` (not `kustomization.yml`, not `Kustomization.yaml`)
-4. Move up the directory tree to find the right one: `find . -name kustomization.yaml`
-
-### Image override not working
-
-- The `images.name` must match the image name in the deployment (not the full image with tag)
-
-```yaml
 # In deployment.yaml: image: nginx:1.20
 images:
   - name: nginx          # must match just the image name, not "nginx:1.20"

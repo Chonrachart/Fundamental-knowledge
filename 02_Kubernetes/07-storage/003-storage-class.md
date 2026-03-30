@@ -189,24 +189,3 @@ kubectl get pv                               # see auto-created PV
 # Change reclaim policy on an existing PV
 kubectl patch pv <pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
 ```
-
-# Troubleshooting
-
-### PVC stuck in Pending with dynamic provisioning
-1. `kubectl describe pvc <name>` — Events will show provisioner errors.
-2. Verify `kubectl get sc` — check that the StorageClass named in the PVC exists.
-3. Check that the provisioner pod (CSI driver) is running in `kube-system`.
-4. Confirm cloud credentials/IAM permissions allow disk creation.
-5. With `WaitForFirstConsumer`, PVC stays Pending until a pod using it is scheduled — expected behavior.
-
-### Wrong availability zone (zone mismatch)
-1. PV was provisioned in zone A, pod is scheduled to zone B — volume cannot attach.
-2. Fix: use `volumeBindingMode: WaitForFirstConsumer` so the volume is created in the pod's zone.
-
-### PV not deleted after PVC deletion
-1. The StorageClass `reclaimPolicy` is `Retain` — PV is intentionally kept. Admin must manually delete it.
-2. Change to `Delete` on the StorageClass for automatic cleanup (or patch the specific PV).
-
-### Multiple default StorageClasses
-1. `kubectl get sc` and look for multiple entries with `(default)`.
-2. Remove the annotation from all but one: `kubectl annotate sc <name> storageclass.kubernetes.io/is-default-class-`.

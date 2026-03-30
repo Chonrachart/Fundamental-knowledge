@@ -162,26 +162,3 @@ spec:
   ports:
   - port: 3306
 ```
-
-# Troubleshooting
-
-### Service returns "connection refused"
-
-1. Check Endpoints: `kubectl get endpoints <svc>` — if empty, the selector doesn't match any Ready pods.
-2. Verify pod labels match Service selector: `kubectl get pods --show-labels`.
-3. Check readiness probe: a pod may be Running but failing readiness — removed from Endpoints.
-4. Verify `targetPort` matches what the container actually listens on.
-
-### NodePort not reachable from outside
-
-1. Verify NodePort is in range 30000–32767.
-2. Check cloud/host firewall — the node port must be allowed inbound.
-3. Test from node itself: `curl <node-ip>:<nodeport>`.
-4. Confirm kube-proxy is running: `kubectl get pods -n kube-system -l k8s-app=kube-proxy`.
-
-### DNS name not resolving inside pods
-
-1. Check CoreDNS pods: `kubectl get pods -n kube-system -l k8s-app=kube-dns`.
-2. Test from pod: `kubectl exec -it <pod> -- nslookup kubernetes.default`.
-3. Check `/etc/resolv.conf` inside pod: `kubectl exec <pod> -- cat /etc/resolv.conf`.
-4. Verify the Service exists in the expected namespace.

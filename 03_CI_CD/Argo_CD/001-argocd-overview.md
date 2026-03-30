@@ -231,37 +231,3 @@ g, team-dev, role:developer
 ```
 
 Related notes: [005-argocd-admin-operations](./005-argocd-admin-operations.md)
-
----
-
-# Troubleshooting Guide
-
-### Cannot access ArgoCD UI
-
-1. Check argocd-server pod is running: `kubectl get pods -n argocd`.
-2. Check service: `kubectl get svc argocd-server -n argocd`.
-3. Port-forward: `kubectl port-forward svc/argocd-server -n argocd 8080:443`.
-4. If using Ingress: check Ingress resource, TLS certificate, DNS.
-5. Get initial admin password: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`.
-
-### Application shows "Unknown" status
-
-1. Check repo-server logs: `kubectl logs -n argocd deploy/argocd-repo-server`.
-2. Verify repo URL is correct and accessible from the cluster.
-3. Check SSH key or token for private repos: `argocd repo list`.
-4. Check if the path exists in the repository at the specified revision.
-5. Verify manifest rendering: Helm values, Kustomize overlay, plain YAML syntax.
-
-### ArgoCD is slow or unresponsive
-
-1. Check resource usage: `kubectl top pods -n argocd`.
-2. Check Redis: repo-server and controller use Redis for caching.
-3. Reduce sync frequency if too many apps: increase `timeout.reconciliation` in `argocd-cm`.
-4. Check repo-server: large repos or complex Helm charts slow rendering.
-5. Consider HA deployment for production workloads.
-
----
-
-Related notes (Concept):
-- [../Concept/011-gitops](../Concept/011-gitops.md) — GitOps principles, pull vs push model, drift detection
-- [../Concept/005-deployment-strategies](../Concept/005-deployment-strategies.md) — Blue-Green, Canary, Rolling Update strategies

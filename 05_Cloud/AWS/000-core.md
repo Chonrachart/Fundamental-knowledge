@@ -85,25 +85,6 @@ Related notes: [006-rds-databases](./006-rds-databases.md)
 - For the Shared Responsibility Model, see [../000-core](../000-core.md)
 
 Related notes: [002-iam](./002-iam.md)
-
----
-
-# Troubleshooting Guide
-
-### Cannot access EC2 instance from internet
-For EC2 connectivity issues, see [003-vpc-networking](./003-vpc-networking.md)
-
-### AWS CLI returns "Access Denied"
-1. Check IAM policy: does the user/role have permission for this action on this resource?
-2. Check resource policy (S3 bucket policy, KMS key policy) if applicable.
-3. Use `aws sts get-caller-identity` to verify which identity is being used.
-4. For detailed IAM troubleshooting, see [002-iam](./002-iam.md)
-
-### Resources in wrong region
-1. Check `AWS_DEFAULT_REGION` env var or `--region` flag.
-2. AWS Console: check region selector in top-right corner.
-3. Some services are global (IAM, Route 53, CloudFront); most are regional.
-
 # Topic Map (basic → advanced)
 
 - [001-aws-overview](./001-aws-overview.md) — Regions, AZs, service categories, global infrastructure

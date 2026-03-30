@@ -107,25 +107,3 @@ Related notes: [006-dns](./006-dns.md)
   - **Storm control**: switches can rate-limit broadcast traffic and shut down ports exceeding thresholds.
 
 Related notes: [002-link-layer-and-ethernet](./002-link-layer-and-ethernet.md)
-
----
-
-# Troubleshooting Guide
-
-### Broadcast storm symptoms
-1. Network extremely slow or unreachable for all devices.
-2. Check switch CPU/traffic: is broadcast traffic abnormally high?
-3. Look for network loops: unplug links one at a time to see if traffic drops.
-4. Verify STP is enabled on all switches.
-
-### Multicast not reaching clients
-1. Check if client joined the group: `ip maddr show` on the client.
-2. Check IGMP snooping on the switch: is it blocking multicast to that port?
-3. Check TTL: if multicast source sets TTL=1, it won't cross routers.
-4. Verify multicast routing is enabled on routers (if crossing subnets).
-
-### mDNS not resolving
-1. Check if Avahi/Bonjour is running: `systemctl status avahi-daemon`.
-2. Check firewall: is UDP port 5353 allowed?
-3. Check if devices are on the same subnet (mDNS is link-local by default).
-4. Verify `.local` domain is handled by mDNS: check `/etc/nsswitch.conf` for `mdns` entry.

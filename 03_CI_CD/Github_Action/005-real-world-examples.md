@@ -111,22 +111,3 @@ jobs:
 - Use `GITHUB_TOKEN` over personal access tokens whenever its permissions are sufficient.
 
 Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [004-secrets-cache](./004-secrets-cache.md), [003-expressions-contexts](./003-expressions-contexts.md)
-
----
-
-# Troubleshooting Guide
-
-### Docker push fails with "denied"
-1. Check `docker/login-action` — verify registry URL, username, and secret name.
-2. For GHCR: use `ghcr.io`, username `${{ github.actor }}`, password `${{ secrets.GITHUB_TOKEN }}`.
-3. Add `permissions: packages: write` to the job.
-
-### Deploy step has wrong credentials
-1. Verify secret names match repo/org settings (case-sensitive).
-2. Use `environment: production` to access environment-scoped secrets.
-3. Check cloud credentials are not expired (e.g. AWS session tokens, GCP service account keys).
-
-### npm ci fails in CI but works locally
-1. Ensure `package-lock.json` is committed — `npm ci` requires it.
-2. Check Node version matches: `actions/setup-node` with `node-version:` from matrix.
-3. Cache may be stale: delete cache from Actions tab and re-run.

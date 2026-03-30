@@ -165,24 +165,3 @@ kubectl delete sts mysql
 kubectl get pvc    # PVCs still exist — data safe
 kubectl delete pvc data-mysql-0 data-mysql-1 data-mysql-2   # manual cleanup
 ```
-
-# Troubleshooting
-
-### StatefulSet pods stuck in Pending
-
-1. Check PVCs: `kubectl get pvc` — each pod needs its own PVC provisioned.
-2. No PV available: `kubectl describe pvc data-mysql-0` — check Events for provisioning errors.
-3. Check StorageClass: `kubectl get storageclass` — ensure it exists and is the default or specified.
-4. Pods create in order — if `mysql-0` is stuck Pending, `mysql-1` and `mysql-2` won't start.
-
-### Pod deleted but PVC remains (expected behavior)
-
-1. This is by design — PVCs from volumeClaimTemplates are NOT garbage-collected.
-2. To reattach: recreate the StatefulSet with the same name — pods reuse existing PVCs.
-3. To clean up: `kubectl delete pvc data-mysql-0` (data will be lost).
-
-### StatefulSet pod not getting its DNS name
-
-1. Verify headless Service exists: `kubectl get svc mysql` — should show `None` for CLUSTER-IP.
-2. Check `spec.serviceName` in StatefulSet matches the headless Service name exactly.
-3. Test DNS from inside cluster: `kubectl exec -it mysql-0 -- nslookup mysql-1.mysql`.

@@ -139,23 +139,6 @@ kubectl exec <pod> -- cat /etc/resolv.conf
 # options ndots:5
 ```
 
-# Troubleshooting
-
-### DNS resolution fails inside pod
-1. Check CoreDNS pods are running: `kubectl -n kube-system get pods -l k8s-app=kube-dns`.
-2. Check pod's resolv.conf: `kubectl exec <pod> -- cat /etc/resolv.conf` — nameserver should be CoreDNS ClusterIP.
-3. Run a test: `kubectl exec <pod> -- nslookup kubernetes.default` — this always exists if CoreDNS works.
-4. Check CoreDNS logs: `kubectl -n kube-system logs -l k8s-app=kube-dns`.
-
-### Pod resolves service in same namespace but not another namespace
-1. Use the two-part name: `<svc>.<namespace>` or full FQDN.
-2. Check the target Service exists: `kubectl get svc -n <other-namespace>`.
-
-### Slow DNS / high latency on first request
-1. ndots:5 causes multiple search domain lookups before the absolute lookup — this is expected for external names.
-2. Mitigation: append a trailing dot to FQDNs (`google.com.`) to skip search domains, or reduce `ndots` in pod's `dnsConfig`.
-
-```yaml
 # Pod spec: custom DNS options to reduce search overhead
 spec:
   dnsConfig:

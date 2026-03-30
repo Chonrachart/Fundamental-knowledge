@@ -153,24 +153,3 @@ Related notes: [005-transport-layer](./005-transport-layer.md)
 - Switch: multi-port bridge — the standard device for LANs. Forwards frames based on MAC address table.
 
 Related notes: [001-network-models](./001-network-models.md)
-
----
-
-# Troubleshooting Guide
-
-### ARP not resolving
-1. Check if target host is on the same subnet: `ip addr show` on both hosts.
-2. Check ARP cache: `ip neigh show` — is the entry FAILED or INCOMPLETE?
-3. Check if broadcast is reaching target: run `tcpdump -i eth0 arp` on target host.
-4. Check switch port — is the target connected and link up?
-
-### VLAN misconfiguration
-1. Verify VLAN assignment: check switch port config matches expected VLAN.
-2. Check trunk port: ensure both switches allow the VLAN on the trunk.
-3. Test: hosts on same VLAN should ping each other; different VLANs should not (without a router).
-
-### MTU mismatch (black hole)
-1. Test with `ping -M do -s 1472 <dest>` — if it fails, MTU is smaller than 1500.
-2. Lower packet size until it works to find the actual path MTU.
-3. Check if ICMP is blocked by firewalls — PMTUD requires ICMP "Fragmentation Needed" messages.
-4. Fix: adjust interface MTU with `ip link set dev eth0 mtu <value>`.

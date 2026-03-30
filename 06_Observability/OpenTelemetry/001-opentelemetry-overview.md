@@ -148,7 +148,3 @@ Related notes: [../000-core](../000-core.md), [Alloy overview](../Alloy/001-allo
 - For Grafana Alloy as an OTel-compatible collector in K8s, see [../Alloy/001-alloy-overview](../Alloy/001-alloy-overview.md)
 
 Related notes: [../000-core](../000-core.md)
-
-# Troubleshooting Guide
-
-For Alloy-specific troubleshooting, see [../Alloy/001-alloy-overview](../Alloy/001-alloy-overview.md).

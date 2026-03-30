@@ -261,39 +261,3 @@ Related notes: [000-core](./000-core.md) | [003-user-and-access-management](./00
 ```
 
 Related notes: [000-core](./000-core.md)
-
-# Troubleshooting Guide
-
-```text
-Problem: query is slow
-    |
-    v
-[1] Identify the query
-    PostgreSQL: check pg_stat_statements or slow query log
-    MySQL: enable slow_query_log, check slow queries
-    |
-    v
-[2] Run EXPLAIN (ANALYZE)
-    EXPLAIN ANALYZE SELECT ... ;
-    Look for: Seq Scan on large table, high cost, many rows
-    |
-    v
-[3] Missing index?
-    If Seq Scan on a filtered column --> CREATE INDEX
-    |
-    v
-[4] Table bloat? (PostgreSQL)
-    Check dead tuples: SELECT n_dead_tup FROM pg_stat_user_tables;
-    Fix: VACUUM ANALYZE <table>;
-    |
-    v
-[5] Query design issue?
-    SELECT * instead of specific columns?
-    Missing WHERE clause? Cartesian join?
-    |
-    v
-[6] Resource limits?
-    Check shared_buffers, work_mem (PostgreSQL)
-    Check innodb_buffer_pool_size (MySQL)
-    Monitor CPU, RAM, disk I/O during query
-```

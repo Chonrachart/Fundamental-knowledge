@@ -292,39 +292,3 @@ mysql -h localhost -u root -p -e "SELECT COUNT(*) FROM users;" mydb
 mysql -h localhost -u root -p mydb < /path/to/script.sql
 mysql -h localhost -u root -p -B -e "SELECT * FROM users;" mydb | tr '\t' ',' > users.csv
 ```
-
-# Troubleshooting Guide
-
-```text
-Problem: application reports "data not found" or "wrong data"
-    |
-    v
-[1] Can you connect to the database?
-    psql -h host -U user -d db   /   mysql -h host -u user -p db
-    |
-    +-- connection refused --> check service is running, port, firewall
-    +-- auth failed --> check credentials, pg_hba.conf / mysql.user
-    |
-    v
-[2] Does the table exist and have data?
-    SELECT COUNT(*) FROM table_name;
-    |
-    +-- table does not exist --> wrong database? check schema
-    +-- count = 0 --> data was deleted or never inserted
-    |
-    v
-[3] Does the expected row exist?
-    SELECT * FROM table_name WHERE <condition>;
-    |
-    +-- no rows --> wrong filter? check column values, case sensitivity
-    +-- data looks wrong --> check recent UPDATE statements, app logs
-    |
-    v
-[4] Are there long-running or blocking queries?
-    pg_stat_activity (PostgreSQL)  /  SHOW PROCESSLIST (MySQL)
-    |
-    +-- long query found --> consider pg_cancel_backend / KILL QUERY
-    |
-    v
-[5] Check application logs and query logs for the actual SQL being sent
-```

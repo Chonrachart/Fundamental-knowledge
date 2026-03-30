@@ -137,26 +137,3 @@ vi /etc/kubernetes/manifests/kube-apiserver.yaml
 # - --disable-admission-plugins=AlwaysPullImages
 # kubelet will detect the change and restart kube-apiserver automatically
 ```
-
-# Troubleshooting
-
-### Request rejected with "admission webhook ... denied the request"
-1. Identify which webhook fired: the error message includes the webhook name.
-2. Check webhook configuration: `kubectl get validatingwebhookconfigurations` or `kubectl get mutatingwebhookconfigurations`.
-3. Check webhook pod logs: `kubectl logs -n <webhook-namespace> <webhook-pod>`.
-4. If the webhook service is down and `failurePolicy: Fail`, all requests to matching resources are blocked.
-
-### Webhook is unreachable and blocking all creates (failurePolicy: Fail)
-1. Quickly check webhook pod status: `kubectl get pods -n <webhook-namespace>`.
-2. Temporary fix: change `failurePolicy` to `Ignore` or delete the webhook configuration to unblock.
-3. Fix the webhook deployment, then restore `failurePolicy: Fail`.
-
-### Pod created without resource limits despite LimitRange existing
-1. Check LimitRange: `kubectl get limitrange -n <namespace> -o yaml`.
-2. LimitRange only applies when no limits are set; if a pod explicitly sets limits, LimitRange defaults are not injected.
-3. Check if the pod was created before the LimitRange existed — existing pods are not retroactively updated.
-
-### "unable to validate against any security policy" (PodSecurity)
-1. Check the namespace's pod security label: `kubectl get namespace <ns> --show-labels | grep pod-security`.
-2. The pod spec violates the enforced policy (e.g. `restricted` policy forbids `privileged: true`).
-3. Either fix the pod spec to comply or change the namespace policy label.

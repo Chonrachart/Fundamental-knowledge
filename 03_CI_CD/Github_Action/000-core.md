@@ -92,27 +92,6 @@ Related notes: [003-expressions-contexts](./003-expressions-contexts.md)
 - Reusable workflows use `workflow_call`; composite actions use `action.yml`
 
 Related notes: [006-reusable-workflows-debugging](./006-reusable-workflows-debugging.md)
-
----
-
-# Troubleshooting Guide
-
-### Workflow not triggering
-1. Check `on:` event matches what happened (push vs pull_request, correct branch).
-2. Verify workflow file is on the **default branch** for schedule and workflow_dispatch triggers.
-3. Check file path: must be `.github/workflows/*.yml` (not `.yaml` for older setups — both work now).
-4. Check if workflow is disabled: Actions tab → select workflow → Enable.
-
-### Job skipped unexpectedly
-1. Check `if:` condition on the job — evaluate the expression manually.
-2. Check `needs:` — if upstream job failed or was skipped, dependent jobs skip too.
-3. For pull_request from forks: secrets are not available; steps using secrets may be skipped.
-
-### Action version mismatch
-1. Pin actions to major version (`@v4`) or commit SHA for stability.
-2. Check action's changelog for breaking changes between versions.
-3. Use Dependabot to track action updates.
-
 # Topic Map
 
 - [001-github-actions-overview](./001-github-actions-overview.md) — Workflows, jobs, steps, triggers, common patterns

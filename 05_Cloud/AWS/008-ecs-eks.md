@@ -129,23 +129,3 @@ kubectl get pods -A
 - ECS is AWS-native and simpler; EKS is standard Kubernetes — choose based on team expertise.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [004-ec2](./004-ec2.md), [007-elb-auto-scaling](./007-elb-auto-scaling.md)
-
----
-
-# Troubleshooting Guide
-
-### ECS task keeps stopping (essential container exited)
-1. Check task stopped reason: ECS Console → Cluster → Tasks → Stopped tab.
-2. Check container logs: CloudWatch Logs (configure `awslogs` log driver in task definition).
-3. Common: missing env var, wrong image tag, app crash, health check failure.
-4. Test image locally: `docker run` with same env vars.
-
-### ECS service stuck at 0 running tasks
-1. Check task definition: image exists in ECR, ports match.
-2. Check IAM: task execution role needs `ecr:GetDownloadUrlForLayer` and `logs:CreateLogStream`.
-3. Check VPC: Fargate tasks need NAT Gateway (private subnet) or IGW (public subnet with `assignPublicIp: ENABLED`).
-
-### kubectl cannot connect to EKS cluster
-1. Update kubeconfig: `aws eks update-kubeconfig --name <cluster>`.
-2. Check IAM identity: `aws sts get-caller-identity` — must match cluster creator or aws-auth ConfigMap.
-3. Check cluster endpoint access: public, private, or both.

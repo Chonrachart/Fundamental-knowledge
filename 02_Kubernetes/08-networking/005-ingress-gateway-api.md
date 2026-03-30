@@ -223,22 +223,3 @@ spec:
 | Extensibility | Annotations (non-standard) | Policy attachment (standard) |
 | Portability | Low (annotation hell) | High (standard spec) |
 | Adoption | Universal | Growing; nginx, Traefik, Istio support it |
-
-# Troubleshooting
-
-### Ingress returns 404
-1. Check Ingress resource rules: `kubectl describe ingress <name>` — verify host and path match the request.
-2. Check the backend service exists: `kubectl get svc <backend-svc>`.
-3. Check controller is running: `kubectl get pods -n ingress-nginx`.
-4. Verify the `Host` header in the request matches the Ingress `host` field exactly.
-
-### Ingress returns 502 Bad Gateway
-1. Backend pod is not ready — check: `kubectl get pods -l <selector>`.
-2. Service `port` or `targetPort` mismatch — verify with `kubectl describe svc <svc>`.
-3. Check controller logs: `kubectl logs -n ingress-nginx deployment/ingress-nginx-controller`.
-
-### TLS certificate not working / wrong cert served
-1. Verify Secret exists and has correct keys: `kubectl get secret <tls-secret> -o yaml`.
-2. Keys must be named `tls.crt` and `tls.key` exactly.
-3. Check Ingress `spec.tls.secretName` matches the Secret name.
-4. Check Secret is in the same namespace as the Ingress.

@@ -85,31 +85,3 @@ Dockerfile  ──build──▶  Image  ──run──▶  Container
 | [008-security-user-best-practices](./008-security-user-best-practices.md) | Non-root user, secrets, image scanning |
 | [009-compose-basics](./009-compose-basics.md) | Compose file structure, services, networks, volumes |
 | [010-compose-production-patterns](./010-compose-production-patterns.md) | Healthchecks, profiles, scale, override files |
-
-# Troubleshooting
-
-### "Cannot connect to the Docker daemon"
-
-1. Check if Docker is running: `systemctl status docker`.
-2. Start the daemon: `sudo systemctl start docker`.
-3. Check socket permissions: user must be in the `docker` group (`sudo usermod -aG docker $USER`) or use `sudo`.
-4. Re-login after adding user to group for group membership to take effect.
-
-### "docker: command not found"
-
-1. Verify installation: `which docker`.
-2. If missing, install from official docs for your distro.
-3. Check PATH: `echo $PATH` — Docker binary is typically in `/usr/bin` or `/usr/local/bin`.
-
-### Container exits immediately
-
-1. Check exit code: `docker ps -a` — STATUS column shows exit code.
-2. Check logs: `docker logs <container>`.
-3. Common cause: CMD completes immediately (e.g. `echo`); the main process must stay running.
-4. Debug: `docker run -it --entrypoint sh <image>` to inspect the environment interactively.
-
-### "Error response from daemon: conflict"
-
-1. A container with the same name already exists: `docker ps -a | grep <name>`.
-2. Remove it: `docker rm <name>` (force: `docker rm -f <name>`).
-3. Alternatively use a different `--name` or omit it to get an auto-generated name.

@@ -120,21 +120,3 @@ spec:
 | NodePort | Outside via `<NodeIP>:<port>` | Built on ClusterIP; adds node port 30000-32767 |
 | LoadBalancer | Outside via cloud LB | Built on NodePort; cloud provider creates external LB |
 | ExternalName | Inside cluster | DNS CNAME to external hostname; no proxying |
-
-# Troubleshooting
-
-### Service returns "connection refused" or times out
-1. Check Endpoints are populated: `kubectl get endpoints <svc>` — empty means no matching ready pods.
-2. Check pod selector matches pod labels: `kubectl get pods --show-labels`.
-3. Verify `targetPort` matches what the app actually listens on: `kubectl exec <pod> -- ss -tlnp`.
-4. Check kube-proxy is running: `kubectl get pods -n kube-system -l k8s-app=kube-proxy`.
-
-### Can reach pod IP directly but not ClusterIP
-1. kube-proxy iptables rules may be stale or missing.
-2. Check iptables rule: `iptables -t nat -L -n | grep <clusterIP>`.
-3. Restart kube-proxy pod: `kubectl delete pod -n kube-system -l k8s-app=kube-proxy`.
-
-### Intermittent failures (some requests succeed, some fail)
-1. One of the backing pods is unhealthy — check pod readiness: `kubectl get pods`.
-2. Check readiness probe configuration on the Deployment.
-3. `kubectl get endpoints <svc>` — count the IPs; should equal number of ready pods.

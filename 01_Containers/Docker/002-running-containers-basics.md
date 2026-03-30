@@ -169,30 +169,3 @@ docker run --rm alpine echo "hello"
 | 4 | `docker exec -it web sh` | Open interactive shell inside container |
 | 5 | `docker stop web` | Gracefully stop the container |
 | 6 | `docker rm web` | Remove the stopped container |
-
-# Troubleshooting
-
-### Container exits immediately after `docker run -d`
-
-1. Check logs immediately: `docker logs <name>` — the process wrote an error before exiting.
-2. Inspect exit code: `docker inspect <name> --format '{{.State.ExitCode}}'`.
-3. Common causes: missing required environment variable, wrong command, missing config file.
-4. Run interactively to debug: `docker run -it --name debug <image> sh` to explore the container.
-
-### "port is already allocated"
-
-1. Find what owns the host port: `ss -tlnp | grep <port>`.
-2. Kill the conflicting process or pick a different host port: `-p 8081:80`.
-3. Check for stopped containers still holding the binding: `docker ps -a` — remove them with `docker rm <name>`.
-
-### `docker exec` fails with "is not running"
-
-1. Confirm the container is actually running: `docker ps` (not just `docker ps -a`).
-2. Start it: `docker start <name>`.
-3. If it keeps exiting, read logs first: `docker logs <name>` — fix the root cause before retrying.
-
-### `docker logs` shows nothing
-
-1. The app may write to a file instead of stdout — `docker exec -it <name> sh` to check.
-2. If the container restarted, use `docker logs --previous <name>` to see the previous run's output.
-3. Confirm the logging driver is `json-file` (default): `docker inspect <name> --format '{{.HostConfig.LogConfig.Type}}'`.

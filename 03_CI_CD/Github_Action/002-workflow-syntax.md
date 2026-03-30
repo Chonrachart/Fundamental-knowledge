@@ -132,22 +132,3 @@ steps:
 - `defaults.run.shell: bash` normalizes shell behavior across Linux and Windows runners.
 
 Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [003-expressions-contexts](./003-expressions-contexts.md)
-
----
-
-# Troubleshooting Guide
-
-### Schedule trigger not running
-1. Cron only runs on the **default branch** — check workflow is on main/master.
-2. GitHub may delay or skip scheduled runs if repo is inactive (no commits for 60 days).
-3. Verify cron syntax: use [crontab.guru](https://crontab.guru) to validate.
-
-### Matrix job failing on one OS only
-1. Check path separators: `/` on Linux vs `\` on Windows.
-2. Check shell differences: `bash` vs `pwsh` on Windows runners.
-3. Use `defaults.run.shell: bash` to normalize across OS.
-
-### Concurrency cancels wanted runs
-1. Review `concurrency.group` — too broad groups cancel unrelated runs.
-2. Set `cancel-in-progress: false` for deploy jobs (avoid interrupted deployments).
-3. Use branch-specific groups: `concurrency: group: ${{ github.ref }}`.

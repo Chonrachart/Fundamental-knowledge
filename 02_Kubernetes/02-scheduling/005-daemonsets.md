@@ -167,20 +167,3 @@ kubectl rollout history daemonset/fluentd -n kube-system
 | Use case | Stateless app instances | Node-level agents |
 | Update | RollingUpdate with `maxSurge` | RollingUpdate with `maxUnavailable` or OnDelete |
 | Namespace-scoped | Yes | Yes |
-
-# Troubleshooting
-
-### DaemonSet pod not appearing on a node
-1. Check node taints: `kubectl describe node <name> | grep Taint` — add matching toleration.
-2. Check DaemonSet `nodeSelector` or affinity: `kubectl get ds <name> -o yaml`.
-3. Check node conditions: `kubectl describe node <name>` — `Ready: False` nodes still get DaemonSet pods but kubelet may not run them.
-4. Check available resources: DaemonSet pods can fail to start if the node is resource-exhausted.
-
-### DaemonSet rollout stuck
-1. Check pod events: `kubectl describe pod <daemonset-pod> -n <ns>` for pull errors or crashes.
-2. If `maxUnavailable: 1`, only one pod is replaced at a time — if that pod fails, rollout pauses.
-3. Rollback: `kubectl rollout undo daemonset/<name>`.
-
-### Accidentally running DaemonSet pods on control-plane
-1. Remove the catch-all `operator: Exists` toleration.
-2. Replace with specific tolerations only for needed system taints.

@@ -69,24 +69,6 @@ Related notes: [007-cli-commands](./007-cli-commands.md)
 - State file is the source of truth — never edit manually.
 - Provider versions pinned in `.terraform.lock.hcl` for reproducibility.
 - `terraform destroy` removes all managed resources — use with caution.
----
-
-# Troubleshooting Guide
-
-### terraform init fails — provider not found
-1. Check `required_providers` block: source must be `hashicorp/<name>` or full registry path.
-2. Check network: Terraform downloads from `registry.terraform.io`.
-3. Try `terraform init -upgrade` to refresh provider cache.
-
-### terraform plan shows unexpected changes
-1. Check for drift: someone changed infra outside Terraform.
-2. Run `terraform apply -refresh-only` to update state from real infra.
-3. Check `ignore_changes` in lifecycle if external process modifies attributes.
-
-### State lock — "Error acquiring the state lock"
-1. Another `terraform apply` may be running; wait for it to finish.
-2. If stuck: `terraform force-unlock <LOCK_ID>` — only if certain no other process is running.
-
 # Topic Map (basic to advanced)
 
 - [001-terraform-overview](./001-terraform-overview.md) — What Terraform is, workflow, provider/resource/state concepts

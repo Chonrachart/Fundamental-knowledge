@@ -147,22 +147,3 @@ cat /var/lib/kubelet/config.yaml
 # Check the kubelet service definition
 systemctl cat kubelet | grep manifest
 ```
-
-# Troubleshooting
-
-### Static pod not starting after dropping a file in manifests/
-1. Check kubelet logs: `journalctl -u kubelet -f` — manifest parse errors appear here.
-2. Verify file is valid YAML: `kubectl --dry-run=client apply -f /etc/kubernetes/manifests/my-pod.yaml`.
-3. Confirm `staticPodPath` matches the directory: `cat /var/lib/kubelet/config.yaml | grep staticPodPath`.
-4. Check kubelet is running: `systemctl status kubelet`.
-
-### kubectl delete pod on a static pod has no effect
-1. This is expected — you're deleting the mirror pod; kubelet recreates it.
-2. To actually delete: `rm /etc/kubernetes/manifests/<pod-file>.yaml` on the node.
-3. To edit: modify the file on disk; kubelet detects the change and recreates the pod.
-
-### Control-plane component is crashing (e.g. etcd)
-1. The file is in `/etc/kubernetes/manifests/` — edit it directly.
-2. Check kubelet logs: `journalctl -u kubelet -n 100`.
-3. Check the pod's container logs via `crictl`: `crictl logs <container-id>` (before API server is up) or `kubectl logs` (after).
-4. Common cause: misconfigured flags in the manifest YAML, wrong certificate paths, or missing volumes.

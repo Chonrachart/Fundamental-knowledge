@@ -165,22 +165,3 @@ ip route del 172.16.0.0/16
 ```
 
 Related notes: [002-ip-command](./002-ip-command.md)
-
-
----
-
-# Troubleshooting Guide
-
-```text
-Packet not reaching destination?
-  │
-  ├─ Route exists? ──── ip route show ──── No match? → ip route add ...
-  │
-  ├─ Correct gateway? ──── ip route get <dest_ip> ──── Wrong via? → fix route
-  │
-  ├─ Gateway reachable? ──── ping <gateway> ──── No reply? → check L2/interface
-  │
-  ├─ Policy rules? ──── ip rule show ──── Wrong table? → ip rule add/del
-  │
-  └─ "No route to host"? ──── no matching entry in any consulted table → add route
-```

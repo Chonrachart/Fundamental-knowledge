@@ -139,25 +139,3 @@ crictl ps          # running containers
 crictl pods        # running pod sandboxes
 crictl logs <id>   # container logs
 ```
-
-# Troubleshooting
-
-### kubelet not starting / node NotReady
-
-1. `systemctl status kubelet` — check for error messages.
-2. `journalctl -u kubelet -n 100` — look for "failed to", "error", "cannot".
-3. Common causes: wrong container runtime socket path, certificate expired, disk full on node.
-4. Check CNI plugin is installed: kubelet will fail if networking plugin is missing.
-
-### Pod stays in ContainerCreating
-
-1. `kubectl describe pod <name>` — Events will show kubelet's progress.
-2. Common: image pull failure (check `imagePullBackOff` events), volume mount failure, CNI error.
-3. On the node: `crictl ps` and `crictl pods` to see runtime state.
-
-### Service traffic not reaching pods
-
-1. Check kube-proxy is running: `kubectl get pods -n kube-system -l k8s-app=kube-proxy`.
-2. Check endpoints are populated: `kubectl get endpoints <svc-name>`.
-3. On the node, verify iptables rules exist: `iptables -t nat -L KUBE-SERVICES -n | grep <cluster-ip>`.
-4. Check readiness probes — pods may be Running but not Ready, so they're excluded from Endpoints.

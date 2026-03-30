@@ -111,25 +111,3 @@ Related notes: [004-ec2](./004-ec2.md)
 - Connection draining (deregistration delay) prevents dropped requests during scale-in.
 
 Related notes: [003-vpc-networking](./003-vpc-networking.md), [004-ec2](./004-ec2.md)
-
----
-
-# Troubleshooting Guide
-
-### Targets showing "unhealthy" in target group
-1. Check health check path returns 200 (e.g. `/health`); app may not be running.
-2. Check Security Group: ALB SG must allow outbound to target port; target SG must allow inbound from ALB SG.
-3. Check health check port matches app listening port.
-4. Increase unhealthy threshold or health check interval for slow-starting apps.
-
-### ASG not scaling out
-1. Check scaling policy: is the metric breaching the threshold?
-2. Check Max capacity: ASG won't exceed `max` instances.
-3. Check AZ capacity: try adding more AZs to the ASG.
-4. Check launch template: AMI still exists, instance type available.
-
-### 504 Gateway Timeout from ALB
-1. Backend (target) is not responding in time.
-2. Check target health and logs.
-3. Increase ALB idle timeout (default 60s) if backend needs more time.
-4. Check Security Group allows ALB → target communication.

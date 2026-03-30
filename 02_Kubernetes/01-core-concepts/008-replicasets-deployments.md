@@ -207,23 +207,3 @@ kubectl get deployment myapp
 # NAME    READY   UP-TO-DATE   AVAILABLE   AGE
 # myapp   3/3     3            3           5m
 ```
-
-# Troubleshooting
-
-### Deployment created but no pods appear
-
-1. Check if ReplicaSet was created: `kubectl get rs -l app=<name>`.
-2. If RS exists but 0 pods: check `kubectl describe rs <rs-name>` — may be a quota or image pull issue.
-3. Check deployment events: `kubectl describe deployment <name>`.
-
-### Pods created but keep restarting
-
-1. `kubectl describe pod <name>` — check Events and Last State.
-2. `kubectl logs <pod>` and `kubectl logs <pod> --previous` for crash logs.
-3. Common: app exits on startup (bad config), liveness probe too aggressive, OOMKill (check `kubectl describe pod` for `OOMKilled`).
-
-### Scale command has no effect
-
-1. Check if HPA is managing the deployment: `kubectl get hpa` — HPA overrides manual scaling.
-2. Verify: `kubectl get deployment <name>` — check if READY count changes.
-3. Check for pending pods if scaling up: `kubectl get pods` — may be resource constraints.

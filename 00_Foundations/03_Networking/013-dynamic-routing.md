@@ -138,25 +138,3 @@ Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
 - You don't need to configure BGP in most environments, but understanding it explains why the internet routes the way it does and what happens during major outages.
 
 Related notes: [009-tls-and-ssl-cert-chain](./009-tls-and-ssl-cert-chain.md)
-
----
-
-# Troubleshooting Guide
-
-### Route not propagating
-1. Check if the routing protocol is running: `systemctl status ospfd` or `systemctl status bgpd`.
-2. Check neighbor/peer status: are adjacencies established?
-3. Check for route filters: is the route being filtered by a route-map or prefix list?
-4. Check area configuration (OSPF): is the link in the correct area?
-
-### Asymmetric routing
-1. Traffic takes a different path in each direction — can cause issues with stateful firewalls.
-2. Compare routing tables on both sides: `ip route get <destination>`.
-3. Check for unequal link costs (OSPF) or different local preferences (BGP).
-4. May be acceptable in some cases (common with BGP multi-homing).
-
-### BGP peer down
-1. Check TCP connectivity: `nc -zv <peer-ip> 179` — can you reach BGP port?
-2. Check firewall rules: is TCP 179 allowed between peers?
-3. Check BGP configuration: AS numbers, peer IP, authentication key match on both sides.
-4. Check logs: `journalctl -u bgpd` for error messages.

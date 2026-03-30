@@ -137,24 +137,3 @@ jobs:
 - `fromJSON()` can dynamically generate matrix values from a previous step's output.
 
 Related notes: [002-workflow-syntax](./002-workflow-syntax.md), [006-reusable-workflows-debugging](./006-reusable-workflows-debugging.md)
-
----
-
-# Troubleshooting Guide
-
-### Expression evaluates to empty string
-1. Check context spelling: `github.ref` not `github.refs` — typos return empty.
-2. Check event type: `github.head_ref` is only available on `pull_request` events.
-3. Use `toJSON(github)` in a debug step to inspect available context values.
-
-### Output not passed between jobs
-1. Ensure source step has `id:` set and writes to `$GITHUB_OUTPUT`.
-2. Job must declare `outputs:` mapping step output to job output.
-3. Consuming job must have `needs:` referencing the source job.
-4. Syntax: `${{ needs.<job_id>.outputs.<output_name> }}`.
-
-### if condition not working as expected
-1. Boolean comparison: use `== true` not `== 'true'` for boolean contexts.
-2. String comparison is case-sensitive.
-3. `github.ref` includes full path: `refs/heads/main` not just `main`.
-4. Use `contains()`, `startsWith()`, `endsWith()` for partial matching.

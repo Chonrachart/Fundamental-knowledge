@@ -126,27 +126,3 @@ if [ -f ~/.bashrc ]; then . ~/.bashrc; fi
 
 Related notes:
 - [01-Basic-file-and-text-manipulation](./01-Basic-file-and-text-manipulation.md) — shell basics
-
-
----
-
-# Troubleshooting Guide
-
-### "command not found"
-
-1. Check if shell finds it at all: `command -v <cmd>`.
-2. Check if the binary's directory is in PATH: `echo $PATH`.
-3. Verify binary exists and has execute bit: `ls -l $(which <cmd>)`.
-
-### which shows wrong version of command
-
-1. Check PATH order (leftmost directory wins): `echo $PATH`.
-
-### export works in terminal but not in cron / script
-
-1. Script runs in non-interactive shell — source the startup file explicitly or set PATH at top of script with full absolute paths.
-
-### Variable set in script not visible in parent shell
-
-1. Use `source ./script.sh` (not `./script.sh`) to run in current shell context.
-

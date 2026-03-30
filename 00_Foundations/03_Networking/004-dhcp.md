@@ -144,24 +144,3 @@ Related notes: [006-dns](./006-dns.md)
 - Devices that other services depend on (printers, file servers) should use reservations, not purely dynamic assignment.
 
 Related notes: [003-addressing-and-routing](./003-addressing-and-routing.md)
-
----
-
-# Troubleshooting Guide
-
-### No IP assigned (stuck on 169.254.x.x or 0.0.0.0)
-1. Check if DHCP server is running: `ss -ulnp | grep :67` on the server.
-2. Check network connectivity: is the cable/Wi-Fi connected? `ip link show`.
-3. Check for DHCP traffic: `sudo tcpdump -i eth0 port 67 or port 68` — are Discover packets going out?
-4. If relay is involved: check relay agent configuration on the router.
-5. Check server pool: is the address pool exhausted? Check server logs.
-
-### Duplicate IP addresses
-1. Two devices got the same IP — typically caused by a rogue DHCP server or a static IP conflicting with the DHCP pool.
-2. Find the conflict: `arping -D 192.168.1.105` — if you get a reply, another device has that IP.
-3. Fix: ensure static IPs are outside the DHCP pool range, or use DHCP reservations instead.
-
-### Lease exhaustion
-1. All IPs in the pool are leased out — new devices cannot get an address.
-2. Check active leases on the server to find stale entries.
-3. Fix: expand the pool, shorten lease times, or identify devices that aren't releasing leases.

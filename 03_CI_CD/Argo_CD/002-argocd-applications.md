@@ -406,20 +406,6 @@ template:
 ```
 
 Related notes: [004-argocd-advanced-patterns](./004-argocd-advanced-patterns.md)
-
----
-
-# Troubleshooting Guide
-
-### Application stuck in "OutOfSync" after sync
-
-1. Check diff: `argocd app diff myapp` — look at what ArgoCD thinks is different.
-2. Common: Kubernetes adds default fields (annotations, labels) not in Git manifests.
-3. Solution: add `ignoreDifferences` for auto-generated fields.
-4. Check mutating webhooks: they may modify resources after ArgoCD applies them.
-5. Check Helm: non-deterministic template output (random, date functions).
-
-```yaml
 # Ignore differences for specific fields
 spec:
   ignoreDifferences:

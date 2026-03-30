@@ -92,19 +92,3 @@ Related notes: [002-loki](./002-loki.md)
 - Metric queries turn logs into time-series — useful for alerting on log patterns and building dashboards from log data
 
 Related notes: [002-loki](./002-loki.md), [001-logging-overview](./001-logging-overview.md)
-
-# Troubleshooting Guide
-
-### LogQL query returns no results
-
-1. Check stream selector matches existing labels: Grafana Explore → Label browser to see available labels.
-2. Verify time range — Loki may have limited retention.
-3. Remove pipeline stages one by one to find which stage filters out all results.
-4. Check if parser matches log format: test with just `{job="api"} | json` first.
-
-### LogQL query is slow
-
-1. Narrow the stream selector — fewer streams = faster query.
-2. Add line filter (`|= "error"`) before parser — filtering raw text is faster than parsing all lines.
-3. Reduce time range.
-4. Check Loki limits: `max_query_length`, `max_entries_limit_per_query`.

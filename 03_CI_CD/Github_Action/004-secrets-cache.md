@@ -118,27 +118,3 @@ jobs:
 - Environment protection rules (reviewers, wait timers) only apply when the job specifies `environment:`.
 
 Related notes: [001-github-actions-overview](./001-github-actions-overview.md), [003-expressions-contexts](./003-expressions-contexts.md)
-
----
-
-# Troubleshooting Guide
-
-### Secret not available in workflow
-1. Check secret name matches exactly (case-sensitive) in repo/org Settings.
-2. Forked PRs: secrets are **not** passed to workflows from forks (security).
-3. Environment secrets: job must specify `environment:` to access env-specific secrets.
-
-### Cache miss every run
-1. Verify `key:` includes the right hash — `hashFiles()` pattern must match your lockfile path.
-2. First run on a new branch has no cache; it inherits from default branch via `restore-keys:`.
-3. Check `path:` matches the actual directory (e.g. `~/.npm` vs `node_modules`).
-
-### Artifact download fails in another job
-1. Ensure `upload-artifact` step completed successfully in the upstream job.
-2. Artifact `name:` must match between upload and download steps.
-3. Check `needs:` — download job must depend on the upload job.
-
-### GITHUB_TOKEN permission denied
-1. Add explicit `permissions:` block to the job or workflow level.
-2. Default token may have read-only access; add `packages: write`, `contents: write`, etc. as needed.
-3. For organization repos: check if org settings restrict GITHUB_TOKEN permissions.

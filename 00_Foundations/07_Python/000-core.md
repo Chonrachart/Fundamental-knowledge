@@ -171,37 +171,6 @@ Related notes: [009-decorators-and-generators](./009-decorators-and-generators.m
 - Generators use `yield` to produce values lazily, one at a time.
 - Generator expressions: `(x for x in iterable)` -- memory-efficient iteration.
 
-# Troubleshooting Guide
-
-```text
-Problem: Python script fails or behaves unexpectedly
-    |
-    v
-[1] Version: are you running the right Python?
-    python3 --version / which python3
-    |
-    v
-[2] Environment: is the correct venv activated?
-    which pip / pip list
-    |
-    v
-[3] Syntax: any SyntaxError or IndentationError?
-    python3 -m py_compile script.py
-    |
-    v
-[4] Import: ModuleNotFoundError?
-    pip list | grep <package> / pip install <package>
-    |
-    v
-[5] Runtime: read the traceback bottom-up
-    last line = exception type + message
-    line above = file, line number, function
-    |
-    v
-[6] Logic: add print() or use pdb
-    python3 -m pdb script.py
-```
-
 # Topic Map
 
 - [001-variables-and-types](./001-variables-and-types.md) -- Variables, types, dynamic typing

@@ -98,14 +98,3 @@ Related notes: [003-actions-templates](./003-actions-templates.md)
 - Unlink to detach; unlink-and-clear removes all inherited objects.
 
 Related notes: [003-actions-templates](./003-actions-templates.md)
-
----
-
-# Troubleshooting Guide
-
-### Host shows "Unavailable" in Zabbix frontend
-
-1. Is Zabbix agent running on the host? `systemctl status zabbix-agent2` -- not running --> start agent, check config (`Server=` directive).
-2. Can the server reach the agent port? `nc -zv <host-ip> 10050` -- timeout --> firewall blocking; check iptables / security group; refused --> agent not listening; check `ListenPort` config.
-3. Does `zabbix_get` return data? `zabbix_get -s <host-ip> -k agent.ping` -- error --> check `Server=` in agent config (must include server IP).
-4. Check server and agent logs for detailed errors: `/var/log/zabbix/zabbix_server.log` and `/var/log/zabbix/zabbix_agent2.log`.

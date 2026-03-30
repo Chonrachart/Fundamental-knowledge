@@ -264,23 +264,3 @@ kubectl apply -f deny-all.yaml -n production
 # Delete a policy (traffic returns to default allow for affected pods)
 kubectl delete networkpolicy default-deny-ingress -n production
 ```
-
-# Troubleshooting
-
-### Pod cannot reach another pod after adding NetworkPolicy
-1. Check for a default-deny: `kubectl get networkpolicy -n <namespace>`.
-2. Verify pod labels match the policy `podSelector` exactly: `kubectl get pod <pod> --show-labels`.
-3. Check that the source pod matches a `from` selector in the target's ingress policy.
-4. Verify the correct port and protocol are listed in the policy.
-5. Check both sides: the source pod may have an egress policy blocking outbound, and the destination may have an ingress policy blocking inbound.
-
-### DNS resolution fails after adding egress policy
-1. Egress deny-all blocks port 53 UDP/TCP to kube-system (CoreDNS).
-2. Add an explicit egress rule allowing UDP and TCP port 53 to `kube-system` namespace.
-3. Test: `kubectl exec <pod> -- nslookup kubernetes.default`.
-
-### NetworkPolicy has no effect (traffic still flows freely)
-1. Check CNI plugin: `kubectl get pods -n kube-system | grep -E 'calico|cilium|weave'`.
-2. If using Flannel, policies exist but are never enforced. Switch to Calico or Cilium.
-3. Verify the policy is in the correct namespace (`kubectl get networkpolicy -A`).
-4. Check that `policyTypes` is declared; omitting it can cause unexpected behavior.

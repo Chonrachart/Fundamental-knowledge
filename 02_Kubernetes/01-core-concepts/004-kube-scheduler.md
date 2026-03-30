@@ -146,27 +146,3 @@ kubectl get pods --field-selector=status.phase=Pending
 # See scheduler logs (control plane)
 kubectl logs -n kube-system -l component=kube-scheduler
 ```
-
-# Troubleshooting
-
-### Pod stays in Pending — 0/N nodes are available
-
-1. `kubectl describe pod <name>` — Events section shows the exact filter reason.
-2. Common messages:
-   - `Insufficient cpu` / `Insufficient memory` — no node has enough capacity for pod's requests
-   - `node(s) didn't match Pod's node affinity/selector` — nodeSelector or nodeAffinity mismatch
-   - `node(s) had untolerated taint` — pod missing toleration for tainted node
-3. Check node capacity: `kubectl describe nodes | grep -A5 "Allocated resources"`.
-4. Check node labels: `kubectl get nodes --show-labels`.
-
-### Pod placed on unexpected node
-
-1. Review pod's `nodeSelector`, `nodeAffinity`, and `tolerations`.
-2. Check if topology spread constraints or pod anti-affinity are configured.
-3. Use `kubectl get pod -o wide` to confirm placement, then `kubectl describe node <node>` to see its labels and taints.
-
-### Scheduler not running
-
-1. `kubectl get pods -n kube-system -l component=kube-scheduler` — check it's Running.
-2. Check scheduler config: `cat /etc/kubernetes/manifests/kube-scheduler.yaml` on control plane.
-3. All new pods stay Pending indefinitely when scheduler is down; existing pods continue running.

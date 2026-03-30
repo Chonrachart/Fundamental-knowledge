@@ -154,17 +154,3 @@ handlers:
 
 Related notes:
 - [004-variables-facts-templating](./004-variables-facts-templating.md)
-
-
-# Troubleshooting Guide
-
-### Task fails
-
-1. Read the error message in output (`rc`, `stderr`, `msg`).
-2. Re-run with `-vvv` to see exact module args sent and raw output.
-3. Test the module ad-hoc on one host.
-4. Add a `debug` task above the failing task to print relevant variables.
-5. Check `changed_when` / `failed_when` if result logic seems wrong.
-6. Check `become` / permissions if "Permission denied".
-7. Fix, re-run, and confirm the second run is all `ok`.
-

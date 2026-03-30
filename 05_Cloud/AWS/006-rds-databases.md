@@ -129,23 +129,3 @@ Related notes: [001-aws-overview](./001-aws-overview.md)
 - DynamoDB is serverless NoSQL; no maintenance, no patching.
 
 Related notes: [001-aws-overview](./001-aws-overview.md), [002-iam](./002-iam.md)
-
----
-
-# Troubleshooting Guide
-
-### Cannot connect to RDS instance
-1. Check Security Group: allows inbound on DB port (3306 MySQL, 5432 PostgreSQL) from app's SG.
-2. Check RDS is in the correct VPC and subnet group.
-3. Check "Publicly Accessible" setting if connecting from outside VPC.
-4. Check credentials and database name.
-
-### High replication lag on read replica
-1. Check replica instance class — undersized replica can't keep up.
-2. Check for long-running write transactions on primary.
-3. Consider upgrading replica instance class or adding more replicas.
-
-### Restore takes too long
-1. Restores create a new instance — copy time depends on size.
-2. Use point-in-time restore for most recent data (up to 5 minutes ago).
-3. Snapshots of large databases take longer; plan restore testing.

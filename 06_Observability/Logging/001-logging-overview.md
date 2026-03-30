@@ -204,17 +204,3 @@ Related notes: [../000-core](../000-core.md)
 - **Alerting on logs** -- query logs in aggregator and fire alert if error rate threshold breached (e.g., "ERROR" count > 10/min).
 
 Related notes: [../000-core](../000-core.md), [../Grafana/003-alerting](../Grafana/003-alerting.md)
-
----
-
-# Troubleshooting Guide
-
-### Missing or delayed logs in centralized system
-
-1. Are logs being generated on the source? `tail -f /var/log/app.log` or `journalctl -u app -f`. No logs means app not running or not configured to log.
-2. Is the log agent running and tailing the file? `ps aux | grep promtail` / `systemctl status promtail`. Not running means start the agent.
-3. Does the agent config point to the right log source? `cat /etc/promtail/config.yml | grep -A5 scrape_configs`. Wrong path or pattern means fix config and reload agent.
-4. Can the agent connect to the backend? `curl -v http://loki:3100/loki/api/v1/status` or `curl -v http://elasticsearch:9200/_cluster/health`. Connection refused/timeout means check firewall and backend running.
-5. Is the backend receiving logs? Loki: `curl http://loki:3100/loki/api/v1/label`. Elasticsearch: `curl http://elasticsearch:9200/_cat/indices`. No indices/labels means agent not shipping.
-6. Check agent logs for errors: `journalctl -u promtail -f` or `docker logs <agent-container>`. Debug errors in agent config or backend connectivity.
-7. Query backend to verify logs are indexed. Grafana Explore: query `{job="app"}`. Kibana: search `service:app`.

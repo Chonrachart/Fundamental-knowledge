@@ -196,29 +196,3 @@ kubectl get pods -w
 # See all pod details including phase, conditions, container statuses
 kubectl describe pod <name>
 ```
-
-# Troubleshooting
-
-### Pod not receiving traffic despite being Running
-
-1. Check readiness probe: `kubectl describe pod <name>` — is readiness probe passing?
-2. If readiness fails, pod is excluded from Service endpoints: `kubectl get endpoints <svc>`.
-3. Fix: adjust `initialDelaySeconds`, correct probe path/port, or check app's `/ready` handler.
-
-### Init container stuck (Pod shows `Init:0/1`)
-
-1. Check init container logs: `kubectl logs <pod> -c <init-container-name>`.
-2. Init containers run sequentially; if one fails the pod stays in Init state.
-3. Common causes: waiting for a dependency that is not ready, wrong image, missing env var.
-
-### Liveness probe killing healthy container
-
-1. Probe too aggressive: increase `initialDelaySeconds` and `timeoutSeconds`.
-2. Slow-starting app: add a `startupProbe` with a high `failureThreshold`.
-3. Verify probe endpoint: `kubectl exec <pod> -- curl -s localhost:8080/health`.
-
-### Pod stuck in Terminating
-
-1. Check for finalizers: `kubectl get pod <name> -o jsonpath='{.metadata.finalizers}'`.
-2. If node is down, pod may be stuck — force delete: `kubectl delete pod <name> --force --grace-period=0`.
-3. Check `preStop` hook — if it hangs, pod waits `terminationGracePeriodSeconds` before SIGKILL.

@@ -160,23 +160,3 @@ spec:
       cpu: "2"
       memory: "2Gi"
 ```
-
-# Troubleshooting
-
-### Objects not found — "No resources found in default namespace"
-
-1. You're probably in the wrong namespace: `kubectl config view --minify | grep namespace`.
-2. Use `-n <namespace>` or `-A` to search all namespaces: `kubectl get pods -A | grep <name>`.
-3. Set the correct default: `kubectl config set-context --current --namespace=<ns>`.
-
-### Pod rejected — "exceeded quota"
-
-1. `kubectl describe resourcequota -n <namespace>` — check Used vs Hard limits.
-2. Pod must specify resource requests when ResourceQuota is active.
-3. Add `resources.requests.cpu` and `resources.requests.memory` to pod spec.
-
-### Cannot create namespace-scoped resources — "Forbidden"
-
-1. Check RBAC: `kubectl auth can-i create pods -n <namespace>`.
-2. Role bindings may be scoped to a different namespace.
-3. Check your service account or kubeconfig user has a RoleBinding in the target namespace.

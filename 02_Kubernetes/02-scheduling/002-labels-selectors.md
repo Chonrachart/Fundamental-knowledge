@@ -132,21 +132,3 @@ metadata:
     kubernetes.io/change-cause: "image updated to v1.2"   # informational only
     prometheus.io/scrape: "true"                           # tool-read, not selectable
 ```
-
-# Troubleshooting
-
-### Service not routing traffic to pods
-1. Check the Service selector: `kubectl get svc <name> -o yaml | grep -A5 selector`.
-2. Check that pods have matching labels: `kubectl get pods --show-labels`.
-3. Verify endpoint slice: `kubectl get endpoints <svc-name>` — should list pod IPs.
-4. Label key-value must match exactly (case-sensitive, no extra spaces).
-
-### Deployment not managing pods
-1. The Deployment's `spec.selector.matchLabels` must match the pod template's `metadata.labels`.
-2. A mismatch means pods are created but not counted; Deployment keeps creating more.
-3. Check: `kubectl describe deployment <name>` — look at `Selector` and `Pod Template Labels`.
-
-### kubectl -l returns no results despite pods existing
-1. Verify label spelling: `kubectl get pods --show-labels` — see all labels on all pods.
-2. Set-based syntax in kubectl requires quotes: `kubectl get pods -l 'env in (prod)'`.
-3. Check namespace: `kubectl get pods -l app=web -A` to search all namespaces.

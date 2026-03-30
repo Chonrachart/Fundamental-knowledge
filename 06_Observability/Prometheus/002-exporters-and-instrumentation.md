@@ -338,32 +338,3 @@ func main() {
 ```
 
 Related notes: [001-prometheus-overview](./001-prometheus-overview.md), [../000-core](../000-core.md)
-
----
-
-# Troubleshooting Guide
-
-### Exporter endpoint returns no metrics or errors
-
-1. Is the exporter service running? `curl http://localhost:9100/metrics` -- connection refused --> start exporter; 500 error --> check exporter logs.
-2. Check exporter logs for errors: `systemctl status node_exporter -l` / `journalctl -u node_exporter -f` -- permission denied --> run with correct user/privileges; config error --> validate exporter config file.
-3. Does the exporter have access to system resources? `node_exporter` needs `/proc`, `/sys` readable: `ls -la /proc /sys` -- permission denied --> check sudo, capabilities, or container mounts.
-4. Check exporter response time: `curl -w '%{time_total}s\n' http://localhost:9100/metrics` -- > 10 seconds --> exporter is slow, investigate target system.
-5. Validate metrics format: `curl http://localhost:9100/metrics | head -10` -- should see: # HELP, # TYPE, metric_name{labels} value.
-
-### Application instrumentation not working (no metrics in Prometheus)
-
-1. Is the /metrics endpoint exposed by the application? `curl http://app:8080/metrics` -- 404 --> application not exposing metrics, check code; connection refused --> application not running.
-2. Are metrics being initialized in the code? Check application logs: "Prometheus metrics registered" -- not logged --> metrics not initialized at startup.
-3. Is Prometheus scraping the application? `curl http://prometheus:9090/api/v1/targets | grep <job_name>` -- target down --> check firewall, port, application logs; target up but no data --> metrics not being recorded in code.
-4. Review application instrumentation code. Is the metric being incremented/observed? Add debug logging: "Recorded metric: counter=X".
-5. Check for label cardinality issues: `curl 'http://prometheus:9090/api/v1/query?query=count(my_app_metric)'` -- value very large --> too many label combinations.
-6. Restart application and scrape Prometheus again. Wait 15-30 seconds for data to appear.
-
-### Pushgateway metrics disappear
-
-1. Did the job finish and timeout? Pushgateway default TTL is metric retention (check settings).
-2. Are you pushing with the same job and instance labels? `curl -X POST http://pushgateway:9091/metrics/job/X/instance/Y` -- different labels each push --> creates new series, old ones expire.
-3. Is Prometheus configured to scrape Pushgateway? Check `prometheus.yml`: `scrape_configs` for pushgateway job -- not configured --> add it.
-4. Check Pushgateway UI for metrics: `http://pushgateway:9091` -- empty --> nothing was pushed.
-5. Review Pushgateway persistence settings. If not persistent, metrics lost after restart.

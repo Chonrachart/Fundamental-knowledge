@@ -152,27 +152,6 @@ Related notes: [007-Network-namespace](./007-Network-namespace.md)
 - Isolated network stacks on one host: own interfaces, routing tables, firewall rules
 - Used by containers (Docker, Podman), VMs, VPNs, complex network topologies
 - Network namespaces give full stack isolation (interfaces, routes, firewall)
-
----
-
-# Troubleshooting Guide
-
-```text
-Network issue?
-  │
-  ├─ Interface up? ──── ip link show ──── DOWN? → ip link set <iface> up
-  │
-  ├─ IP assigned? ──── ip addr show ──── No IP? → ip addr add ... dev <iface>
-  │
-  ├─ Route exists? ──── ip route show ──── No default? → ip route add default via ...
-  │
-  ├─ DNS resolves? ──── dig <host> ──── Fails? → check /etc/resolv.conf
-  │
-  ├─ Firewall blocking? ──── iptables -L -n / nft list ruleset
-  │
-  └─ Port open? ──── ss -tlnp | grep :<port> ──── Not listening? → check service
-```
-
 # Topic Map
 
 - [001-Network-interface](./001-Network-interface.md) — Physical vs virtual interfaces
