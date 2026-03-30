@@ -5,6 +5,116 @@
 - **What it is** —
 - **One-liner** —
 
+<!-- Your original notes below — reorganize into subsections -->
+
+### What are Git branches
+
+- A movable pointer to a commit that represents an independent line of
+  development
+
+### Why to use branches
+
+- To **isolate** work without breaking the main project.
+- Allows experimentation that can be merged when stable or discard easily.
+
+![Git-Branches](./pic/git-branches.png)
+
+---
+
+### Command
+
+```bash
+git branch
+```
+
+- Lists all branches in the repository.
+- Use `git branch <name>` to Creates a new branch at the current commit.
+- Use `git branch -d <name>` safely removes merged branches. `-D` forces delete.
+- Use `git branch -vv` to show all branch and tracking branch.
+  
+```bash
+git switch <name>
+```
+
+- Switches to the specified branch and updates the working directory.
+- `git switch -c <new_name>` to create new branch and switch to it.
+
+---
+
+### Merge
+
+```bash
+git merge <name>
+git merge --no-ff
+```
+- `git merge --no-ff` this is save way to keep history as branch 
+  - Always create merge commit
+  - Unchange commit hashes (rebase change hash commit)
+  - Safe for shared branch
+- Combines another branch into the current one.
+
+#### Merge Type
+
+- **Fast-forward merge** happen when the target branch has no new commits since 
+    the feature branch was created.
+
+    - This only moves the branch pointer to the latest commit of the merged branch.
+    - **No merge commit is created**.
+
+Situation
+
+![fast-forward-situation](./pic/git-before-branch-ff.png)
+
+Merge Result
+
+![fast-forward-result](./pic/git-merge-ff.png)
+
+- **Three way merge** happens when both branches have new commits after diverging.
+    
+    - **Creates a new merge commit** with two parents in 
+      example from E and G
+    - Git compares three commits: the common ancestor, the HEAD of the 
+      target branch, and the HEAD of the merging branch.
+    - May result in a **merge conflict**.
+  
+Situation
+
+![three-way-merge-situation](./pic/git-before-branch_three-way.png)
+
+Merge Result
+
+![three-way-merge_result](./pic/git-merge-three-way.png)
+
+### Merge conflict
+
+- Happens when both branches edit the same part of a file and Git cannot
+  automatically merge the changes.
+- Must be resolved before the merge can be completed.
+
+#### Merge conflict rersolve
+
+- Open the conflicting file(s).
+- Edit and keep the correct changes.
+- Remove the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
+- After editing, run:
+
+```bash
+git add <file>
+git commit
+```
+  
+#### Cancle merge
+
+```bash
+git merge --abort
+```
+
+- Aborts the merge process and restores the repository to the state before the 
+  merge started.
+  
+  test
+
+
 # Architecture
 
 # Core Building Blocks
