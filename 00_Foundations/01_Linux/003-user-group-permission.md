@@ -5,7 +5,11 @@
 - **What it is** —
 - **One-liner** —
 
-<!-- Your original notes below — reorganize into subsections -->
+# Architecture
+
+# Core Building Blocks
+
+### User Management
 
 ```bash
 whoami
@@ -24,19 +28,18 @@ su <user_name>
 - `useradd -d <directory> <user_name>` Sets home directory location..
 - `userdel -r <user_name>` remove user and home directory.
 - `passwd` change password.
-- `passwd -e <user_name>` password expire force a user to change their 
+- `passwd -e <user_name>` password expire force a user to change their
   password upon next login.
 - `passwd -S <user_name>` show password status
   - `L` Locked
   - `P` Password set (usable)
   - `NP` No password
 - `su <user_name>` change to specific user.
-  
-### See create-user.sh to see more flow 
+
+#### See create-user.sh to see more flow
 [create-user.sh](../Shell-script/User/create_user.sh)
 
-
-# Group
+### Group Management
 
 ```bash
 groups
@@ -49,14 +52,13 @@ groupdel <group_name>
 - `getent group` show all groups and group information in fromat <br>
   `group_name:password:GID:user1,user2,user3`
 
-### Primary Group
+#### Primary Group
 
 - Every Linux user has:
     - 1 Primary Group use when create file ownership become primary group.
     - 0 or more Supplementary Groups
 
-
-# User Mod and Group Mod
+### Modifying Users and Groups
 
 ```bash
 usermod [option] <user_name>
@@ -65,7 +67,7 @@ groupmod [option] <group_name>
 
 - `usermod -aG <group_name> <user_name>` Add user to a supplementary group.
   Must use `-a` (append) with `-G` (supplementary group.) or it will overwrite existing groups.
-- `usermod -g <group_name> <user_name>` Change primary group. User can have only 
+- `usermod -g <group_name> <user_name>` Change primary group. User can have only
   ONE primary group.
 - `usermod -l <new_name> <old_name>` Change username.
 - `usermod -d /new/home <user_name>` Change home directory path.
@@ -77,12 +79,11 @@ groupmod [option] <group_name>
 - `groupmod -n <new_name> <old_name>` Change group name.
 - `groupmod -g <GID> <group_name>` Change group ID (GID).
 
-### See change-username.sh to see more flow 
+#### See change-username.sh to see more flow
 
 [change-username.sh](../Shell-script/User/change-username.sh)
 
-
-# Permission
+### Permissions
 
 ```bash
 chmod <mode> <file>
@@ -103,52 +104,21 @@ chmod o+r file
 ![permission](./pic/permission.png)
 
 - See more file type in [01-basic-file-and-text-manipulation.md](01-Basic-file-and-text-manipulation.md)
-  
+
 - `chmod -R <mode> <dir>` apply to directory and all contents.
 - `chown` change file owner and/or group.
 - `chown -R` apply recursively.
 - Only root can change file owner.
-
-### Note
-
 - Without x on directory, you cannot cd into it.
-
-
-# Architecture
-
-# Core Building Blocks
-
-### User Management
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Group Management
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Modifying Users and Groups
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Permissions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### umask
 - **Why it exists** —
 - **What it is** —
-- **One-liner** —
 
 ### Special Permissions
 - **Why it exists** —
 - **What it is** —
-- **One-liner** —
 
 ### ACL (Access Control List)
 - **Why it exists** —
 - **What it is** —
-- **One-liner** —

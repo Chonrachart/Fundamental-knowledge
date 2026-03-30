@@ -1,27 +1,16 @@
 # Git Branch
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-<!-- Your original notes below — reorganize into subsections -->
-
-### What are Git branches
-
-- A movable pointer to a commit that represents an independent line of
-  development
-
-### Why to use branches
-
-- To **isolate** work without breaking the main project.
-- Allows experimentation that can be merged when stable or discard easily.
+- **Why it exists** — To **isolate** work without breaking the main project. Allows experimentation that can be merged when stable or discard easily.
+- **What it is** — A movable pointer to a commit that represents an independent line of development.
 
 ![Git-Branches](./pic/git-branches.png)
 
----
+# Architecture
 
-### Command
+# Core Building Blocks
+
+### Branch Management
 
 ```bash
 git branch
@@ -31,7 +20,9 @@ git branch
 - Use `git branch <name>` to Creates a new branch at the current commit.
 - Use `git branch -d <name>` safely removes merged branches. `-D` forces delete.
 - Use `git branch -vv` to show all branch and tracking branch.
-  
+
+### Switching Branches
+
 ```bash
 git switch <name>
 ```
@@ -39,27 +30,24 @@ git switch <name>
 - Switches to the specified branch and updates the working directory.
 - `git switch -c <new_name>` to create new branch and switch to it.
 
----
-
 ### Merge
 
 ```bash
 git merge <name>
 git merge --no-ff
 ```
-- `git merge --no-ff` this is save way to keep history as branch 
+- Combines another branch into the current one.
+- `git merge --no-ff` this is save way to keep history as branch
   - Always create merge commit
   - Unchange commit hashes (rebase change hash commit)
   - Safe for shared branch
-- Combines another branch into the current one.
 
-#### Merge Type
+### Merge Types
 
-- **Fast-forward merge** happen when the target branch has no new commits since 
-    the feature branch was created.
-
-    - This only moves the branch pointer to the latest commit of the merged branch.
-    - **No merge commit is created**.
+#### Fast-forward merge
+- happen when the target branch has no new commits since the feature branch was created.
+- This only moves the branch pointer to the latest commit of the merged branch.
+- **No merge commit is created**.
 
 Situation
 
@@ -69,14 +57,12 @@ Merge Result
 
 ![fast-forward-result](./pic/git-merge-ff.png)
 
-- **Three way merge** happens when both branches have new commits after diverging.
-    
-    - **Creates a new merge commit** with two parents in 
-      example from E and G
-    - Git compares three commits: the common ancestor, the HEAD of the 
-      target branch, and the HEAD of the merging branch.
-    - May result in a **merge conflict**.
-  
+#### Three way merge
+- happens when both branches have new commits after diverging.
+- **Creates a new merge commit** with two parents in example from E and G
+- Git compares three commits: the common ancestor, the HEAD of the target branch, and the HEAD of the merging branch.
+- May result in a **merge conflict**.
+
 Situation
 
 ![three-way-merge-situation](./pic/git-before-branch_three-way.png)
@@ -85,13 +71,10 @@ Merge Result
 
 ![three-way-merge_result](./pic/git-merge-three-way.png)
 
-### Merge conflict
+### Merge Conflicts
+- **What it is** — Happens when both branches edit the same part of a file and Git cannot automatically merge the changes. Must be resolved before the merge can be completed.
 
-- Happens when both branches edit the same part of a file and Git cannot
-  automatically merge the changes.
-- Must be resolved before the merge can be completed.
-
-#### Merge conflict rersolve
+#### Merge conflict resolve
 
 - Open the conflicting file(s).
 - Edit and keep the correct changes.
@@ -102,44 +85,11 @@ Merge Result
 git add <file>
 git commit
 ```
-  
-#### Cancle merge
+
+#### Cancel merge
 
 ```bash
 git merge --abort
 ```
 
-- Aborts the merge process and restores the repository to the state before the 
-  merge started.
-  
-  test
-
-
-# Architecture
-
-# Core Building Blocks
-
-### Branch Management
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Switching Branches
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Merge
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Merge Types
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Merge Conflicts
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
+- Aborts the merge process and restores the repository to the state before the merge started.

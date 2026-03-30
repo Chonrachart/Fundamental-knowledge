@@ -5,30 +5,39 @@
 - **What it is** —
 - **One-liner** —
 
-<!-- Your original notes below — reorganize into subsections -->
+# Architecture
+
+# Core Building Blocks
+
+### Navigating Files and Directories
+- **What it is** — The shell maintains a **current working directory** (CWD). `cd` change the CWD of the shell process and When you run `cd`, the shell calls a system call (`chdir()`).
 
 ```bash
 ls
+cd [path]
+pwd
 ```
 
 - Displays directory contents.
 - A directory in Linux is a special file containing filename → inode mappings.
 - `ls` reads directory entries from the filesystem.
-- `ls -l` shows metadata stored in the inode (permissions, owner, 
+- `ls -l` shows metadata stored in the inode (permissions, owner,
   size, timestamp).
 - `ls -a` show all hiddenfile (files starting with .).
 - `ls -la` combines -l and -a.
 - `ls -d` show directory it self(not content in it).
+- `ls -la *` show directory and it all child directory.
+- `pwd` prints the absolute path current working directory.
 
-### Important Detail
+#### Important Detail
 
 - First character in `ls -l`
-  - `-` regular file 
+  - `-` regular file
   - `d` directory
   - `l` symbolic link
   - `s` socket
   - `p` Pipe (Process pipe)
-  - `c` character device (tty, keybord)
+  - `c` character device (tty, keyboard)
   - `b` block device (disk, partition)
 - Color in `ls` ()
   - `blue`   Directory
@@ -36,18 +45,7 @@ ls
   - `Cyan`   symbolic link
   - `Red`   Archive/compressed
 
-# Change Directory 
-
-```bash
-cd [path]
-```
-
-- The shell maintains a **current working directory** (CWD).
-- `cd` change the CWD of the shell process and When you run `cd`, 
-  the shell calls a system call (`chdir()`). 
-- `pwd` prints the absolute path current working directory.
-  
-### Meaning of symbols
+#### Meaning of symbols
 
 - `/` root directory
 - `~` user home directory
@@ -55,59 +53,35 @@ cd [path]
 - `..` parent directory
 - Default is to home directory
 
-# Make Directory and file
+### Creating and Removing
+- **What it is** — `mkdir` creates a new inode and updates parent directory mapping. `touch` creates a new empty file if it does not exist.
 
 ```bash
 mkdir <directory_name>
 touch <file_name>
+rm <file>
 ```
 
 - `mkdir` creates a new directory entry.
 - `mkdir -p` creates parent directory if not have.
 - `touch` creates a new empty file if it does not exist.
-- `mkdir` creates a new inode and updates parent directory 
-  mapping.
+- `rm` remove file.
+- `rmdir <directory>` or `rm -r <dir>`  remove directory.
+- `rm -r` remove recursively
+- `rm -f` force the operation.
 
-# History
-
-```bash
-Ctrl + R
-```
-
-- `history` shows previously executed commands.
-- Shell history is stored in ~/.bash_history.
-- Press `Ctrl + R` repeatedly to cycle through older matches.
-
-# Copy 
+### Copying and Moving
+- **What it is** — `cp` duplicates file content. Creates a new inode for the destination file. `mv` renames or moves (may just update directory entry).
 
 ```bash
 cp <source> <dest>
-```
-
-- `cp` duplicates file content.
-- `cp * [dest]` copies all non-hidden files in the current directory.
-- `cp -r <dir> <dest>` copies a directory recursively.
-- Creates a new inode for the destination file.
-  
-# Move
-
-```bash
 mv <source> <dest>
 ```
 
-- `mv` renames or moves (may just update directory entry).
+- `cp * [dest]` copies all non-hidden files in the current directory.
+- `cp -r <dir> <dest>` copies a directory recursively.
 
-# Remove
-
-```bash
-rm <file>
-```
-
-- `rm` remove file.
-- `rmdir <directory>` or `rm -r <dir>`  remove directory.
-- `rm -f` force the operation.
-
-# Display  content
+### Viewing File Content
 
 ```bash
 cat
@@ -118,16 +92,16 @@ echo
 wc <file>
 ```
 
-- Reads file content and sends to standard output.
-  - `cat` view entire file 
-  - `less` view file page by page
-  - `head` view start file 10 lines by default
-  - `tail` view end of file 10 lines by default
-  - `tail -f` view real time.   
-  - `echo` display text or print text 
-  - `wc <file>` show line word character of file
+- `cat` view entire file
+- `less` view file page by page
+- `head` view start file 10 lines by default
+- `tail` view end of file 10 lines by default
+- `tail -f` view real time.
+- `echo` display text or print text
+- `wc <file>` show line word character of file
 
-# Find text and Redirect
+### grep and Redirection
+- **What it is** — Linux processes communicate via file descriptors: 0 → stdin, 1 → stdout, 2 → stderr.
 
 ```bash
 grep <pattern> <file>
@@ -145,7 +119,7 @@ cmd > /dev/null
   - `.` acts as wild card that matches any single character
   - `^` an anchor character that matches the beginning of line.
   - `$` an anchor that matches the end of a line.
-- `|` pipes output of one command to another(stdout of one process to 
+- `|` pipes output of one command to another(stdout of one process to
   stdin of another). <br> ex. `ls | grep .txt`
 - `>` redirects stdout, overwrites file.
 - `>>` redirects stdout, append file.
@@ -154,17 +128,11 @@ cmd > /dev/null
 - `2>` redirects stderr.
 - `/dev/null` is a special device that discards data.
 - `>/dev/null 2>&1` the &1 mean where first file goes.
-- Linux processes communicate via file descriptors:
-  - 0 → stdin
-  - 1 → stdout
-  - 2 → stderr
 
-# Other useful command
-
-### EOF
+#### EOF
 
 ```bash
-cat <path> << EOF 
+cat <path> << EOF
 line1
 line2
 EOF
@@ -172,29 +140,26 @@ EOF
 
 - `<< EOF` starts a here-document.
 - `EOF` is a delimiter (marker) that tells the shell where the input ends.
-- Everything between `<< EOF` and the ending `EOF` is sent to the command as 
+- Everything between `<< EOF` and the ending `EOF` is sent to the command as
   standard input.
 
----
+### Text Processing Utilities
 
-### Cut
+#### Cut
 
 ```bash
 cut [option] <file>
 cat file.txt | cut -d ',' -f2
 ```
 
-- Use to extract (cut out) specific parts of each line from a file or standrd
-  input.
+- Use to extract (cut out) specific parts of each line from a file or standard input.
 - `cut -d'[delimiter]' <file>` Specifies the delimiter (character separating fields).
   Default delimiter is TAB.
-- `cut -d'[delimeter]'-f<field_number> <file>` specify the delimiter and which 
+- `cut -d'[delimeter]'-f<field_number> <file>` specify the delimiter and which
   fields to extract.
-- `cut -c1-5 <file>` extarct specific character position.
+- `cut -c1-5 <file>` extract specific character position.
 
----
-
-### sort
+#### sort
 
 ```bash
 sort [option] <file>
@@ -212,9 +177,7 @@ Common Options
 - `-k<column_num>` specify which column to sort by.
 - `-t'[delimeter]` specify which field delimiter (when sorting by columns).
 
----
-
-### zcat
+#### zcat
 
 ```bash
 zcat syslog.gz
@@ -223,42 +186,13 @@ zcat access.log.gz | grep "ERROR"
 
 - Print the content of a compressed `.gz` file to stdout without extracting it.
 
-
-# Architecture
-
-# Core Building Blocks
-
-### Navigating Files and Directories
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Creating and Removing
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Copying and Moving
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Viewing File Content
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### grep and Redirection
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Text Processing Utilities
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
 ### Shell History
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
+
+```bash
+history
+Ctrl + R
+```
+
+- `history` shows previously executed commands.
+- Shell history is stored in ~/.bash_history.
+- Press `Ctrl + R` repeatedly to cycle through older matches.

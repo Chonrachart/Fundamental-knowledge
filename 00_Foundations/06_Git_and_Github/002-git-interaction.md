@@ -5,68 +5,56 @@
 - **What it is** —
 - **One-liner** —
 
-<!-- Your original notes below — reorganize into subsections -->
+# Architecture
 
-### Advance commit
+![Git Areas](./pic/Git-diagram.png)
+
+# Core Building Blocks
+
+### Advance Commit Options
 
 ```bash
 git commit -am "commit message"
 ```
 
-stages and commits all modified tracked files (does NOT include untracked files).
+- stages and commits all modified tracked files (does NOT include untracked files).
 - It won't worked for new file (untracked) must add them first.
 
 ```bash
 git commit --amend
 ```
 
-- rewrites the most recent commit (creates a new
-    commit with a new hash). Use when add missing file or update commit message
-    can use with `git add` first (only local!!).
-
----
+- rewrites the most recent commit (creates a new commit with a new hash). Use when add missing file or update commit message. can use with `git add` first (only local!!).
 
 ### Delete and Rename
 
 ```bash
 git rm <file>
-```
-
-- removes file from Working Directory and stages the deletion.
-  
-```bash
 git mv old new
 ```
 
--  renames or moves files within repo.
+- `git rm` removes file from Working Directory and stages the deletion.
+- `git mv` renames or moves files within repo.
 
----
-
-### DIFF
+### Diff
 
 ```bash
 git diff
-``` 
+```
 
 - show different working directory vs staging area "what changed but not staged".
-- Use `git diff --staged` show different staging area vs last commit "what to be 
-  commit".
+- Use `git diff --staged` show different staging area vs last commit "what to be commit".
 
----
-
-### Discard unstaged change
+### Discard Unstaged Changes (git restore)
 
 ```bash
 git restore <file>
 ```
 
 - restores file in Working Directory from Index.
-- Use `git restore --source=HEAD <file>` restores file in Working Directory from 
-  HEAD commit.
+- Use `git restore --source=HEAD <file>` restores file in Working Directory from HEAD commit.
 
----
-
-### Git reset
+### Git Reset
 
 ```bash
 git reset <file>
@@ -78,58 +66,14 @@ git reset <file>
 git reset <hash_commit>
 ```
 
--  moves current branch pointer to specified commit may affect Index and 
-    Working Directory depending on mode (use local only!!)
-     - --soft  (move branch only)
-     - --mixed (move branch + reset Index) [default]
-     - --hard  (move branch + reset Index + reset Working Directory)
+- **What it is** — moves current branch pointer to specified commit may affect Index and Working Directory depending on mode (use local only!!)
+  - --soft  (move branch only)
+  - --mixed (move branch + reset Index) [default]
+  - --hard  (move branch + reset Index + reset Working Directory)
 
----
-
-### Git revert
+### Git Revert
+- **What it is** — create a new commit that cancels the specified one. keeps consistent without deleting commits.
 
 ```bash
 git revert <hash_commit>
 ```
-
--  to create a new commit that cancels the specified one.
-- This can keep consistent without deleting commits.
-
-# Diagram
-
-![Git Areas](./pic/Git-diagram.png)
-
-
-# Architecture
-
-# Core Building Blocks
-
-### Advance Commit Options
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Delete and Rename
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Diff
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Discard Unstaged Changes (git restore)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Git Reset
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Git Revert
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

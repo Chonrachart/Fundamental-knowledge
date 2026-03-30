@@ -1,48 +1,65 @@
 # Filesystem and Mounting
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
+- **What it is** — File system is the method used by Linux to store and organize data on disk. Different file systems provide different features, performance, and reliability.
 
-<!-- Your original notes below — reorganize into subsections -->
+# Architecture
 
-- File system is the method used by Linux to store and organize data on disk.
-- Different file systems provide different features, performance, and reliability.
+```
+Boot step
+1️⃣ Power On
+2️⃣ BIOS / UEFI initializes hardware
+→ Initializes CPU, RAM, storage, selects boot device
+3️⃣ Bootloader loads (GRUB)
+→ Loads Linux kernel and passes boot parameters
+4️⃣ Kernel loads into memory
+→ Kernel initializes core system functions and drivers
+5️⃣ initramfs loads
+→ Temporary minimal filesystem prepares real root filesystem
+6️⃣ Root filesystem mounted as read-only (ro)
+→ Root mounted safely to prevent corruption before check
+7️⃣ fsck runs (based on fstab pass value)
+→ Check root filesystem integrity
+8️⃣ If root OK → remount root as read-write (rw)
+→ Switch root to writable mode after successful check
+9️⃣ Other filesystems (pass=2) checked
+→ Check other filesystems listed in fstab
+🔟 Other filesystems mounted
+→ Attach /home, /data, etc. to directory tree
+1️⃣1️⃣ Start init system (systemd)
+→ System manager takes control of startup process
+1️⃣2️⃣ systemd starts services
+→ Launch networking, SSH, logging, cron, etc.
+1️⃣3️⃣ Login prompt appears
+```
 
-### ext4 
+# Core Building Blocks
+
+### Filesystem Types
+
+#### ext4
 
 - Default file system for most Linux distributions.
 - Stable and widely supported.
-- Good general-purpose file system.
 - Good balance between performance and reliability.
-- Common usage
-  - Root (/) partition
-  - General Linux servers
+- Common usage: Root (/) partition, General Linux servers
 
-### XFS
+#### XFS
 
 - Designed for large files and high I/O workloads.
-- Good for large storage systems.
 - Online resizing (can grow while mounted).
-- Common usage:
-  - Database servers
+- Common usage: Database servers
 
-### ZFS
+#### ZFS
 
 - Combines file system + RAID management.
 - Focus on data integrity and reliability.
 - Snapshots and cloning.
 - Data integrity verification (checksums).
-- Common usage:
-  - Backup servers
-  - Storage servers
+- Common usage: Backup servers, Storage servers
 
-# Disk partition
-
-- Partition divides a physical disk into logical sections.
-- Each partition can contain its own file system.
-- Partitioning is required before formatting and mounting.
+### Disk Partitions
+- **What it is** — Partition divides a physical disk into logical sections. Each partition can contain its own file system. Partitioning is required before formatting and mounting.
 
 ```bash
 lsblk
@@ -55,8 +72,8 @@ parted /dev/sdX
 - `fdisk` Create or manage partitions (MBR).
 - `fdisk -l` list all disk and their partitions.
 - `parted` Advanced partition tool (supports GPT).
-  
-### Partition Table Types
+
+#### Partition Table Types
 
 - MBR (Master Boot Record)
   - Up to 4 primary partitions.
@@ -66,11 +83,10 @@ parted /dev/sdX
   - Supports disks larger than 2TB.
   - Modern standard.
 
-# Create file system format
+### Create Filesystem
 
 ```bash
 mkfs -t <type> <partition>
-or
 mkfs.ext4 <partition>
 mkfs.xfs <partition>
 ```
@@ -79,11 +95,9 @@ mkfs.xfs <partition>
 - `<type>` specify file system type (ext4, xfs, etc.).
 - `<partition>` example: `/dev/sdb1`
 
-# Mounting
-
-- Mount attaches a file system to a directory.
-- Without mounting, the partition cannot be accessed.
-- The directory used is called a mount point.
+### Mounting
+- **Why it exists** — Without mounting, the partition cannot be accessed.
+- **What it is** — Mount attaches a file system to a directory. The directory used is called a mount point.
 
 ```bash
 mount <partition> <mount_point>
@@ -98,11 +112,9 @@ mount /dev/sdb1 /mnt
 - `/dev/sdb1` → partition
 - `/mnt` → mount point or path that want to mount (must already exist)
 
-# Permanent Mounting
-
-- To mount **automatically after reboot**, configure /etc/fstab.
-- fstab = file system table.
-- System reads this file during boot.
+### Permanent Mounting (/etc/fstab)
+- **Why it exists** — To mount **automatically after reboot**.
+- **What it is** — fstab = file system table. System reads this file during boot.
 
 ```bash
 configure in /etc/fstab
@@ -132,72 +144,10 @@ UUID=abcd-1234   /data   ext4   defaults   0   2
   - rw → read-write
   - noexec → prevent execution
 
-### Test fstab (Important)
+#### Test fstab (Important)
 - After editing:
 ```bash
 mount -a
 ```
 - If no error → configuration is correct.
 - If error → fix before reboot.
-
-# NOTE
-
-- Boot step for more information
-
-```
-Boot step
-1️⃣ Power On
-2️⃣ BIOS / UEFI initializes hardware 
-→ Initializes CPU, RAM, storage, selects boot device
-3️⃣ Bootloader loads (GRUB) 
-→ Loads Linux kernel and passes boot parameters
-4️⃣ Kernel loads into memory
-→ Kernel initializes core system functions and drivers
-5️⃣ initramfs loads
-→ Temporary minimal filesystem prepares real root filesystem
-6️⃣ Root filesystem mounted as read-only (ro)
-→ Root mounted safely to prevent corruption before check
-7️⃣ fsck runs (based on fstab pass value)
-→ Check root filesystem integrity
-8️⃣ If root OK → remount root as read-write (rw)
-→ Switch root to writable mode after successful check
-9️⃣ Other filesystems (pass=2) checked
-→ Check other filesystems listed in fstab
-🔟 Other filesystems mounted
-→ Attach /home, /data, etc. to directory tree
-1️⃣1️⃣ Start init system (systemd)
-→ System manager takes control of startup process
-1️⃣2️⃣ systemd starts services
-→ Launch networking, SSH, logging, cron, etc.
-1️⃣3️⃣ Login prompt appears
-```
-
-
-# Architecture
-
-# Core Building Blocks
-
-### Filesystem Types
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Disk Partitions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Create Filesystem
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Mounting
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
-
-### Permanent Mounting (/etc/fstab)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
