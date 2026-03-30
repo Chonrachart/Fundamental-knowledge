@@ -143,19 +143,6 @@ Related notes:
 
 Related notes:
 - [08-log](./08-log.md)
-
----
-
-# Troubleshooting Guide
-
-### General diagnostic sequence
-
-1. Check service state: `systemctl status <service>`.
-2. Check logs: `journalctl -u <service> -n 100 --no-pager` or check `/var/log/`.
-3. Check process and resources: `ps aux`, `top`, `free -h`, `df -h`.
-4. Check network and listening ports: `ip a`, `ss -tulnp`, `ip r`, DNS resolution.
-5. Apply fix and verify.
-
 # Topic Map
 
 - [001-Basic-file-and-text-manipulation](./001-Basic-file-and-text-manipulation.md) -- ls, cp, mv, rm, cat, grep, find, file operations
@@ -171,4 +158,5 @@ Related notes:
 - [011-task-scheduling-cron](./011-task-scheduling-cron.md) -- cron, crontab, at, systemd timers, scheduled jobs
 - [012-network-storage](./012-network-storage.md) -- NFS, iSCSI, SMB/CIFS, SAN vs NAS, multipath, autofs
 - [013-snapshots](./013-snapshots.md) -- CoW, LVM, Btrfs, ZFS, VM, cloud EBS/RDS, Kubernetes CSI, database snapshots
+- [014-cgroups](./014-cgroups.md) -- Cgroups v1/v2, resource controllers (cpu, memory, io, pids), process isolation
 - [Networking/000-core](./Networking/000-core.md) -- Linux networking: interfaces, ip, routes, sockets, DNS, firewall, namespaces

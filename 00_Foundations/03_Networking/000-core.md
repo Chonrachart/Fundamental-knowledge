@@ -205,18 +205,13 @@ Related notes: [012-multicast-and-broadcast](./012-multicast-and-broadcast.md)
 
 Related notes: [013-dynamic-routing](./013-dynamic-routing.md)
 
----
+### Overlay Networks and VXLAN
 
-# Troubleshooting Guide
+- Overlay networks create virtual L2 segments over L3 routed infrastructure, solving the 4096 VLAN limit.
+- VXLAN uses UDP encapsulation (port 4789) with a 24-bit VNI supporting ~16 million isolated segments.
+- VTEPs perform encapsulation/decapsulation at the overlay-underlay boundary.
 
-### Cannot reach a service
-1. Check if interface is up: `ip link show`.
-2. Check if you have an IP: `ip addr show`.
-3. Check if there is a route to destination: `ip route show` / `traceroute <dest>`.
-4. Check if DNS resolves: `dig <domain>` / `nslookup <domain>`.
-5. Check if port is open: `ss -tulnp` / `nc -zv <host> <port>`.
-6. Check if service responds: `curl -v https://<host>`.
-
+Related notes: [014-overlay-network-vxlan](./014-overlay-network-vxlan.md)
 # Topic Map
 
 - [001-network-models](./001-network-models.md) — OSI, TCP/IP, encapsulation
@@ -232,3 +227,4 @@ Related notes: [013-dynamic-routing](./013-dynamic-routing.md)
 - [011-vpn-technologies](./011-vpn-technologies.md) — IPsec, WireGuard, VPN
 - [012-multicast-and-broadcast](./012-multicast-and-broadcast.md) — Broadcast, multicast, mDNS
 - [013-dynamic-routing](./013-dynamic-routing.md) — OSPF, BGP, dynamic routing
+- [014-overlay-network-vxlan](./014-overlay-network-vxlan.md) — VXLAN, VNI, VTEP, overlay vs underlay

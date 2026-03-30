@@ -59,6 +59,48 @@ df -h /data  →  verify new size
 
 # Core Building Blocks
 
+### Partitioning
+
+- A partition is a logical division of a physical disk — each partition acts as an independent block device.
+- The partition table format determines limits: MBR (legacy) or GPT (modern).
+- You must partition a disk before creating a filesystem on it.
+
+| | MBR | GPT |
+|---|---|---|
+| Max disk size | 2 TB | 9.4 ZB (effectively unlimited) |
+| Max partitions | 4 primary (or 3 primary + 1 extended with logical) | 128 (all primary) |
+| Boot method | BIOS | UEFI (also supports BIOS via protective MBR) |
+| Partition table location | First sector only | Start and end of disk (redundant copy) |
+| Partition types | Primary, Extended, Logical | All primary |
+
+- MBR uses 32-bit LBA addressing — the 2 TB limit comes from `2^32 × 512 bytes`.
+- GPT stores a backup partition table at the end of the disk — more resilient to corruption.
+
+```bash
+# identify disks and partitions
+lsblk                          # tree view of block devices
+fdisk -l /dev/sda              # list partition table (MBR or GPT)
+blkid                          # show UUID and filesystem type
+
+# partition with fdisk (MBR)
+fdisk /dev/sdb                 # interactive: n=new, d=delete, w=write, p=print
+
+# partition with gdisk (GPT)
+gdisk /dev/sdb                 # interactive: n=new, d=delete, w=write, p=print
+
+# partition with parted (MBR or GPT, scriptable)
+parted /dev/sdb mklabel gpt                         # create GPT table
+parted /dev/sdb mkpart primary ext4 0% 100%          # single partition using full disk
+```
+
+Typical workflow: `lsblk` (identify disk) → `fdisk`/`gdisk`/`parted` (create partitions) → `mkfs.ext4 /dev/sdb1` (create filesystem) → `mount` (use it).
+
+- After partitioning, inform the kernel of changes: `partprobe /dev/sdb` (or reboot).
+- Always double-check the target disk with `lsblk` before writing — wrong disk = data loss.
+
+Related notes:
+- [005-file-system-mount](./005-file-system-mount.md) — mkfs and mounting after partitioning
+
 ### Swap
 
 ```bash
@@ -159,25 +201,3 @@ mdadm --detail /dev/md0      # detailed array info
 - Software-defined storage platform: block + object + file storage from a cluster of servers.
 - Core properties: data distributed across nodes, replicated, no single point of failure, scales horizontally.
 - Used in cloud environments (OpenStack, Kubernetes persistent volumes).
-
-
----
-
-# Troubleshooting Guide
-
-### Disk full — "No space left on device"
-
-1. Which filesystem is full? `df -h`.
-2. Find largest directories: `du -sh * | sort -rh | head`.
-3. Check inode exhaustion (separate from space): `df -i`.
-
-### LV resize needed
-
-1. Check free space in VG: `vgs`. Yes: `lvextend` directly. No: `pvcreate` + `vgextend` new disk first.
-2. After lvextend: `resize2fs` (ext4) or `xfs_growfs` (xfs).
-
-### RAID degraded
-
-1. Identify failed disk: `cat /proc/mdstat`.
-2. Replace and rebuild: `mdadm --manage /dev/md0 --add /dev/sdd1`.
-
