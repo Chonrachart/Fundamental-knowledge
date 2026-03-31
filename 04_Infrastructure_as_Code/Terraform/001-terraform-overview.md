@@ -9,8 +9,6 @@
 
 # Core Building Blocks
 
-### Terraform vs Other IaC Tools
-
 ### Provider
 
 ### Resource

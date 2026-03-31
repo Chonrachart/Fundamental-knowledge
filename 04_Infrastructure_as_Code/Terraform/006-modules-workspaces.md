@@ -17,8 +17,4 @@
 
 ### Workspaces
 
-### Workspaces vs Directory Per Environment
-
 ### Import and Moved Blocks
-
-### Dependency Management

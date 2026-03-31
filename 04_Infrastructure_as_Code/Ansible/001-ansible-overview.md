@@ -15,6 +15,4 @@
 
 ### Module
 
-### Idempotent
-
 ### First Playbook

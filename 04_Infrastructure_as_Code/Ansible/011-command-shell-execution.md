@@ -17,8 +17,6 @@
 
 ### ansible.builtin.script
 
-### args Form vs. Inline Form
-
 ### Idempotency Guards
 
 ### Return Values

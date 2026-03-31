@@ -15,8 +15,6 @@
 
 ### for Expressions
 
-### Splat Expression
-
 ### Dynamic Blocks
 
 ### Common Functions — String
@@ -24,5 +22,3 @@
 ### Common Functions — Collection
 
 ### Common Functions — Networking and Encoding
-
-### cidrsubnet Example

@@ -11,6 +11,4 @@
 
 ### Using Roles in a Playbook
 
-### include_role vs import_role
-
 ### Collections

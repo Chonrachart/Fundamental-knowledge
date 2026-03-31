@@ -18,5 +18,3 @@
 ### Common Data Sources
 
 ### Data Source vs Resource
-
-### Provider Documentation
