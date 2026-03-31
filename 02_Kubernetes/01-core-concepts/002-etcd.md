@@ -1,9 +1,10 @@
 # etcd
 
 # Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
+- **Why it exists** — Cluster state (every object, every config) must be stored durably and consistently across control plane replicas.
+- **What it is** — A distributed key-value store that holds all Kubernetes objects. Only the API server communicates with etcd directly. Losing etcd without a backup means losing the entire cluster state.
+- **One-liner** — etcd is the brain of the cluster; everything Kubernetes knows lives here.
+
 
 # Architecture
 
