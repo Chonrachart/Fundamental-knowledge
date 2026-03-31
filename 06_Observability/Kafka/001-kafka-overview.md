@@ -17,6 +17,4 @@
 
 ### When You Need Kafka
 
-### When You Do NOT Need Kafka
-
 ### Deployment on Kubernetes

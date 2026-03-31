@@ -15,15 +15,11 @@
 
 ### Metric Types Exposed by Prometheus
 
-### TSDB Storage and Compaction
-
 ### Remote Write and Read
 
 ### Federation
 
 ### Alerting Rules
-
-### PromQL Basics
 
 ### Relabeling and Label Manipulation
 

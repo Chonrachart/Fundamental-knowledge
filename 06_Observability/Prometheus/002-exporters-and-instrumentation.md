@@ -15,12 +15,8 @@
 
 ### Common Exporters (Pre-built)
 
-### Metric Types Exposed by Exporters
-
 ### Custom Exporters and Collectors
 
 ### Pushgateway
 
-### Exporter Best Practices
 
-### Instrumentation Guidelines

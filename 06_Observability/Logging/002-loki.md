@@ -17,8 +17,6 @@
 
 ### LogQL Query Language
 
-### Label Best Practices (Low Cardinality)
-
 ### Retention and Storage
 
 ### Loki vs ELK Comparison

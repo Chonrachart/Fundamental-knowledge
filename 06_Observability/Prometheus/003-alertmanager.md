@@ -19,8 +19,6 @@
 
 ### Notification Integrations
 
-### Alertmanager High Availability
-
 ### Alert States and Lifecycle
 
 ### Alert Annotations and Labels

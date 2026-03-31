@@ -17,6 +17,4 @@
 
 ### Template
 
-### Macro
 
-### Low-Level Discovery (LLD)

@@ -17,9 +17,6 @@
 
 ### Correlation: The Real Power
 
-### Suggested Learning and Deployment Order
-
-### Three Pillars (Metrics, Logs, Traces)
 
 ### Metrics
 

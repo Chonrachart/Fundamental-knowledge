@@ -13,8 +13,4 @@
 
 ### Component Model
 
-### Web UI
-
 ### Kubernetes Deployment
-
-### Alloy vs OTel Collector
