@@ -11,9 +11,6 @@
 ### Reading and Writing
 
 ### Context Managers
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### pathlib
 

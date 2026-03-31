@@ -10,14 +10,8 @@
 # Core Building Blocks
 
 ### Interpreter and Execution
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Virtual Environments
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### REPL
 
@@ -34,24 +28,12 @@
 ### I/O and Files
 
 ### Errors and Exceptions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Modules and Imports
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Classes and OOP
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Decorators and Generators
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
 

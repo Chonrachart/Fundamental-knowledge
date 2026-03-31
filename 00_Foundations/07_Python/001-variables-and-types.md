@@ -15,13 +15,7 @@
 ### Collections Overview (list, dict, tuple, set, bytes)
 
 ### Dynamic Typing
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### None
 
 ### Type Hints
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

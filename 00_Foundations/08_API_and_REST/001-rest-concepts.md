@@ -10,9 +10,6 @@
 # Core Building Blocks
 
 ### HTTP Methods
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Status Codes
 
@@ -21,11 +18,5 @@
 ### URL Structure
 
 ### Idempotency
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Content Negotiation
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

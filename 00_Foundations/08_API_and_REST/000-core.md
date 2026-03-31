@@ -10,14 +10,8 @@
 # Core Building Blocks
 
 ### REST Concepts
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### API Authentication
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### curl and Practical API Usage
 

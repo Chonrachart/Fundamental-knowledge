@@ -17,8 +17,5 @@
 ### Filtering -- WHERE Clauses
 
 ### JOINs -- Combining Tables
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Useful DevOps Queries

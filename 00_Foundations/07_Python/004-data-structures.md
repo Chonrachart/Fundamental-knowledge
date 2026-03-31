@@ -17,6 +17,3 @@
 ### Slicing
 
 ### Comprehensions
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

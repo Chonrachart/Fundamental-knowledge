@@ -13,11 +13,5 @@
 ### *args and **kwargs
 
 ### Lambda
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Scope (LEGB Rule)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

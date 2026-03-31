@@ -10,29 +10,14 @@
 # Core Building Blocks
 
 ### Workflow, Jobs, Steps, and Triggers
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Secrets and Security
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Cache and Artifacts
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Expressions and Contexts
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Reuse Patterns
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
 

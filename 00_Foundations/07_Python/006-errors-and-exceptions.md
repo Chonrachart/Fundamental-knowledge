@@ -18,8 +18,5 @@
 ### else and finally
 
 ### Exception Hierarchy
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Traceback

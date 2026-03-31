@@ -38,16 +38,7 @@ kubectl api-versions                                # List API versions
 
 
 ### kubelet
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### kube-proxy
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Container Runtime
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

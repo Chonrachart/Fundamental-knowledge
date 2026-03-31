@@ -10,36 +10,18 @@
 # Core Building Blocks
 
 ### Database Concepts
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### SQL Essentials
 
 ### User and Access Management
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Backup and Restore
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Replication and High Availability
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Monitoring and Troubleshooting
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Database in Containers
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
 

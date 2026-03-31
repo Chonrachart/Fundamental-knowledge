@@ -10,69 +10,30 @@
 # Core Building Blocks
 
 ### Stack Overview
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### How the Stack Connects
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Data Types and Query Languages
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Correlation: The Real Power
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Suggested Learning and Deployment Order
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Three Pillars (Metrics, Logs, Traces)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Metrics
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Logs
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Traces
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### SLI / SLO / SLA
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Monitoring and Alerting
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Grafana
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Zabbix
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
 

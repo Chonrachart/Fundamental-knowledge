@@ -10,11 +10,5 @@
 # Core Building Blocks
 
 ### Ansible
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Terraform
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

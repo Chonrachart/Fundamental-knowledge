@@ -10,34 +10,16 @@
 # Core Building Blocks
 
 ### Inventory (Who)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Playbooks and Tasks (What)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Modules (How)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Variables and Templates (Values)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Roles and Collections (Reuse)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### Control Flow (Logic)
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 # Topic Map
 

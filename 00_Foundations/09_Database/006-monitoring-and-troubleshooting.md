@@ -10,9 +10,6 @@
 # Core Building Blocks
 
 ### Key Metrics to Monitor
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
 
 ### MySQL Monitoring
 
@@ -23,6 +20,3 @@
 ### Common Issues and Fixes
 
 ### EXPLAIN Output Reading
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —

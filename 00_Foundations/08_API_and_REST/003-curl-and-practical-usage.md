@@ -17,6 +17,3 @@
 ### Testing APIs in CI/CD
 
 ### Webhooks
-- **Why it exists** —
-- **What it is** —
-- **One-liner** —
