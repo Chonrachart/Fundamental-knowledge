@@ -17,8 +17,6 @@
 
 ### Upgrade Strategy
 
-### Performance Tuning
-
 ### Monitoring ArgoCD
 
 ### Security Hardening

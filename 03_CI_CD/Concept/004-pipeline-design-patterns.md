@@ -9,8 +9,6 @@
 
 # Core Building Blocks
 
-### Sequential Pattern
-
 ### Parallel Pattern
 
 ### Fan-Out / Fan-In

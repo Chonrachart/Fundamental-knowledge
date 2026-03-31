@@ -22,5 +22,3 @@
 ### matrix Context
 
 ### hashFiles
-
-### format() and fromJSON

@@ -22,5 +22,3 @@
 ### Environment Protection Rules
 
 ### Database Migrations Across Environments
-
-### Multi-Tenancy and Isolation

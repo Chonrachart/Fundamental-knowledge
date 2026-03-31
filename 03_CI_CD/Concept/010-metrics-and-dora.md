@@ -19,10 +19,6 @@
 
 ### Pipeline Metrics
 
-### Developer Experience Metrics
-
 ### Measuring Pipeline Health
-
-### Continuous Improvement
 
 ### DORA Performance Levels

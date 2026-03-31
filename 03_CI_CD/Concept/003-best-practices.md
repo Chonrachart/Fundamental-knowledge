@@ -13,8 +13,6 @@
 
 ### Security in Pipelines
 
-### Maintainability
-
 ### Caching Strategy
 
 ### Secrets Management
@@ -22,5 +20,3 @@
 ### Pipeline as Code
 
 ### Idempotent Deployments
-
-### Flaky Test Management

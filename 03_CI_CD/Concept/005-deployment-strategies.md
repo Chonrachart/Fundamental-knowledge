@@ -19,6 +19,4 @@
 
 ### Feature Flags
 
-### A/B Testing
-
 ### Rollback Strategies

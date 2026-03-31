@@ -22,5 +22,3 @@
 ### Artifact Signing and Verification
 
 ### Retention and Cleanup
-
-### Build Reproducibility

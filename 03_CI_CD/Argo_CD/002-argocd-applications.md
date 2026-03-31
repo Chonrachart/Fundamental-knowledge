@@ -22,7 +22,3 @@
 ### App-of-Apps Pattern
 
 ### ApplicationSet
-
-### ApplicationSet not generating expected Applications
-
-### App-of-apps cascade delete
