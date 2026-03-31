@@ -9,10 +9,6 @@
 
 # Core Building Blocks
 
-### Filter Plugins (Predicates)
-
-### Score Plugins (Priorities)
-
 ### Node Affinity and NodeSelector
 
 ### Taints and Tolerations (Scheduling Impact)

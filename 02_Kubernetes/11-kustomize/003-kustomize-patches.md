@@ -17,8 +17,3 @@
 
 ### patchesStrategicMerge vs patches
 
-### JSON 6902 patch returns "doc is missing path"
-
-### Multiple patches conflicting on the same field
-
-### Image override not changing the image

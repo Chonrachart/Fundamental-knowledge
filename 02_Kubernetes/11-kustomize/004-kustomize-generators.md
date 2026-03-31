@@ -19,8 +19,3 @@
 
 ### Environment-Specific Config with Generators
 
-### Pod not picking up config changes after re-apply
-
-### "ConfigMap already exists" error on apply
-
-### Secret values not updating in running pods

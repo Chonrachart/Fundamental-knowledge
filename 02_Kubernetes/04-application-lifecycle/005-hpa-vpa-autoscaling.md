@@ -17,8 +17,4 @@
 
 ### CPU / Memory / Custom Metrics
 
-### VPA Overview
-
-### HPA vs VPA Comparison
-
 ### metrics-server Requirement

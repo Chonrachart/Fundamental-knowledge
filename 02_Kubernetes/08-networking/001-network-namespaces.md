@@ -11,8 +11,4 @@
 
 ### Network Namespace
 
-### veth Pair
-
 ### Bridge (cni0 / cbr0)
-
-### Pause Container

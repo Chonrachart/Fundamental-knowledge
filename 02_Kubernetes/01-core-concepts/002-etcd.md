@@ -9,10 +9,6 @@
 
 # Core Building Blocks
 
-### Raft Consensus
-
-### Leader Election
-
 ### Cluster Sizing
 
 ### What Lives in etcd

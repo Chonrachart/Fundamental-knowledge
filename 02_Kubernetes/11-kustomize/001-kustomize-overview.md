@@ -15,6 +15,3 @@
 
 ### namePrefix / nameSuffix / commonLabels Transformers
 
-### "Kustomization cannot reference itself"
-
-### namePrefix applied but pods still collide across environments
