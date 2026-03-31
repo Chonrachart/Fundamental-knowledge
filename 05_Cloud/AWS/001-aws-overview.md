@@ -11,4 +11,3 @@
 
 ### AWS CLI and Access
 
-### Pricing Models

@@ -19,4 +19,3 @@
 
 ### Aurora
 
-### DynamoDB (Overview)
