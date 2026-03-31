@@ -11,14 +11,8 @@
 
 ### Function Decorators
 
-### Parameterized Decorators
-
 ### Common Built-in Decorators
 
 ### Generator Functions
-
-### Iterator Protocol
-
-### itertools
 
 ### Context Managers

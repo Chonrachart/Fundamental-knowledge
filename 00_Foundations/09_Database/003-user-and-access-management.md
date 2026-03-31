@@ -17,4 +17,3 @@
 
 ### Connection Security -- SSL/TLS
 
-### Best Practices

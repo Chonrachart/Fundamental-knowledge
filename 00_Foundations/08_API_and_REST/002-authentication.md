@@ -19,4 +19,3 @@
 
 ### Cloud Provider Auth
 
-### Best Practices

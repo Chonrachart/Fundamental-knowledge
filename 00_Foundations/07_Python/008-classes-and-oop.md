@@ -15,10 +15,3 @@
 
 ### Methods -- Instance, Class, Static
 
-### Inheritance and MRO
-
-### Dunder / Magic Methods
-
-### Properties -- `@property`, Getter/Setter
-
-### Dataclasses (Python 3.7+)

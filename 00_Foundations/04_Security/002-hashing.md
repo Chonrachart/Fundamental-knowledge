@@ -8,14 +8,8 @@
 
 ### Hash Properties
 
-### Collision
-
 ### Salt
 
 ### SHA-256
-
-### bcrypt
-
-### Argon2
 
 ### When to Use Which

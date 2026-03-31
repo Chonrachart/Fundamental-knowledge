@@ -16,8 +16,3 @@
 
 ### Sockets
 
-### TCP 3-Way Handshake
-
-### TCP 4-Way Teardown
-
-### Common TCP Flags
