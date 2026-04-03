@@ -95,12 +95,15 @@ zcat <file>.gz      # view gzip-compressed file without extracting
 ### grep and Redirection
 
 ```bash
-grep <pattern> <file>    # search lines matching pattern
-grep -i <pattern> <file> # case-insensitive
-grep -w <pattern> <file> # whole-word match only
-grep -v <pattern> <file> # invert: lines NOT matching
-grep -r <pattern> <dir>  # recursive search in directory
-grep -c <pattern> <file> # count matching lines
+grep <pattern> <file>     # search lines matching pattern
+grep -i <pattern> <file>  # case-insensitive
+grep -w <pattern> <file>  # whole-word match only
+grep -v <pattern> <file>  # invert: lines NOT matching
+grep -r <pattern> <dir>   # recursive search in directory
+grep -c <pattern> <file>  # count matching lines
+grep -A3 <pattern> <file> # context after match 3 line
+grep -B3 <pattern> <file> # context before match 3 line
+grep -C3 <pattern> <file> # context around match 3 line
 ```
 
 Regex anchors: `.` any char · `^` start of line · `$` end of line
