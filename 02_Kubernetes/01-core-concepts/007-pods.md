@@ -1,9 +1,9 @@
 # Pods
 
 # Overview
-- **Why it exists** —
+- **Why it exists** — 
 - **What it is** —
-- **One-liner** —
+- **One-liner** — Smallest thing that can create in kubernetes can contain many container
 
 # Architecture
 
