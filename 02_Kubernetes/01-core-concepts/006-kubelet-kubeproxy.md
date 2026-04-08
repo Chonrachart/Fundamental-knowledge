@@ -26,7 +26,7 @@
 4. kubelet continue monitor status of pod and container and report to apiserver
 
 ### kube-proxy
-![kube-proxy](../pic/01-kubeproxy-cni.png)
+![kube-proxy](../pic/01/01-kubeproxy-cni.png)
 
 - service it self can't get an real network interface it only have clusterIP because as it a virtual component that only lives in iptables/ipvs rules(virtual)
 - but service should be accessible across the cluster from any nodes

@@ -7,7 +7,7 @@
 
 # Architecture
 
-![kubernetes-Architecture](../pic/01-kubernetes-architecture.png)
-![Control-pane-Architecture](../pic/01-control-pane.png)
-![worker-node-Architecture](../pic/01-worker-node.png)
+![kubernetes-Architecture](../pic/01/01-kubernetes-architecture.png)
+![Control-pane-Architecture](../pic/01/01-control-pane.png)
+![worker-node-Architecture](../pic/01/01-worker-node.png)
 
