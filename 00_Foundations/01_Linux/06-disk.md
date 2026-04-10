@@ -191,3 +191,11 @@ xfs_growfs /mountpoint              # xfs (mounted)
   - Data is replicated
   - No single point of failure
   - Scales horizontally (just add more nodes)
+- OSD (Object storage deamon)
+  - when ceph take control of a physic drive, it assigas one OSD to it.
+  - it have two thing bundele together 
+    - 1. Physical drive (locate in bay connected via SAS) 1 disk standard
+    - 2. Software Deamon (background process) that manages reads/writes to that drive 
+  - So in Ceph, you don't talk about "drives" — you talk about OSDs. More OSDs = more storage capacity = more parallelism.
+- Scrubbing
+  - OSD checks its own data with checksum
