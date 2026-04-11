@@ -21,19 +21,13 @@
 
   3. Process states — what a process can be doing
 
-  ┌───────┬──────────────────────────────────────────────────┬────────────────────────────────────────────────────┐
-  │ State │                     Meaning                      │                      Example                       │
-  ├───────┼──────────────────────────────────────────────────┼────────────────────────────────────────────────────┤
-  │ R     │ Running or ready to run                          │ nginx handling a request                           │
-  ├───────┼──────────────────────────────────────────────────┼────────────────────────────────────────────────────┤
-  │ S     │ Sleeping, waiting for something                  │ waiting for network data                           │
-  ├───────┼──────────────────────────────────────────────────┼────────────────────────────────────────────────────┤
-  │ D     │ Disk wait — cannot be interrupted                │ waiting for disk I/O to finish, can't even kill -9 │
-  ├───────┼──────────────────────────────────────────────────┼────────────────────────────────────────────────────┤
-  │ Z     │ Zombie — finished but parent hasn't acknowledged │ process exited, parent didn't call wait()          │
-  ├───────┼──────────────────────────────────────────────────┼────────────────────────────────────────────────────┤
-  │ T     │ Stopped — paused by signal                       │ you pressed Ctrl+Z                                 │
-  └───────┴──────────────────────────────────────────────────┴────────────────────────────────────────────────────┘
+  | State | Meaning                                          | Example                                            |
+  | ----- | ------------------------------------------------ | -------------------------------------------------- |
+  | R     | Running or ready to run                          | nginx handling a request                           |
+  | S     | Sleeping, waiting for something                  | waiting for network data                           |
+  | D     | Disk wait — cannot be interrupted                | waiting for disk I/O to finish, can't even kill -9 |
+  | Z     | Zombie — finished but parent hasn't acknowledged | process exited, parent didn't call wait()          |
+  | T     | Stopped — paused by signal                       | you pressed Ctrl+Z                                 |
 
   You can see these in ps aux under the STAT column.
 
