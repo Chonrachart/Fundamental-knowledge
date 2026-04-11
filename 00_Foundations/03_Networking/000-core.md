@@ -2,38 +2,6 @@
 
 # Overview
 
-# Architecture
-
-# Core Building Blocks
-
-### Layered Models
-
-### Link Layer and Ethernet
-
-### Addressing and Routing
-
-### DHCP
-
-### Transport Protocols
-
-### DNS
-
-### Firewalls
-
-### HTTP and HTTPS
-
-### TLS and Certificates
-
-### Proxy and Load Balancing
-
-### VPN Technologies
-
-### Multicast and Broadcast
-
-### Dynamic Routing
-
-### Overlay Networks and VXLAN
-
 # Topic Map
 
 - [001-network-models](./001-network-models.md) — OSI, TCP/IP, encapsulation
