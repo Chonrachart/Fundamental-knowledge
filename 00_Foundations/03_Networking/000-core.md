@@ -2,6 +2,11 @@
 
 # Overview
 
+- **Why it exists** — it faster than send data via physical way
+- **What it is** — Networking it is separate data into packets and send it over cable or wireless.
+- **One-liner** — A way that machine use to communicate via bit
+- - IP addresses identify hosts, ports identify services, and protocols define the rules for data exchange.
+
 # Topic Map
 
 - [001-network-models](./001-network-models.md) — OSI, TCP/IP, encapsulation
