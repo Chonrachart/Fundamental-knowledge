@@ -37,4 +37,6 @@
     ![Hub-collisions](pic/03-datalink-layer/Hub-collisions.png)
 
 - Switch is layer 2 device that have software of layer 2 running inside it so that understand layer 2 
+  - can do Unicast communicatoins that is 1:1 communications
+  - can do broadcast communications that is 1:all communications
    ![alt text](pic/03-datalink-layer/switch.png)
