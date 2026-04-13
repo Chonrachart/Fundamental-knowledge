@@ -19,3 +19,7 @@
 
 ![HUB](pic/02-physical-layer/HUB.png)
 
+### Collisoin Domain
+
+![collision](pic/02-physical-layer/collision.png)
+
