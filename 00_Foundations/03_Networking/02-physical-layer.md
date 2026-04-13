@@ -1,12 +1,12 @@
 ### Physical layer
 
-- Specifications define the transmissino and reception of `**RAW BIT STREAM**` between a device and a **SHARED physical medium**
+- Specifications define the transmissino and reception of **`RAW BIT STREAM`** between a device and a **SHARED physical medium**
 - It defines things like voltage levels, timing, rates, distance, modulation and connectors
-- its function is transmitting signals need to use the `**same standards for transmitting and receiving receiving in the same medium**`
+- its function is transmitting signals need to use the **`same standards for transmitting and receiving receiving in the same medium`**
 - Coper(electric), Fibre(light), WIFI (RF)
-- `**No access control**`
-- `**No uniquely identified devices**`
-- `**No device to device communications**`
+- **`No access control`**
+- **`No uniquely identified devices`**
+- **`No device to device communications`**
 
 ### Device Connect Directly via Coper
 
