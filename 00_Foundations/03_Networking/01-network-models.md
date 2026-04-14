@@ -38,7 +38,7 @@
 
 ### Physical layer
 
-- Specifications define the transmissino and reception of **RAW BIT STREAM** between a device and a **SHARED physical medium**
+- Specifications define the transmission and reception of **RAW BIT STREAM** between a device and a **SHARED physical medium**
 - It defines things like voltage levels, timing, rates, distance, modulation and connectors
 - its function is transmitting signals
 - Coper(electric), Fibre(light), WIFI (RF)

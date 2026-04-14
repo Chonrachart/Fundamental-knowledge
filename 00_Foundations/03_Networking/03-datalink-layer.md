@@ -19,10 +19,10 @@
 
 - Preamble allow the device to know that it's the start of the frame and sync clocks
 - SFD (start frame delimeter) Last sync byte + "frame starts now"
-- FCS frame check sequence alllows destination to check simple CRC check
+- FCS frame check sequence allows destination to check simple CRC check
 ### MAC HEADER
 
-- Destination MAC can use `All F's to boardcast`
+- Destination MAC can use `All F's to broadcast`
 - Source MAC that sending this frame.
 - Ether Type(ET) use to specify which layer 3 protocol is putting its data inside a frame ex IP.
 
@@ -33,10 +33,10 @@
 
 ### Switch
 
-- Hub are layer 1 devices and don't understand framds
+- Hub are layer 1 devices and don't understand frames
     ![Hub-collisions](pic/03-datalink-layer/Hub-collisions.png)
 
 - Switch is layer 2 device that have software of layer 2 running inside it so that understand layer 2 
-  - can do Unicast communicatoins that is 1:1 communications
+  - can do Unicast communications that is 1:1 communications
   - can do broadcast communications that is 1:all communications
    ![alt text](pic/03-datalink-layer/switch.png)

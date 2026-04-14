@@ -2,10 +2,10 @@
 
 # Overview
 
-- **Why it exists** — it faster than send data via physical way
-- **What it is** — Networking it is separate data into packets and send it over cable or wireless.
-- **One-liner** — A way that machine use to communicate via bit
-- - IP addresses identify hosts, ports identify services, and protocols define the rules for data exchange.
+- **Why it exists** — it is faster than sending data via physical way
+- **What it is** — Networking separates data into packets and sends it over cable or wireless.
+- **One-liner** — A way that machines use to communicate via bits
+- IP addresses identify hosts, ports identify services, and protocols define the rules for data exchange.
 
 # Topic Map
 
