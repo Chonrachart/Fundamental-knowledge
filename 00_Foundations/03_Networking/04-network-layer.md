@@ -36,12 +36,29 @@
 
 # Router
 
-- Layer 3 device that remove frame encapsulation and add new frame encapsulation at every hop
+- Layer 3 device that understand layer 1,2 and 3 network
+- remove frame encapsulation and reviewing packets by checking toute tables for next hop or target address add new frame encapsulation to pass through layer 2 network
 - In normal home is a default gateway when need to communicate with remote network
 
 # Route table
 
 - collection of routes 
 - can be statically populated or there are protocols such as BGP or the border gateway protocol which allow routers to communicate to exchange which networks they know about
+
   ![route-table](pic/04-network-layer/route-table.png)
+
 - This assume router on each node is .1
+
+# Address Resolution Protocol (ARP)
+
+- ARP will give you the MAC address for a given IP address
+- It a process that run between layer 3 and layer 2
+- It broadcast on layer 2 that send broadcast All F as a MAC address who has this ip address
+
+### example of local arp 
+
+![local-arp](pic/04-network-layer/local-arp.png)
+
+# IP routing example
+
+![IP-Routing](pic/04-network-layer/IP-routing.png)
