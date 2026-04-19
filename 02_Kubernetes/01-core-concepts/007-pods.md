@@ -3,7 +3,7 @@
 # Overview
 - **Why it exists** — 
 - **What it is** —
-- **One-liner** — Smallest thing that can create in kubernetes can contain many container
+- **One-liner** — 
 
 # Architecture
 
