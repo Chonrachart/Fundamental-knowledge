@@ -30,15 +30,16 @@
   other components.
   - Handles SSO / RBAC authentication
   - **Key point**: If argocd-server is down → you can't use the UI or CLI. But your apps keep running and syncing because the App Controller is a separate pod.
+
 ## 2.Repo Server — argocd-repo-server
   - Rendering manifests from git is expensive (clone repo, run helm template, run 
   kustomize build)
-  - Caches the result in Redis so it doesn't re-clone on every loop
+  - clones and caches Git repositories locally, and may use Redis for additional cached metadata/results.
   - **Key point**: Repo Server is stateless itself — all state lives in Redis or git. It can be restarted safely.
 
 ## 3.Redis — argocd-redis
 
-  - Rendered manifest cache (Repo Server output)
+  - Rendered manifest cache (Repo Server output, not repo it self)
   - Live cluster state cache
   - **Key point**: Redis is not persistent in default ArgoCD setup. If Redis restarts → cache is cold → first reconcile loop will be 
   slower, but nothing breaks.
