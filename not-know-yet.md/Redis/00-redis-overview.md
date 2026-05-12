@@ -87,3 +87,13 @@ This is why you cannot use a Deployment for Redis in production. You need Statef
 - Each pod has its own PersistentVolumeClaim — survives pod restarts
 - Stores Redis's persistence files (RDB snapshot or AOF log)
 - On EKS this maps to an EBS volume per pod, in the same AZ
+
+# Sentinel
+
+### Quorum
+
+![quorum](pic/00/quorum.png)
+
+### fail-over-step
+
+![fail-over-step](pic/00/fail-over-step.png)
