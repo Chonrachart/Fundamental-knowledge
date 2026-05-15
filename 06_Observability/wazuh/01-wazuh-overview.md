@@ -26,6 +26,8 @@
 
 - Store all events long-term, makes them searchable.
 - store for historical data for auditing and compliance.
+- stored data split into pieces called shards Splitting lets large indices be parallelized across
+  multiple machines(if cluster)
 
 ### Wazuh Dashboard
 
